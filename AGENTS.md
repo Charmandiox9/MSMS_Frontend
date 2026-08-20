@@ -44,3 +44,7 @@ La aplicación debe transmitir un aire académico, marítimo y profesional.
 - **Tests Unitarios Obligatorios:** Antes de finalizar cualquier nueva funcionalidad o componente, DEBES crear sus respectivos tests unitarios.
 - **Verificación de Build:** Antes de hacer commit, DEBES comprobar que el proyecto compila correctamente ejecutando `npm run build`.
 - **Commits Obligatorios:** Al terminar de implementar una funcionalidad, hacer los tests y comprobar el build, DEBES realizar el respectivo `git commit` y pushear los cambios. Nunca dejes trabajo terminado sin commitear.
+
+## 8. Variables de Entorno y Seguridad
+- **Cero variables hardcodeadas:** NUNCA debes hardcodear credenciales, URLs del API, URLs de Cloudflare R2/MinIO, o cualquier información sensible en el código.
+- Siempre usa variables de entorno (ej. `process.env.NEXT_PUBLIC_API_URL`) y asegúrate de documentar las nuevas variables en el archivo `.env.example`.
