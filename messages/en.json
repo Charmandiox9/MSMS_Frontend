@@ -1,0 +1,92 @@
+{
+  "Landing": {
+    "badge": "Management platform for FCM",
+    "title_part1": "Centralized academic",
+    "title_part2": "and administrative management",
+    "description": "Academic and administrative management system of the Faculty of Marine Sciences.",
+    "login": "Sign In",
+    "kpis": {
+      "teachers": "Registered Teachers",
+      "students": "Registered Students",
+      "projects": "Active S+L Projects",
+      "investigations": "Completed Investigations"
+    },
+    "features": {
+      "title": "What does SYSMAR offer?",
+      "subtitle": "Tools designed for the needs of the Faculty of Marine Sciences",
+      "lab": { "title": "Laboratory Management", "desc": "Centralize and optimize the use of labs and equipment." },
+      "vehicles": { "title": "Vehicle Reservation", "desc": "Manage field trips and fleet availability." },
+      "tracking": { "title": "Academic Tracking", "desc": "Monitor student progress and graduation processes." },
+      "roles": { "title": "Flexible Roles", "desc": "Multiple profiles with permissions adapted to each user." }
+    },
+    "recent": {
+      "title": "S+L Projects & Investigations",
+      "subtitle": "Recent initiatives from our academic community",
+      "viewAll": "View all publications"
+    }
+  },
+  "About": {
+    "title": "About SYSMAR",
+    "subtitle": "Smart management for the Faculty of Marine Sciences.",
+    "whatIs": "What is SYSMAR?",
+    "whatIsDesc": "SYSMAR is an academic and administrative management platform developed for the Faculty of Marine Sciences of the Universidad Católica del Norte. Its main objective is to centralize and optimize the administration of laboratories, vehicles, and student tracking, connecting the entire community in a single collaborative environment.",
+    "proposal": "Our proposal",
+    "proposalCards": {
+      "transparency": { "title": "Traceability", "desc": "Detailed historical record of all academic activities and resource reservations." },
+      "efficiency": { "title": "Efficiency", "desc": "Optimization in requesting laboratories and vehicles for field trips." },
+      "collaboration": { "title": "Collaboration", "desc": "Unified tools for teachers, students, and researchers of the FCM." }
+    },
+    "tech": "Technology",
+    "devs": "Developers"
+  },
+  "FCM": {
+    "title": "Faculty of Marine Sciences",
+    "subtitle": "Universidad Católica del Norte",
+    "whoAreWe": "Who are we?",
+    "whoAreWeDesc": "The Faculty of Marine Sciences of UCN, Coquimbo campus, is a pioneering academic unit dedicated to the study, research, and conservation of marine resources and ecosystems. We train professionals of excellence, contributing to sustainable development through science, teaching, and community outreach.",
+    "links": "Official links",
+    "linksCards": {
+      "ucn": { "title": "UCN Official Site", "desc": "Visit platform" },
+      "fcm": { "title": "Marine Sciences", "desc": "Visit platform" },
+      "campus": { "title": "Virtual Campus", "desc": "Visit platform" }
+    },
+    "careers": "Our programs",
+    "careersCards": {
+      "biologia": { "title": "Marine Biology", "desc": "View program" },
+      "acuicultura": { "title": "Aquaculture Engineering", "desc": "View program" },
+      "prevencion": { "title": "Risk Prevention and Environmental Engineering", "desc": "View program" }
+    }
+  },
+  "Login": {
+    "title": "Welcome to SYSMAR",
+    "subtitle": "Sign in with your institutional account to access the Faculty's laboratories, resources, and projects.",
+    "warning": "Exclusive access for @ucn.cl, @ce.ucn.cl, and @alumnos.ucn.cl accounts",
+    "button": "Continue with Google",
+    "back": "Back to home"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "subtitle": "General overview and quick access for your institutional account.",
+    "welcome": "Authentication successful!",
+    "welcomeDesc": "You have successfully logged in using your UCN Google account. We will load your profile and projects here soon.",
+    "quickActions": "Quick Actions",
+    "action1": "My Projects",
+    "action2": "View Profile"
+  },
+  "Navigation": {
+    "home": "Home",
+    "about": "About",
+    "fcm": "FCM",
+    "login": "Sign In"
+  },
+  "Footer": {
+    "description": "Academic and administrative management system for the Faculty of Marine Sciences.",
+    "platform": "Platform",
+    "login": "Sign In",
+    "about": "About",
+    "fcm": "FCM",
+    "university": "University",
+    "developers": "Developers",
+    "rights": "© {year} SYSMAR · Faculty of Marine Sciences, UCN"
+  }
+}

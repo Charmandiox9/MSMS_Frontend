@@ -1,0 +1,92 @@
+{
+  "Landing": {
+    "badge": "Plataforma de gestión para la FCM",
+    "title_part1": "Gestión académica y",
+    "title_part2": "administrativa centralizada",
+    "description": "Sistema de gestión académica y administrativa de la Facultad de Ciencias del Mar.",
+    "login": "Iniciar Sesión",
+    "kpis": {
+      "teachers": "Docentes Registrados",
+      "students": "Estudiantes Registrados",
+      "projects": "Proyectos A+S Activos",
+      "investigations": "Investigaciones Realizadas"
+    },
+    "features": {
+      "title": "¿Qué ofrece SYSMAR?",
+      "subtitle": "Herramientas diseñadas para las necesidades de la Facultad de Ciencias del Mar",
+      "lab": { "title": "Gestión de Laboratorios", "desc": "Centraliza y optimiza el uso de laboratorios y equipamiento." },
+      "vehicles": { "title": "Reserva de Vehículos", "desc": "Administra salidas a terreno y disponibilidad de la flota." },
+      "tracking": { "title": "Seguimiento Académico", "desc": "Monitorea el avance de estudiantes y procesos de título." },
+      "roles": { "title": "Roles Flexibles", "desc": "Múltiples perfiles con permisos adaptados a cada usuario." }
+    },
+    "recent": {
+      "title": "Proyectos A+S e Investigaciones",
+      "subtitle": "Iniciativas recientes de nuestra comunidad académica",
+      "viewAll": "Ver todas las publicaciones"
+    }
+  },
+  "About": {
+    "title": "Acerca de SYSMAR",
+    "subtitle": "Gestión inteligente para la Facultad de Ciencias del Mar.",
+    "whatIs": "¿Qué es SYSMAR?",
+    "whatIsDesc": "SYSMAR es una plataforma de gestión académica y administrativa desarrollada para la Facultad de Ciencias del Mar de la Universidad Católica del Norte. Su objetivo principal es centralizar y optimizar la administración de laboratorios, vehículos y el seguimiento de estudiantes, conectando a toda la comunidad en un solo entorno colaborativo.",
+    "proposal": "Nuestra propuesta",
+    "proposalCards": {
+      "transparency": { "title": "Trazabilidad", "desc": "Registro histórico y detallado de todas las actividades académicas y de reserva de recursos." },
+      "efficiency": { "title": "Eficiencia", "desc": "Optimización en la solicitud de laboratorios y vehículos para salidas a terreno." },
+      "collaboration": { "title": "Colaboración", "desc": "Herramientas unificadas para docentes, estudiantes e investigadores de la FCM." }
+    },
+    "tech": "Tecnología",
+    "devs": "Desarrolladores"
+  },
+  "FCM": {
+    "title": "Facultad de Ciencias del Mar",
+    "subtitle": "Universidad Católica del Norte",
+    "whoAreWe": "¿Quiénes somos?",
+    "whoAreWeDesc": "La Facultad de Ciencias del Mar de la UCN, sede Coquimbo, es una unidad académica pionera dedicada al estudio, investigación y conservación de los recursos y ecosistemas marinos. Formamos profesionales de excelencia, contribuyendo al desarrollo sostenible a través de la ciencia, la docencia y la vinculación con la comunidad.",
+    "links": "Enlaces oficiales",
+    "linksCards": {
+      "ucn": { "title": "Sitio oficial UCN", "desc": "Visitar plataforma" },
+      "fcm": { "title": "Ciencias del Mar", "desc": "Visitar plataforma" },
+      "campus": { "title": "Campus Virtual", "desc": "Visitar plataforma" }
+    },
+    "careers": "Nuestras carreras",
+    "careersCards": {
+      "biologia": { "title": "Biología Marina", "desc": "Ver programa" },
+      "acuicultura": { "title": "Ingeniería en Acuicultura", "desc": "Ver programa" },
+      "prevencion": { "title": "Ing. en Prevención de Riesgos y Medioambiente", "desc": "Ver programa" }
+    }
+  },
+  "Login": {
+    "title": "Bienvenido a SYSMAR",
+    "subtitle": "Ingresa con tu cuenta institucional para acceder a los laboratorios, recursos y proyectos de la Facultad.",
+    "warning": "Ingreso exclusivo para cuentas @ucn.cl, @ce.ucn.cl y @alumnos.ucn.cl",
+    "button": "Continuar con Google",
+    "back": "Volver al inicio"
+  },
+  "Dashboard": {
+    "title": "Panel de Control",
+    "subtitle": "Resumen general y accesos rápidos de tu cuenta institucional.",
+    "welcome": "¡Autenticación exitosa!",
+    "welcomeDesc": "Te has logueado exitosamente usando tu cuenta de Google UCN. Aquí cargaremos tu información de perfil y proyectos pronto.",
+    "quickActions": "Acciones Rápidas",
+    "action1": "Mis Proyectos",
+    "action2": "Ver Perfil"
+  },
+  "Navigation": {
+    "home": "Inicio",
+    "about": "Acerca de",
+    "fcm": "FCM",
+    "login": "Ingresar"
+  },
+  "Footer": {
+    "description": "Sistema de gestión académica y administrativa para la Facultad de Ciencias del Mar.",
+    "platform": "Plataforma",
+    "login": "Iniciar Sesión",
+    "about": "Acerca de",
+    "fcm": "FCM",
+    "university": "Universidad",
+    "developers": "Desarrolladores",
+    "rights": "© {year} SYSMAR · Facultad de Ciencias del Mar, UCN"
+  }
+}
