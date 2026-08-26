@@ -12,7 +12,7 @@
       "investigations": "Investigaciones Realizadas"
     },
     "features": {
-      "title": "¿Qué ofrece SYSMAR?",
+      "title": "¿Qué ofrece MARSYS?",
       "subtitle": "Herramientas diseñadas para las necesidades de la Facultad de Ciencias del Mar",
       "lab": { "title": "Gestión de Laboratorios", "desc": "Centraliza y optimiza el uso de laboratorios y equipamiento." },
       "vehicles": { "title": "Reserva de Vehículos", "desc": "Administra salidas a terreno y disponibilidad de la flota." },
@@ -26,10 +26,10 @@
     }
   },
   "About": {
-    "title": "Acerca de SYSMAR",
+    "title": "Acerca de MARSYS",
     "subtitle": "Gestión inteligente para la Facultad de Ciencias del Mar.",
-    "whatIs": "¿Qué es SYSMAR?",
-    "whatIsDesc": "SYSMAR es una plataforma de gestión académica y administrativa desarrollada para la Facultad de Ciencias del Mar de la Universidad Católica del Norte. Su objetivo principal es centralizar y optimizar la administración de laboratorios, vehículos y el seguimiento de estudiantes, conectando a toda la comunidad en un solo entorno colaborativo.",
+    "whatIs": "¿Qué es MARSYS?",
+    "whatIsDesc": "MARSYS es una plataforma de gestión académica y administrativa desarrollada para la Facultad de Ciencias del Mar de la Universidad Católica del Norte. Su objetivo principal es centralizar y optimizar la administración de laboratorios, vehículos y el seguimiento de estudiantes, conectando a toda la comunidad en un solo entorno colaborativo.",
     "proposal": "Nuestra propuesta",
     "proposalCards": {
       "transparency": { "title": "Trazabilidad", "desc": "Registro histórico y detallado de todas las actividades académicas y de reserva de recursos." },
@@ -58,7 +58,7 @@
     }
   },
   "Login": {
-    "title": "Bienvenido a SYSMAR",
+    "title": "Bienvenido a MARSYS",
     "subtitle": "Ingresa con tu cuenta institucional para acceder a los laboratorios, recursos y proyectos de la Facultad.",
     "warning": "Ingreso exclusivo para cuentas @ucn.cl, @ce.ucn.cl y @alumnos.ucn.cl",
     "button": "Continuar con Google",
@@ -87,6 +87,6 @@
     "fcm": "FCM",
     "university": "Universidad",
     "developers": "Desarrolladores",
-    "rights": "© {year} SYSMAR · Facultad de Ciencias del Mar, UCN"
+    "rights": "© {year} MARSYS · Facultad de Ciencias del Mar, UCN"
   }
 }

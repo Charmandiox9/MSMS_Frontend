@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className="w-64 border-r border-foreground/10 bg-foreground/5 flex flex-col">
         <div className="h-16 flex items-center px-6 border-b border-foreground/10">
           <Link href="/" className="font-black text-xl text-primary tracking-tight">
-            SYSMAR
+            MARSYS
           </Link>
         </div>
         

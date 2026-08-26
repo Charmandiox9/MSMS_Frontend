@@ -12,7 +12,7 @@
       "investigations": "Completed Investigations"
     },
     "features": {
-      "title": "What does SYSMAR offer?",
+      "title": "What does MARSYS offer?",
       "subtitle": "Tools designed for the needs of the Faculty of Marine Sciences",
       "lab": { "title": "Laboratory Management", "desc": "Centralize and optimize the use of labs and equipment." },
       "vehicles": { "title": "Vehicle Reservation", "desc": "Manage field trips and fleet availability." },
@@ -26,10 +26,10 @@
     }
   },
   "About": {
-    "title": "About SYSMAR",
+    "title": "About MARSYS",
     "subtitle": "Smart management for the Faculty of Marine Sciences.",
-    "whatIs": "What is SYSMAR?",
-    "whatIsDesc": "SYSMAR is an academic and administrative management platform developed for the Faculty of Marine Sciences of the Universidad Católica del Norte. Its main objective is to centralize and optimize the administration of laboratories, vehicles, and student tracking, connecting the entire community in a single collaborative environment.",
+    "whatIs": "What is MARSYS?",
+    "whatIsDesc": "MARSYS is an academic and administrative management platform developed for the Faculty of Marine Sciences of the Universidad Católica del Norte. Its main objective is to centralize and optimize the administration of laboratories, vehicles, and student tracking, connecting the entire community in a single collaborative environment.",
     "proposal": "Our proposal",
     "proposalCards": {
       "transparency": { "title": "Traceability", "desc": "Detailed historical record of all academic activities and resource reservations." },
@@ -58,7 +58,7 @@
     }
   },
   "Login": {
-    "title": "Welcome to SYSMAR",
+    "title": "Welcome to MARSYS",
     "subtitle": "Sign in with your institutional account to access the Faculty's laboratories, resources, and projects.",
     "warning": "Exclusive access for @ucn.cl, @ce.ucn.cl, and @alumnos.ucn.cl accounts",
     "button": "Continue with Google",
@@ -87,6 +87,6 @@
     "fcm": "FCM",
     "university": "University",
     "developers": "Developers",
-    "rights": "© {year} SYSMAR · Faculty of Marine Sciences, UCN"
+    "rights": "© {year} MARSYS · Faculty of Marine Sciences, UCN"
   }
 }

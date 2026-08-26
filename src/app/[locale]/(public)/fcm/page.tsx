@@ -8,18 +8,18 @@ export default function FCMPage() {
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden selection:bg-primary/20">
       
       {/* HERO SECTION */}
-      <section className="bg-foreground/5 relative py-20 px-6 overflow-hidden">
+      <section className="bg-muted relative py-20 px-6 overflow-hidden">
         <div className="absolute top-0 inset-x-0 h-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
         <div className="max-w-[1400px] mx-auto text-center relative z-10 flex flex-col items-center">
           <div className="mb-6 flex items-center justify-center gap-2">
             <span className="text-xs font-bold uppercase tracking-widest text-primary bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20 shadow-sm">
-              SYSMAR · FCM
+              MARSYS · FCM
             </span>
           </div>
           <h1 className="text-5xl md:text-6xl font-black mb-6 tracking-tight text-foreground">
             {t('title')}
           </h1>
-          <p className="text-foreground/70 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="text-muted-foreground text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
             {t('subtitle')}
           </p>
         </div>
@@ -28,9 +28,9 @@ export default function FCMPage() {
       <main className="flex-grow max-w-[1200px] mx-auto w-full px-6 py-16 space-y-24">
         
         {/* WHO ARE WE? */}
-        <section className="bg-background border border-foreground/10 p-8 md:p-12 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 max-w-4xl mx-auto text-center">
+        <section className="bg-card border border-border p-8 md:p-12 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-black text-foreground mb-6 tracking-tight">{t('whoAreWe')}</h2>
-          <p className="text-foreground/70 leading-relaxed text-lg font-medium">
+          <p className="text-muted-foreground leading-relaxed text-lg font-medium">
             {t('whoAreWeDesc')}
           </p>
         </section>
@@ -46,7 +46,7 @@ export default function FCMPage() {
             ].map((link, idx) => {
               const Icon = link.icon;
               return (
-                <a key={idx} href={link.url} target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center justify-center p-8 bg-background border border-foreground/10 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-primary/30 transition-all duration-300">
+                <a key={idx} href={link.url} target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center justify-center p-8 bg-card border border-border rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-primary/30 transition-all duration-300">
                   <div className={`w-16 h-16 rounded-[1rem] mb-5 flex items-center justify-center transition-transform duration-300 ${link.bg} ${link.color} group-hover:scale-110`}>
                     <Icon className="w-8 h-8" />
                   </div>
@@ -70,7 +70,7 @@ export default function FCMPage() {
               { id: 'acuicultura', url: 'https://www.ucn.cl/universidad/facultades-escuelas-y-departamentos/facultad-de-ciencias-del-mar/departamento-de-acuicultura/' },
               { id: 'prevencion', url: 'https://www.ucn.cl/universidad/facultades-escuelas-y-departamentos/facultad-de-ciencias-del-mar/escuela-de-prevencion-de-riesgo-y-medio-ambiente/' }
             ].map((career, idx) => (
-              <a key={idx} href={career.url} target="_blank" rel="noopener noreferrer" className="flex flex-col p-8 bg-background border border-foreground/10 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group h-full focus-visible:ring-2 focus-visible:outline-none focus:ring-primary">
+              <a key={idx} href={career.url} target="_blank" rel="noopener noreferrer" className="flex flex-col p-8 bg-card border border-border rounded-[2rem] shadow-sm hover:shadow-xl hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group h-full focus-visible:ring-2 focus-visible:outline-none focus:ring-primary">
                 <div className="bg-primary/10 text-primary p-4 rounded-xl mb-6 self-start transform group-hover:-rotate-6 transition-transform">
                   <BookOpen className="w-8 h-8" />
                 </div>

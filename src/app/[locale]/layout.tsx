@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SYSMAR - UCN Facultad de Ciencias del Mar",
+  title: "MARSYS - UCN Facultad de Ciencias del Mar",
   description: "Plataforma de gestión de la Facultad de Ciencias del Mar",
 };
 

@@ -1,9 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  /* Fondo claro (slate-50) y texto oscuro */
+  /* Fondo claro */
   --background: #f8fafc;
   --foreground: #0f172a;
+
+  /* Superficies (Cards, Modals) */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  /* Muted / Soft backgrounds */
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  /* Bordes */
+  --border: #e2e8f0;
 
   /* Primario: Océano Profundo (blue-900) */
   --primary: #1e3a8a;
@@ -18,30 +29,47 @@
   --accent-foreground: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Fondo oscuro (slate-950) y texto claro */
-    --background: #020617;
-    --foreground: #f8fafc;
+.dark {
+  /* Fondo oscuro */
+  --background: #020617;
+  --foreground: #f8fafc;
 
-    /* Primario en dark: Azul más claro (blue-300) */
-    --primary: #93c5fd;
-    --primary-foreground: #0f172a;
+  /* Superficies (Cards, Modals) */
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
 
-    /* Secundario en dark: Teal más claro (teal-400) */
-    --secondary: #2dd4bf;
-    --secondary-foreground: #022c22;
+  /* Muted / Soft backgrounds */
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
 
-    /* Acento en dark: Arena brillante (amber-400) */
-    --accent: #fbbf24;
-    --accent-foreground: #451a03;
-  }
+  /* Bordes */
+  --border: #1e293b;
+
+  /* Primario en dark: Azul vibrante */
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+
+  /* Secundario en dark: Teal */
+  --secondary: #2dd4bf;
+  --secondary-foreground: #022c22;
+
+  /* Acento en dark: Arena brillante */
+  --accent: #fbbf24;
+  --accent-foreground: #451a03;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-border: var(--border);
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   
@@ -56,7 +84,7 @@
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
