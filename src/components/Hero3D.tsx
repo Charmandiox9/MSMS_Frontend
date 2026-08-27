@@ -25,6 +25,7 @@ function ParticleSquidSwarm() {
   }, []);
   
   const squidCount = 3500;
+  const squidScale = 1.5;
   const wakeCount = 700;
   const roamingCount = 300;
   const planktonCount = 1200; 
@@ -187,14 +188,14 @@ function ParticleSquidSwarm() {
         const isTentacle = particle.baseX < 0;
         const waveY = isTentacle ? Math.sin(time * 1.5 + particle.baseX * 2) * 0.4 : 0;
         
-        // Centrado general del calamar sin seguimiento al mouse
+        // Centrado general del calamar sin seguimiento al mouse (escalado con squidScale)
         dummy.position.set(
-          particle.baseX - 1, 
-          particle.baseY + waveY,
-          particle.baseZ
+          (particle.baseX - 1) * squidScale,
+          (particle.baseY + waveY) * squidScale,
+          particle.baseZ * squidScale
         );
         
-        const s = 0.2 + Math.sin(particle.t * 2) * 0.08;
+        const s = (0.2 + Math.sin(particle.t * 2) * 0.08) * squidScale;
         dummy.scale.set(s, s, s);
         
       } else if (particle.type === 'wake') {
@@ -260,9 +261,9 @@ function ParticleSquidSwarm() {
     });
     
     // Flote global aplicado al grupo entero
-    // Posicionado más arriba (+1.5) y a la derecha (3) para no cubrir el texto
+    // Posicionado más arriba (+1.5) y a la derecha (7) para no cubrir el texto
     mesh.current!.position.y = globalBob + 1.5;
-    mesh.current!.position.x = 3;
+    mesh.current!.position.x = 7;
 
     mesh.current!.instanceMatrix.needsUpdate = true;
   });
