@@ -1,10 +1,11 @@
 {
   "Landing": {
-    "badge": "Management platform for FCM",
+    "badge": "MARSYS · Welcome",
     "title_part1": "Centralized academic",
     "title_part2": "and administrative management",
     "description": "Academic and administrative management system of the Faculty of Marine Sciences.",
     "login": "Sign In",
+    "explore_fcm": "Explore Faculty",
     "kpis": {
       "teachers": "Registered Teachers",
       "students": "Registered Students",
@@ -20,12 +21,34 @@
       "roles": { "title": "Flexible Roles", "desc": "Multiple profiles with permissions adapted to each user." }
     },
     "recent": {
-      "title": "S+L Projects & Investigations",
+      "title": "A+S Projects & Research",
       "subtitle": "Recent initiatives from our academic community",
       "viewAll": "View all publications"
+    },
+    "heroCards": {
+      "research": {
+        "title": "Research",
+        "subtitle": "ESMOI - Biodiversity",
+        "stat": "150+",
+        "statLabel": "New species under study"
+      },
+      "community": {
+        "title": "Academic Community",
+        "status": "Active",
+        "teachers": "Teachers",
+        "projects": "Theses / Projects"
+      },
+      "logistics": {
+        "title": "Logistics Management",
+        "fieldTrip": "Field Trip (4x4)",
+        "fieldTripDest": "Herradura Bay",
+        "lab": "Aquaculture Lab",
+        "labTime": "14:00 hrs"
+      }
     }
   },
   "About": {
+    "badge": "MARSYS · About",
     "title": "About MARSYS",
     "subtitle": "Smart management for the Faculty of Marine Sciences.",
     "whatIs": "What is MARSYS?",
@@ -37,7 +60,12 @@
       "collaboration": { "title": "Collaboration", "desc": "Unified tools for teachers, students, and researchers of the FCM." }
     },
     "tech": "Technology",
-    "devs": "Developers"
+    "devs": "Developers",
+    "roles": {
+      "iti": "Information Technology Engineering",
+      "minor_sec": "Minor: Digital Security",
+      "minor_arch": "Minor: Software Architecture"
+    }
   },
   "FCM": {
     "title": "Faculty of Marine Sciences",
@@ -58,11 +86,13 @@
     }
   },
   "Login": {
+    "welcomeTitle": "Welcome to",
+    "welcomeDesc": "Comprehensive academic and administrative management platform for the Faculty of Marine Sciences.",
     "title": "Welcome to MARSYS",
-    "subtitle": "Sign in with your institutional account to access the Faculty's laboratories, resources, and projects.",
+    "subtitle": "Access your academic portal to manage projects, laboratories, and Marine Sciences resources.",
     "warning": "Exclusive access for @ucn.cl, @ce.ucn.cl, and @alumnos.ucn.cl accounts",
     "button": "Continue with Google",
-    "back": "Back to home"
+    "back": "Back to Home"
   },
   "Dashboard": {
     "title": "Dashboard",
@@ -73,11 +103,21 @@
     "action1": "My Projects",
     "action2": "View Profile"
   },
+  "DashboardNav": {
+    "dashboard": "Dashboard",
+    "projects": "My Projects",
+    "labs": "Laboratories",
+    "users": "Users",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
   "Navigation": {
     "home": "Home",
     "about": "About",
     "fcm": "FCM",
-    "login": "Sign In"
+    "login": "Sign In",
+    "dashboard": "Dashboard",
+    "logout": "Logout"
   },
   "Footer": {
     "description": "Academic and administrative management system for the Faculty of Marine Sciences.",
@@ -86,7 +126,48 @@
     "about": "About",
     "fcm": "FCM",
     "university": "University",
+    "faculty": "Faculty of Marine Sciences",
     "developers": "Developers",
+    "privacy": "Privacy Policy",
     "rights": "© {year} MARSYS · Faculty of Marine Sciences, UCN"
+  },
+  "Privacy": {
+    "cookie_message": "We use first and third-party cookies to improve your experience, analyze traffic, and comply with the Chilean Data Protection Law (N° 21.719). Read our",
+    "privacy_policy": "Privacy Policy",
+    "accept_all": "Accept All",
+    "reject_all": "Reject Non-Essential",
+    "manage": "Manage Preferences",
+    "preferences_title": "Privacy Preferences",
+    "preferences_desc": "Manage your consent for the different cookies we use. Strictly necessary cookies cannot be disabled.",
+    "necessary_title": "Strictly Necessary",
+    "necessary_desc": "Required for the basic operation of the site, maintaining your session, and remembering your language and theme preferences.",
+    "analytics_title": "Analytics & Performance",
+    "analytics_desc": "Help us understand how you interact with the platform, measure traffic, and improve the user experience.",
+    "marketing_title": "Marketing & Tracking",
+    "marketing_desc": "Used to track your browsing and show relevant content. (MARSYS does not currently use this type of cookie).",
+    "save_preferences": "Save Preferences"
+  },
+  "PrivacyPolicy": {
+    "title": "Privacy Policy and Data Protection",
+    "last_updated": "Last updated: August 2026",
+    "intro_title": "1. Introduction",
+    "intro_text": "At MARSYS (Academic Management Platform of the Faculty of Marine Sciences, UCN), we respect and protect our users' privacy. This policy describes how we collect, use, and safeguard your personal information, in strict compliance with the Chilean Personal Data Protection Law (N° 21.719).",
+    "collection_title": "2. Information We Collect",
+    "collection_text": "We collect information necessary for academic and administrative management, including identification data (name, RUT, institutional email), academic data (curricular progress, grades), and activity logs within the platform (laboratory requests, vehicle requests, etc.).",
+    "use_title": "3. Use of Information",
+    "use_text": "The collected data is used exclusively for the operational purposes of the MARSYS platform, such as traceability of internal processes, resource allocation, role management, and official communication within the FCM community.",
+    "arco_title": "4. Your ARCO Rights",
+    "arco_text": "In accordance with Law N° 21.719, you have the right to Access, Rectify, Cancel, or Oppose the processing of your personal data. To exercise these rights, you may contact the platform administration through your institutional account.",
+    "cookies_title": "5. Use of Cookies",
+    "cookies_text": "We use strictly necessary cookies to keep your session active and interface preferences (such as language and dark/light theme). We do not use cookies for third-party advertising tracking.",
+    "contact_title": "6. Contact",
+    "contact_text": "If you have any questions or concerns regarding this Privacy Policy or the handling of your data, please contact the administration of the Faculty of Marine Sciences."
+  },
+  "NotFound": {
+    "title": "404",
+    "subtitle": "Page Not Found",
+    "description": "The page you are looking for has been moved, deleted, or does not exist.",
+    "back": "Return to Home",
+    "goBack": "Go Back"
   }
 }

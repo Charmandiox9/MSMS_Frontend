@@ -5,6 +5,7 @@
     "title_part2": "administrativa centralizada",
     "description": "Sistema de gestión académica y administrativa de la Facultad de Ciencias del Mar.",
     "login": "Iniciar Sesión",
+    "explore_fcm": "Conocer la Facultad",
     "kpis": {
       "teachers": "Docentes Registrados",
       "students": "Estudiantes Registrados",
@@ -23,9 +24,31 @@
       "title": "Proyectos A+S e Investigaciones",
       "subtitle": "Iniciativas recientes de nuestra comunidad académica",
       "viewAll": "Ver todas las publicaciones"
+    },
+    "heroCards": {
+      "research": {
+        "title": "Investigación",
+        "subtitle": "ESMOI - Biodiversidad",
+        "stat": "150+",
+        "statLabel": "Nuevas especies en estudio"
+      },
+      "community": {
+        "title": "Comunidad Académica",
+        "status": "Activo",
+        "teachers": "Docentes",
+        "projects": "Tesis / Proyectos"
+      },
+      "logistics": {
+        "title": "Gestión Logística",
+        "fieldTrip": "Salida a Terreno (4x4)",
+        "fieldTripDest": "Bahía Herradura",
+        "lab": "Lab. Acuicultura",
+        "labTime": "14:00 hrs"
+      }
     }
   },
   "About": {
+    "badge": "MARSYS · Acerca de",
     "title": "Acerca de MARSYS",
     "subtitle": "Gestión inteligente para la Facultad de Ciencias del Mar.",
     "whatIs": "¿Qué es MARSYS?",
@@ -37,7 +60,12 @@
       "collaboration": { "title": "Colaboración", "desc": "Herramientas unificadas para docentes, estudiantes e investigadores de la FCM." }
     },
     "tech": "Tecnología",
-    "devs": "Desarrolladores"
+    "devs": "Desarrolladores",
+    "roles": {
+      "iti": "Ingeniería en Tecnologías de Información",
+      "minor_sec": "Minor: Seguridad Digital",
+      "minor_arch": "Minor: Arquitectura de Software"
+    }
   },
   "FCM": {
     "title": "Facultad de Ciencias del Mar",
@@ -58,8 +86,10 @@
     }
   },
   "Login": {
+    "welcomeTitle": "Bienvenido a",
+    "welcomeDesc": "Plataforma integral de gestión académica y administrativa de la Facultad de Ciencias del Mar.",
     "title": "Bienvenido a MARSYS",
-    "subtitle": "Ingresa con tu cuenta institucional para acceder a los laboratorios, recursos y proyectos de la Facultad.",
+    "subtitle": "Accede a tu portal académico para gestionar proyectos, laboratorios y recursos de Ciencias del Mar.",
     "warning": "Ingreso exclusivo para cuentas @ucn.cl, @ce.ucn.cl y @alumnos.ucn.cl",
     "button": "Continuar con Google",
     "back": "Volver al inicio"
@@ -73,11 +103,21 @@
     "action1": "Mis Proyectos",
     "action2": "Ver Perfil"
   },
+  "DashboardNav": {
+    "dashboard": "Dashboard",
+    "projects": "Mis Proyectos",
+    "labs": "Laboratorios",
+    "users": "Usuarios",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión"
+  },
   "Navigation": {
     "home": "Inicio",
     "about": "Acerca de",
     "fcm": "FCM",
-    "login": "Ingresar"
+    "login": "Ingresar",
+    "dashboard": "Panel de Control",
+    "logout": "Cerrar Sesión"
   },
   "Footer": {
     "description": "Sistema de gestión académica y administrativa para la Facultad de Ciencias del Mar.",
@@ -86,7 +126,48 @@
     "about": "Acerca de",
     "fcm": "FCM",
     "university": "Universidad",
+    "faculty": "Facultad Cs. del Mar",
     "developers": "Desarrolladores",
+    "privacy": "Política de Privacidad",
     "rights": "© {year} MARSYS · Facultad de Ciencias del Mar, UCN"
+  },
+  "Privacy": {
+    "cookie_message": "Utilizamos cookies propias y de terceros para mejorar su experiencia, analizar el tráfico y cumplir con la Ley N° 21.719 de Protección de Datos de Chile. Lee nuestra",
+    "privacy_policy": "Política de Privacidad",
+    "accept_all": "Aceptar todas",
+    "reject_all": "Rechazar no esenciales",
+    "manage": "Configurar cookies",
+    "preferences_title": "Preferencias de Privacidad",
+    "preferences_desc": "Gestiona tu consentimiento para las distintas cookies que usamos. Las cookies estrictamente necesarias no pueden desactivarse.",
+    "necessary_title": "Estrictamente necesarias",
+    "necessary_desc": "Requeridas para el funcionamiento básico del sitio, mantener tu sesión y recordar tus preferencias de idioma y tema.",
+    "analytics_title": "Análisis y rendimiento",
+    "analytics_desc": "Nos ayudan a entender cómo interactúas con la plataforma, medir el tráfico y mejorar la experiencia de usuario.",
+    "marketing_title": "Publicidad y seguimiento",
+    "marketing_desc": "Utilizadas para rastrear tu navegación y mostrar contenido relevante. (MARSYS no utiliza actualmente este tipo de cookies).",
+    "save_preferences": "Guardar preferencias"
+  },
+  "PrivacyPolicy": {
+    "title": "Política de Privacidad y Protección de Datos",
+    "last_updated": "Última actualización: Agosto 2026",
+    "intro_title": "1. Introducción",
+    "intro_text": "En MARSYS (Plataforma de Gestión Académica de la Facultad de Ciencias del Mar, UCN), respetamos y protegemos la privacidad de nuestros usuarios. Esta política describe cómo recopilamos, utilizamos y salvaguardamos su información personal, en estricto cumplimiento con la Ley N° 21.719 de Protección de Datos Personales de Chile.",
+    "collection_title": "2. Información que Recopilamos",
+    "collection_text": "Recopilamos información necesaria para la gestión académica y administrativa, incluyendo datos de identificación (nombre, RUT, correo institucional), datos académicos (avance curricular, notas) y registros de actividad dentro de la plataforma (solicitudes de laboratorios, vehículos, etc.).",
+    "use_title": "3. Uso de la Información",
+    "use_text": "Los datos recopilados se utilizan exclusivamente para los fines operativos de la plataforma MARSYS, tales como la trazabilidad de procesos internos, asignación de recursos, gestión de roles y comunicación oficial dentro de la comunidad de la FCM.",
+    "arco_title": "4. Sus Derechos ARCO",
+    "arco_text": "De acuerdo con la Ley N° 21.719, usted tiene el derecho de Acceder, Rectificar, Cancelar u Oponerse al tratamiento de sus datos personales. Para ejercer estos derechos, puede comunicarse con la administración de la plataforma a través de su cuenta institucional.",
+    "cookies_title": "5. Uso de Cookies",
+    "cookies_text": "Utilizamos cookies estrictamente necesarias para mantener su sesión activa y preferencias de interfaz (como idioma y tema oscuro/claro). No utilizamos cookies para rastreo publicitario de terceros.",
+    "contact_title": "6. Contacto",
+    "contact_text": "Si tienes preguntas o inquietudes sobre esta Política de Privacidad o el manejo de tus datos, por favor contacta a la administración de la Facultad de Ciencias del Mar."
+  },
+  "NotFound": {
+    "title": "404",
+    "subtitle": "Página no encontrada",
+    "description": "La página que buscas ha sido movida, eliminada o simplemente no existe.",
+    "back": "Volver al inicio",
+    "goBack": "Regresar"
   }
 }
