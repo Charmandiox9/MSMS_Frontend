@@ -60,16 +60,51 @@
       "collaboration": { "title": "Colaboración", "desc": "Herramientas unificadas para docentes, estudiantes e investigadores de la FCM." }
     },
     "tech": "Tecnología",
+    "techItems": {
+      "nextjs": { "name": "Next.js", "desc": "React Framework" },
+      "nestjs": { "name": "NestJS", "desc": "Node Framework" },
+      "postgresql": { "name": "PostgreSQL", "desc": "Database" },
+      "prisma": { "name": "Prisma", "desc": "ORM" },
+      "oauth": { "name": "Google OAuth", "desc": "Authentication" },
+      "nginx": { "name": "Nginx", "desc": "Reverse Proxy" },
+      "redis": { "name": "Redis", "desc": "Caching en Memoria" },
+      "podman": { "name": "Podman", "desc": "Contenedores" },
+      "graphql": { "name": "GraphQL", "desc": "Lenguaje de Consultas" },
+      "rest": { "name": "API REST", "desc": "Integración" },
+      "jenkins": { "name": "Jenkins", "desc": "CI/CD" }
+    },
     "devs": "Desarrolladores",
+    "eyebrows": {
+      "platform": "La plataforma",
+      "value": "Nuestra propuesta de valor",
+      "stack": "Stack tecnológico",
+      "team": "El equipo"
+    },
     "roles": {
       "iti": "Ingeniería en Tecnologías de Información",
       "minor_sec": "Minor: Seguridad Digital",
       "minor_arch": "Minor: Arquitectura de Software"
     }
   },
+  "Metadata": {
+    "about": {
+      "title": "Acerca de MARSYS · Facultad de Ciencias del Mar UCN",
+      "description": "Conoce MARSYS, la plataforma de gestión académica y administrativa de la Facultad de Ciencias del Mar de la Universidad Católica del Norte."
+    },
+    "fcm": {
+      "title": "Facultad de Ciencias del Mar · UCN",
+      "description": "Conoce la Facultad de Ciencias del Mar de la Universidad Católica del Norte, sede Coquimbo: pionera en el estudio, investigación y conservación de los ecosistemas marinos."
+    }
+  },
   "FCM": {
+    "badge": "MARSYS · FCM",
     "title": "Facultad de Ciencias del Mar",
     "subtitle": "Universidad Católica del Norte",
+    "eyebrows": {
+      "faculty": "La Facultad",
+      "resources": "Recursos oficiales",
+      "education": "Formación"
+    },
     "whoAreWe": "¿Quiénes somos?",
     "whoAreWeDesc": "La Facultad de Ciencias del Mar de la UCN, sede Coquimbo, es una unidad académica pionera dedicada al estudio, investigación y conservación de los recursos y ecosistemas marinos. Formamos profesionales de excelencia, contribuyendo al desarrollo sostenible a través de la ciencia, la docencia y la vinculación con la comunidad.",
     "links": "Enlaces oficiales",

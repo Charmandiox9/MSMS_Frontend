@@ -60,16 +60,51 @@
       "collaboration": { "title": "Collaboration", "desc": "Unified tools for teachers, students, and researchers of the FCM." }
     },
     "tech": "Technology",
+    "techItems": {
+      "nextjs": { "name": "Next.js", "desc": "React Framework" },
+      "nestjs": { "name": "NestJS", "desc": "Node Framework" },
+      "postgresql": { "name": "PostgreSQL", "desc": "Database" },
+      "prisma": { "name": "Prisma", "desc": "ORM" },
+      "oauth": { "name": "Google OAuth", "desc": "Authentication" },
+      "nginx": { "name": "Nginx", "desc": "Reverse Proxy" },
+      "redis": { "name": "Redis", "desc": "In-Memory Cache" },
+      "podman": { "name": "Podman", "desc": "Containers" },
+      "graphql": { "name": "GraphQL", "desc": "Query Language" },
+      "rest": { "name": "REST API", "desc": "Integration" },
+      "jenkins": { "name": "Jenkins", "desc": "CI/CD" }
+    },
     "devs": "Developers",
+    "eyebrows": {
+      "platform": "The platform",
+      "value": "Our value proposition",
+      "stack": "Tech stack",
+      "team": "The team"
+    },
     "roles": {
       "iti": "Information Technology Engineering",
       "minor_sec": "Minor: Digital Security",
       "minor_arch": "Minor: Software Architecture"
     }
   },
+  "Metadata": {
+    "about": {
+      "title": "About MARSYS · UCN Faculty of Marine Sciences",
+      "description": "Meet MARSYS, the academic and administrative management platform for the Faculty of Marine Sciences at the Universidad Católica del Norte."
+    },
+    "fcm": {
+      "title": "Faculty of Marine Sciences · UCN",
+      "description": "Meet the Faculty of Marine Sciences at the Universidad Católica del Norte, Coquimbo campus: a pioneer in the study, research, and conservation of marine ecosystems."
+    }
+  },
   "FCM": {
+    "badge": "MARSYS · FCM",
     "title": "Faculty of Marine Sciences",
     "subtitle": "Universidad Católica del Norte",
+    "eyebrows": {
+      "faculty": "The Faculty",
+      "resources": "Official resources",
+      "education": "Education"
+    },
     "whoAreWe": "Who are we?",
     "whoAreWeDesc": "The Faculty of Marine Sciences of UCN, Coquimbo campus, is a pioneering academic unit dedicated to the study, research, and conservation of marine resources and ecosystems. We train professionals of excellence, contributing to sustainable development through science, teaching, and community outreach.",
     "links": "Official links",
