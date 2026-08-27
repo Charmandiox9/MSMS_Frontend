@@ -100,3 +100,79 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+@theme {
+  /* Curva ease-out fuerte para micro-interacciones (entrada/UI) */
+  --ease-premium: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ===== Animaciones de hero (About) ===== */
+
+@keyframes sonar-ring {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.45;
+  }
+  70% {
+    opacity: 0.1;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes hero-line-reveal {
+  from {
+    transform: translateY(112%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-line-mask {
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.hero-line-mask > span {
+  display: block;
+  transform: translateY(112%);
+  animation: hero-line-reveal 1s var(--ease-premium) 0.15s forwards;
+}
+
+.hero-fade-up {
+  opacity: 0;
+  animation: hero-fade-up 0.9s var(--ease-premium) forwards;
+}
+
+.sonar-ring {
+  animation: sonar-ring 5.5s var(--ease-premium) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-line-mask > span {
+    animation: none;
+    transform: none;
+  }
+  .hero-fade-up {
+    animation: none;
+    opacity: 1;
+  }
+  .sonar-ring {
+    animation: none;
+    opacity: 0;
+  }
+}
