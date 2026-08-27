@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import CookieConsent from "@/components/CookieConsent";
+import SmoothScroll from "@/components/SmoothScroll";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +47,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300">
+        <SmoothScroll />
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
             {children}
