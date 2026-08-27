@@ -43,7 +43,7 @@ export default function AnimeReveal({
 
     if (stagger) {
       containerRef.current.style.opacity = "1";
-      // Ensure children start invisible so they don't flash
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Array.from(containerRef.current.children).forEach((child: any) => {
         child.style.opacity = "0";
       });

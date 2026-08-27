@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
 :root {
   /* Fondo claro */
   --background: #f8fafc;
@@ -27,6 +28,12 @@
   /* Acento: Arena (amber-500) */
   --accent: #f59e0b;
   --accent-foreground: #ffffff;
+
+  /* Colores Institucionales UCN - FCM (Fijos en ambos modos) */
+  --ucn-navy: #0f172a; /* Azul institucional profundo */
+  --ocean-cyan: #0ea5e9; /* Acento Marino */
+  --ucn-gold: #f59e0b; /* Acento Secundario */
+  --coral-red: #ef4444; /* Acciones destructivas (Cerrar Sesión) */
 }
 
 .dark {
@@ -78,6 +85,11 @@
   
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
+  --color-ucn-navy: var(--ucn-navy);
+  --color-ocean-cyan: var(--ocean-cyan);
+  --color-ucn-gold: var(--ucn-gold);
+  --color-coral-red: var(--coral-red);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

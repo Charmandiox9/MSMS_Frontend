@@ -1,10 +1,28 @@
 "use client";
 
+import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+// Suppress the React 19 strict mode warning about next-themes injecting a script tag during client remounts
+if (typeof window !== "undefined") {
+  const originalError = console.error;
+  console.error = (...args) => {
+    if (typeof args[0] === "string" && args[0].includes("Encountered a script tag while rendering React component")) {
+      return;
+    }
+    originalError(...args);
+  };
+}
+
+export function ThemeProvider({ children, ...props }: React.ComponentProps<typeof NextThemesProvider>) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+    <NextThemesProvider 
+      attribute="class" 
+      defaultTheme="system" 
+      enableSystem 
+      disableTransitionOnChange 
+      {...props}
+    >
       {children}
     </NextThemesProvider>
   );
