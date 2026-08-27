@@ -17,8 +17,8 @@ export default function Navbar() {
   const pathname = usePathname();
 
   useEffect(() => {
+    // eslint-disable-next-line
     setMounted(true);
-    // Verificar si existe la cookie 'token'
     if (document.cookie.includes('token=')) {
       setIsLoggedIn(true);
     }
@@ -42,7 +42,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex items-center justify-between px-6 py-4 bg-primary text-primary-foreground border-b border-border shadow-sm relative z-50">
+    <nav className="flex items-center justify-between px-6 py-4 bg-ucn-navy text-white border-b border-ucn-navy shadow-sm relative z-50">
       <div className="flex flex-1 items-center">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl font-black tracking-tight">MARSYS</span>
@@ -50,11 +50,17 @@ export default function Navbar() {
       </div>
       
       <div className="hidden md:flex flex-1 justify-center space-x-6">
-        <Link href="/about" className="text-sm font-medium px-3 py-1.5 rounded-lg transition-colors text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+        <Link href="/about" className={`relative text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${pathname === '/about' ? 'text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}>
           {t('about')}
+          {pathname === '/about' && (
+            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-ocean-cyan rounded-full shadow-[0_0_8px_rgba(14,165,233,0.8)] animate-in fade-in zoom-in duration-300"></span>
+          )}
         </Link>
-        <Link href="/fcm" className="text-sm font-medium px-3 py-1.5 rounded-lg transition-colors text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+        <Link href="/fcm" className={`relative text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${pathname === '/fcm' ? 'text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}>
           {t('fcm')}
+          {pathname === '/fcm' && (
+            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-ocean-cyan rounded-full shadow-[0_0_8px_rgba(14,165,233,0.8)] animate-in fade-in zoom-in duration-300"></span>
+          )}
         </Link>
       </div>
 
@@ -62,7 +68,7 @@ export default function Navbar() {
         {/* Theme Toggle */}
         <button 
           onClick={toggleTheme}
-          className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-primary-foreground/10 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+          className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
           aria-label="Toggle Theme"
         >
           {mounted && (theme === 'dark' || (theme === 'system' && systemTheme === 'dark')) 
@@ -73,25 +79,25 @@ export default function Navbar() {
         {/* Language Toggle */}
         <button 
           onClick={toggleLanguage}
-          className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-primary-foreground/10 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+          className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
           aria-label="Toggle Language"
         >
-          <div className="text-[10px] font-black w-6 h-6 flex items-center justify-center border border-primary-foreground/20 rounded-md uppercase">
+          <div className="text-[10px] font-black w-6 h-6 flex items-center justify-center border border-white/20 rounded-md uppercase">
             {locale}
           </div>
         </button>
 
         {isLoggedIn ? (
           <div className="hidden md:flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center px-4 py-2 text-sm font-bold bg-background text-foreground rounded-lg hover:bg-muted transition-colors shadow-sm">
-              Dashboard
+            <Link href="/dashboard" className="flex items-center px-4 py-2 text-sm font-bold bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors shadow-sm">
+              {t('dashboard')}
             </Link>
-            <button onClick={handleLogout} className="flex items-center px-4 py-2 text-sm font-bold bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors shadow-sm">
-              Cerrar Sesión
+            <button onClick={handleLogout} className="flex items-center px-4 py-2 text-sm font-bold bg-coral-red text-white rounded-lg hover:bg-coral-red/90 transition-colors shadow-sm">
+              {t('logout')}
             </button>
           </div>
         ) : (
-          <Link href="/login" className="hidden md:flex items-center px-4 py-2 text-sm font-bold bg-background text-foreground rounded-lg hover:bg-muted transition-colors shadow-sm">
+          <Link href="/login" className="hidden md:flex items-center px-4 py-2 text-sm font-bold bg-ocean-cyan text-white rounded-lg hover:bg-ocean-cyan/90 transition-colors shadow-sm">
             {t('login')}
           </Link>
         )}

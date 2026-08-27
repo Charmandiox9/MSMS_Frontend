@@ -5,7 +5,7 @@ import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { LayoutDashboard, LogOut, Briefcase, Settings, Users, BookOpen } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const t = useTranslations('Dashboard');
+  const tNav = useTranslations('DashboardNav');
   const pathname = usePathname();
   const router = useRouter();
 
@@ -16,11 +16,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Mis Proyectos', href: '/dashboard/projects', icon: Briefcase },
-    { name: 'Laboratorios', href: '/dashboard/labs', icon: BookOpen },
-    { name: 'Usuarios', href: '/dashboard/users', icon: Users },
-    { name: 'Configuración', href: '/dashboard/settings', icon: Settings },
+    { name: tNav('dashboard'), href: '/dashboard', icon: LayoutDashboard },
+    { name: tNav('projects'), href: '/dashboard/projects', icon: Briefcase },
+    { name: tNav('labs'), href: '/dashboard/labs', icon: BookOpen },
+    { name: tNav('users'), href: '/dashboard/users', icon: Users },
+    { name: tNav('settings'), href: '/dashboard/settings', icon: Settings },
   ];
 
   return (
@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-t border-foreground/10">
           <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-medium text-sm text-red-500 hover:bg-red-500/10 w-full">
             <LogOut className="w-5 h-5" />
-            Cerrar Sesión
+            {tNav('logout')}
           </button>
         </div>
       </aside>
