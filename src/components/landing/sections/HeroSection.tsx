@@ -1,8 +1,8 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { ArrowRight } from 'lucide-react';
-import Hero3D from '@/components/Hero3D';
-import AnimeReveal from '@/components/AnimeReveal';
+import Hero3D from '@/components/landing/Hero3D';
+import AnimeReveal from '@/components/landing/AnimeReveal';
 
 export default function HeroSection() {
   const t = useTranslations('Landing');

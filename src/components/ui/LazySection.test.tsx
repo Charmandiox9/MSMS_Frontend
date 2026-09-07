@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render } from "@testing-library/react";
-import LazySection from "@/components/LazySection";
+import LazySection from "@/components/ui/LazySection";
 
 class MockIntersectionObserver {
   static instances: MockIntersectionObserver[] = [];

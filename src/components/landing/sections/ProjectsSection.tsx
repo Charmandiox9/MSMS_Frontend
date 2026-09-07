@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight } from "lucide-react";
 
 export default function ProjectsSection() {
   const t = useTranslations('Landing');

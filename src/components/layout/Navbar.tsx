@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { hasActiveSession, logout } from '@/lib/auth';
 
 export default function Navbar() {
   const t = useTranslations('Navigation');
@@ -17,15 +18,12 @@ export default function Navbar() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // eslint-disable-next-line
     setMounted(true);
-    if (document.cookie.includes('token=')) {
-      setIsLoggedIn(true);
-    }
+    void hasActiveSession().then(setIsLoggedIn);
   }, []);
 
-  const handleLogout = () => {
-    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  const handleLogout = async () => {
+    await logout();
     setIsLoggedIn(false);
     router.push('/');
     router.refresh();

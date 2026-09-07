@@ -5,9 +5,9 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import CookieConsent from "@/components/CookieConsent";
-import SmoothScroll from "@/components/SmoothScroll";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import CookieConsent from "@/components/providers/CookieConsent";
+import SmoothScroll from "@/components/behavior/SmoothScroll";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

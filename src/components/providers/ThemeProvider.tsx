@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { ThemeProvider as NextThemesProvider } from 'next-themes';
 
 // Suppress the React 19 strict mode warning about next-themes injecting a script tag during client remounts
 if (typeof window !== "undefined") {

@@ -6,7 +6,7 @@ vi.mock("lenis/react", () => ({
 }));
 
 import { ReactLenis } from "lenis/react";
-import SmoothScroll from "@/components/SmoothScroll";
+import SmoothScroll from "@/components/behavior/SmoothScroll";
 
 describe("SmoothScroll", () => {
   it("monta ReactLenis en root con respeto al reduced-motion", () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import anime from "animejs";
+import anime from 'animejs';
 
 interface ScrollRevealProps {
   children: ReactNode;

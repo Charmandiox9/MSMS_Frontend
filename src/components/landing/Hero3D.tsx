@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useMemo, useEffect, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useRef, useMemo, useEffect } from "react";
+import { Canvas, useFrame } from '@react-three/fiber';
 import { useTheme } from "next-themes";
 import * as THREE from "three";
 
@@ -11,14 +11,14 @@ function ParticleSquidSwarm() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const mouse = useRef({ x: 0, y: 0 });
   
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMouse({
+      mouse.current = {
         x: (e.clientX / window.innerWidth) * 2 - 1,
         y: -(e.clientY / window.innerHeight) * 2 + 1
-      });
+      };
     };
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
@@ -178,8 +178,8 @@ function ParticleSquidSwarm() {
     const time = state.clock.getElapsedTime();
     const globalBob = Math.sin(time * 0.8) * 0.5;
     
-    const targetX = mouse.x * 12;
-    const targetY = mouse.y * 12;
+    const targetX = mouse.current.x * 12;
+    const targetY = mouse.current.y * 12;
     
     particles.forEach((particle, i) => {
       particle.t += particle.speed;
@@ -225,8 +225,8 @@ function ParticleSquidSwarm() {
         const driftZ = Math.cos(particle.t * 0.8) * 1.5;
         
         dummy.position.set(
-          particle.baseX + driftX + (mouse.x * 0.5),
-          particle.baseY + (mouse.y * 0.5),
+          particle.baseX + driftX + (mouse.current.x * 0.5),
+          particle.baseY + (mouse.current.y * 0.5),
           particle.baseZ + driftZ
         );
         
@@ -260,10 +260,9 @@ function ParticleSquidSwarm() {
       mesh.current!.setMatrixAt(i, dummy.matrix);
     });
     
-    // Flote global aplicado al grupo entero
-    // Posicionado más arriba (+1.5) y a la derecha (7) para no cubrir el texto
-    mesh.current!.position.y = globalBob + 1.5;
-    mesh.current!.position.x = 7;
+    // Flote global: desplaza la figura bajo el bloque de bienvenida.
+    mesh.current!.position.y = globalBob - 1;
+    mesh.current!.position.x = 3.5;
 
     mesh.current!.instanceMatrix.needsUpdate = true;
   });

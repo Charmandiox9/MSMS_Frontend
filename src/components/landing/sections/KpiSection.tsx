@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import AnimeReveal from '@/components/AnimeReveal';
+import AnimeReveal from '@/components/landing/AnimeReveal';
 
 export default function KpiSection() {
   const t = useTranslations('Landing');

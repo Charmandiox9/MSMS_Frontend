@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import { FlaskConical, CarFront, TrendingUp, Users } from 'lucide-react';
+import { CarFront, FlaskConical, TrendingUp, Users } from 'lucide-react';
 
 export default function FeaturesSection() {
   const t = useTranslations('Landing');
