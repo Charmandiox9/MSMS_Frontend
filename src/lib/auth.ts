@@ -9,6 +9,7 @@ export const googleLoginUrl = authEndpoint('google');
 export type ActiveSession = {
   email: string;
   roles: string[];
+  avatarUrl?: string;
 };
 
 export async function getActiveSession(): Promise<ActiveSession | null> {
