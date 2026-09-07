@@ -9,8 +9,8 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import ScrollReveal from "@/components/ScrollReveal";
-import LazySection from "@/components/LazySection";
+import ScrollReveal from "@/components/ui/ScrollReveal";
+import LazySection from "@/components/ui/LazySection";
 
 interface ProposalCard {
   id: "transparency" | "efficiency" | "collaboration";
@@ -308,3 +308,4 @@ export default function AboutPage() {
     </div>
   );
 }
+// Página pública conservada fuera de las rutas activas.

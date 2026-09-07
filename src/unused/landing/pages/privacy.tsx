@@ -70,3 +70,4 @@ export default function PrivacyPage() {
     </main>
   );
 }
+// Página pública conservada fuera de las rutas activas.

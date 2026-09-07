@@ -127,6 +127,8 @@
     "subtitle": "Accede a tu portal académico para gestionar proyectos, laboratorios y recursos de Ciencias del Mar.",
     "warning": "Ingreso exclusivo para cuentas @ucn.cl, @ce.ucn.cl y @alumnos.ucn.cl",
     "button": "Continuar con Google",
+    "toggleTheme": "Cambiar tema",
+    "toggleLanguage": "Cambiar idioma",
     "back": "Volver al inicio"
   },
   "Dashboard": {
@@ -140,11 +142,31 @@
   },
   "DashboardNav": {
     "dashboard": "Dashboard",
-    "projects": "Mis Proyectos",
-    "labs": "Laboratorios",
+    "justifications": "Justificaciones",
+    "academicInformation": "Información académica",
+    "academicWorkload": "Carga académica",
+    "titulation": "Titulaciones",
+    "reports": "Reportes e indicadores",
     "users": "Usuarios",
     "settings": "Configuración",
-    "logout": "Cerrar Sesión"
+    "logout": "Cerrar sesión",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "collapse": "Contraer barra lateral",
+    "expand": "Expandir barra lateral",
+    "sessionActive": "Sesión activa",
+    "sections": {
+      "main": "Principal",
+      "academic": "Gestión académica",
+      "analysis": "Análisis",
+      "system": "Sistema"
+    },
+    "roles": {
+      "SYSTEM_ADMIN": "Administrador del sistema",
+      "ACADEMIC_SECRETARY": "Secretario docente",
+      "ACADEMIC_PROCESS_ANALYST": "Analista académico",
+      "TEACHING_SUPPORT_COORDINATOR": "Apoyo docente"
+    }
   },
   "Navigation": {
     "home": "Inicio",

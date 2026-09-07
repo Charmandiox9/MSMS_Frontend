@@ -1,12 +1,14 @@
 import { useTranslations } from 'next-intl';
-import { ArrowLeft } from 'lucide-react';
-import { Link } from '@/i18n/routing';
+import { googleLoginUrl } from '@/lib/auth';
+import LoginSquid from '@/components/auth/LoginSquid';
+import LoginPreferences from '@/components/auth/LoginPreferences';
 
 export default function LoginPage() {
   const t = useTranslations('Login');
 
   return (
-    <div className="flex-grow w-full flex flex-col lg:flex-row bg-slate-50 dark:bg-[#020b18] min-h-[calc(100vh-73px)] overflow-hidden selection:bg-ocean-cyan/30 transition-colors duration-500">
+    <div className="flex-grow w-full flex flex-col lg:flex-row bg-slate-50 dark:bg-[#020b18] min-h-screen overflow-hidden selection:bg-ocean-cyan/30 transition-colors duration-500">
+      <LoginPreferences />
       <style>{`
         @keyframes sway {
           0%, 100% { transform: translate(0%, 0%) rotate(-25deg) scale(1.2); }
@@ -27,7 +29,8 @@ export default function LoginPage() {
       `}</style>
 
       {/* Left Panel: Visual/Brand (Hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col p-12 overflow-hidden bg-white dark:bg-[#010a14] transition-colors duration-500">
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col p-12 overflow-visible bg-white dark:bg-[#010a14] transition-colors duration-500">
+        <LoginSquid />
         
         {/* Ocean Wave Background */}
         <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-[#000d1a] dark:to-[#002a4d] overflow-hidden transition-colors duration-500">
@@ -55,16 +58,8 @@ export default function LoginPage() {
         {/* EDGE FADE: Blends the left panel into the right panel seamlessly */}
         <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-r from-transparent to-slate-50 dark:to-[#020b18] z-20 pointer-events-none transition-colors duration-500"></div>
 
-        {/* Header (Back button) */}
-        <div className="relative z-10 w-full flex justify-start">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-white/70 hover:text-ocean-cyan dark:hover:text-white transition-colors group bg-white/60 dark:bg-black/40 px-5 py-2.5 rounded-full border border-slate-200/50 dark:border-white/10 backdrop-blur-md shadow-sm dark:shadow-lg">
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            {t('back')}
-          </Link>
-        </div>
-
         {/* Content */}
-        <div className="relative z-10 flex-grow flex flex-col justify-center items-start w-full max-w-lg mx-auto pl-4 lg:pl-0">
+        <div className="relative z-10 flex-grow flex flex-col justify-start pt-[10vh] items-start w-full max-w-lg mx-auto pl-4 lg:pl-0">
           <h1 className="text-6xl lg:text-7xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter leading-[1.05] drop-shadow-sm dark:drop-shadow-[0_4px_25px_rgba(0,0,0,1)] transition-colors duration-500">
             {t('welcomeTitle')} <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-ocean-cyan to-blue-600 dark:from-cyan-300 dark:to-blue-500 drop-shadow-sm dark:drop-shadow-[0_0_15px_rgba(14,165,233,0.3)]">MARSYS</span>
@@ -76,10 +71,11 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel: Authentication */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center relative z-10 px-6 py-12 lg:p-12 bg-slate-50 dark:bg-[#020b18] transition-colors duration-500">
+      <div className="w-full lg:w-1/2 flex items-center justify-center relative z-[2] px-6 py-12 lg:p-12 bg-slate-50/80 dark:bg-[#020b18]/75 backdrop-blur-sm transition-colors duration-500">
         
         {/* Subtle right panel background with large blurred orbs */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-50/15 via-slate-50/55 to-slate-50/85 dark:from-[#020b18]/10 dark:via-[#020b18]/50 dark:to-[#020b18]/80"></div>
           <div className="absolute top-[-30%] right-[-20%] w-[80%] h-[80%] bg-cyan-200/30 dark:bg-cyan-900/10 rounded-full blur-[120px]"></div>
           <div className="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] bg-blue-200/30 dark:bg-blue-900/10 rounded-full blur-[140px]"></div>
         </div>
@@ -87,13 +83,6 @@ export default function LoginPage() {
         {/* Card Container */}
         <div className="w-full max-w-[440px] relative z-10">
           
-          <div className="lg:hidden mb-8 flex justify-center">
-            <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white transition-colors group bg-white/50 dark:bg-white/5 px-5 py-2.5 rounded-full border border-slate-200 dark:border-white/10 shadow-sm backdrop-blur-md">
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              {t('back')}
-            </Link>
-          </div>
-
           <div className="bg-white/80 dark:bg-[#0f172a]/40 backdrop-blur-3xl border border-slate-200/80 dark:border-white/10 rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] p-8 sm:p-10 flex flex-col relative overflow-hidden group/card hover:border-ocean-cyan/30 dark:hover:border-cyan-500/30 transition-all duration-700">
             
             {/* Header Area */}
@@ -114,7 +103,7 @@ export default function LoginPage() {
             {/* Action Area */}
             <div className="space-y-6">
               {/* Glowing Google Button */}
-              <a href="http://localhost:3001/api/auth/google" className="w-full relative group/btn block">
+              <a href={googleLoginUrl ?? '/login'} className="w-full relative group/btn block">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-ocean-cyan to-blue-500 rounded-[14px] blur opacity-20 dark:opacity-30 group-hover/btn:opacity-50 dark:group-hover/btn:opacity-70 transition duration-500"></div>
                 <div className="relative w-full flex items-center justify-center gap-3 bg-white dark:bg-[#0a0f1c] border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white py-4 px-4 rounded-[14px] shadow-sm transition-all font-bold overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-100 dark:via-white/10 to-transparent -translate-x-[100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000"></div>

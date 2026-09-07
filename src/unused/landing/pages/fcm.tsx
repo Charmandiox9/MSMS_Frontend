@@ -9,8 +9,8 @@ import {
   Waves,
   type LucideIcon,
 } from "lucide-react";
-import ScrollReveal from "@/components/ScrollReveal";
-import LazySection from "@/components/LazySection";
+import ScrollReveal from "@/components/ui/ScrollReveal";
+import LazySection from "@/components/ui/LazySection";
 
 interface LinkCard {
   id: "ucn" | "fcm" | "campus";
@@ -201,3 +201,4 @@ export default function FCMPage() {
     </div>
   );
 }
+// Página pública conservada fuera de las rutas activas.

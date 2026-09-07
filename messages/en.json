@@ -127,6 +127,8 @@
     "subtitle": "Access your academic portal to manage projects, laboratories, and Marine Sciences resources.",
     "warning": "Exclusive access for @ucn.cl, @ce.ucn.cl, and @alumnos.ucn.cl accounts",
     "button": "Continue with Google",
+    "toggleTheme": "Change theme",
+    "toggleLanguage": "Change language",
     "back": "Back to Home"
   },
   "Dashboard": {
@@ -140,11 +142,31 @@
   },
   "DashboardNav": {
     "dashboard": "Dashboard",
-    "projects": "My Projects",
-    "labs": "Laboratories",
+    "justifications": "Justifications",
+    "academicInformation": "Academic information",
+    "academicWorkload": "Academic workload",
+    "titulation": "Graduation",
+    "reports": "Reports and indicators",
     "users": "Users",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Log out",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "sessionActive": "Active session",
+    "sections": {
+      "main": "Main",
+      "academic": "Academic management",
+      "analysis": "Analysis",
+      "system": "System"
+    },
+    "roles": {
+      "SYSTEM_ADMIN": "System administrator",
+      "ACADEMIC_SECRETARY": "Academic secretary",
+      "ACADEMIC_PROCESS_ANALYST": "Academic process analyst",
+      "TEACHING_SUPPORT_COORDINATOR": "Teaching support"
+    }
   },
   "Navigation": {
     "home": "Home",
