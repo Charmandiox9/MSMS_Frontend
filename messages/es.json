@@ -148,6 +148,7 @@
     "titulation": "Titulaciones",
     "reports": "Reportes e indicadores",
     "users": "Usuarios",
+    "audit": "Auditoría del sistema",
     "settings": "Configuración",
     "logout": "Cerrar sesión",
     "accountMenu": "Abrir menú de cuenta",
@@ -170,6 +171,140 @@
       "ACADEMIC_SECRETARY": "Secretario docente",
       "ACADEMIC_PROCESS_ANALYST": "Analista académico",
       "TEACHING_SUPPORT_COORDINATOR": "Apoyo docente"
+    },
+    "switchRole": "Cambiar rol activo",
+    "switchRoleTitle": "Roles asignados"
+  },
+  "DashboardViews": {
+    "systemAdmin": {
+      "title": "Panel de Administración del Sistema",
+      "subtitle": "Supervisión global de usuarios, roles, seguridad y cumplimiento normativo.",
+      "actionsTitle": "Acciones de Administración",
+      "actionsSubtitle": "Accesos directos para la gestión global de la plataforma",
+      "stats": {
+        "users": "Usuarios Activos",
+        "usersDesc": "Cuentas activas FCM",
+        "usersTrend": "+4 este mes",
+        "roles": "Roles RBAC",
+        "rolesDesc": "Perfiles configurados",
+        "audit": "Eventos de Auditoría",
+        "auditDesc": "Trazabilidad activa",
+        "auditTrend": "100% verificado",
+        "compliance": "Cumplimiento Ley 21.719",
+        "complianceDesc": "Gobernanza activa",
+        "complianceTrend": "Ley N° 21.719"
+      },
+      "actions": {
+        "manageUsers": "Gestión de Usuarios",
+        "manageUsersDesc": "Administrar cuentas institucionales, altas y asignación de roles.",
+        "auditLogs": "Registro de Auditoría",
+        "auditLogsDesc": "Consultar trazabilidad de accesos y modificaciones en la plataforma.",
+        "systemSettings": "Configuraciones",
+        "systemSettingsDesc": "Parámetros globales de la plataforma y políticas de seguridad."
+      },
+      "law21719": {
+        "title": "Protección de Datos Personales (Ley N° 21.719)",
+        "subtitle": "Estado de gobernanza y privacidad institucional",
+        "status": "Conforme",
+        "statusDesc": "Principios de minimización de datos, consentimiento y derechos ARCO activos.",
+        "viewPolicy": "Ver política"
+      }
+    },
+    "academicSecretary": {
+      "title": "Panel de Secretaría Docente",
+      "subtitle": "Gestión de información académica, expedientes y repositorio documental.",
+      "actionsTitle": "Gestión de Secretaría",
+      "actionsSubtitle": "Operaciones principales sobre repositorios y documentación",
+      "noticesTitle": "Avisos Institucionales",
+      "noticesSubtitle": "Recordatorios de plazos académicos",
+      "notices": {
+        "gradesCloseTitle": "Cierre de Actas Parciales",
+        "gradesCloseDesc": "Plazo máximo para carga de calificaciones este viernes a las 18:00 hrs.",
+        "filesValidationTitle": "Validación de Expedientes",
+        "filesValidationDesc": "Revisión de requisitos de egreso para postulantes a titulación 2026."
+      },
+      "stats": {
+        "records": "Expedientes Académicos",
+        "recordsDesc": "Estudiantes matriculados",
+        "recordsTrend": "Periodo vigente",
+        "pending": "Documentos Pendientes",
+        "pendingDesc": "Por validar",
+        "pendingTrend": "Prioridad alta",
+        "certificates": "Certificados Emitidos",
+        "certificatesDesc": "Emitidos este semestre",
+        "faculty": "Docentes Activos",
+        "facultyDesc": "Docentes registrados"
+      },
+      "actions": {
+        "academicInfo": "Repositorio Académico",
+        "academicInfoDesc": "Consulta y actualización de antecedentes curriculares y docentes.",
+        "records": "Gestión Documental",
+        "recordsDesc": "Revisión y validación de actas y constancias académicas."
+      }
+    },
+    "academicProcessAnalyst": {
+      "title": "Panel de Análisis de Procesos Académicos",
+      "subtitle": "Monitoreo consolidado de indicadores curriculares, justificaciones y titulación.",
+      "actionsTitle": "Herramientas Analíticas",
+      "actionsSubtitle": "Acceso directo a generación de reportes y seguimiento",
+      "distributionTitle": "Distribución Curricular",
+      "distributionSubtitle": "Resumen de avance por carrera",
+      "degrees": {
+        "marineBiology": "Biología Marina",
+        "aquaculture": "Ingeniería en Acuicultura",
+        "riskPrevention": "Ing. Prevención de Riesgos"
+      },
+      "stats": {
+        "progression": "Tasa de Progresión",
+        "progressionDesc": "Rendimiento semestral",
+        "progressionTrend": "+2.1% vs anterior",
+        "titulation": "Procesos de Titulación",
+        "titulationDesc": "Tesis en desarrollo",
+        "reports": "Reportes Generados",
+        "reportsDesc": "Informes consolidados",
+        "justifications": "Justificaciones Revisadas",
+        "justificationsDesc": "Procesadas en el ciclo"
+      },
+      "actions": {
+        "reports": "Generar Reportes",
+        "reportsDesc": "Crear y exportar reportes analíticos con indicadores oficiales.",
+        "titulation": "Consultar Titulaciones",
+        "titulationDesc": "Monitorear estados de avance y antecedentes de procesos de título."
+      }
+    },
+    "teachingSupportCoordinator": {
+      "title": "Panel de Coordinación de Apoyo Docente",
+      "subtitle": "Supervisión de justificaciones, carga académica, horarios y ayudantías.",
+      "actionsTitle": "Acciones de Apoyo Docente",
+      "actionsSubtitle": "Carga de antecedentes y coordinación de actividades",
+      "tasksTitle": "Tareas Prioritarias",
+      "tasksSubtitle": "Acciones que requieren atención",
+      "tasks": {
+        "medicalJustificationTitle": "Justificación Médica #1042",
+        "medicalJustificationDesc": "Estudiante solicitó eximición a evaluación parcial. Pendiente adjunto de certificado.",
+        "assistantshipConfirmationTitle": "Confirmación de Ayudantía",
+        "assistantshipConfirmationDesc": "Firma de convenio para 4 ayudantes de laboratorio de Oceanografía."
+      },
+      "stats": {
+        "justificationsPending": "Justificaciones Pendientes",
+        "justificationsPendingDesc": "Esperando validación",
+        "justificationsPendingTrend": "3 urgentes",
+        "activeAssistants": "Ayudantías Activas",
+        "activeAssistantsDesc": "Ayudantías asignadas",
+        "schedules": "Horarios Validados",
+        "schedulesDesc": "Horarios coordinados",
+        "schedulesTrend": "Sin topes",
+        "titulations": "Titulaciones en Proceso",
+        "titulationsDesc": "Defensas calendarizadas"
+      },
+      "actions": {
+        "createJustification": "Cargar Justificación",
+        "createJustificationDesc": "Registrar inasistencias de estudiantes y adjuntar evidencias.",
+        "workload": "Carga Académica",
+        "workloadDesc": "Administrar asignaciones docentes y disponibilidad horaria.",
+        "assistants": "Gestionar Ayudantías",
+        "assistantsDesc": "Coordinar llamados, asignación y seguimiento de ayudantes."
+      }
     }
   },
   "Navigation": {
@@ -230,5 +365,12 @@
     "description": "La página que buscas ha sido movida, eliminada o simplemente no existe.",
     "back": "Volver al inicio",
     "goBack": "Regresar"
+  },
+  "NoAccess": {
+    "title": "Sin acceso a la plataforma",
+    "subtitle": "Tu cuenta institucional no tiene roles asignados actualmente.",
+    "description": "Tu autenticación institucional fue exitosa, pero tu perfil no cuenta con permisos para operar en los módulos de MARSYS. Si necesitas acceso, contacta a la secretaría docente o al administrador.",
+    "backToLogin": "Volver al inicio",
+    "contact": "Contacto: fcm@ucn.cl"
   }
 }

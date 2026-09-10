@@ -148,6 +148,7 @@
     "titulation": "Graduation",
     "reports": "Reports and indicators",
     "users": "Users",
+    "audit": "System audit",
     "settings": "Settings",
     "logout": "Log out",
     "accountMenu": "Open account menu",
@@ -169,7 +170,141 @@
       "SYSTEM_ADMIN": "System administrator",
       "ACADEMIC_SECRETARY": "Academic secretary",
       "ACADEMIC_PROCESS_ANALYST": "Academic process analyst",
-      "TEACHING_SUPPORT_COORDINATOR": "Teaching support"
+      "TEACHING_SUPPORT_COORDINATOR": "Teaching support coordinator"
+    },
+    "switchRole": "Switch active role",
+    "switchRoleTitle": "Assigned roles"
+  },
+  "DashboardViews": {
+    "systemAdmin": {
+      "title": "System Administration Dashboard",
+      "subtitle": "Global overview of users, roles, security, and regulatory compliance.",
+      "actionsTitle": "Administration Actions",
+      "actionsSubtitle": "Quick shortcuts for global platform management",
+      "stats": {
+        "users": "Active Users",
+        "usersDesc": "Active FCM accounts",
+        "usersTrend": "+4 this month",
+        "roles": "RBAC Roles",
+        "rolesDesc": "Configured profiles",
+        "audit": "Audit Events",
+        "auditDesc": "Active traceability",
+        "auditTrend": "100% verified",
+        "compliance": "Law 21.719 Status",
+        "complianceDesc": "Active governance",
+        "complianceTrend": "Law N° 21.719"
+      },
+      "actions": {
+        "manageUsers": "User Management",
+        "manageUsersDesc": "Manage institutional accounts, onboarding, and role assignments.",
+        "auditLogs": "Audit Log",
+        "auditLogsDesc": "Inspect access traceability and platform modifications.",
+        "systemSettings": "Settings",
+        "systemSettingsDesc": "Global platform parameters and security policies."
+      },
+      "law21719": {
+        "title": "Personal Data Protection (Law N° 21.719)",
+        "subtitle": "Institutional governance and privacy status",
+        "status": "Compliant",
+        "statusDesc": "Data minimization, consent tracking, and ARCO rights active.",
+        "viewPolicy": "View policy"
+      }
+    },
+    "academicSecretary": {
+      "title": "Academic Secretary Dashboard",
+      "subtitle": "Academic records, student files, and repository management.",
+      "actionsTitle": "Secretary Management",
+      "actionsSubtitle": "Core operations on repositories and documentation",
+      "noticesTitle": "Institutional Notices",
+      "noticesSubtitle": "Academic deadline reminders",
+      "notices": {
+        "gradesCloseTitle": "Partial Grade Submission Deadline",
+        "gradesCloseDesc": "Deadline for uploading grades this Friday at 18:00 hrs.",
+        "filesValidationTitle": "File Validation",
+        "filesValidationDesc": "Review of graduation requirements for 2026 degree candidates."
+      },
+      "stats": {
+        "records": "Academic Files",
+        "recordsDesc": "Enrolled students",
+        "recordsTrend": "Current term",
+        "pending": "Pending Documents",
+        "pendingDesc": "To validate",
+        "pendingTrend": "High priority",
+        "certificates": "Issued Certificates",
+        "certificatesDesc": "Issued this term",
+        "faculty": "Active Faculty",
+        "facultyDesc": "Registered instructors"
+      },
+      "actions": {
+        "academicInfo": "Academic Repository",
+        "academicInfoDesc": "Consult and update curricular and faculty background.",
+        "records": "Document Management",
+        "recordsDesc": "Review and validate minutes and academic certificates."
+      }
+    },
+    "academicProcessAnalyst": {
+      "title": "Academic Process Analysis Dashboard",
+      "subtitle": "Consolidated indicators for curricular progression, justifications, and titulation.",
+      "actionsTitle": "Analytical Tools",
+      "actionsSubtitle": "Direct access to report generation and monitoring",
+      "distributionTitle": "Curricular Distribution",
+      "distributionSubtitle": "Program progression summary",
+      "degrees": {
+        "marineBiology": "Marine Biology",
+        "aquaculture": "Aquaculture Engineering",
+        "riskPrevention": "Occupational Risk Prevention Eng."
+      },
+      "stats": {
+        "progression": "Progression Rate",
+        "progressionDesc": "Term academic yield",
+        "progressionTrend": "+2.1% vs previous",
+        "titulation": "Titulation Processes",
+        "titulationDesc": "Theses in progress",
+        "reports": "Generated Reports",
+        "reportsDesc": "Consolidated reports",
+        "justifications": "Reviewed Justifications",
+        "justificationsDesc": "Processed this cycle"
+      },
+      "actions": {
+        "reports": "Generate Reports",
+        "reportsDesc": "Create and export analytical reports with official metrics.",
+        "titulation": "Consult Titulations",
+        "titulationDesc": "Monitor progress milestones and titulation proceedings."
+      }
+    },
+    "teachingSupportCoordinator": {
+      "title": "Teaching Support Coordination Dashboard",
+      "subtitle": "Supervision of justifications, workload, schedules, and assistantships.",
+      "actionsTitle": "Teaching Support Actions",
+      "actionsSubtitle": "Background upload and activity coordination",
+      "tasksTitle": "Priority Tasks",
+      "tasksSubtitle": "Items requiring attention",
+      "tasks": {
+        "medicalJustificationTitle": "Medical Justification #1042",
+        "medicalJustificationDesc": "Student requested evaluation exemption. Awaiting medical certificate attachment.",
+        "assistantshipConfirmationTitle": "Assistantship Confirmation",
+        "assistantshipConfirmationDesc": "Agreement signing for 4 Oceanography lab assistants."
+      },
+      "stats": {
+        "justificationsPending": "Pending Justifications",
+        "justificationsPendingDesc": "Awaiting validation",
+        "justificationsPendingTrend": "3 urgent",
+        "activeAssistants": "Active Assistantships",
+        "activeAssistantsDesc": "Assigned assistantships",
+        "schedules": "Validated Schedules",
+        "schedulesDesc": "Coordinated timetables",
+        "schedulesTrend": "No conflicts",
+        "titulations": "Titulations in Progress",
+        "titulationsDesc": "Scheduled defenses"
+      },
+      "actions": {
+        "createJustification": "Submit Justification",
+        "createJustificationDesc": "Record student absences and attach formal evidence.",
+        "workload": "Academic Workload",
+        "workloadDesc": "Manage faculty allocations and timetable availability.",
+        "assistants": "Manage Assistantships",
+        "assistantsDesc": "Coordinate calls, assignments, and assistantship tracking."
+      }
     }
   },
   "Navigation": {
@@ -230,5 +365,12 @@
     "description": "The page you are looking for has been moved, deleted, or does not exist.",
     "back": "Return to Home",
     "goBack": "Go Back"
+  },
+  "NoAccess": {
+    "title": "No platform access",
+    "subtitle": "Your institutional account currently has no assigned roles.",
+    "description": "Your institutional authentication was successful, but your profile lacks permissions to operate on MARSYS modules. If you require access, please contact the academic secretary or administrator.",
+    "backToLogin": "Return to home",
+    "contact": "Contact: fcm@ucn.cl"
   }
 }

@@ -7,9 +7,17 @@ const intlMiddleware = createMiddleware(routing);
 
 export default function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
-  const hasToken = req.cookies.has('token');
+  const hasToken = req.cookies.has('token') || req.cookies.has('session');
 
-  // 1. Proteger rutas del Dashboard (Si NO hay token, expulsar al Login)
+  if (pathname.includes('/auth/callback')) {
+    const route = req.nextUrl.searchParams.get('route') || '/dashboard';
+    const target = route.startsWith('/dashboard') || route === '/no-access' ? route : '/dashboard';
+    const url = req.nextUrl.clone();
+    url.pathname = target;
+    url.search = '';
+    return NextResponse.redirect(url);
+  }
+
   if (pathname.includes('/dashboard')) {
     if (!hasToken) {
       const localeMatch = pathname.match(/^\/(es|en)/);
@@ -20,7 +28,6 @@ export default function middleware(req: NextRequest) {
     }
   }
 
-  // 2. Proteger la ruta de Login (Si YA hay token, saltar directo al Dashboard)
   if (pathname.includes('/login') && hasToken) {
     const localeMatch = pathname.match(/^\/(es|en)/);
     const prefix = localeMatch ? localeMatch[0] : '';
@@ -29,7 +36,6 @@ export default function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 3. Continuar con el middleware de idiomas (next-intl)
   return intlMiddleware(req);
 }
 
