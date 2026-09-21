@@ -1,0 +1,376 @@
+{
+  "Landing": {
+    "badge": "MARSYS · Welcome",
+    "title_part1": "Centralized academic",
+    "title_part2": "and administrative management",
+    "description": "Academic and administrative management system of the Faculty of Marine Sciences.",
+    "login": "Sign In",
+    "explore_fcm": "Explore Faculty",
+    "kpis": {
+      "teachers": "Registered Teachers",
+      "students": "Registered Students",
+      "projects": "Active S+L Projects",
+      "investigations": "Completed Investigations"
+    },
+    "features": {
+      "title": "What does MARSYS offer?",
+      "subtitle": "Tools designed for the needs of the Faculty of Marine Sciences",
+      "lab": { "title": "Laboratory Management", "desc": "Centralize and optimize the use of labs and equipment." },
+      "vehicles": { "title": "Vehicle Reservation", "desc": "Manage field trips and fleet availability." },
+      "tracking": { "title": "Academic Tracking", "desc": "Monitor student progress and graduation processes." },
+      "roles": { "title": "Flexible Roles", "desc": "Multiple profiles with permissions adapted to each user." }
+    },
+    "recent": {
+      "title": "A+S Projects & Research",
+      "subtitle": "Recent initiatives from our academic community",
+      "viewAll": "View all publications"
+    },
+    "heroCards": {
+      "research": {
+        "title": "Research",
+        "subtitle": "ESMOI - Biodiversity",
+        "stat": "150+",
+        "statLabel": "New species under study"
+      },
+      "community": {
+        "title": "Academic Community",
+        "status": "Active",
+        "teachers": "Teachers",
+        "projects": "Theses / Projects"
+      },
+      "logistics": {
+        "title": "Logistics Management",
+        "fieldTrip": "Field Trip (4x4)",
+        "fieldTripDest": "Herradura Bay",
+        "lab": "Aquaculture Lab",
+        "labTime": "14:00 hrs"
+      }
+    }
+  },
+  "About": {
+    "badge": "MARSYS · About",
+    "title": "About MARSYS",
+    "subtitle": "Smart management for the Faculty of Marine Sciences.",
+    "whatIs": "What is MARSYS?",
+    "whatIsDesc": "MARSYS is an academic and administrative management platform developed for the Faculty of Marine Sciences of the Universidad Católica del Norte. Its main objective is to centralize and optimize the administration of laboratories, vehicles, and student tracking, connecting the entire community in a single collaborative environment.",
+    "proposal": "Our proposal",
+    "proposalCards": {
+      "transparency": { "title": "Traceability", "desc": "Detailed historical record of all academic activities and resource reservations." },
+      "efficiency": { "title": "Efficiency", "desc": "Optimization in requesting laboratories and vehicles for field trips." },
+      "collaboration": { "title": "Collaboration", "desc": "Unified tools for teachers, students, and researchers of the FCM." }
+    },
+    "tech": "Technology",
+    "techItems": {
+      "nextjs": { "name": "Next.js", "desc": "React Framework" },
+      "nestjs": { "name": "NestJS", "desc": "Node Framework" },
+      "postgresql": { "name": "PostgreSQL", "desc": "Database" },
+      "prisma": { "name": "Prisma", "desc": "ORM" },
+      "oauth": { "name": "Google OAuth", "desc": "Authentication" },
+      "nginx": { "name": "Nginx", "desc": "Reverse Proxy" },
+      "redis": { "name": "Redis", "desc": "In-Memory Cache" },
+      "podman": { "name": "Podman", "desc": "Containers" },
+      "graphql": { "name": "GraphQL", "desc": "Query Language" },
+      "rest": { "name": "REST API", "desc": "Integration" },
+      "jenkins": { "name": "Jenkins", "desc": "CI/CD" }
+    },
+    "devs": "Developers",
+    "eyebrows": {
+      "platform": "The platform",
+      "value": "Our value proposition",
+      "stack": "Tech stack",
+      "team": "The team"
+    },
+    "roles": {
+      "iti": "Information Technology Engineering",
+      "minor_sec": "Minor: Digital Security",
+      "minor_arch": "Minor: Software Architecture"
+    }
+  },
+  "Metadata": {
+    "about": {
+      "title": "About MARSYS · UCN Faculty of Marine Sciences",
+      "description": "Meet MARSYS, the academic and administrative management platform for the Faculty of Marine Sciences at the Universidad Católica del Norte."
+    },
+    "fcm": {
+      "title": "Faculty of Marine Sciences · UCN",
+      "description": "Meet the Faculty of Marine Sciences at the Universidad Católica del Norte, Coquimbo campus: a pioneer in the study, research, and conservation of marine ecosystems."
+    }
+  },
+  "FCM": {
+    "badge": "MARSYS · FCM",
+    "title": "Faculty of Marine Sciences",
+    "subtitle": "Universidad Católica del Norte",
+    "eyebrows": {
+      "faculty": "The Faculty",
+      "resources": "Official resources",
+      "education": "Education"
+    },
+    "whoAreWe": "Who are we?",
+    "whoAreWeDesc": "The Faculty of Marine Sciences of UCN, Coquimbo campus, is a pioneering academic unit dedicated to the study, research, and conservation of marine resources and ecosystems. We train professionals of excellence, contributing to sustainable development through science, teaching, and community outreach.",
+    "links": "Official links",
+    "linksCards": {
+      "ucn": { "title": "UCN Official Site", "desc": "Visit platform" },
+      "fcm": { "title": "Marine Sciences", "desc": "Visit platform" },
+      "campus": { "title": "Virtual Campus", "desc": "Visit platform" }
+    },
+    "careers": "Our programs",
+    "careersCards": {
+      "biologia": { "title": "Marine Biology", "desc": "View program" },
+      "acuicultura": { "title": "Aquaculture Engineering", "desc": "View program" },
+      "prevencion": { "title": "Risk Prevention and Environmental Engineering", "desc": "View program" }
+    }
+  },
+  "Login": {
+    "welcomeTitle": "Welcome to",
+    "welcomeDesc": "Comprehensive academic and administrative management platform for the Faculty of Marine Sciences.",
+    "title": "Welcome to MARSYS",
+    "subtitle": "Access your academic portal to manage projects, laboratories, and Marine Sciences resources.",
+    "warning": "Exclusive access for @ucn.cl, @ce.ucn.cl, and @alumnos.ucn.cl accounts",
+    "button": "Continue with Google",
+    "toggleTheme": "Change theme",
+    "toggleLanguage": "Change language",
+    "back": "Back to Home"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "subtitle": "General overview and quick access for your institutional account.",
+    "welcome": "Authentication successful!",
+    "welcomeDesc": "You have successfully logged in using your UCN Google account. We will load your profile and projects here soon.",
+    "quickActions": "Quick Actions",
+    "action1": "My Projects",
+    "action2": "View Profile"
+  },
+  "DashboardNav": {
+    "dashboard": "Dashboard",
+    "justifications": "Justifications",
+    "academicInformation": "Academic information",
+    "academicWorkload": "Academic workload",
+    "titulation": "Graduation",
+    "reports": "Reports and indicators",
+    "users": "Users",
+    "audit": "System audit",
+    "settings": "Settings",
+    "logout": "Log out",
+    "accountMenu": "Open account menu",
+    "openDashboard": "Go to dashboard",
+    "toggleTheme": "Change theme",
+    "toggleLanguage": "Change language",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "sessionActive": "Active session",
+    "sections": {
+      "main": "Main",
+      "academic": "Academic management",
+      "analysis": "Analysis",
+      "system": "System"
+    },
+    "roles": {
+      "SYSTEM_ADMIN": "System administrator",
+      "ACADEMIC_SECRETARY": "Academic secretary",
+      "ACADEMIC_PROCESS_ANALYST": "Academic process analyst",
+      "TEACHING_SUPPORT_COORDINATOR": "Teaching support coordinator"
+    },
+    "switchRole": "Switch active role",
+    "switchRoleTitle": "Assigned roles"
+  },
+  "DashboardViews": {
+    "systemAdmin": {
+      "title": "System Administration Dashboard",
+      "subtitle": "Global overview of users, roles, security, and regulatory compliance.",
+      "actionsTitle": "Administration Actions",
+      "actionsSubtitle": "Quick shortcuts for global platform management",
+      "stats": {
+        "users": "Active Users",
+        "usersDesc": "Active FCM accounts",
+        "usersTrend": "+4 this month",
+        "roles": "RBAC Roles",
+        "rolesDesc": "Configured profiles",
+        "audit": "Audit Events",
+        "auditDesc": "Active traceability",
+        "auditTrend": "100% verified",
+        "compliance": "Law 21.719 Status",
+        "complianceDesc": "Active governance",
+        "complianceTrend": "Law N° 21.719"
+      },
+      "actions": {
+        "manageUsers": "User Management",
+        "manageUsersDesc": "Manage institutional accounts, onboarding, and role assignments.",
+        "auditLogs": "Audit Log",
+        "auditLogsDesc": "Inspect access traceability and platform modifications.",
+        "systemSettings": "Settings",
+        "systemSettingsDesc": "Global platform parameters and security policies."
+      },
+      "law21719": {
+        "title": "Personal Data Protection (Law N° 21.719)",
+        "subtitle": "Institutional governance and privacy status",
+        "status": "Compliant",
+        "statusDesc": "Data minimization, consent tracking, and ARCO rights active.",
+        "viewPolicy": "View policy"
+      }
+    },
+    "academicSecretary": {
+      "title": "Academic Secretary Dashboard",
+      "subtitle": "Academic records, student files, and repository management.",
+      "actionsTitle": "Secretary Management",
+      "actionsSubtitle": "Core operations on repositories and documentation",
+      "noticesTitle": "Institutional Notices",
+      "noticesSubtitle": "Academic deadline reminders",
+      "notices": {
+        "gradesCloseTitle": "Partial Grade Submission Deadline",
+        "gradesCloseDesc": "Deadline for uploading grades this Friday at 18:00 hrs.",
+        "filesValidationTitle": "File Validation",
+        "filesValidationDesc": "Review of graduation requirements for 2026 degree candidates."
+      },
+      "stats": {
+        "records": "Academic Files",
+        "recordsDesc": "Enrolled students",
+        "recordsTrend": "Current term",
+        "pending": "Pending Documents",
+        "pendingDesc": "To validate",
+        "pendingTrend": "High priority",
+        "certificates": "Issued Certificates",
+        "certificatesDesc": "Issued this term",
+        "faculty": "Active Faculty",
+        "facultyDesc": "Registered instructors"
+      },
+      "actions": {
+        "academicInfo": "Academic Repository",
+        "academicInfoDesc": "Consult and update curricular and faculty background.",
+        "records": "Document Management",
+        "recordsDesc": "Review and validate minutes and academic certificates."
+      }
+    },
+    "academicProcessAnalyst": {
+      "title": "Academic Process Analysis Dashboard",
+      "subtitle": "Consolidated indicators for curricular progression, justifications, and titulation.",
+      "actionsTitle": "Analytical Tools",
+      "actionsSubtitle": "Direct access to report generation and monitoring",
+      "distributionTitle": "Curricular Distribution",
+      "distributionSubtitle": "Program progression summary",
+      "degrees": {
+        "marineBiology": "Marine Biology",
+        "aquaculture": "Aquaculture Engineering",
+        "riskPrevention": "Occupational Risk Prevention Eng."
+      },
+      "stats": {
+        "progression": "Progression Rate",
+        "progressionDesc": "Term academic yield",
+        "progressionTrend": "+2.1% vs previous",
+        "titulation": "Titulation Processes",
+        "titulationDesc": "Theses in progress",
+        "reports": "Generated Reports",
+        "reportsDesc": "Consolidated reports",
+        "justifications": "Reviewed Justifications",
+        "justificationsDesc": "Processed this cycle"
+      },
+      "actions": {
+        "reports": "Generate Reports",
+        "reportsDesc": "Create and export analytical reports with official metrics.",
+        "titulation": "Consult Titulations",
+        "titulationDesc": "Monitor progress milestones and titulation proceedings."
+      }
+    },
+    "teachingSupportCoordinator": {
+      "title": "Teaching Support Coordination Dashboard",
+      "subtitle": "Supervision of justifications, workload, schedules, and assistantships.",
+      "actionsTitle": "Teaching Support Actions",
+      "actionsSubtitle": "Background upload and activity coordination",
+      "tasksTitle": "Priority Tasks",
+      "tasksSubtitle": "Items requiring attention",
+      "tasks": {
+        "medicalJustificationTitle": "Medical Justification #1042",
+        "medicalJustificationDesc": "Student requested evaluation exemption. Awaiting medical certificate attachment.",
+        "assistantshipConfirmationTitle": "Assistantship Confirmation",
+        "assistantshipConfirmationDesc": "Agreement signing for 4 Oceanography lab assistants."
+      },
+      "stats": {
+        "justificationsPending": "Pending Justifications",
+        "justificationsPendingDesc": "Awaiting validation",
+        "justificationsPendingTrend": "3 urgent",
+        "activeAssistants": "Active Assistantships",
+        "activeAssistantsDesc": "Assigned assistantships",
+        "schedules": "Validated Schedules",
+        "schedulesDesc": "Coordinated timetables",
+        "schedulesTrend": "No conflicts",
+        "titulations": "Titulations in Progress",
+        "titulationsDesc": "Scheduled defenses"
+      },
+      "actions": {
+        "createJustification": "Submit Justification",
+        "createJustificationDesc": "Record student absences and attach formal evidence.",
+        "workload": "Academic Workload",
+        "workloadDesc": "Manage faculty allocations and timetable availability.",
+        "assistants": "Manage Assistantships",
+        "assistantsDesc": "Coordinate calls, assignments, and assistantship tracking."
+      }
+    }
+  },
+  "Navigation": {
+    "home": "Home",
+    "about": "About",
+    "fcm": "FCM",
+    "login": "Sign In",
+    "dashboard": "Dashboard",
+    "logout": "Logout"
+  },
+  "Footer": {
+    "description": "Academic and administrative management system for the Faculty of Marine Sciences.",
+    "platform": "Platform",
+    "login": "Sign In",
+    "about": "About",
+    "fcm": "FCM",
+    "university": "University",
+    "faculty": "Faculty of Marine Sciences",
+    "developers": "Developers",
+    "privacy": "Privacy Policy",
+    "rights": "© {year} MARSYS · Faculty of Marine Sciences, UCN"
+  },
+  "Privacy": {
+    "cookie_message": "We use first and third-party cookies to improve your experience, analyze traffic, and comply with the Chilean Data Protection Law (N° 21.719). Read our",
+    "privacy_policy": "Privacy Policy",
+    "accept_all": "Accept All",
+    "reject_all": "Reject Non-Essential",
+    "manage": "Manage Preferences",
+    "preferences_title": "Privacy Preferences",
+    "preferences_desc": "Manage your consent for the different cookies we use. Strictly necessary cookies cannot be disabled.",
+    "necessary_title": "Strictly Necessary",
+    "necessary_desc": "Required for the basic operation of the site, maintaining your session, and remembering your language and theme preferences.",
+    "analytics_title": "Analytics & Performance",
+    "analytics_desc": "Help us understand how you interact with the platform, measure traffic, and improve the user experience.",
+    "marketing_title": "Marketing & Tracking",
+    "marketing_desc": "Used to track your browsing and show relevant content. (MARSYS does not currently use this type of cookie).",
+    "save_preferences": "Save Preferences"
+  },
+  "PrivacyPolicy": {
+    "title": "Privacy Policy and Data Protection",
+    "last_updated": "Last updated: August 2026",
+    "intro_title": "1. Introduction",
+    "intro_text": "At MARSYS (Academic Management Platform of the Faculty of Marine Sciences, UCN), we respect and protect our users' privacy. This policy describes how we collect, use, and safeguard your personal information, in strict compliance with the Chilean Personal Data Protection Law (N° 21.719).",
+    "collection_title": "2. Information We Collect",
+    "collection_text": "We collect information necessary for academic and administrative management, including identification data (name, RUT, institutional email), academic data (curricular progress, grades), and activity logs within the platform (laboratory requests, vehicle requests, etc.).",
+    "use_title": "3. Use of Information",
+    "use_text": "The collected data is used exclusively for the operational purposes of the MARSYS platform, such as traceability of internal processes, resource allocation, role management, and official communication within the FCM community.",
+    "arco_title": "4. Your ARCO Rights",
+    "arco_text": "In accordance with Law N° 21.719, you have the right to Access, Rectify, Cancel, or Oppose the processing of your personal data. To exercise these rights, you may contact the platform administration through your institutional account.",
+    "cookies_title": "5. Use of Cookies",
+    "cookies_text": "We use strictly necessary cookies to keep your session active and interface preferences (such as language and dark/light theme). We do not use cookies for third-party advertising tracking.",
+    "contact_title": "6. Contact",
+    "contact_text": "If you have any questions or concerns regarding this Privacy Policy or the handling of your data, please contact the administration of the Faculty of Marine Sciences."
+  },
+  "NotFound": {
+    "title": "404",
+    "subtitle": "Page Not Found",
+    "description": "The page you are looking for has been moved, deleted, or does not exist.",
+    "back": "Return to Home",
+    "goBack": "Go Back"
+  },
+  "NoAccess": {
+    "title": "No platform access",
+    "subtitle": "Your institutional account currently has no assigned roles.",
+    "description": "Your institutional authentication was successful, but your profile lacks permissions to operate on MARSYS modules. If you require access, please contact the academic secretary or administrator.",
+    "backToLogin": "Return to home",
+    "contact": "Contact: fcm@ucn.cl"
+  }
+}
