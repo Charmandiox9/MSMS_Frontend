@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MARSYS — Frontend
 
-## Getting Started
+Interfaz web de MARSYS, plataforma académica construida con Next.js App Router, React, TypeScript y Tailwind CSS. La aplicación usa `next-intl` para español e inglés, Apollo Client para GraphQL y Sonner para notificaciones.
 
-First, run the development server:
+## Requisitos
+
+- Node.js y pnpm.
+- Backend MARSYS disponible, para las funciones que consultan datos.
+
+## Instalación y configuración local
+
+Desde esta carpeta:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Copia `.env.example` a `.env.development.local` y configura la URL GraphQL del backend:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001/api/graphql
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+En despliegues con NGINX, puedes usar `/api/graphql` para que el proxy enrute las solicitudes. Las variables `NEXT_PUBLIC_*` se incluyen en el código del navegador; no coloques secretos en ellas.
 
-## Learn More
+## Ejecutar
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Servidor de desarrollo en http://localhost:3000
+pnpm dev
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Compilación de producción y servidor local
+pnpm build
+pnpm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+El frontend depende de que las URLs configuradas apunten a servicios disponibles. Para autenticación, inicia también el backend y configura allí Google OAuth y el origen permitido del frontend.
 
-## Deploy on Vercel
+## Comprobaciones
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm lint
+pnpm test
+pnpm build
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Organización
+
+- `src/app`: rutas de Next.js organizadas por idioma y área autenticada.
+- `src/components`: componentes compartidos y vistas de dashboards.
+- `src/i18n` y archivos de mensajes: configuración y traducciones.
+- `src/lib`: clientes y utilidades compartidas, incluido Apollo Client.
+
+Mantén los textos visibles traducidos en español e inglés, conserva los Server Components por defecto y añade componentes cliente solo cuando la interacción lo requiera.
