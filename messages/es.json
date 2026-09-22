@@ -139,7 +139,8 @@
     "welcomeDesc": "Te has logueado exitosamente usando tu cuenta de Google UCN. Aquí cargaremos tu información de perfil y proyectos pronto.",
     "quickActions": "Acciones Rápidas",
     "action1": "Mis Proyectos",
-    "action2": "Ver Perfil"
+    "action2": "Ver Perfil",
+    "metricsError": "No se pudieron cargar los indicadores. Intenta recargar la página."
   },
   "DashboardNav": {
     "dashboard": "Dashboard",
@@ -310,17 +311,14 @@
       "actionsTitle": "Acciones de Administración",
       "actionsSubtitle": "Accesos directos para la gestión global de la plataforma",
       "stats": {
-        "users": "Usuarios Activos",
-        "usersDesc": "Cuentas activas FCM",
-        "usersTrend": "+4 este mes",
+        "users": "Usuarios Registrados",
+        "usersDesc": "Cuentas del sistema",
+        "activeUsers": "Cuentas Activas",
+        "activeUsersDesc": "Usuarios habilitados",
         "roles": "Roles RBAC",
         "rolesDesc": "Perfiles configurados",
-        "audit": "Eventos de Auditoría",
-        "auditDesc": "Trazabilidad activa",
-        "auditTrend": "100% verificado",
-        "compliance": "Cumplimiento Ley 21.719",
-        "complianceDesc": "Gobernanza activa",
-        "complianceTrend": "Ley N° 21.719"
+        "pending": "Justificaciones Pendientes",
+        "pendingDesc": "Solicitudes esperando revisión"
       },
       "actions": {
         "manageUsers": "Gestión de Usuarios",
@@ -333,8 +331,8 @@
       "law21719": {
         "title": "Protección de Datos Personales (Ley N° 21.719)",
         "subtitle": "Estado de gobernanza y privacidad institucional",
-        "status": "Conforme",
-        "statusDesc": "Principios de minimización de datos, consentimiento y derechos ARCO activos.",
+        "status": "Marco de referencia",
+        "statusDesc": "Consulta la política institucional de privacidad y protección de datos.",
         "viewPolicy": "Ver política"
       }
     },
@@ -352,16 +350,14 @@
         "filesValidationDesc": "Revisión de requisitos de egreso para postulantes a titulación 2026."
       },
       "stats": {
-        "records": "Expedientes Académicos",
-        "recordsDesc": "Estudiantes matriculados",
-        "recordsTrend": "Periodo vigente",
-        "pending": "Documentos Pendientes",
-        "pendingDesc": "Por validar",
-        "pendingTrend": "Prioridad alta",
-        "certificates": "Certificados Emitidos",
-        "certificatesDesc": "Emitidos este semestre",
+        "courses": "Asignaturas Activas",
+        "coursesDesc": "Con horarios en el semestre activo",
+        "schedules": "Horarios Activos",
+        "schedulesDesc": "Bloques registrados este semestre",
+        "pending": "Justificaciones Pendientes",
+        "pendingDesc": "Solicitudes esperando revisión",
         "faculty": "Docentes Activos",
-        "facultyDesc": "Docentes registrados"
+        "facultyDesc": "Con asignaciones en el semestre activo"
       },
       "actions": {
         "academicInfo": "Repositorio Académico",
@@ -383,15 +379,14 @@
         "riskPrevention": "Ing. Prevención de Riesgos"
       },
       "stats": {
-        "progression": "Tasa de Progresión",
-        "progressionDesc": "Rendimiento semestral",
-        "progressionTrend": "+2.1% vs anterior",
-        "titulation": "Procesos de Titulación",
-        "titulationDesc": "Tesis en desarrollo",
-        "reports": "Reportes Generados",
-        "reportsDesc": "Informes consolidados",
-        "justifications": "Justificaciones Revisadas",
-        "justificationsDesc": "Procesadas en el ciclo"
+        "teachers": "Docentes Activos",
+        "teachersDesc": "Con asignaciones en el semestre activo",
+        "courses": "Asignaturas Activas",
+        "coursesDesc": "Con horarios o asignaciones vigentes",
+        "assignments": "Asignaciones Docentes",
+        "assignmentsDesc": "Registradas en el semestre activo",
+        "justifications": "Justificaciones Registradas",
+        "justificationsDesc": "Total de solicitudes registradas"
       },
       "actions": {
         "reports": "Generar Reportes",
@@ -408,17 +403,19 @@
       "tasksTitle": "Tareas Prioritarias",
       "tasksSubtitle": "Acciones que requieren atención",
       "tasks": {
-        "medicalJustificationTitle": "Justificación Médica #1042",
-        "medicalJustificationDesc": "Estudiante solicitó eximición a evaluación parcial. Pendiente adjunto de certificado.",
-        "assistantshipConfirmationTitle": "Confirmación de Ayudantía",
-        "assistantshipConfirmationDesc": "Firma de convenio para 4 ayudantes de laboratorio de Oceanografía."
+        "loading": "Cargando solicitudes entrantes…",
+        "empty": "No hay nuevas solicitudes por revisar.",
+        "error": "No se pudieron cargar las solicitudes entrantes.",
+        "openInbox": "Abrir bandeja de justificaciones"
       },
       "stats": {
         "justificationsPending": "Justificaciones Pendientes",
         "justificationsPendingDesc": "Esperando validación",
         "justificationsPendingTrend": "3 urgentes",
-        "activeAssistants": "Ayudantías Activas",
-        "activeAssistantsDesc": "Ayudantías asignadas",
+        "unreadInbox": "Entradas Sin Revisar",
+        "unreadInboxDesc": "Enviadas desde el formulario",
+        "activeAssignments": "Asignaciones Docentes",
+        "activeAssignmentsDesc": "En el semestre activo",
         "schedules": "Horarios Validados",
         "schedulesDesc": "Horarios coordinados",
         "schedulesTrend": "Sin topes",
@@ -500,5 +497,33 @@
     "description": "Tu autenticación institucional fue exitosa, pero tu perfil no cuenta con permisos para operar en los módulos de MARSYS. Si necesitas acceso, contacta a la secretaría docente o al administrador.",
     "backToLogin": "Volver al inicio",
     "contact": "Contacto: fcm@ucn.cl"
+  },
+  "UsersPage": {
+    "eyebrow": "Administración del sistema",
+    "title": "Usuarios",
+    "subtitle": "Consulta las cuentas registradas y administra los roles que habilitan el acceso a cada módulo.",
+    "count": "{count, plural, =0 {Sin usuarios} one {# usuario} other {# usuarios}}",
+    "search": "Buscar por nombre o correo…",
+    "filterRole": "Filtrar por rol",
+    "allRoles": "Todos los roles",
+    "loading": "Cargando usuarios…",
+    "emptyTitle": "No encontramos usuarios",
+    "emptyDescription": "Prueba con otro nombre, correo o filtro de rol.",
+    "userColumn": "Cuenta",
+    "rolesColumn": "Roles asignados",
+    "actionsColumn": "Administrar roles",
+    "noRoles": "Sin roles asignados",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "chooseRole": "Seleccionar rol para {user}",
+    "assign": "Asignar",
+    "revoke": "Revocar",
+    "revokeRole": "Revocar {role}",
+    "pagination": "Página {page} de {totalPages} · {total} usuarios",
+    "previous": "Página anterior",
+    "next": "Página siguiente",
+    "dismiss": "Cerrar mensaje",
+    "feedback": { "assigned": "Se asignó {role} a {user}.", "revoked": "Se revocó {role} a {user}." },
+    "errors": { "load": "No se pudieron cargar los usuarios.", "update": "No se pudo actualizar el rol." }
   }
 }

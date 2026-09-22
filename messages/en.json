@@ -139,7 +139,8 @@
     "welcomeDesc": "You have successfully logged in using your UCN Google account. We will load your profile and projects here soon.",
     "quickActions": "Quick Actions",
     "action1": "My Projects",
-    "action2": "View Profile"
+    "action2": "View Profile",
+    "metricsError": "Could not load dashboard metrics. Try reloading the page."
   },
   "DashboardNav": {
     "dashboard": "Dashboard",
@@ -310,17 +311,14 @@
       "actionsTitle": "Administration Actions",
       "actionsSubtitle": "Quick shortcuts for global platform management",
       "stats": {
-        "users": "Active Users",
-        "usersDesc": "Active FCM accounts",
-        "usersTrend": "+4 this month",
+        "users": "Registered Users",
+        "usersDesc": "System accounts",
+        "activeUsers": "Active Accounts",
+        "activeUsersDesc": "Enabled users",
         "roles": "RBAC Roles",
         "rolesDesc": "Configured profiles",
-        "audit": "Audit Events",
-        "auditDesc": "Active traceability",
-        "auditTrend": "100% verified",
-        "compliance": "Law 21.719 Status",
-        "complianceDesc": "Active governance",
-        "complianceTrend": "Law N° 21.719"
+        "pending": "Pending Justifications",
+        "pendingDesc": "Requests waiting for review"
       },
       "actions": {
         "manageUsers": "User Management",
@@ -333,8 +331,8 @@
       "law21719": {
         "title": "Personal Data Protection (Law N° 21.719)",
         "subtitle": "Institutional governance and privacy status",
-        "status": "Compliant",
-        "statusDesc": "Data minimization, consent tracking, and ARCO rights active.",
+        "status": "Reference framework",
+        "statusDesc": "Review the institutional privacy and data protection policy.",
         "viewPolicy": "View policy"
       }
     },
@@ -352,16 +350,14 @@
         "filesValidationDesc": "Review of graduation requirements for 2026 degree candidates."
       },
       "stats": {
-        "records": "Academic Files",
-        "recordsDesc": "Enrolled students",
-        "recordsTrend": "Current term",
-        "pending": "Pending Documents",
-        "pendingDesc": "To validate",
-        "pendingTrend": "High priority",
-        "certificates": "Issued Certificates",
-        "certificatesDesc": "Issued this term",
+        "courses": "Active Courses",
+        "coursesDesc": "With schedules in the active term",
+        "schedules": "Active Schedules",
+        "schedulesDesc": "Time blocks registered this term",
+        "pending": "Pending Justifications",
+        "pendingDesc": "Requests waiting for review",
         "faculty": "Active Faculty",
-        "facultyDesc": "Registered instructors"
+        "facultyDesc": "With assignments in the active term"
       },
       "actions": {
         "academicInfo": "Academic Repository",
@@ -383,15 +379,14 @@
         "riskPrevention": "Occupational Risk Prevention Eng."
       },
       "stats": {
-        "progression": "Progression Rate",
-        "progressionDesc": "Term academic yield",
-        "progressionTrend": "+2.1% vs previous",
-        "titulation": "Titulation Processes",
-        "titulationDesc": "Theses in progress",
-        "reports": "Generated Reports",
-        "reportsDesc": "Consolidated reports",
-        "justifications": "Reviewed Justifications",
-        "justificationsDesc": "Processed this cycle"
+        "teachers": "Active Faculty",
+        "teachersDesc": "With assignments in the active term",
+        "courses": "Active Courses",
+        "coursesDesc": "With current schedules or assignments",
+        "assignments": "Teaching Assignments",
+        "assignmentsDesc": "Registered in the active term",
+        "justifications": "Recorded Justifications",
+        "justificationsDesc": "Total requests recorded"
       },
       "actions": {
         "reports": "Generate Reports",
@@ -408,17 +403,19 @@
       "tasksTitle": "Priority Tasks",
       "tasksSubtitle": "Items requiring attention",
       "tasks": {
-        "medicalJustificationTitle": "Medical Justification #1042",
-        "medicalJustificationDesc": "Student requested evaluation exemption. Awaiting medical certificate attachment.",
-        "assistantshipConfirmationTitle": "Assistantship Confirmation",
-        "assistantshipConfirmationDesc": "Agreement signing for 4 Oceanography lab assistants."
+        "loading": "Loading incoming requests…",
+        "empty": "There are no new requests to review.",
+        "error": "Could not load incoming requests.",
+        "openInbox": "Open justification inbox"
       },
       "stats": {
         "justificationsPending": "Pending Justifications",
         "justificationsPendingDesc": "Awaiting validation",
         "justificationsPendingTrend": "3 urgent",
-        "activeAssistants": "Active Assistantships",
-        "activeAssistantsDesc": "Assigned assistantships",
+        "unreadInbox": "Unread Requests",
+        "unreadInboxDesc": "Submitted through the form",
+        "activeAssignments": "Teaching Assignments",
+        "activeAssignmentsDesc": "In the active term",
         "schedules": "Validated Schedules",
         "schedulesDesc": "Coordinated timetables",
         "schedulesTrend": "No conflicts",
@@ -500,5 +497,33 @@
     "description": "Your institutional authentication was successful, but your profile lacks permissions to operate on MARSYS modules. If you require access, please contact the academic secretary or administrator.",
     "backToLogin": "Return to home",
     "contact": "Contact: fcm@ucn.cl"
+  },
+  "UsersPage": {
+    "eyebrow": "System administration",
+    "title": "Users",
+    "subtitle": "Review registered accounts and manage the roles that grant access to each module.",
+    "count": "{count, plural, =0 {No users} one {# user} other {# users}}",
+    "search": "Search by name or email…",
+    "filterRole": "Filter by role",
+    "allRoles": "All roles",
+    "loading": "Loading users…",
+    "emptyTitle": "No users found",
+    "emptyDescription": "Try another name, email, or role filter.",
+    "userColumn": "Account",
+    "rolesColumn": "Assigned roles",
+    "actionsColumn": "Manage roles",
+    "noRoles": "No roles assigned",
+    "active": "Active",
+    "inactive": "Inactive",
+    "chooseRole": "Select a role for {user}",
+    "assign": "Assign",
+    "revoke": "Revoke",
+    "revokeRole": "Revoke {role}",
+    "pagination": "Page {page} of {totalPages} · {total} users",
+    "previous": "Previous page",
+    "next": "Next page",
+    "dismiss": "Dismiss message",
+    "feedback": { "assigned": "Assigned {role} to {user}.", "revoked": "Revoked {role} from {user}." },
+    "errors": { "load": "Could not load users.", "update": "Could not update the role." }
   }
 }

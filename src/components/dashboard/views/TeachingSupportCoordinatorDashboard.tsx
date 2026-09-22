@@ -3,15 +3,15 @@
 import {
   CalendarDays,
   ClipboardCheck,
-  GraduationCap,
   PlusCircle,
   UserCheck,
   Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import StatCard from '@/components/dashboard/widgets/StatCard';
 import QuickActionCard from '@/components/dashboard/widgets/QuickActionCard';
 import WidgetCard from '@/components/dashboard/widgets/WidgetCard';
+import RoleDashboardStats from '@/components/dashboard/RoleDashboardStats';
+import CoordinatorInboxWidget from '@/components/dashboard/CoordinatorInboxWidget';
 
 export default function TeachingSupportCoordinatorDashboard() {
   const t = useTranslations('DashboardViews.teachingSupportCoordinator');
@@ -25,34 +25,12 @@ export default function TeachingSupportCoordinatorDashboard() {
         <p className="mt-1 text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title={t('stats.justificationsPending')}
-          value="8"
-          description={t('stats.justificationsPendingDesc')}
-          icon={ClipboardCheck}
-          trend={{ value: t('stats.justificationsPendingTrend'), isPositive: false }}
-        />
-        <StatCard
-          title={t('stats.activeAssistants')}
-          value="19"
-          description={t('stats.activeAssistantsDesc')}
-          icon={Users}
-        />
-        <StatCard
-          title={t('stats.schedules')}
-          value="100%"
-          description={t('stats.schedulesDesc')}
-          icon={CalendarDays}
-          trend={{ value: t('stats.schedulesTrend'), isPositive: true }}
-        />
-        <StatCard
-          title={t('stats.titulations')}
-          value="14"
-          description={t('stats.titulationsDesc')}
-          icon={GraduationCap}
-        />
-      </div>
+      <RoleDashboardStats endpoint="/dashboard/teaching-support-coordinator" metrics={[
+        { key: 'unreadInbox', title: t('stats.unreadInbox'), description: t('stats.unreadInboxDesc'), icon: ClipboardCheck },
+        { key: 'pendingJustifications', title: t('stats.justificationsPending'), description: t('stats.justificationsPendingDesc'), icon: ClipboardCheck },
+        { key: 'activeAssignments', title: t('stats.activeAssignments'), description: t('stats.activeAssignmentsDesc'), icon: Users },
+        { key: 'activeSchedules', title: t('stats.schedules'), description: t('stats.schedulesDesc'), icon: CalendarDays },
+      ]} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -88,24 +66,7 @@ export default function TeachingSupportCoordinatorDashboard() {
             title={t('tasksTitle')}
             subtitle={t('tasksSubtitle')}
           >
-            <div className="space-y-3 text-xs">
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3">
-                <span className="font-bold text-amber-600 dark:text-amber-400">
-                  {t('tasks.medicalJustificationTitle')}
-                </span>
-                <p className="mt-1 text-muted-foreground">
-                  {t('tasks.medicalJustificationDesc')}
-                </p>
-              </div>
-              <div className="rounded-xl border border-ocean-cyan/30 bg-ocean-cyan/10 p-3">
-                <span className="font-bold text-ocean-cyan">
-                  {t('tasks.assistantshipConfirmationTitle')}
-                </span>
-                <p className="mt-1 text-muted-foreground">
-                  {t('tasks.assistantshipConfirmationDesc')}
-                </p>
-              </div>
-            </div>
+            <CoordinatorInboxWidget />
           </WidgetCard>
         </div>
       </div>
