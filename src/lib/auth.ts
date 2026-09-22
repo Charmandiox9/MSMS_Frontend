@@ -16,9 +16,13 @@ export async function getActiveSession(): Promise<ActiveSession | null> {
   const sessionUrl = authEndpoint('session');
   if (!sessionUrl) return null;
 
-  const response = await fetch(sessionUrl, { credentials: 'include' });
-  if (!response.ok) return null;
-  return response.json() as Promise<ActiveSession>;
+  try {
+    const response = await fetch(sessionUrl, { credentials: 'include' });
+    if (!response.ok) return null;
+    return (await response.json()) as ActiveSession;
+  } catch {
+    return null;
+  }
 }
 
 export async function hasActiveSession(): Promise<boolean> {

@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { ActiveRoleProvider, useActiveRole } from '@/context/ActiveRoleContext';
@@ -40,11 +42,38 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const locale = useLocale();
+  const t = useTranslations('Dashboard');
+  const router = useRouter();
   const [session, setSession] = useState<ActiveSession | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    void getActiveSession().then(setSession);
-  }, []);
+    let mounted = true;
+
+    void getActiveSession().then((activeSession) => {
+      if (!mounted) return;
+
+      setSession(activeSession);
+      setIsLoading(false);
+
+      if (!activeSession) {
+        router.replace(`/${locale}/login`);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [locale, router]);
+
+  if (isLoading || !session) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+        {t('sessionChecking')}
+      </div>
+    );
+  }
 
   return (
     <ActiveRoleProvider initialSession={session}>

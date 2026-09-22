@@ -18,16 +18,6 @@ export default function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (pathname.includes('/dashboard')) {
-    if (!hasToken) {
-      const localeMatch = pathname.match(/^\/(es|en)/);
-      const prefix = localeMatch ? localeMatch[0] : '';
-      const url = req.nextUrl.clone();
-      url.pathname = `${prefix}/login`;
-      return NextResponse.redirect(url);
-    }
-  }
-
   if (pathname.includes('/login') && hasToken) {
     const localeMatch = pathname.match(/^\/(es|en)/);
     const prefix = localeMatch ? localeMatch[0] : '';

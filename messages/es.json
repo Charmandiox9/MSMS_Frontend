@@ -133,6 +133,7 @@
   },
   "Dashboard": {
     "title": "Panel de Control",
+    "sessionChecking": "Verificando sesión…",
     "subtitle": "Resumen general y accesos rápidos de tu cuenta institucional.",
     "welcome": "¡Autenticación exitosa!",
     "welcomeDesc": "Te has logueado exitosamente usando tu cuenta de Google UCN. Aquí cargaremos tu información de perfil y proyectos pronto.",

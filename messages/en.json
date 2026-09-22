@@ -133,6 +133,7 @@
   },
   "Dashboard": {
     "title": "Dashboard",
+    "sessionChecking": "Checking session…",
     "subtitle": "General overview and quick access for your institutional account.",
     "welcome": "Authentication successful!",
     "welcomeDesc": "You have successfully logged in using your UCN Google account. We will load your profile and projects here soon.",
