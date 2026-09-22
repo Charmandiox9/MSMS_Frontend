@@ -5,6 +5,7 @@ import {
   ClipboardList,
   FileBarChart,
   GraduationCap,
+  History,
   LayoutDashboard,
   Settings,
   ShieldCheck,
@@ -18,7 +19,10 @@ export type NavigationKey =
   | 'justifications'
   | 'justificationsManagement'
   | 'academicInformation'
+  | 'subjects'
+  | 'teachers'
   | 'academicWorkload'
+  | 'assistantshipHistory'
   | 'titulation'
   | 'reports'
   | 'users'
@@ -81,6 +85,24 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         allowedRoles: ['SYSTEM_ADMIN', 'TEACHING_SUPPORT_COORDINATOR'],
       },
       {
+        key: 'subjects',
+        href: '/dashboard/subjects',
+        icon: BookOpenCheck,
+        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
+      },
+      {
+        key: 'teachers',
+        href: '/dashboard/teachers',
+        icon: Users,
+        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
+      },
+      {
+        key: 'assistantshipHistory',
+        href: '/dashboard/assistantship-history',
+        icon: History,
+        allowedRoles: ['TEACHING_SUPPORT_COORDINATOR'],
+      },
+      {
         key: 'titulation',
         href: '/dashboard/titulation',
         icon: GraduationCap,
@@ -122,7 +144,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: 'settings',
         href: '/dashboard/settings',
         icon: Settings,
-        allowedRoles: ['SYSTEM_ADMIN'],
+        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
       },
     ],
   },

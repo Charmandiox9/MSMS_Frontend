@@ -5,7 +5,7 @@ import { AlertCircle, Check, Clock3, FileText, Inbox, X, type LucideIcon } from 
 import { useTranslations } from 'next-intl';
 import { useActiveRole } from '@/context/ActiveRoleContext';
 import { apiFetch } from '@/lib/api';
-import type { Justification, JustificationInboxEntry, JustificationStatus } from '@/types/justifications';
+import type { Justification, JustificationInboxEntry, JustificationReasonCategory, JustificationStatus } from '@/types/justifications';
 
 const statusOrder: JustificationStatus[] = ['PENDING', 'ACCEPTED', 'REJECTED'];
 
@@ -24,6 +24,7 @@ export default function JustificationsPage() {
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [reasonCategory, setReasonCategory] = useState<JustificationReasonCategory | ''>('');
 
   const load = async () => {
     setLoading(true);
@@ -55,23 +56,26 @@ export default function JustificationsPage() {
       const justification = await apiFetch<Justification>(`/justifications/inbox/${entry.id}/open`, { method: 'POST' });
       setInbox((items) => items.filter((item) => item.id !== entry.id));
       setHistory((items) => [justification, ...items.filter((item) => item.id !== justification.id)]);
+      setRejectReason('');
+      setReasonCategory(justification.reasonCategory ?? '');
       setSelected(justification);
     } catch (cause) {
       setActionError(cause instanceof Error ? cause.message : t('errors.open'));
     }
   };
 
-  const decide = async (status: Exclude<JustificationStatus, 'PENDING'>) => {
+  const decide = async (status: Exclude<JustificationStatus, 'PENDING'>, category: JustificationReasonCategory) => {
     if (!selected) return;
     setActionError(null);
     try {
       const updated = await apiFetch<Justification>(`/justifications/${selected.id}/decision`, {
         method: 'PATCH',
-        body: JSON.stringify({ status, rejectionReason: status === 'REJECTED' ? rejectReason : undefined }),
+        body: JSON.stringify({ status, rejectionReason: status === 'REJECTED' ? rejectReason : undefined, reasonCategory: category }),
       });
       setHistory((items) => items.map((item) => item.id === updated.id ? updated : item));
       setSelected(updated);
       setRejectReason('');
+      setReasonCategory(updated.reasonCategory ?? '');
     } catch (cause) {
       setActionError(cause instanceof Error ? cause.message : t('errors.decision'));
     }
@@ -118,11 +122,11 @@ export default function JustificationsPage() {
 
         <Panel title={t('history.title')} subtitle={t('history.subtitle')}>
           <div className="mb-4 flex flex-wrap gap-2">{['ALL', ...statusOrder].map((value) => <button key={value} type="button" onClick={() => setFilter(value as 'ALL' | JustificationStatus)} className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${filter === value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'}`}>{value === 'ALL' ? t('filters.all') : t(`statuses.${value.toLowerCase()}`)}</button>)}</div>
-          {loading ? <LoadingState /> : filteredHistory.length === 0 ? <EmptyState icon={FileText} text={t('history.empty')} /> : <div className="space-y-3">{filteredHistory.map((item) => <button key={item.id} type="button" onClick={() => { setSelected(item); setActionError(null); }} className="w-full rounded-2xl border border-border p-4 text-left transition hover:border-primary/50 hover:bg-primary/5"><div className="flex items-start justify-between gap-4"><div><p className="font-bold text-foreground">{item.subjectName}{item.nrc ? ` · NRC ${item.nrc}` : ''}</p><p className="mt-1 text-xs text-muted-foreground">{item.studentEmail} · {formatDate(item.absenceDate)}</p></div><StatusBadge status={item.status} t={t} /></div></button>)}</div>}
+          {loading ? <LoadingState /> : filteredHistory.length === 0 ? <EmptyState icon={FileText} text={t('history.empty')} /> : <div className="space-y-3">{filteredHistory.map((item) => <button key={item.id} type="button" onClick={() => { setSelected(item); setReasonCategory(item.reasonCategory ?? ''); setActionError(null); }} className="w-full rounded-2xl border border-border p-4 text-left transition hover:border-primary/50 hover:bg-primary/5"><div className="flex items-start justify-between gap-4"><div><p className="font-bold text-foreground">{item.subjectName}{item.nrc ? ` · NRC ${item.nrc}` : ''}</p><p className="mt-1 text-xs text-muted-foreground">{item.studentEmail} · {formatDate(item.absenceDate)}</p></div><StatusBadge status={item.status} t={t} /></div></button>)}</div>}
         </Panel>
       </section>
 
-      {selected && <DetailDialog item={selected} t={t} rejectReason={rejectReason} setRejectReason={setRejectReason} onClose={() => setSelected(null)} onDecision={decide} onEvidence={() => void openEvidence(selected.id)} />}
+      {selected && <DetailDialog item={selected} t={t} rejectReason={rejectReason} setRejectReason={setRejectReason} reasonCategory={reasonCategory} setReasonCategory={setReasonCategory} onClose={() => setSelected(null)} onDecision={decide} onEvidence={() => void openEvidence(selected.id)} />}
     </div>
   );
 }
@@ -135,7 +139,9 @@ function Panel({ title, subtitle, children }: { title: string; subtitle: string;
 function LoadingState() { return <div className="animate-pulse rounded-2xl bg-muted px-4 py-10 text-center text-sm text-muted-foreground">Cargando…</div>; }
 function EmptyState({ icon: Icon, text }: { icon: LucideIcon; text: string }) { return <div className="flex flex-col items-center rounded-2xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground"><Icon className="mb-3 h-6 w-6" />{text}</div>; }
 function StatusBadge({ status, t }: { status: JustificationStatus; t: (key: string) => string }) { return <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${status === 'PENDING' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300' : status === 'ACCEPTED' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'bg-destructive/10 text-destructive'}`}>{t(`statuses.${status.toLowerCase()}`)}</span>; }
-function DetailDialog({ item, t, rejectReason, setRejectReason, onClose, onDecision, onEvidence }: { item: Justification; t: (key: string) => string; rejectReason: string; setRejectReason: (value: string) => void; onClose: () => void; onDecision: (status: Exclude<JustificationStatus, 'PENDING'>) => Promise<void>; onEvidence: () => void }) {
-  return <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true"><div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-border bg-card p-6 shadow-2xl"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-primary">{t('detail.eyebrow')}</p><h2 className="mt-2 text-2xl font-black text-foreground">{item.subjectName}</h2></div><button type="button" onClick={onClose} className="rounded-xl p-2 text-muted-foreground hover:bg-muted" aria-label={t('detail.close')}><X className="h-5 w-5" /></button></div><div className="mt-6 grid gap-4 sm:grid-cols-2"><Info label={t('detail.student')} value={item.studentEmail} /><Info label={t('detail.date')} value={formatDate(item.absenceDate)} /><Info label={t('detail.course')} value={item.subjectCode ?? item.subjectName} /><Info label={t('detail.nrc')} value={item.nrc ?? t('detail.notAvailable')} /></div>{item.reason && <div className="mt-5 rounded-2xl bg-muted p-4"><p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{t('detail.reason')}</p><p className="mt-2 text-sm text-foreground">{item.reason}</p></div>}<button type="button" onClick={onEvidence} className="mt-5 flex items-center gap-2 text-sm font-bold text-primary hover:underline"><FileText className="h-4 w-4" />{t('detail.evidence')}</button>{item.status === 'PENDING' && <div className="mt-6 border-t border-border pt-5"><label className="text-sm font-bold text-foreground" htmlFor="rejection-reason">{t('detail.rejectionReason')}</label><textarea id="rejection-reason" value={rejectReason} onChange={(event) => setRejectReason(event.target.value)} className="mt-2 min-h-20 w-full rounded-2xl border border-border bg-background p-3 text-sm outline-none focus:border-primary" placeholder={t('detail.rejectionPlaceholder')} /><div className="mt-4 flex flex-wrap justify-end gap-3"><button type="button" onClick={() => void onDecision('REJECTED')} className="rounded-2xl bg-destructive px-4 py-2.5 text-sm font-bold text-destructive-foreground">{t('detail.reject')}</button><button type="button" onClick={() => void onDecision('ACCEPTED')} className="rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white">{t('detail.accept')}</button></div></div>}</div></div>;
+function DetailDialog({ item, t, rejectReason, setRejectReason, reasonCategory, setReasonCategory, onClose, onDecision, onEvidence }: { item: Justification; t: (key: string) => string; rejectReason: string; setRejectReason: (value: string) => void; reasonCategory: JustificationReasonCategory | ''; setReasonCategory: (value: JustificationReasonCategory | '') => void; onClose: () => void; onDecision: (status: Exclude<JustificationStatus, 'PENDING'>, category: JustificationReasonCategory) => Promise<void>; onEvidence: () => void }) {
+  const canDecide = reasonCategory !== '';
+  return <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true"><div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-border bg-card p-6 shadow-2xl"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-primary">{t('detail.eyebrow')}</p><h2 className="mt-2 text-2xl font-black text-foreground">{item.subjectName}</h2></div><button type="button" onClick={onClose} className="rounded-xl p-2 text-muted-foreground hover:bg-muted" aria-label={t('detail.close')}><X className="h-5 w-5" /></button></div><div className="mt-6 grid gap-4 sm:grid-cols-2"><Info label={t('detail.student')} value={item.studentEmail} /><Info label={t('detail.date')} value={formatDate(item.absenceDate)} /><Info label={t('detail.course')} value={item.subjectCode ?? item.subjectName} /><Info label={t('detail.nrc')} value={item.nrc ?? t('detail.notAvailable')} /></div>{item.reason && <div className="mt-5 rounded-2xl bg-muted p-4"><p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{t('detail.reason')}</p><p className="mt-2 text-sm text-foreground">{item.reason}</p></div>}<button type="button" onClick={onEvidence} className="mt-5 flex items-center gap-2 text-sm font-bold text-primary hover:underline"><FileText className="h-4 w-4" />{t('detail.evidence')}</button>{item.status === 'PENDING' && <div className="mt-6 border-t border-border pt-5"><label className="text-sm font-bold text-foreground" htmlFor="reason-category">{t('detail.reasonCategory')}</label><select id="reason-category" value={reasonCategory} onChange={(event) => setReasonCategory(event.target.value as JustificationReasonCategory | '')} className="mt-2 h-11 w-full rounded-2xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary"><option value="">{t('detail.reasonCategoryPlaceholder')}</option><option value="MEDICAL">{t('reasonCategories.MEDICAL')}</option><option value="FAMILY_DEATH">{t('reasonCategories.FAMILY_DEATH')}</option><option value="PERSONAL">{t('reasonCategories.PERSONAL')}</option><option value="ACADEMIC">{t('reasonCategories.ACADEMIC')}</option><option value="OTHER">{t('reasonCategories.OTHER')}</option></select><label className="mt-4 block text-sm font-bold text-foreground" htmlFor="rejection-reason">{t('detail.rejectionReason')}</label><textarea id="rejection-reason" value={rejectReason} onChange={(event) => setRejectReason(event.target.value)} className="mt-2 min-h-20 w-full rounded-2xl border border-border bg-background p-3 text-sm outline-none focus:border-primary" placeholder={t('detail.rejectionPlaceholder')} /><div className="mt-4 flex flex-wrap justify-end gap-3"><button type="button" disabled={!canDecide} onClick={() => void onDecision('REJECTED', reasonCategory as JustificationReasonCategory)} className="rounded-2xl bg-destructive px-4 py-2.5 text-sm font-bold text-destructive-foreground disabled:cursor-not-allowed disabled:opacity-50">{t('detail.reject')}</button><button type="button" disabled={!canDecide} onClick={() => void onDecision('ACCEPTED', reasonCategory as JustificationReasonCategory)} className="rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">{t('detail.accept')}</button></div></div>}</div></div>;
+}
 }
 function Info({ label, value }: { label: string; value: string }) { return <div><p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{label}</p><p className="mt-1 text-sm font-semibold text-foreground">{value}</p></div>; }

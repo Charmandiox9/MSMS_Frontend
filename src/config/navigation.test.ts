@@ -24,17 +24,19 @@ describe('Navigation configuration and filtering', () => {
     const academicSection = filtered.find((s) => s.key === 'academic');
     const academicItemKeys = academicSection?.items.map((i) => i.key);
     expect(academicItemKeys).toContain('justificationsManagement');
+    expect(academicItemKeys).toContain('subjects');
+    expect(academicItemKeys).toContain('teachers');
     expect(academicItemKeys).not.toContain('justifications');
   });
 
-  it('should omit system administration for ACADEMIC_SECRETARY', () => {
+  it('should expose academic settings but omit system administration for ACADEMIC_SECRETARY', () => {
     const filtered = getFilteredNavigation(
       DASHBOARD_SECTIONS,
       'ACADEMIC_SECRETARY'
     );
     const sectionKeys = filtered.map((section) => section.key);
 
-    expect(sectionKeys).not.toContain('system');
+    expect(sectionKeys).toContain('system');
     expect(sectionKeys).not.toContain('analysis');
     expect(sectionKeys).toContain('main');
     expect(sectionKeys).toContain('academic');
@@ -45,6 +47,11 @@ describe('Navigation configuration and filtering', () => {
     expect(itemKeys).not.toContain('academicWorkload');
     expect(itemKeys).not.toContain('justifications');
     expect(itemKeys).toContain('justificationsManagement');
+    expect(itemKeys).toContain('subjects');
+    expect(itemKeys).toContain('teachers');
+    const systemSection = filtered.find((section) => section.key === 'system');
+    expect(systemSection?.items.map((item) => item.key)).toEqual(['settings']);
+    expect(itemKeys).toContain('settings');
   });
 
   it('should provide analysis and relevant academic sections for ACADEMIC_PROCESS_ANALYST', () => {
@@ -84,6 +91,7 @@ describe('Navigation configuration and filtering', () => {
     expect(itemKeys).toContain('justifications');
     expect(itemKeys).not.toContain('justificationsManagement');
     expect(itemKeys).toContain('academicWorkload');
+    expect(itemKeys).toContain('assistantshipHistory');
     expect(itemKeys).toContain('titulation');
     expect(itemKeys).toContain('academicInformation');
   });
@@ -146,6 +154,20 @@ describe('Navigation configuration and filtering', () => {
     ).toBe(true);
     expect(
       isRouteAllowed(
+        '/dashboard/assistantship-history',
+        DASHBOARD_SECTIONS,
+        'TEACHING_SUPPORT_COORDINATOR'
+      )
+    ).toBe(true);
+    expect(
+      isRouteAllowed(
+        '/dashboard/assistantship-history',
+        DASHBOARD_SECTIONS,
+        'ACADEMIC_SECRETARY'
+      )
+    ).toBe(false);
+    expect(
+      isRouteAllowed(
         '/dashboard/justifications/management',
         DASHBOARD_SECTIONS,
         'ACADEMIC_SECRETARY'
@@ -158,5 +180,13 @@ describe('Navigation configuration and filtering', () => {
         'ACADEMIC_PROCESS_ANALYST'
       )
     ).toBe(false);
+    expect(isRouteAllowed('/dashboard/subjects', DASHBOARD_SECTIONS, 'SYSTEM_ADMIN')).toBe(true);
+    expect(isRouteAllowed('/dashboard/subjects', DASHBOARD_SECTIONS, 'ACADEMIC_SECRETARY')).toBe(true);
+    expect(isRouteAllowed('/dashboard/subjects', DASHBOARD_SECTIONS, 'TEACHING_SUPPORT_COORDINATOR')).toBe(false);
+    expect(isRouteAllowed('/dashboard/teachers', DASHBOARD_SECTIONS, 'SYSTEM_ADMIN')).toBe(true);
+    expect(isRouteAllowed('/dashboard/teachers', DASHBOARD_SECTIONS, 'ACADEMIC_SECRETARY')).toBe(true);
+    expect(isRouteAllowed('/dashboard/teachers', DASHBOARD_SECTIONS, 'TEACHING_SUPPORT_COORDINATOR')).toBe(false);
+    expect(isRouteAllowed('/dashboard/settings', DASHBOARD_SECTIONS, 'SYSTEM_ADMIN')).toBe(true);
+    expect(isRouteAllowed('/dashboard/settings', DASHBOARD_SECTIONS, 'ACADEMIC_SECRETARY')).toBe(true);
   });
 });
