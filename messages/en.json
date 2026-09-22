@@ -528,6 +528,9 @@
     "assignRole": "Assign {role} to {user}",
     "revoke": "Revoke",
     "revokeRole": "Revoke {role} from {user}",
+    "activateUser": "Reactivate {user}'s account",
+    "deactivateUser": "Deactivate {user}'s account",
+    "deleteUser": "Permanently delete {user}",
     "pagination": "Page {page} of {totalPages} · {total} users",
     "previous": "Previous page",
     "next": "Next page",
@@ -535,7 +538,20 @@
       "assigning": "Assigning role…",
       "assigned": "Assigned {role} to {user}.",
       "revoking": "Revoking role…",
-      "revoked": "Revoked {role} from {user}."
+      "revoked": "Revoked {role} from {user}.",
+      "activating": "Reactivating account…",
+      "activated": "Reactivated {user}'s account.",
+      "deactivating": "Deactivating account…",
+      "deactivated": "Deactivated {user}'s account.",
+      "deleting": "Deleting account…",
+      "deleted": "Permanently deleted {user}'s account."
+    },
+    "deleteDialog": {
+      "title": "Permanently delete user",
+      "description": "This deletes the account and its roles permanently. It cannot be undone. If {user} has academic history, the system will reject deletion to preserve traceability; you can deactivate the account instead.",
+      "cancel": "Cancel",
+      "confirm": "Delete permanently",
+      "deleting": "Deleting…"
     },
     "preloads": {
       "title": "Preassigned access",
@@ -566,6 +582,6 @@
         "cancelError": "Could not cancel the preload."
       }
     },
-    "errors": { "load": "Could not load users.", "update": "Could not update the role." }
+    "errors": { "load": "Could not load users.", "update": "Could not update the role.", "updateStatus": "Could not change the account status.", "delete": "Could not delete the account." }
   }
 }

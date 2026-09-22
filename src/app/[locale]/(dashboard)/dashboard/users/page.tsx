@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search, Users, ChevronLeft, ChevronRight, ShieldCheck, UserRound, UserPlus, UserMinus } from 'lucide-react';
+import { Search, Users, ChevronLeft, ChevronRight, ShieldCheck, UserRound, UserPlus, UserMinus, Power, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/api';
 import PreloadedUsersPanel, { type UserRole } from '@/components/dashboard/users/PreloadedUsersPanel';
@@ -20,7 +20,8 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
-  const [roleChoices, setRoleChoices] = useState<Record<string, string>>({});
+  const [accountBusy, setAccountBusy] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
 
   const load = useCallback(async (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -29,7 +30,6 @@ export default function UsersPage() {
       const query = new URLSearchParams({ page: String(page), pageSize: '10', search, role: roleFilter });
       const result = await apiFetch<UserPage>(`/users?${query.toString()}`, { cache: 'no-store' });
       setData(result);
-      setRoleChoices((current) => Object.fromEntries(result.items.map((user) => [user.id, current[user.id] ?? result.roles[0]?.id ?? ''])));
     } catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.load')); }
     finally { if (showLoading) setLoading(false); }
   }, [page, search, roleFilter, t]);
@@ -47,9 +47,10 @@ export default function UsersPage() {
         success: t(assign ? 'notifications.assigned' : 'notifications.revoked', { role: role.name, user: user.name }),
         error: (cause) => cause instanceof Error ? cause.message : t('errors.update'),
       });
+      let pageWillChange = false;
       if (!assign && roleFilter === role.code && data) {
         const lastPage = Math.max(1, Math.ceil((data.total - 1) / data.pageSize));
-        if (page > lastPage) setPage(lastPage);
+        if (page > lastPage) { setPage(lastPage); pageWillChange = true; }
       }
       setData((current) => {
         if (!current) return current;
@@ -75,11 +76,69 @@ export default function UsersPage() {
         };
       });
       // Actualiza filtros y datos derivados en segundo plano; no reemplaza la tabla por el loader.
-      await load(false);
+      if (!pageWillChange) await load(false);
     } catch {
       // Sonner presents the request error to the administrator.
     }
     finally { setBusy(null); }
+  };
+
+  const setUserActive = async (user: User) => {
+    const isActive = !user.isActive;
+    setAccountBusy(user.id);
+    try {
+      await toast.promise(apiFetch(`/users/${user.id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive }),
+      }), {
+        loading: t(isActive ? 'notifications.activating' : 'notifications.deactivating'),
+        success: t(isActive ? 'notifications.activated' : 'notifications.deactivated', { user: user.name }),
+        error: (cause) => cause instanceof Error ? cause.message : t('errors.updateStatus'),
+      });
+      setData((current) => current && ({
+        ...current,
+        items: current.items.map((item) => item.id === user.id ? { ...item, isActive } : item),
+      }));
+      await load(false);
+    } catch {
+      // Sonner presenta el error de la operación.
+    } finally {
+      setAccountBusy(null);
+    }
+  };
+
+  const permanentlyDeleteUser = async () => {
+    if (!deleteTarget) return;
+    const user = deleteTarget;
+    setAccountBusy(user.id);
+    try {
+      await toast.promise(apiFetch(`/users/${user.id}`, { method: 'DELETE' }), {
+        loading: t('notifications.deleting'),
+        success: t('notifications.deleted', { user: user.name }),
+        error: (cause) => cause instanceof Error ? cause.message : t('errors.delete'),
+      });
+      if (data) {
+        const total = Math.max(0, data.total - 1);
+        const totalPages = Math.max(1, Math.ceil(total / data.pageSize));
+        const pageWillChange = page > totalPages;
+        if (pageWillChange) setPage(totalPages);
+        setData((current) => current && ({
+          ...current,
+          items: current.items.filter((item) => item.id !== user.id),
+          total,
+          totalPages,
+        }));
+        setDeleteTarget(null);
+        if (!pageWillChange) await load(false);
+      } else {
+        setDeleteTarget(null);
+        await load(false);
+      }
+    } catch {
+      // Sonner presenta el error; si existe historial, el backend conserva la cuenta para trazabilidad.
+    } finally {
+      setAccountBusy(null);
+    }
   };
 
   return (
@@ -103,14 +162,18 @@ export default function UsersPage() {
           : <>
             <div className="hidden grid-cols-[minmax(200px,1.2fr)_minmax(180px,1fr)_minmax(240px,1.2fr)] gap-3 border-b border-border bg-muted/40 px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:grid"><span>{t('userColumn')}</span><span>{t('rolesColumn')}</span><span>{t('actionsColumn')}</span></div>
             <ul className="divide-y divide-border">{data.items.map((user) => <li key={user.id} className="grid gap-x-3 gap-y-2.5 px-3 py-3 md:grid-cols-[minmax(200px,1.2fr)_minmax(180px,1fr)_minmax(240px,1.2fr)] md:items-center md:px-4">
-              <div className="flex min-w-0 items-center gap-2.5"><div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-ocean-cyan/10 text-ocean-cyan">{user.avatarUrl ? <img src={user.avatarUrl} alt="" className="h-full w-full object-cover"/> : <UserRound className="h-4 w-4"/>}</div><div className="min-w-0"><p className="truncate text-sm font-semibold text-foreground">{user.name}</p><p className="truncate text-xs text-muted-foreground">{user.email}</p><span className={`mt-0.5 inline-block rounded-full px-1.5 py-0.5 text-[9px] font-bold ${user.isActive ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'bg-muted text-muted-foreground'}`}>{t(user.isActive ? 'active' : 'inactive')}</span></div></div>
+              <div className="flex min-w-0 items-center gap-2.5"><div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-ocean-cyan/10 text-ocean-cyan">{user.avatarUrl ? <img src={user.avatarUrl} alt="" className="h-full w-full object-cover"/> : <UserRound className="h-4 w-4"/>}</div><div className="min-w-0"><p className="truncate text-sm font-semibold text-foreground">{user.name}</p><p className="truncate text-xs text-muted-foreground">{user.email}</p><div className="mt-1 flex items-center gap-1.5"><span className={`inline-block rounded-full px-1.5 py-0.5 text-[9px] font-bold ${user.isActive ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'bg-muted text-muted-foreground'}`}>{t(user.isActive ? 'active' : 'inactive')}</span><button type="button" disabled={accountBusy !== null || busy !== null} onClick={() => void setUserActive(user)} aria-label={t(user.isActive ? 'deactivateUser' : 'activateUser', { user: user.name })} title={t(user.isActive ? 'deactivateUser' : 'activateUser', { user: user.name })} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan disabled:opacity-50"><Power className="h-4 w-4"/></button><button type="button" disabled={accountBusy !== null || busy !== null} onClick={() => setDeleteTarget(user)} aria-label={t('deleteUser', { user: user.name })} title={t('deleteUser', { user: user.name })} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-rose-500/30 text-rose-600 transition hover:bg-rose-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:opacity-50"><Trash2 className="h-4 w-4"/></button></div></div></div>
               <div className="flex flex-wrap gap-1">{user.roles.length ? user.roles.map((role) => <span key={role.id} className="inline-flex items-center gap-1 rounded-full bg-ocean-cyan/10 px-2 py-0.5 text-[11px] font-semibold text-ocean-deep dark:text-ocean-cyan"><ShieldCheck className="h-3 w-3"/>{role.name}</span>) : <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300">{t('noRoles')}</span>}</div>
-              <div className="flex min-w-0 flex-col gap-1.5"><div className="flex min-w-0 gap-1.5"><select aria-label={t('chooseRole', { user: user.name })} value={roleChoices[user.id] ?? ''} onChange={(event) => setRoleChoices((choices) => ({ ...choices, [user.id]: event.target.value }))} className="h-10 min-w-0 flex-1 rounded-lg border border-border bg-background px-2.5 text-xs text-foreground">{data.roles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</select><button type="button" disabled={!roleChoices[user.id] || user.roles.some((role) => role.id === roleChoices[user.id]) || busy !== null} onClick={() => { const role = data.roles.find((item) => item.id === roleChoices[user.id]); if (role) void mutateRole(user, role, true); }} aria-label={t('assignRole', { role: data.roles.find((role) => role.id === roleChoices[user.id])?.name ?? '', user: user.name })} title={t('assignRole', { role: data.roles.find((role) => role.id === roleChoices[user.id])?.name ?? '', user: user.name })} className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ucn-navy text-white transition hover:bg-ucn-navy/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan disabled:cursor-not-allowed disabled:opacity-40"><UserPlus className="h-4 w-4"/></button></div>
-                <div className="flex min-h-10 flex-wrap items-center gap-1">{user.roles.map((role) => <button key={role.id} type="button" disabled={busy !== null} onClick={() => void mutateRole(user, role, false)} aria-label={t('revokeRole', { role: role.name, user: user.name })} title={t('revokeRole', { role: role.name, user: user.name })} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted-foreground transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:opacity-50"><UserMinus className="h-4 w-4"/></button>)}</div></div>
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5">{data.roles.map((role) => {
+                const hasRole = user.roles.some((assignedRole) => assignedRole.id === role.id);
+                const label = t(hasRole ? 'revokeRole' : 'assignRole', { role: role.name, user: user.name });
+                return <button key={role.id} type="button" disabled={busy !== null || accountBusy !== null} onClick={() => void mutateRole(user, role, !hasRole)} aria-label={label} title={label} className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border transition focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 ${hasRole ? 'border-border text-muted-foreground hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-700 focus-visible:ring-rose-500' : 'border-ocean-cyan/30 text-ocean-cyan hover:bg-ocean-cyan/10 focus-visible:ring-ocean-cyan'}`}>{hasRole ? <UserMinus className="h-4 w-4"/> : <UserPlus className="h-4 w-4"/>}</button>;
+              })}</div>
             </li>)}</ul>
             <footer className="flex flex-col gap-3 border-t border-border bg-muted/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><p className="text-xs text-muted-foreground">{t('pagination', { page: data.page, totalPages: Math.max(1, data.totalPages), total: data.total })}</p><div className="flex items-center gap-2"><button type="button" disabled={page <= 1} onClick={() => setPage((current) => current - 1)} aria-label={t('previous')} className="rounded-xl border border-border p-2 text-foreground hover:bg-muted disabled:opacity-40"><ChevronLeft className="h-4 w-4"/></button><span className="min-w-8 text-center text-sm font-semibold text-foreground">{data.page}</span><button type="button" disabled={page >= data.totalPages} onClick={() => setPage((current) => current + 1)} aria-label={t('next')} className="rounded-xl border border-border p-2 text-foreground hover:bg-muted disabled:opacity-40"><ChevronRight className="h-4 w-4"/></button></div></footer>
           </>}
       </div>
+      {deleteTarget && <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/70 p-4" role="dialog" aria-modal="true" aria-labelledby="delete-user-title"><div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600"><Trash2 className="h-5 w-5"/></div><h2 id="delete-user-title" className="mt-4 text-lg font-black text-foreground">{t('deleteDialog.title')}</h2><p className="mt-2 text-sm text-muted-foreground">{t('deleteDialog.description', { user: deleteTarget.name })}</p><div className="mt-6 flex justify-end gap-2"><button type="button" disabled={accountBusy !== null} onClick={() => setDeleteTarget(null)} className="rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-50">{t('deleteDialog.cancel')}</button><button type="button" disabled={accountBusy !== null} onClick={() => void permanentlyDeleteUser()} className="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-rose-700 disabled:opacity-50">{accountBusy === deleteTarget.id ? t('deleteDialog.deleting') : t('deleteDialog.confirm')}</button></div></div></div>}
     </section>
   );
 }

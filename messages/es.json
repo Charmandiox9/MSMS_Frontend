@@ -528,6 +528,9 @@
     "assignRole": "Asignar {role} a {user}",
     "revoke": "Revocar",
     "revokeRole": "Revocar {role} a {user}",
+    "activateUser": "Reactivar cuenta de {user}",
+    "deactivateUser": "Desactivar cuenta de {user}",
+    "deleteUser": "Eliminar permanentemente a {user}",
     "pagination": "Página {page} de {totalPages} · {total} usuarios",
     "previous": "Página anterior",
     "next": "Página siguiente",
@@ -535,7 +538,20 @@
       "assigning": "Asignando rol…",
       "assigned": "Se asignó {role} a {user}.",
       "revoking": "Revocando rol…",
-      "revoked": "Se revocó {role} a {user}."
+      "revoked": "Se revocó {role} a {user}.",
+      "activating": "Reactivando cuenta…",
+      "activated": "Se reactivó la cuenta de {user}.",
+      "deactivating": "Desactivando cuenta…",
+      "deactivated": "Se desactivó la cuenta de {user}.",
+      "deleting": "Eliminando cuenta…",
+      "deleted": "Se eliminó permanentemente la cuenta de {user}."
+    },
+    "deleteDialog": {
+      "title": "Eliminar usuario definitivamente",
+      "description": "Se eliminarán la cuenta y sus roles. Esta acción no se puede deshacer. Si {user} tiene actividad en el historial académico, el sistema rechazará la eliminación para conservar la trazabilidad; podrás desactivar su cuenta en su lugar.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar definitivamente",
+      "deleting": "Eliminando…"
     },
     "preloads": {
       "title": "Accesos preasignados",
@@ -566,6 +582,6 @@
         "cancelError": "No se pudo cancelar la precarga."
       }
     },
-    "errors": { "load": "No se pudieron cargar los usuarios.", "update": "No se pudo actualizar el rol." }
+    "errors": { "load": "No se pudieron cargar los usuarios.", "update": "No se pudo actualizar el rol.", "updateStatus": "No se pudo cambiar el estado de la cuenta.", "delete": "No se pudo eliminar la cuenta." }
   }
 }
