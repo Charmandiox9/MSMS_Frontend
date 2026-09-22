@@ -1,8 +1,10 @@
-const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
-const API_URL = (configuredApiUrl?.replace(/\/graphql$/, '') ?? 'http://localhost:3001/api').replace(/\/$/, '');
+import { resolveApiBaseUrl } from './runtime-config';
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
+  const apiUrl = await resolveApiBaseUrl();
+  if (!apiUrl) throw new Error('API URL no configurada');
+
+  const response = await fetch(`${apiUrl}${path}`, {
     ...init,
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...init?.headers },
