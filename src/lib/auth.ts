@@ -1,8 +1,34 @@
-const graphqlUrl = process.env.NEXT_PUBLIC_API_URL;
-const authBaseUrl = graphqlUrl?.replace(/\/graphql$/, '');
+type RuntimeConfig = {
+  graphqlUrl?: string;
+};
 
-const authEndpoint = (path: string) =>
-  authBaseUrl ? `${authBaseUrl}/auth/${path}` : undefined;
+const buildTimeGraphqlUrl = process.env.NEXT_PUBLIC_API_URL;
+let runtimeGraphqlUrlPromise: Promise<string | undefined> | undefined;
+
+const normalizeGraphqlUrl = (url: string | undefined) =>
+  url?.replace(/\/graphql\/?$/, '');
+
+async function resolveAuthBaseUrl(): Promise<string | undefined> {
+  const buildTimeBaseUrl = normalizeGraphqlUrl(buildTimeGraphqlUrl);
+  if (typeof window === 'undefined') return buildTimeBaseUrl;
+
+  runtimeGraphqlUrlPromise ??= fetch('/api/runtime-config', {
+    cache: 'no-store',
+  })
+    .then(async (response) => {
+      if (!response.ok) return undefined;
+      const config = (await response.json()) as RuntimeConfig;
+      return normalizeGraphqlUrl(config.graphqlUrl);
+    })
+    .catch(() => undefined);
+
+  return (await runtimeGraphqlUrlPromise) ?? buildTimeBaseUrl;
+}
+
+const authEndpoint = (path: string) => {
+  const authBaseUrl = normalizeGraphqlUrl(buildTimeGraphqlUrl);
+  return authBaseUrl ? `${authBaseUrl}/auth/${path}` : undefined;
+};
 
 export const googleLoginUrl = authEndpoint('google');
 
@@ -13,7 +39,8 @@ export type ActiveSession = {
 };
 
 export async function getActiveSession(): Promise<ActiveSession | null> {
-  const sessionUrl = authEndpoint('session');
+  const authBaseUrl = await resolveAuthBaseUrl();
+  const sessionUrl = authBaseUrl ? `${authBaseUrl}/auth/session` : undefined;
   if (!sessionUrl) return null;
 
   try {
@@ -30,7 +57,8 @@ export async function hasActiveSession(): Promise<boolean> {
 }
 
 export async function logout(): Promise<void> {
-  const logoutUrl = authEndpoint('logout');
+  const authBaseUrl = await resolveAuthBaseUrl();
+  const logoutUrl = authBaseUrl ? `${authBaseUrl}/auth/logout` : undefined;
   if (!logoutUrl) {
     return;
   }
