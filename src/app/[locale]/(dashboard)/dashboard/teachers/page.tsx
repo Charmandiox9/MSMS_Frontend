@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Download, FileUp, HelpCircle, Loader2, Mail, Search, UserRound, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { useActiveRole } from '@/context/ActiveRoleContext';
 import { apiFetch } from '@/lib/api';
 import type { Teacher } from '@/types/justifications';
@@ -28,7 +29,7 @@ export default function TeachersPage() {
   const loadTeachers = async () => {
     setLoading(true);
     try { setTeachers(await apiFetch<Teacher[]>('/academic/teachers')); setError(null); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.load')); }
+    catch (cause) { const message = cause instanceof Error ? cause.message : t('errors.load'); setError(message); toast.error(message); }
     finally { setLoading(false); }
   };
 
@@ -41,8 +42,13 @@ export default function TeachersPage() {
     try {
       const result = await apiFetch<{ importedTeachers: number; importedAssignments: number }>('/academic/teachers/import-roster', { method: 'POST', body: JSON.stringify({ csv: await file.text() }) });
       setMessage(t('importSuccess', { teachers: result.importedTeachers, assignments: result.importedAssignments }));
+      toast.success(t('importSuccess', { teachers: result.importedTeachers, assignments: result.importedAssignments }));
       await loadTeachers();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.import')); }
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : t('errors.import');
+      setError(message);
+      toast.error(message);
+    }
     finally { setImporting(false); }
   };
 

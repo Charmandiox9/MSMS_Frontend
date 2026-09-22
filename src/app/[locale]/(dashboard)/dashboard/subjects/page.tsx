@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarDays, Download, FileUp, HelpCircle, Loader2, Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { useActiveRole } from '@/context/ActiveRoleContext';
 import { apiFetch } from '@/lib/api';
 
@@ -43,7 +44,9 @@ export default function SubjectsPage() {
       setRows(await apiFetch<ScheduleRow[]>('/academic/courses'));
       setError(null);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : t('errors.load'));
+      const message = cause instanceof Error ? cause.message : t('errors.load');
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -70,9 +73,12 @@ export default function SubjectsPage() {
     try {
       const result = await apiFetch<{ importedRows: number }>('/academic/courses/import-csv', { method: 'POST', body: JSON.stringify({ csv: await file.text() }) });
       setMessage(t('importSuccess', { count: result.importedRows }));
+      toast.success(t('importSuccess', { count: result.importedRows }));
       await loadSchedules();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : t('errors.import'));
+      const message = cause instanceof Error ? cause.message : t('errors.import');
+      setError(message);
+      toast.error(message);
     } finally {
       setImporting(false);
     }

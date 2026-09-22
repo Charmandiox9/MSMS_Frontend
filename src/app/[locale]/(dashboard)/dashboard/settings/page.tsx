@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { CalendarDays, CheckCircle2, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { useActiveRole } from '@/context/ActiveRoleContext';
 import { apiFetch } from '@/lib/api';
 
@@ -24,7 +25,7 @@ export default function SettingsPage() {
   const loadSemesters = async () => {
     setLoading(true);
     try { setSemesters(await apiFetch<Semester[]>('/academic/semesters')); setError(null); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.load')); }
+    catch (cause) { const message = cause instanceof Error ? cause.message : t('errors.load'); setError(message); toast.error(message); }
     finally { setLoading(false); }
   };
 
@@ -35,8 +36,13 @@ export default function SettingsPage() {
     try {
       await apiFetch<Semester>('/academic/semesters/activate', { method: 'POST', body: JSON.stringify({ name, startsOn, endsOn }) });
       setMessage(t('success', { name }));
+      toast.success(t('success', { name }));
       await loadSemesters();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.save')); }
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : t('errors.save');
+      setError(message);
+      toast.error(message);
+    }
     finally { setSaving(false); }
   };
 

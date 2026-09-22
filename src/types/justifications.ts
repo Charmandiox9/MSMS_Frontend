@@ -21,6 +21,7 @@ export interface Justification extends JustificationInboxEntry {
   rejectionReason?: string | null;
   openedAt: string;
   decidedAt?: string | null;
+  teachers?: { name: string; email: string }[];
 }
 
 export interface TeacherAssignment {

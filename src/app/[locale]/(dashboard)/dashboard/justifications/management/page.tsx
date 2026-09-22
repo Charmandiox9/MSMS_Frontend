@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BarChart3, CalendarDays, CheckCircle2, Clock3, FileUp, Loader2, Search, Users, XCircle, type LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { useActiveRole } from '@/context/ActiveRoleContext';
 import { apiFetch } from '@/lib/api';
 import type { Justification, JustificationReasonCategory, JustificationStatus, Teacher } from '@/types/justifications';
@@ -35,8 +36,8 @@ export default function JustificationsManagementPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const loadHistory = async () => { setLoadingHistory(true); try { setJustifications(await apiFetch<Justification[]>('/justifications')); } catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.history')); } finally { setLoadingHistory(false); } };
-  const loadTeachers = async () => { setLoadingTeachers(true); try { setTeachers(await apiFetch<Teacher[]>('/academic/teachers')); } catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.load')); } finally { setLoadingTeachers(false); } };
+  const loadHistory = async () => { setLoadingHistory(true); try { setJustifications(await apiFetch<Justification[]>('/justifications')); } catch (cause) { const message = cause instanceof Error ? cause.message : t('errors.history'); setError(message); toast.error(message); } finally { setLoadingHistory(false); } };
+  const loadTeachers = async () => { setLoadingTeachers(true); try { setTeachers(await apiFetch<Teacher[]>('/academic/teachers')); } catch (cause) { const message = cause instanceof Error ? cause.message : t('errors.load'); setError(message); toast.error(message); } finally { setLoadingTeachers(false); } };
 
   useEffect(() => { if (activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY') { void loadHistory(); void loadTeachers(); } }, [activeRole]);
 
@@ -48,7 +49,7 @@ export default function JustificationsManagementPage() {
   const weekCounts = useMemo(() => countBy(filtered, (item) => weekKey(item.absenceDate)), [filtered]);
   const reasonCounts = useMemo(() => countBy(filtered, (item) => item.reasonCategory ?? 'OTHER'), [filtered]);
 
-  const importCsv = async (file: File) => { setImporting(true); setError(null); setMessage(null); try { const result = await apiFetch<{ importedRows: number }>('/academic/teachers/import-csv', { method: 'POST', body: JSON.stringify({ csv: await file.text() }) }); setMessage(t('import.success', { count: result.importedRows })); await loadTeachers(); } catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.import')); } finally { setImporting(false); } };
+  const importCsv = async (file: File) => { setImporting(true); setError(null); setMessage(null); try { const result = await apiFetch<{ importedRows: number }>('/academic/teachers/import-csv', { method: 'POST', body: JSON.stringify({ csv: await file.text() }) }); setMessage(t('import.success', { count: result.importedRows })); toast.success(t('import.success', { count: result.importedRows })); await loadTeachers(); } catch (cause) { const message = cause instanceof Error ? cause.message : t('errors.import'); setError(message); toast.error(message); } finally { setImporting(false); } };
 
   if (activeRole === null) return <div className="py-16 text-center text-sm text-muted-foreground">{t('loading')}</div>;
   if (activeRole !== 'SYSTEM_ADMIN' && activeRole !== 'ACADEMIC_SECRETARY') return <div className="py-16 text-center text-sm text-muted-foreground">{t('errors.access')}</div>;
