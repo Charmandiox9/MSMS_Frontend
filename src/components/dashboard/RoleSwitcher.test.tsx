@@ -5,6 +5,7 @@ import { ActiveRoleProvider } from '@/context/ActiveRoleContext';
 import type { ActiveSession } from '@/types/auth';
 
 vi.mock('next-intl', () => ({
+  useLocale: () => 'es',
   useTranslations: () => (key: string) => {
     const map: Record<string, string> = {
       switchRole: 'Cambiar rol activo',
@@ -16,9 +17,16 @@ vi.mock('next-intl', () => ({
   },
 }));
 
+const replace = vi.fn();
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ replace }),
+}));
+
 describe('RoleSwitcher component', () => {
   beforeEach(() => {
     localStorage.clear();
+    replace.mockClear();
   });
 
   it('should render interactive dropdown when user has multiple roles', () => {
@@ -41,6 +49,9 @@ describe('RoleSwitcher component', () => {
     const options = screen.getAllByRole('option');
     expect(options).toHaveLength(2);
     expect(screen.getByText('Roles asignados')).toBeDefined();
+
+    fireEvent.click(screen.getByRole('option', { name: /apoyo docente/i }));
+    expect(replace).toHaveBeenCalledWith('/es/dashboard');
   });
 
   it('should render only badge when user has a single role', () => {
