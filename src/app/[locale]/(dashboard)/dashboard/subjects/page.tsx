@@ -36,7 +36,7 @@ type Subject = { nrc: string; name: string; entries: ScheduleRow[]; semester: st
 
 const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'] as const;
 const blocks = ['A', 'B', 'C', 'C2', 'D', 'E', 'F', 'G', 'H'] as const;
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 10;
 
 export default function SubjectsPage() {
   const t = useTranslations('SubjectsPage');
@@ -44,6 +44,7 @@ export default function SubjectsPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<ScheduleRow[]>([]);
   const [search, setSearch] = useState('');
+  const [selectedDay, setSelectedDay] = useState('');
   const [page, setPage] = useState(1);
   const [selectedNrc, setSelectedNrc] = useState<string | null>(null);
   const [allScheduleOpen, setAllScheduleOpen] = useState(false);
@@ -97,7 +98,7 @@ export default function SubjectsPage() {
     if (activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY') void loadSchedules();
   }, [activeRole]);
 
-  const subjects = useMemo(() => {
+  const allSubjects = useMemo(() => {
     const grouped = new Map<string, Subject>();
     for (const row of rows) {
       const current = grouped.get(row.nrc) ?? {
@@ -110,10 +111,14 @@ export default function SubjectsPage() {
       current.entries.push(row);
       grouped.set(row.nrc, current);
     }
-    return [...grouped.values()]
-      .filter((subject) => `${subject.nrc} ${subject.name}`.toLowerCase().includes(search.toLowerCase().trim()))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [rows, search]);
+    return [...grouped.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }, [rows]);
+
+  const subjects = useMemo(() => allSubjects.filter((subject) => {
+    const matchesSearch = `${subject.nrc} ${subject.name}`.toLowerCase().includes(search.toLowerCase().trim());
+    const matchesDay = !selectedDay || subject.entries.some((entry) => entry.day === selectedDay);
+    return matchesSearch && matchesDay;
+  }), [allSubjects, search, selectedDay]);
 
   const totalPages = Math.max(1, Math.ceil(subjects.length / PAGE_SIZE));
   const visibleSubjects = subjects.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -140,7 +145,7 @@ export default function SubjectsPage() {
   if (activeRole === null) return <div className="py-16 text-center text-sm text-muted-foreground">{t('loading')}</div>;
   if (activeRole !== 'SYSTEM_ADMIN' && activeRole !== 'ACADEMIC_SECRETARY') return <div className="py-16 text-center text-sm text-muted-foreground">{t('errors.access')}</div>;
 
-  const selected = selectedNrc ? subjects.find((subject) => subject.nrc === selectedNrc) : null;
+  const selected = selectedNrc ? allSubjects.find((subject) => subject.nrc === selectedNrc) : null;
 
   return (
     <div className="space-y-6">
@@ -157,22 +162,29 @@ export default function SubjectsPage() {
       {error && <div role="alert" className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">{error}</div>}
 
       <section className="rounded-3xl border border-border bg-card p-4 shadow-sm md:p-5">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(180px,240px)] md:items-center">
           <div>{rows[0] && <p className="text-xs text-muted-foreground">{t('semester')}: {rows[0].semester.name}</p>}</div>
-          <label className="relative block md:w-80"><span className="sr-only">{t('search')}</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t('search')} className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none transition focus:border-primary" /></label>
+          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(160px,200px)]">
+            <label className="relative block"><span className="sr-only">{t('search')}</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t('search')} className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none transition focus:border-primary" /></label>
+            <label><span className="sr-only">{t('filterDay')}</span><select value={selectedDay} onChange={(event) => { setSelectedDay(event.target.value); setPage(1); }} aria-label={t('filterDay')} className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary"><option value="">{t('allDays')}</option>{days.map((day) => <option key={day} value={day}>{t(`days.${day}`)}</option>)}</select></label>
+          </div>
         </div>
       </section>
 
       {loading ? <div className="animate-pulse rounded-3xl bg-muted px-4 py-16 text-center text-sm text-muted-foreground">{t('loading')}</div>
         : subjects.length === 0 ? <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">{rows.length === 0 ? t('empty') : t('noMatches')}</div>
           : <>
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {visibleSubjects.map((subject) => <article key={subject.nrc} className="group rounded-3xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md">
-                <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.14em] text-primary">NRC {subject.nrc}</p><h2 className="mt-2 text-lg font-black text-foreground">{subject.name}</h2><p className="mt-1 text-xs text-muted-foreground">{subject.entries.length} {t('entries')}</p></div><div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary"><CalendarDays className="h-5 w-5" /></div></div>
-                <div className="mt-3 flex items-start gap-1.5 text-xs text-muted-foreground"><UserRound className="mt-0.5 h-3.5 w-3.5 shrink-0" /><div>{subject.teachers.length > 0 ? subject.teachers.map((teacher) => <p key={teacher.id}>{teacher.name}</p>) : <p>{t('noTeacher')}</p>}</div></div>
-                <div className="mt-3 flex flex-wrap gap-2">{subject.entries.map((entry) => <span key={entry.id} className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground">{t(`days.${entry.day}`)} · {t(`blocks.${entry.block}`).split(' · ')[0]}</span>)}</div>
-                <button type="button" onClick={() => setSelectedNrc(subject.nrc)} className="mt-4 w-full rounded-2xl border border-primary/30 px-3 py-2.5 text-sm font-bold text-primary transition hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{t('viewSchedule')}</button>
-              </article>)}
+            <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+              <div className="hidden grid-cols-[minmax(180px,1.1fr)_minmax(160px,1fr)_minmax(240px,1.5fr)_auto] gap-4 border-b border-border bg-muted/40 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:grid"><span>{t('subjectColumn')}</span><span>{t('teacherColumn')}</span><span>{t('scheduleColumn')}</span><span className="sr-only">{t('viewSchedule')}</span></div>
+              <ul className="divide-y divide-border">{visibleSubjects.map((subject) => {
+                const visibleEntries = selectedDay ? subject.entries.filter((entry) => entry.day === selectedDay) : subject.entries;
+                return <li key={subject.nrc} className="grid gap-2.5 px-4 py-3 md:grid-cols-[minmax(180px,1.1fr)_minmax(160px,1fr)_minmax(240px,1.5fr)_auto] md:items-center md:gap-4 md:px-5">
+                  <div className="flex min-w-0 items-center gap-2.5"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><CalendarDays className="h-4 w-4" /></div><div className="min-w-0"><p className="text-[10px] font-bold uppercase tracking-wide text-primary">{t('nrcLabel')} {subject.nrc}</p><h2 className="truncate text-sm font-semibold text-foreground">{subject.name}</h2></div></div>
+                  <div className="flex min-w-0 items-start gap-1.5 pl-11 text-xs text-muted-foreground md:pl-0"><UserRound className="mt-0.5 h-3.5 w-3.5 shrink-0"/><div>{subject.teachers.length > 0 ? subject.teachers.map((teacher) => <p key={teacher.id} className="truncate">{teacher.name}</p>) : <p>{t('noTeacher')}</p>}</div></div>
+                  <div className="flex min-w-0 flex-wrap items-center gap-1.5 pl-11 md:pl-0"><span className="text-[10px] font-bold uppercase text-muted-foreground md:hidden">{t('scheduleColumn')}:</span>{visibleEntries.map((entry) => <span key={entry.id} className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-bold text-muted-foreground">{t(`days.${entry.day}`)} · {t(`blocks.${entry.block}`).split(' · ')[0]}</span>)}</div>
+                  <button type="button" onClick={() => setSelectedNrc(subject.nrc)} className="min-h-10 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary transition hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{t('viewSchedule')}</button>
+                </li>;
+              })}</ul>
             </section>
             <footer className="flex flex-col gap-3 rounded-2xl border border-border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-muted-foreground">{t('pagination', { page, totalPages, total: subjects.length })}</p>
