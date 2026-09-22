@@ -523,8 +523,41 @@
     "pagination": "Página {page} de {totalPages} · {total} usuarios",
     "previous": "Página anterior",
     "next": "Página siguiente",
-    "dismiss": "Cerrar mensaje",
-    "feedback": { "assigned": "Se asignó {role} a {user}.", "revoked": "Se revocó {role} a {user}." },
+    "notifications": {
+      "assigning": "Asignando rol…",
+      "assigned": "Se asignó {role} a {user}.",
+      "revoking": "Revocando rol…",
+      "revoked": "Se revocó {role} a {user}."
+    },
+    "preloads": {
+      "title": "Accesos preasignados",
+      "description": "Registra un correo y sus roles. La cuenta se creará y recibirá estos accesos cuando la persona inicie sesión por primera vez.",
+      "createButton": "Precargar usuario",
+      "loading": "Buscando accesos pendientes…",
+      "loadError": "No se pudieron cargar las precargas.",
+      "empty": "No hay correos con acceso preasignado pendientes de primer ingreso.",
+      "pendingSince": "Pendiente desde {date}",
+      "cancel": "Cancelar precarga",
+      "cancelFor": "Cancelar la precarga de {email}",
+      "dialogTitle": "Preparar acceso de usuario",
+      "dialogDescription": "Indica el correo institucional y selecciona los roles que tendrá al ingresar por primera vez.",
+      "email": "Correo institucional",
+      "emailPlaceholder": "nombre@ucn.cl",
+      "roles": "Roles de acceso",
+      "rolesHelp": "Selecciona uno o más roles que se asignarán al crear la cuenta.",
+      "roleRequired": "Selecciona al menos un rol para continuar.",
+      "save": "Guardar precarga",
+      "saving": "Guardando…",
+      "close": "Cerrar",
+      "notifications": {
+        "creating": "Guardando la precarga…",
+        "created": "Precarga creada. Los roles se asignarán en el primer inicio de sesión.",
+        "createError": "No se pudo guardar la precarga.",
+        "cancelling": "Cancelando la precarga…",
+        "cancelled": "Se canceló la precarga.",
+        "cancelError": "No se pudo cancelar la precarga."
+      }
+    },
     "errors": { "load": "No se pudieron cargar los usuarios.", "update": "No se pudo actualizar el rol." }
   }
 }

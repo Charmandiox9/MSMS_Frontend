@@ -523,8 +523,41 @@
     "pagination": "Page {page} of {totalPages} · {total} users",
     "previous": "Previous page",
     "next": "Next page",
-    "dismiss": "Dismiss message",
-    "feedback": { "assigned": "Assigned {role} to {user}.", "revoked": "Revoked {role} from {user}." },
+    "notifications": {
+      "assigning": "Assigning role…",
+      "assigned": "Assigned {role} to {user}.",
+      "revoking": "Revoking role…",
+      "revoked": "Revoked {role} from {user}."
+    },
+    "preloads": {
+      "title": "Preassigned access",
+      "description": "Register an email and its roles. The account will be created and receive these permissions when the person signs in for the first time.",
+      "createButton": "Preload user",
+      "loading": "Loading pending access…",
+      "loadError": "Could not load preloaded users.",
+      "empty": "No email addresses are waiting for their first sign-in.",
+      "pendingSince": "Pending since {date}",
+      "cancel": "Cancel preload",
+      "cancelFor": "Cancel the preload for {email}",
+      "dialogTitle": "Prepare user access",
+      "dialogDescription": "Enter the institutional email and select the roles the user will receive on their first sign-in.",
+      "email": "Institutional email",
+      "emailPlaceholder": "name@ucn.cl",
+      "roles": "Access roles",
+      "rolesHelp": "Select one or more roles to assign when the account is created.",
+      "roleRequired": "Select at least one role to continue.",
+      "save": "Save preload",
+      "saving": "Saving…",
+      "close": "Close",
+      "notifications": {
+        "creating": "Saving preload…",
+        "created": "Preload created. Roles will be assigned on the first sign-in.",
+        "createError": "Could not save the preload.",
+        "cancelling": "Cancelling preload…",
+        "cancelled": "Preload cancelled.",
+        "cancelError": "Could not cancel the preload."
+      }
+    },
     "errors": { "load": "Could not load users.", "update": "Could not update the role." }
   }
 }

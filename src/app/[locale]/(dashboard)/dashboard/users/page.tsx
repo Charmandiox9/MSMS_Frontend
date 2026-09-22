@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search, Users, ChevronLeft, ChevronRight, ShieldCheck, UserRound, X } from 'lucide-react';
+import { Search, Users, ChevronLeft, ChevronRight, ShieldCheck, UserRound } from 'lucide-react';
+import { toast } from 'sonner';
 import { apiFetch } from '@/lib/api';
+import PreloadedUsersPanel, { type UserRole } from '@/components/dashboard/users/PreloadedUsersPanel';
 
-type Role = { id: string; code: string; name: string };
+type Role = UserRole;
 type User = { id: string; name: string; email: string; avatarUrl: string | null; isActive: boolean; roles: Role[] };
 type UserPage = { items: User[]; roles: Role[]; total: number; page: number; pageSize: number; totalPages: number };
 
@@ -17,7 +19,6 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [feedback, setFeedback] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [roleChoices, setRoleChoices] = useState<Record<string, string>>({});
 
@@ -35,13 +36,20 @@ export default function UsersPage() {
   useEffect(() => { const timer = window.setTimeout(() => { void load(); }, 250); return () => window.clearTimeout(timer); }, [load]);
 
   const mutateRole = async (user: User, role: Role, assign: boolean) => {
-    const key = `${user.id}:${role.id}`; setBusy(key); setFeedback(''); setError('');
+    const key = `${user.id}:${role.id}`; setBusy(key);
     try {
-      if (assign) await apiFetch(`/users/${user.id}/roles`, { method: 'POST', body: JSON.stringify({ roleId: role.id }) });
-      else await apiFetch(`/users/${user.id}/roles/${role.id}`, { method: 'DELETE' });
-      setFeedback(t(assign ? 'feedback.assigned' : 'feedback.revoked', { role: role.name, user: user.name }));
+      const request = assign
+        ? apiFetch(`/users/${user.id}/roles`, { method: 'POST', body: JSON.stringify({ roleId: role.id }) })
+        : apiFetch(`/users/${user.id}/roles/${role.id}`, { method: 'DELETE' });
+      await toast.promise(request, {
+        loading: t(assign ? 'notifications.assigning' : 'notifications.revoking'),
+        success: t(assign ? 'notifications.assigned' : 'notifications.revoked', { role: role.name, user: user.name }),
+        error: (cause) => cause instanceof Error ? cause.message : t('errors.update'),
+      });
       await load();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.update')); }
+    } catch {
+      // Sonner presents the request error to the administrator.
+    }
     finally { setBusy(null); }
   };
 
@@ -57,7 +65,7 @@ export default function UsersPage() {
         <select value={roleFilter} onChange={(event) => { setRoleFilter(event.target.value); setPage(1); }} aria-label={t('filterRole')} className="rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-ocean-cyan focus:ring-2 focus:ring-ocean-cyan/20"><option value="">{t('allRoles')}</option>{data?.roles.map((role) => <option key={role.id} value={role.code}>{role.name}</option>)}</select>
       </div>
 
-      {feedback && <div role="status" className="flex items-center justify-between rounded-2xl border border-teal-500/30 bg-teal-500/10 px-4 py-3 text-sm text-teal-800 dark:text-teal-200">{feedback}<button onClick={() => setFeedback('')} aria-label={t('dismiss')}><X className="h-4 w-4"/></button></div>}
+      <PreloadedUsersPanel roles={data?.roles ?? []} />
       {error && <div role="alert" className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">{error}</div>}
 
       <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
