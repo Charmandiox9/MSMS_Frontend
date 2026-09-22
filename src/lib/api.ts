@@ -1,4 +1,5 @@
 import { resolveApiBaseUrl } from './runtime-config';
+import { formatApiErrorMessage } from './api-error';
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const apiUrl = await resolveApiBaseUrl();
@@ -11,8 +12,8 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   });
 
   if (!response.ok) {
-    const payload = (await response.json().catch(() => null)) as { message?: string } | null;
-    throw new Error(payload?.message ?? 'No se pudo completar la solicitud');
+    const payload: unknown = await response.json().catch(() => null);
+    throw new Error(formatApiErrorMessage(payload));
   }
 
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
