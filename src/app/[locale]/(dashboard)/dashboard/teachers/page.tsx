@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Download, FileUp, HelpCircle, Loader2, Mail, Search, UserRound, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, FileUp, HelpCircle, Loader2, Mail, Search, UserRound, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useActiveRole } from '@/context/ActiveRoleContext';
 import { apiFetch } from '@/lib/api';
 import type { Teacher } from '@/types/justifications';
+
+const PAGE_SIZE = 10;
 
 export default function TeachersPage() {
   const t = useTranslations('TeachersPage');
@@ -14,6 +16,7 @@ export default function TeachersPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -36,6 +39,8 @@ export default function TeachersPage() {
   useEffect(() => { if (activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY') void loadTeachers(); }, [activeRole]);
 
   const filtered = useMemo(() => teachers.filter((teacher) => `${teacher.name} ${teacher.email} ${teacher.assignments.map((assignment) => assignment.nrc).join(' ')}`.toLowerCase().includes(search.toLowerCase().trim())), [search, teachers]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const visibleTeachers = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const importRoster = async (file: File) => {
     setImporting(true); setError(null); setMessage(null);
@@ -59,8 +64,16 @@ export default function TeachersPage() {
     <header className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t('eyebrow')}</p><h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">{t('title')}</h1><p className="mt-2 max-w-3xl text-sm text-muted-foreground">{t('subtitle')}</p></div><div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => setShowHelp(true)} className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2.5 text-sm font-bold text-muted-foreground transition hover:border-primary/50 hover:text-primary" aria-label={t('help')} title={t('help')}><HelpCircle className="h-4 w-4" />?</button><input ref={inputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importRoster(file); event.target.value = ''; }} /><button type="button" disabled={importing} onClick={() => inputRef.current?.click()} className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-60">{importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4" />}{t('import')}</button></div></header>
     {error && <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">{error}</div>}
     {message && <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-300">{message}</div>}
-    <section className="rounded-3xl border border-border bg-card p-5 shadow-sm md:p-6"><div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div>{teachers[0]?.assignments[0] && <p className="text-xs text-muted-foreground">{t('semester')}: {teachers[0].assignments[0].semester.name}</p>}</div><label className="relative block md:w-80"><span className="sr-only">{t('search')}</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t('search')} className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary" /></label></div></section>
-    {loading ? <div className="animate-pulse rounded-3xl bg-muted px-4 py-16 text-center text-sm text-muted-foreground">{t('loading')}</div> : filtered.length === 0 ? <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">{teachers.length === 0 ? t('empty') : t('noMatches')}</div> : <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{filtered.map((teacher) => <article key={teacher.id} className="rounded-3xl border border-border bg-card p-5 shadow-sm"><div className="flex items-start gap-3"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><UserRound className="h-5 w-5" /></div><div className="min-w-0"><h2 className="truncate text-lg font-black text-foreground">{teacher.name}</h2><p className="mt-1 flex items-center gap-1.5 truncate text-xs text-muted-foreground"><Mail className="h-3.5 w-3.5 shrink-0" />{teacher.email}</p></div></div><div className="mt-5"><p className="text-xs font-black uppercase tracking-wide text-muted-foreground">{t('nrcs')}</p><div className="mt-2 flex flex-wrap gap-2">{teacher.assignments.map((assignment) => <span key={assignment.id} className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">{assignment.nrc}</span>)}</div></div></article>)}</section>}
+    <section className="rounded-3xl border border-border bg-card p-4 shadow-sm md:p-5"><div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><div>{teachers[0]?.assignments[0] && <p className="text-xs text-muted-foreground">{t('semester')}: {teachers[0].assignments[0].semester.name}</p>}</div><label className="relative block md:w-80"><span className="sr-only">{t('search')}</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t('search')} className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary" /></label></div></section>
+    {loading ? <div className="animate-pulse rounded-3xl bg-muted px-4 py-16 text-center text-sm text-muted-foreground">{t('loading')}</div> : filtered.length === 0 ? <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">{teachers.length === 0 ? t('empty') : t('noMatches')}</div> : <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+      <div className="hidden grid-cols-[minmax(200px,1.2fr)_minmax(200px,1fr)_minmax(240px,1.4fr)] gap-4 border-b border-border bg-muted/40 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:grid"><span>{t('teacherColumn')}</span><span>{t('emailColumn')}</span><span>{t('nrcs')}</span></div>
+      <ul className="divide-y divide-border">{visibleTeachers.map((teacher) => <li key={teacher.id} className="grid gap-2.5 px-4 py-3 md:grid-cols-[minmax(200px,1.2fr)_minmax(200px,1fr)_minmax(240px,1.4fr)] md:items-center md:gap-4 md:px-5">
+        <div className="flex min-w-0 items-center gap-2.5"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><UserRound className="h-4 w-4" /></div><span className="truncate text-sm font-semibold text-foreground">{teacher.name}</span></div>
+        <p className="flex min-w-0 items-center gap-1.5 pl-11 text-xs text-muted-foreground md:pl-0"><span className="md:hidden">{t('emailColumn')}:</span><Mail className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{teacher.email}</span></p>
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5 pl-11 md:pl-0"><span className="text-[10px] font-bold uppercase text-muted-foreground md:hidden">{t('nrcs')}:</span>{teacher.assignments.length > 0 ? teacher.assignments.map((assignment) => <span key={assignment.id} className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">{assignment.nrc}</span>) : <span className="text-xs text-muted-foreground">—</span>}</div>
+      </li>)}</ul>
+      <footer className="flex flex-col gap-3 border-t border-border bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"><p className="text-xs text-muted-foreground">{t('pagination', { page, totalPages, total: filtered.length })}</p><div className="flex items-center gap-2"><button type="button" disabled={page <= 1} onClick={() => setPage((current) => current - 1)} aria-label={t('previous')} className="rounded-xl border border-border p-2 text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button><span className="min-w-8 text-center text-sm font-semibold tabular-nums text-foreground">{page}</span><button type="button" disabled={page >= totalPages} onClick={() => setPage((current) => current + 1)} aria-label={t('next')} className="rounded-xl border border-border p-2 text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button></div></footer>
+    </section>}
     {showHelp && <HelpDialog title={t('helpTitle')} description={t('helpDescription')} format={t('format')} downloadLabel={t('downloadExample')} onDownload={downloadExample} onClose={() => setShowHelp(false)} />}
   </div>;
 }

@@ -268,8 +268,13 @@
     "search": "Buscar por nombre, correo o NRC…",
     "empty": "No hay profesores cargados para el semestre activo.",
     "noMatches": "No hay profesores que coincidan con la búsqueda.",
+    "teacherColumn": "Profesor",
+    "emailColumn": "Correo institucional",
     "nrcs": "NRC asignados",
     "semester": "Semestre activo",
+    "pagination": "Página {page} de {totalPages} · {total} profesores",
+    "previous": "Página anterior",
+    "next": "Página siguiente",
     "errors": { "load": "No se pudieron cargar los profesores.", "import": "No se pudo importar el padrón de profesores.", "access": "No tienes acceso a esta página." }
   },
   "SemesterSettingsPage": {
