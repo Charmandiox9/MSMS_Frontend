@@ -3,7 +3,7 @@
 import { Home, LogOut, Moon, Settings, Sun } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { logout, type ActiveSession } from '@/lib/auth';
@@ -12,6 +12,18 @@ type SpeedDialItem = {
   id: string;
   content: ReactNode;
 };
+
+const DIAL_RADIUS = 88;
+const DIAL_START_ANGLE = -105;
+const DIAL_END_ANGLE = 15;
+
+function getDialTransform(index: number, itemCount: number): string {
+  const step = itemCount > 1
+    ? (DIAL_END_ANGLE - DIAL_START_ANGLE) / (itemCount - 1)
+    : 0;
+  const angle = ((DIAL_START_ANGLE + step * index) * Math.PI) / 180;
+  return `translateX(${Math.cos(angle) * DIAL_RADIUS}px) translateY(${Math.sin(angle) * DIAL_RADIUS}px)`;
+}
 
 export default function DashboardUserDial({
   session,
@@ -25,7 +37,7 @@ export default function DashboardUserDial({
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme, systemTheme } = useTheme();
-  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -36,6 +48,10 @@ export default function DashboardUserDial({
   const initials = session?.email?.slice(0, 1).toUpperCase() ?? 'U';
   const isDark = theme === 'dark' || (theme === 'system' && systemTheme === 'dark');
   const nextLocale = locale === 'es' ? 'en' : 'es';
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -113,16 +129,12 @@ export default function DashboardUserDial({
     void import('animejs').then((module) => {
       const anime = module.default ?? module;
       const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      const radius = 88;
-      const startAngle = -105;
-      const endAngle = 15;
-      const step = items.length > 1 ? (endAngle - startAngle) / (items.length - 1) : 0;
-
       if (reduceMotion) {
+        overlayRef.current?.style.setProperty('opacity', '1');
+        glowRef.current?.style.setProperty('opacity', '1');
         itemRefs.current.forEach((element, index) => {
           if (!element) return;
-          const angle = ((startAngle + step * index) * Math.PI) / 180;
-          element.style.transform = `translateX(${Math.cos(angle) * radius}px) translateY(${Math.sin(angle) * radius}px)`;
+          element.style.transform = getDialTransform(index, items.length);
           element.style.opacity = '1';
         });
         return;
@@ -132,11 +144,14 @@ export default function DashboardUserDial({
       anime({ targets: glowRef.current, opacity: [0, 1], scale: [0.35, 1], duration: 260, easing: 'easeOutQuad' });
       itemRefs.current.forEach((element, index) => {
         if (!element) return;
-        const angle = ((startAngle + step * index) * Math.PI) / 180;
+        const step = items.length > 1
+          ? (DIAL_END_ANGLE - DIAL_START_ANGLE) / (items.length - 1)
+          : 0;
+        const angle = ((DIAL_START_ANGLE + step * index) * Math.PI) / 180;
         anime({
           targets: element,
-          translateX: [0, Math.cos(angle) * radius],
-          translateY: [0, Math.sin(angle) * radius],
+          translateX: [0, Math.cos(angle) * DIAL_RADIUS],
+          translateY: [0, Math.sin(angle) * DIAL_RADIUS],
           opacity: [0, 1],
           scale: [0.3, 1],
           duration: 500,
@@ -145,13 +160,22 @@ export default function DashboardUserDial({
         });
       });
       anime({ targets: triggerRef.current, scale: [1, 0.9, 1], duration: 360, easing: 'easeOutElastic(1, .6)' });
+    }).catch(() => {
+      // El menú debe seguir siendo utilizable aunque la animación no cargue.
+      overlayRef.current?.style.setProperty('opacity', '1');
+      glowRef.current?.style.setProperty('opacity', '1');
+      itemRefs.current.forEach((element, index) => {
+        if (!element) return;
+        element.style.opacity = '1';
+        element.style.transform = getDialTransform(index, items.length);
+      });
     });
 
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [open, triggerRect]);
 
   const avatar = (
-    <div ref={avatarRef} className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-ocean-cyan to-primary text-sm font-black text-primary-foreground ring-2 ring-ocean-cyan/45">
+    <div ref={avatarRef} className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-ocean-cyan to-primary text-sm font-black text-primary-foreground">
       {session?.avatarUrl ? <img src={session.avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" /> : initials}
     </div>
   );
@@ -165,9 +189,9 @@ export default function DashboardUserDial({
       {mounted && open && triggerRect && createPortal(
         <div ref={overlayRef} className="fixed inset-0 z-[100] opacity-0" onClick={closeMenu}>
           <div className="absolute" style={{ left: triggerRect.left + triggerRect.width / 2, top: triggerRect.top + triggerRect.height / 2 }}>
-            <div ref={glowRef} className="pointer-events-none absolute h-52 w-52 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ucn-navy/65 opacity-0 shadow-[0_0_50px_rgba(0,199,229,0.18)] backdrop-blur-md" />
-            <button type="button" onClick={(event) => { event.stopPropagation(); closeMenu(); }} aria-label={t('accountMenu')} className="absolute z-10 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_18px_rgba(0,199,229,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan">
-              <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-ocean-cyan to-primary text-sm font-black text-primary-foreground ring-2 ring-ocean-cyan/45">
+            <div ref={glowRef} className="pointer-events-none absolute h-52 w-52 -translate-x-1/2 -translate-y-1/2 opacity-0" />
+            <button type="button" onClick={(event) => { event.stopPropagation(); closeMenu(); }} aria-label={t('accountMenu')} className="absolute z-10 -translate-x-1/2 -translate-y-1/2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan">
+              <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-ocean-cyan to-primary text-sm font-black text-primary-foreground">
                 {session?.avatarUrl ? <img src={session.avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" /> : initials}
               </div>
             </button>

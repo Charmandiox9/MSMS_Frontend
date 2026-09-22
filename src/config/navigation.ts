@@ -2,6 +2,7 @@ import {
   BookOpenCheck,
   CalendarDays,
   ClipboardCheck,
+  ClipboardList,
   FileBarChart,
   GraduationCap,
   LayoutDashboard,
@@ -15,6 +16,7 @@ import type { UserRoleCode } from '@/types/auth';
 export type NavigationKey =
   | 'dashboard'
   | 'justifications'
+  | 'justificationsManagement'
   | 'academicInformation'
   | 'academicWorkload'
   | 'titulation'
@@ -53,11 +55,13 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: 'justifications',
         href: '/dashboard/justifications',
         icon: ClipboardCheck,
-        allowedRoles: [
-          'SYSTEM_ADMIN',
-          'TEACHING_SUPPORT_COORDINATOR',
-          'ACADEMIC_PROCESS_ANALYST',
-        ],
+        allowedRoles: ['TEACHING_SUPPORT_COORDINATOR'],
+      },
+      {
+        key: 'justificationsManagement',
+        href: '/dashboard/justifications/management',
+        icon: ClipboardList,
+        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
       },
       {
         key: 'academicInformation',

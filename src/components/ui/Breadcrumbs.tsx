@@ -11,6 +11,7 @@ interface BreadcrumbsProps {
 const ROUTE_NAME_MAP: Record<string, string> = {
   dashboard: 'dashboard',
   justifications: 'justifications',
+  management: 'justificationsManagement',
   'academic-information': 'academicInformation',
   'academic-workload': 'academicWorkload',
   titulation: 'titulation',

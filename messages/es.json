@@ -143,6 +143,7 @@
   "DashboardNav": {
     "dashboard": "Dashboard",
     "justifications": "Justificaciones",
+    "justificationsManagement": "Gestión de justificaciones",
     "academicInformation": "Información académica",
     "academicWorkload": "Carga académica",
     "titulation": "Titulaciones",
@@ -175,7 +176,54 @@
     "switchRole": "Cambiar rol activo",
     "switchRoleTitle": "Roles asignados"
   },
+  "JustificationsPage": {
+    "eyebrow": "Apoyo docente",
+    "title": "Justificaciones de inasistencia",
+    "subtitle": "Revisa las solicitudes entrantes, consulta sus evidencias y registra una decisión con trazabilidad.",
+    "loading": "Cargando justificaciones…",
+    "stats": { "incoming": "Entrantes sin leer", "pending": "Pendientes de decisión", "resolved": "Resueltas" },
+    "incoming": { "title": "Justificaciones entrantes", "subtitle": "Provienen del formulario de Google y aún no han sido ingresadas al sistema.", "empty": "No hay nuevas justificaciones entrantes.", "openHint": "Abrir para leer e ingresar como pendiente" },
+    "history": { "title": "Justificaciones ingresadas", "subtitle": "Consulta todas las solicitudes que ya fueron leídas y registradas.", "empty": "No hay justificaciones para este filtro." },
+    "filters": { "all": "Todas" },
+    "statuses": { "unread": "Sin leer", "pending": "Pendiente", "accepted": "Aceptada", "rejected": "Rechazada" },
+    "detail": { "eyebrow": "Detalle de justificación", "close": "Cerrar", "student": "Correo del alumno", "date": "Día de inasistencia", "course": "Asignatura", "parallel": "Paralelo", "notAvailable": "No indicado", "reason": "Observación del formulario", "evidence": "Abrir evidencia", "rejectionReason": "Motivo del rechazo (obligatorio al rechazar)", "rejectionPlaceholder": "Describe el motivo que se notificará al alumno…", "reject": "Rechazar", "accept": "Aceptar" },
+    "errors": { "load": "No se pudieron cargar las justificaciones.", "open": "No se pudo ingresar la justificación.", "decision": "No se pudo registrar la decisión.", "evidence": "No se pudo abrir la evidencia.", "access": "No tienes acceso a esta página." }
+  },
+  "JustificationsManagementPage": {
+    "eyebrow": "Secretaría docente",
+    "title": "Gestión de justificaciones",
+    "subtitle": "Administra el padrón de docentes y las asignaturas que imparten durante el semestre activo.",
+    "loading": "Cargando información…",
+    "stats": { "teachers": "Docentes registrados", "assignments": "Asignaciones activas", "activeSemester": "Semestre activo", "available": "Disponible", "pending": "Sin cargar" },
+    "teachers": { "title": "Docentes y asignaturas", "subtitle": "Selecciona un docente para revisar sus ramos y paralelos.", "import": "Importar CSV", "format": "Columnas: teacherEmail, teacherName, courseCode, courseName, parallel, semesterName, startsOn, endsOn, employeeCode.", "courses": "Ver asignaturas del semestre activo", "empty": "Todavía no hay docentes cargados." },
+    "detail": { "eyebrow": "Asignaciones del semestre activo", "close": "Cerrar", "parallel": "Paralelo", "empty": "Este docente no tiene asignaciones activas." },
+    "import": { "success": "Se importaron {count} filas correctamente." },
+    "errors": { "load": "No se pudo cargar el padrón docente.", "import": "No se pudo importar el archivo CSV.", "access": "No tienes acceso a esta página." }
+  },
   "DashboardViews": {
+    "justificationsManagement": {
+      "title": "Gestión de Justificaciones",
+      "subtitle": "Supervisión administrativa, trazabilidad y seguimiento de evidencias de inasistencia.",
+      "stats": {
+        "pending": "Pendientes de revisión",
+        "pendingDesc": "Solicitudes que requieren atención",
+        "processed": "Procesadas",
+        "processedDesc": "Registros revisados en el periodo",
+        "evidence": "Evidencias recibidas",
+        "evidenceDesc": "Archivos asociados a solicitudes",
+        "alerts": "Alertas de seguimiento",
+        "alertsDesc": "Casos con información pendiente"
+      },
+      "activityTitle": "Seguimiento reciente",
+      "activitySubtitle": "Estado consolidado de las últimas solicitudes",
+      "empty": "No hay actividad reciente para mostrar.",
+      "actionsTitle": "Acciones administrativas",
+      "actionsSubtitle": "Accesos para supervisar el proceso",
+      "reports": "Reportes de justificaciones",
+      "reportsDesc": "Consultar indicadores y exportar información consolidada.",
+      "settings": "Parámetros del proceso",
+      "settingsDesc": "Revisar reglas y configuraciones operativas del módulo."
+    },
     "systemAdmin": {
       "title": "Panel de Administración del Sistema",
       "subtitle": "Supervisión global de usuarios, roles, seguridad y cumplimiento normativo.",

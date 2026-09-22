@@ -19,6 +19,7 @@ vi.mock('next-intl', () => ({
       dashboard: 'Dashboard',
       users: 'Usuarios',
       justifications: 'Justificaciones',
+      justificationsManagement: 'Gestión de justificaciones',
       audit: 'Auditoría',
     };
     return translations[key] ?? key;
@@ -48,5 +49,12 @@ describe('Breadcrumbs component', () => {
 
     const current = screen.getByText('Justificaciones');
     expect(current.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('should resolve the management segment on the justifications route', () => {
+    mockPathname = '/dashboard/justifications/management';
+    render(<Breadcrumbs />);
+
+    expect(screen.getByText('Gestión de justificaciones')).toBeDefined();
   });
 });
