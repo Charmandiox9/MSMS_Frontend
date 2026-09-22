@@ -187,7 +187,7 @@
     "history": { "title": "Justificaciones ingresadas", "subtitle": "Consulta todas las solicitudes que ya fueron leídas y registradas.", "empty": "No hay justificaciones para este filtro." },
     "filters": { "all": "Todas" },
     "statuses": { "unread": "Sin leer", "pending": "Pendiente", "accepted": "Aceptada", "rejected": "Rechazada" },
-    "detail": { "eyebrow": "Detalle de justificación", "close": "Cerrar", "student": "Correo del alumno", "date": "Día de inasistencia", "course": "Asignatura", "parallel": "Paralelo", "notAvailable": "No indicado", "reason": "Observación del formulario", "evidence": "Abrir evidencia", "rejectionReason": "Motivo del rechazo (obligatorio al rechazar)", "rejectionPlaceholder": "Describe el motivo que se notificará al alumno…", "reject": "Rechazar", "accept": "Aceptar" },
+    "detail": { "eyebrow": "Detalle de justificación", "close": "Cerrar", "student": "Correo del alumno", "date": "Día de inasistencia", "course": "Asignatura", "nrc": "NRC", "notAvailable": "No indicado", "reason": "Observación del formulario", "evidence": "Abrir evidencia", "rejectionReason": "Motivo del rechazo (obligatorio al rechazar)", "rejectionPlaceholder": "Describe el motivo que se notificará al alumno…", "reject": "Rechazar", "accept": "Aceptar" },
     "errors": { "load": "No se pudieron cargar las justificaciones.", "open": "No se pudo ingresar la justificación.", "decision": "No se pudo registrar la decisión.", "evidence": "No se pudo abrir la evidencia.", "access": "No tienes acceso a esta página." }
   },
   "JustificationsManagementPage": {
@@ -196,8 +196,8 @@
     "subtitle": "Administra el padrón de docentes y las asignaturas que imparten durante el semestre activo.",
     "loading": "Cargando información…",
     "stats": { "teachers": "Docentes registrados", "assignments": "Asignaciones activas", "activeSemester": "Semestre activo", "available": "Disponible", "pending": "Sin cargar" },
-    "teachers": { "title": "Docentes y asignaturas", "subtitle": "Selecciona un docente para revisar sus ramos y paralelos.", "import": "Importar CSV", "format": "Columnas: teacherEmail, teacherName, courseCode, courseName, parallel, semesterName, startsOn, endsOn, employeeCode.", "courses": "Ver asignaturas del semestre activo", "empty": "Todavía no hay docentes cargados." },
-    "detail": { "eyebrow": "Asignaciones del semestre activo", "close": "Cerrar", "parallel": "Paralelo", "empty": "Este docente no tiene asignaciones activas." },
+    "teachers": { "title": "Docentes y asignaturas", "subtitle": "Selecciona un docente para revisar sus ramos y NRC.", "import": "Importar CSV", "format": "Columnas: teacherEmail, teacherName, courseCode, courseName, nrc, semesterName, startsOn, endsOn, employeeCode.", "courses": "Ver asignaturas del semestre activo", "empty": "Todavía no hay docentes cargados." },
+    "detail": { "eyebrow": "Asignaciones del semestre activo", "close": "Cerrar", "nrc": "NRC", "empty": "Este docente no tiene asignaciones activas." },
     "import": { "success": "Se importaron {count} filas correctamente." },
     "errors": { "load": "No se pudo cargar el padrón docente.", "import": "No se pudo importar el archivo CSV.", "access": "No tienes acceso a esta página." }
   },

@@ -7,7 +7,7 @@ export interface JustificationInboxEntry {
   absenceDate: string;
   subjectName: string;
   subjectCode?: string | null;
-  parallel?: string | null;
+  nrc?: string | null;
   reason?: string | null;
   evidenceKey: string;
   evidenceContentType: string;
@@ -23,7 +23,7 @@ export interface Justification extends JustificationInboxEntry {
 
 export interface TeacherAssignment {
   id: string;
-  parallel?: string | null;
+  nrc: string;
   course: { code: string; name: string };
   semester: { name: string; isActive: boolean };
 }
