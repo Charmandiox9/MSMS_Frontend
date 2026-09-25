@@ -13,6 +13,7 @@ export interface JustificationInboxEntry {
   reason?: string | null;
   evidenceKey: string;
   evidenceContentType: string;
+  blocks?: string[] | null;
   createdAt: string;
 }
 

@@ -1,71 +1,508 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { BarChart3, CalendarDays, CheckCircle2, Clock3, FileUp, Loader2, Search, Users, XCircle, type LucideIcon } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  AlertCircle,
+  BarChart3,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  Eye,
+  RotateCcw,
+  Search,
+  XCircle,
+  type LucideIcon,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useActiveRole } from '@/context/ActiveRoleContext';
 import { apiFetch } from '@/lib/api';
-import type { Justification, JustificationReasonCategory, JustificationStatus, Teacher } from '@/types/justifications';
+import DashboardPageHeader from '@/components/dashboard/DashboardPageHeader';
+import JustificationStatusBadge from '@/components/dashboard/justifications/JustificationStatusBadge';
+import JustificationDetailModal from '@/components/dashboard/justifications/JustificationDetailModal';
+import PaginationControls from '@/components/ui/PaginationControls';
+import type {
+  Justification,
+  JustificationReasonCategory,
+  JustificationStatus,
+} from '@/types/justifications';
 
 type StatusFilter = 'ALL' | JustificationStatus;
 type ReasonFilter = 'ALL' | JustificationReasonCategory;
-const statusValues: StatusFilter[] = ['ALL', 'PENDING', 'ACCEPTED', 'REJECTED'];
-const reasonValues: ReasonFilter[] = ['ALL', 'MEDICAL', 'FAMILY_DEATH', 'PERSONAL', 'ACADEMIC', 'OTHER'];
 
-function formatDate(value: string) { return new Intl.DateTimeFormat('es-CL', { dateStyle: 'medium' }).format(new Date(value)); }
-function monthKey(value: string) { return new Intl.DateTimeFormat('es-CL', { month: 'long', year: 'numeric' }).format(new Date(value)); }
-function weekKey(value: string) { const date = new Date(value); const day = date.getDay() || 7; date.setDate(date.getDate() - day + 1); return new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: 'short' }).format(date); }
-function countBy(items: Justification[], getKey: (item: Justification) => string) { const counts = new Map<string, number>(); for (const item of items) { const key = getKey(item); counts.set(key, (counts.get(key) ?? 0) + 1); } return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5); }
+const STATUS_VALUES: StatusFilter[] = ['ALL', 'PENDING', 'ACCEPTED', 'REJECTED'];
+const REASON_VALUES: ReasonFilter[] = [
+  'ALL',
+  'MEDICAL',
+  'FAMILY_DEATH',
+  'PERSONAL',
+  'ACADEMIC',
+  'OTHER',
+];
+const PAGE_SIZE = 10;
+
+function formatDate(value: string): string {
+  try {
+    return new Intl.DateTimeFormat('es-CL', { dateStyle: 'medium' }).format(new Date(value));
+  } catch {
+    return value;
+  }
+}
+
+function getMonthKey(value: string): string {
+  try {
+    return new Intl.DateTimeFormat('es-CL', { month: 'long', year: 'numeric' }).format(new Date(value));
+  } catch {
+    return value;
+  }
+}
+
+function getWeekKey(value: string): string {
+  try {
+    const date = new Date(value);
+    const day = date.getDay() || 7;
+    date.setDate(date.getDate() - day + 1);
+    return new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: 'short' }).format(date);
+  } catch {
+    return value;
+  }
+}
+
+function countBy(
+  items: Justification[],
+  getKey: (item: Justification) => string,
+): [string, number][] {
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    const key = getKey(item);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+}
 
 export default function JustificationsManagementPage() {
   const t = useTranslations('JustificationsManagementPage');
+  const tDetail = useTranslations('JustificationsPage.detail');
   const { activeRole } = useActiveRole();
-  const inputRef = useRef<HTMLInputElement>(null);
+
   const [justifications, setJustifications] = useState<Justification[]>([]);
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [status, setStatus] = useState<StatusFilter>('ALL');
   const [reason, setReason] = useState<ReasonFilter>('ALL');
   const [search, setSearch] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const [selected, setSelected] = useState<Teacher | null>(null);
-  const [loadingHistory, setLoadingHistory] = useState(true);
-  const [loadingTeachers, setLoadingTeachers] = useState(true);
-  const [importing, setImporting] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [selectedJustification, setSelectedJustification] = useState<Justification | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadHistory = async () => { setLoadingHistory(true); try { setJustifications(await apiFetch<Justification[]>('/justifications')); } catch (cause) { const message = cause instanceof Error ? cause.message : t('errors.history'); setError(message); toast.error(message); } finally { setLoadingHistory(false); } };
-  const loadTeachers = async () => { setLoadingTeachers(true); try { setTeachers(await apiFetch<Teacher[]>('/academic/teachers')); } catch (cause) { const message = cause instanceof Error ? cause.message : t('errors.load'); setError(message); toast.error(message); } finally { setLoadingTeachers(false); } };
+  const loadJustifications = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await apiFetch<Justification[]>('/justifications');
+      setJustifications(data);
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : t('errors.history');
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  useEffect(() => { if (activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY') { void loadHistory(); void loadTeachers(); } }, [activeRole]);
+  useEffect(() => {
+    if (activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY') {
+      void loadJustifications();
+    }
+  }, [activeRole]);
 
-  const filtered = useMemo(() => justifications.filter((item) => {
-    const itemDate = new Date(item.absenceDate).getTime();
-    return (status === 'ALL' || item.status === status) && (reason === 'ALL' || item.reasonCategory === reason) && (!search || `${item.studentEmail} ${item.subjectName} ${item.subjectCode ?? ''} ${item.nrc ?? ''}`.toLowerCase().includes(search.toLowerCase())) && (!from || itemDate >= new Date(`${from}T00:00:00`).getTime()) && (!to || itemDate <= new Date(`${to}T23:59:59`).getTime());
-  }), [from, justifications, reason, search, status, to]);
-  const monthCounts = useMemo(() => countBy(filtered, (item) => monthKey(item.absenceDate)), [filtered]);
-  const weekCounts = useMemo(() => countBy(filtered, (item) => weekKey(item.absenceDate)), [filtered]);
-  const reasonCounts = useMemo(() => countBy(filtered, (item) => item.reasonCategory ?? 'OTHER'), [filtered]);
+  const filtered = useMemo(() => {
+    return justifications.filter((item) => {
+      const itemDate = new Date(item.absenceDate).getTime();
+      const matchesStatus = status === 'ALL' || item.status === status;
+      const matchesReason = reason === 'ALL' || item.reasonCategory === reason;
+      const matchesSearch =
+        !search ||
+        `${item.studentEmail} ${item.subjectName} ${item.subjectCode ?? ''} ${item.nrc ?? ''}`
+          .toLowerCase()
+          .includes(search.toLowerCase().trim());
+      const matchesFrom = !from || itemDate >= new Date(`${from}T00:00:00`).getTime();
+      const matchesTo = !to || itemDate <= new Date(`${to}T23:59:59`).getTime();
 
-  const importCsv = async (file: File) => { setImporting(true); setError(null); setMessage(null); try { const result = await apiFetch<{ importedRows: number }>('/academic/teachers/import-csv', { method: 'POST', body: JSON.stringify({ csv: await file.text() }) }); setMessage(t('import.success', { count: result.importedRows })); toast.success(t('import.success', { count: result.importedRows })); await loadTeachers(); } catch (cause) { const message = cause instanceof Error ? cause.message : t('errors.import'); setError(message); toast.error(message); } finally { setImporting(false); } };
+      return matchesStatus && matchesReason && matchesSearch && matchesFrom && matchesTo;
+    });
+  }, [from, justifications, reason, search, status, to]);
 
-  if (activeRole === null) return <div className="py-16 text-center text-sm text-muted-foreground">{t('loading')}</div>;
-  if (activeRole !== 'SYSTEM_ADMIN' && activeRole !== 'ACADEMIC_SECRETARY') return <div className="py-16 text-center text-sm text-muted-foreground">{t('errors.access')}</div>;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginatedItems = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, page]);
 
-  return <div className="space-y-8">
-    <header><p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t('eyebrow')}</p><h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">{t('history.title')}</h1><p className="mt-2 max-w-3xl text-sm text-muted-foreground">{t('history.subtitle')}</p></header>
-    {error && <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">{error}</div>}
-    {message && <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-300">{message}</div>}
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Metric icon={BarChart3} label={t('historyStats.total')} value={filtered.length} /><Metric icon={Clock3} label={t('historyStats.pending')} value={filtered.filter((item) => item.status === 'PENDING').length} /><Metric icon={CheckCircle2} label={t('historyStats.accepted')} value={filtered.filter((item) => item.status === 'ACCEPTED').length} /><Metric icon={XCircle} label={t('historyStats.rejected')} value={filtered.filter((item) => item.status === 'REJECTED').length} /></section>
-    <section className="rounded-3xl border border-border bg-card p-5 shadow-sm md:p-6"><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5"><label className="relative block xl:col-span-2"><span className="sr-only">{t('history.search')}</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input value={search} onChange={(event) => setSearch(event.target.value)} type="search" placeholder={t('history.search')} className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary" /></label><select aria-label={t('history.allStatuses')} value={status} onChange={(event) => setStatus(event.target.value as StatusFilter)} className="h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary">{statusValues.map((value) => <option key={value} value={value}>{value === 'ALL' ? t('history.allStatuses') : t(`statuses.${value.toLowerCase()}`)}</option>)}</select><select aria-label={t('history.allReasons')} value={reason} onChange={(event) => setReason(event.target.value as ReasonFilter)} className="h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary">{reasonValues.map((value) => <option key={value} value={value}>{value === 'ALL' ? t('history.allReasons') : t(`reasonCategories.${value}`)}</option>)}</select><div className="flex gap-2"><input aria-label={t('history.from')} value={from} onChange={(event) => setFrom(event.target.value)} type="date" className="h-10 min-w-0 w-full rounded-xl border border-border bg-background px-2 text-sm text-foreground outline-none focus:border-primary" /><input aria-label={t('history.to')} value={to} onChange={(event) => setTo(event.target.value)} type="date" className="h-10 min-w-0 w-full rounded-xl border border-border bg-background px-2 text-sm text-foreground outline-none focus:border-primary" /></div></div></section>
-    {loadingHistory ? <div className="animate-pulse rounded-3xl bg-muted px-4 py-16 text-center text-sm text-muted-foreground">{t('loading')}</div> : filtered.length === 0 ? <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">{t('history.empty')}</div> : <><section className="grid gap-6 lg:grid-cols-3"><AnalyticsList title={t('history.topMonths')} items={monthCounts} icon={CalendarDays} /><AnalyticsList title={t('history.topWeeks')} items={weekCounts} icon={CalendarDays} /><AnalyticsList title={t('history.topReasons')} items={reasonCounts.map(([key, value]) => [key === 'OTHER' ? t('reasonCategories.OTHER') : t(`reasonCategories.${key}`), value])} icon={BarChart3} /></section><section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm"><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="px-5 py-4">{t('history.period')}</th><th className="px-5 py-4">{t('teachers.title')}</th><th className="px-5 py-4">{t('detail.nrc')}</th><th className="px-5 py-4">{t('detail.student')}</th><th className="px-5 py-4">{t('history.allReasons')}</th><th className="px-5 py-4">{t('history.allStatuses')}</th></tr></thead><tbody className="divide-y divide-border">{filtered.map((item) => <tr key={item.id} className="hover:bg-muted/30"><td className="px-5 py-4 text-muted-foreground">{formatDate(item.absenceDate)}</td><td className="px-5 py-4 font-semibold text-foreground">{item.subjectName}</td><td className="px-5 py-4 text-muted-foreground">{item.nrc ?? '—'}</td><td className="px-5 py-4 text-muted-foreground">{item.studentEmail}</td><td className="px-5 py-4 text-muted-foreground">{item.reasonCategory ? t(`reasonCategories.${item.reasonCategory}`) : '—'}</td><td className="px-5 py-4"><StatusBadge status={item.status} t={t} /></td></tr>)}</tbody></table></div></section></>}
-    <section className="rounded-3xl border border-border bg-card p-5 shadow-sm md:p-6"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><h2 className="text-lg font-black text-foreground">{t('teachers.title')}</h2><p className="mt-1 text-sm text-muted-foreground">{t('teachers.subtitle')}</p></div><div><input ref={inputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importCsv(file); event.target.value = ''; }} /><button type="button" disabled={importing} onClick={() => inputRef.current?.click()} className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-60">{importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4" />}{t('teachers.import')}</button></div></div><p className="mt-3 text-xs text-muted-foreground">{t('teachers.format')}</p>{loadingTeachers ? <div className="mt-6 animate-pulse rounded-2xl bg-muted px-4 py-8 text-center text-sm text-muted-foreground">{t('loading')}</div> : <div className="mt-6 grid gap-3 md:grid-cols-2">{teachers.map((teacher) => <button key={teacher.id} type="button" onClick={() => setSelected(teacher)} className="rounded-2xl border border-border p-4 text-left transition hover:border-primary/50 hover:bg-primary/5"><div className="flex items-start justify-between gap-3"><div><p className="font-bold text-foreground">{teacher.name}</p><p className="mt-1 text-xs text-muted-foreground">{teacher.email}</p></div><span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">{teacher.assignments.length}</span></div></button>)}</div>}</section>
-    {selected && <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true"><div className="w-full max-w-xl rounded-3xl border border-border bg-card p-6 shadow-2xl"><div className="flex items-start justify-between"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-primary">{t('detail.eyebrow')}</p><h2 className="mt-2 text-2xl font-black text-foreground">{selected.name}</h2><p className="mt-1 text-sm text-muted-foreground">{selected.email}</p></div><button type="button" onClick={() => setSelected(null)} className="text-sm font-bold text-muted-foreground hover:text-foreground">{t('detail.close')}</button></div><div className="mt-6 space-y-3">{selected.assignments.map((assignment) => <div key={assignment.id} className="rounded-2xl border border-border p-4"><p className="font-bold text-foreground">{assignment.course.name}</p><p className="mt-1 text-xs text-muted-foreground">{assignment.course.code} · {t('detail.nrc')} {assignment.nrc} · {assignment.semester.name}</p></div>)}</div></div></div>}
-  </div>;
+  const monthCounts = useMemo(
+    () => countBy(filtered, (item) => getMonthKey(item.absenceDate)),
+    [filtered],
+  );
+  const weekCounts = useMemo(
+    () => countBy(filtered, (item) => getWeekKey(item.absenceDate)),
+    [filtered],
+  );
+  const reasonCounts = useMemo(
+    () => countBy(filtered, (item) => item.reasonCategory ?? 'OTHER'),
+    [filtered],
+  );
+
+  const openEvidence = async (id: string) => {
+    try {
+      const result = await apiFetch<{ downloadUrl: string }>(`/justifications/${id}/evidence-url`);
+      window.open(result.downloadUrl, '_blank', 'noopener,noreferrer');
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : tDetail('evidence');
+      toast.error(message);
+    }
+  };
+
+  const handleResetFilters = () => {
+    setStatus('ALL');
+    setReason('ALL');
+    setSearch('');
+    setFrom('');
+    setTo('');
+    setPage(1);
+  };
+
+  const hasActiveFilters =
+    status !== 'ALL' || reason !== 'ALL' || Boolean(search) || Boolean(from) || Boolean(to);
+
+  if (activeRole === null) {
+    return (
+      <div className="py-20 text-center text-sm font-medium text-muted-foreground">
+        {t('loading')}
+      </div>
+    );
+  }
+
+  if (activeRole !== 'SYSTEM_ADMIN' && activeRole !== 'ACADEMIC_SECRETARY') {
+    return (
+      <div className="py-20 text-center text-sm font-medium text-muted-foreground">
+        {t('errors.access')}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      <DashboardPageHeader
+        eyebrow={t('eyebrow')}
+        title={t('history.title')}
+        subtitle={t('history.subtitle')}
+      />
+
+      {error && (
+        <div className="flex items-center gap-2 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <MetricCard
+          icon={BarChart3}
+          label={t('historyStats.total')}
+          value={filtered.length}
+        />
+        <MetricCard
+          icon={Clock3}
+          label={t('historyStats.pending')}
+          value={filtered.filter((item) => item.status === 'PENDING').length}
+          tone="accent"
+        />
+        <MetricCard
+          icon={CheckCircle2}
+          label={t('historyStats.accepted')}
+          value={filtered.filter((item) => item.status === 'ACCEPTED').length}
+          tone="secondary"
+        />
+        <MetricCard
+          icon={XCircle}
+          label={t('historyStats.rejected')}
+          value={filtered.filter((item) => item.status === 'REJECTED').length}
+          tone="destructive"
+        />
+      </section>
+
+      <section className="rounded-3xl border border-border bg-card p-5 shadow-sm md:p-6">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <div className="relative xl:col-span-2">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              type="search"
+              placeholder={t('history.search')}
+              className="h-10 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-foreground outline-none transition focus:border-primary"
+            />
+          </div>
+
+          <select
+            aria-label={t('history.allStatuses')}
+            value={status}
+            onChange={(event) => {
+              setStatus(event.target.value as StatusFilter);
+              setPage(1);
+            }}
+            className="h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary"
+          >
+            {STATUS_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {value === 'ALL'
+                  ? t('history.allStatuses')
+                  : t(`statuses.${value.toLowerCase()}` as Parameters<typeof t>[0])}
+              </option>
+            ))}
+          </select>
+
+          <select
+            aria-label={t('history.allReasons')}
+            value={reason}
+            onChange={(event) => {
+              setReason(event.target.value as ReasonFilter);
+              setPage(1);
+            }}
+            className="h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary"
+          >
+            {REASON_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {value === 'ALL'
+                  ? t('history.allReasons')
+                  : t(`reasonCategories.${value}` as Parameters<typeof t>[0])}
+              </option>
+            ))}
+          </select>
+
+          <div className="flex gap-2">
+            <input
+              aria-label={t('history.from')}
+              value={from}
+              onChange={(event) => {
+                setFrom(event.target.value);
+                setPage(1);
+              }}
+              type="date"
+              className="h-10 min-w-0 w-full rounded-xl border border-border bg-background px-2 text-xs text-foreground outline-none transition focus:border-primary"
+            />
+            <input
+              aria-label={t('history.to')}
+              value={to}
+              onChange={(event) => {
+                setTo(event.target.value);
+                setPage(1);
+              }}
+              type="date"
+              className="h-10 min-w-0 w-full rounded-xl border border-border bg-background px-2 text-xs text-foreground outline-none transition focus:border-primary"
+            />
+          </div>
+        </div>
+
+        {hasActiveFilters && (
+          <div className="mt-3 flex justify-end">
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span>{t('history.clearFilters')}</span>
+            </button>
+          </div>
+        )}
+      </section>
+
+      {loading ? (
+        <div className="animate-pulse rounded-3xl bg-muted px-4 py-16 text-center text-sm font-medium text-muted-foreground">
+          {t('loading')}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">
+          {t('history.empty')}
+        </div>
+      ) : (
+        <>
+          <section className="grid gap-6 lg:grid-cols-3">
+            <AnalyticsList
+              title={t('history.topMonths')}
+              items={monthCounts}
+              icon={CalendarDays}
+            />
+            <AnalyticsList
+              title={t('history.topWeeks')}
+              items={weekCounts}
+              icon={CalendarDays}
+            />
+            <AnalyticsList
+              title={t('history.topReasons')}
+              items={reasonCounts.map(([key, count]) => [
+                key === 'OTHER'
+                  ? t('reasonCategories.OTHER')
+                  : t(`reasonCategories.${key}` as Parameters<typeof t>[0]),
+                count,
+              ])}
+              icon={BarChart3}
+            />
+          </section>
+
+          <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] text-left text-sm">
+                <thead className="border-b border-border bg-muted/40 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-5 py-4">{t('history.period')}</th>
+                    <th className="px-5 py-4">{t('history.subject')}</th>
+                    <th className="px-5 py-4">{t('detail.nrc')}</th>
+                    <th className="px-5 py-4">{t('detail.student')}</th>
+                    <th className="px-5 py-4">{t('history.allReasons')}</th>
+                    <th className="px-5 py-4">{t('history.allStatuses')}</th>
+                    <th className="px-5 py-4 text-right">{t('history.action')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {paginatedItems.map((item) => (
+                    <tr
+                      key={item.id}
+                      onClick={() => setSelectedJustification(item)}
+                      className="cursor-pointer transition hover:bg-muted/40"
+                    >
+                      <td className="px-5 py-4 text-muted-foreground">
+                        {formatDate(item.absenceDate)}
+                      </td>
+                      <td className="px-5 py-4 font-semibold text-foreground">
+                        {item.subjectName}
+                      </td>
+                      <td className="px-5 py-4 text-muted-foreground">
+                        {item.nrc ?? '—'}
+                      </td>
+                      <td className="px-5 py-4 text-muted-foreground">
+                        {item.studentEmail}
+                      </td>
+                      <td className="px-5 py-4 text-muted-foreground">
+                        {item.reasonCategory
+                          ? t(`reasonCategories.${item.reasonCategory}` as Parameters<typeof t>[0])
+                          : '—'}
+                      </td>
+                      <td className="px-5 py-4">
+                        <JustificationStatusBadge status={item.status} size="sm" />
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary transition hover:underline">
+                          <Eye className="h-3.5 w-3.5" />
+                          <span>{t('history.view')}</span>
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="border-t border-border p-4">
+              <PaginationControls
+                page={page}
+                totalPages={totalPages}
+                totalItems={filtered.length}
+                onPageChange={(newPage) => setPage(newPage)}
+              />
+            </div>
+          </section>
+        </>
+      )}
+
+      <JustificationDetailModal
+        item={selectedJustification}
+        isOpen={Boolean(selectedJustification)}
+        onClose={() => setSelectedJustification(null)}
+        onEvidence={openEvidence}
+        mode="view"
+      />
+    </div>
+  );
 }
 
-function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: number }) { return <div className="rounded-3xl border border-border bg-card p-5"><div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Icon className="h-5 w-5" /></div><p className="text-sm text-muted-foreground">{label}</p><p className="mt-1 text-3xl font-black text-foreground">{value}</p></div>; }
-function AnalyticsList({ title, items, icon: Icon }: { title: string; items: [string, number][]; icon: LucideIcon }) { const max = items[0]?.[1] ?? 1; return <section className="rounded-3xl border border-border bg-card p-5 shadow-sm"><div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="h-4 w-4" /></div><h2 className="font-black text-foreground">{title}</h2></div><div className="mt-5 space-y-4">{items.length === 0 ? <p className="text-sm text-muted-foreground">Sin datos</p> : items.map(([label, value]) => <div key={label}><div className="flex justify-between gap-3 text-xs"><span className="truncate text-muted-foreground">{label}</span><span className="font-black text-foreground">{value}</span></div><div className="mt-1 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(8, (value / max) * 100)}%` }} /></div></div>)}</div></section>; }
-function StatusBadge({ status, t }: { status: JustificationStatus; t: (key: string) => string }) { return <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${status === 'PENDING' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300' : status === 'ACCEPTED' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'bg-destructive/10 text-destructive'}`}>{t(`statuses.${status.toLowerCase()}`)}</span>; }
+function MetricCard({
+  icon: Icon,
+  label,
+  value,
+  tone = 'default',
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: number;
+  tone?: 'default' | 'accent' | 'secondary' | 'destructive';
+}) {
+  const toneClasses = {
+    default: 'bg-primary/10 text-primary',
+    accent: 'bg-accent/15 text-accent',
+    secondary: 'bg-secondary/15 text-secondary',
+    destructive: 'bg-coral-red/15 text-coral-red',
+  };
+
+  return (
+    <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+      <div
+        className={`mb-4 flex h-10 w-10 items-center justify-center rounded-2xl ${toneClasses[tone]}`}
+      >
+        <Icon className="h-5 w-5" />
+      </div>
+      <p className="text-sm font-medium text-muted-foreground">{label}</p>
+      <p className="mt-1 text-3xl font-black text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function AnalyticsList({
+  title,
+  items,
+  icon: Icon,
+}: {
+  title: string;
+  items: [string, number][];
+  icon: LucideIcon;
+}) {
+  const t = useTranslations('JustificationsManagementPage.history');
+  const max = items[0]?.[1] ?? 1;
+
+  return (
+    <section className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="h-4 w-4" />
+        </div>
+        <h2 className="font-bold text-foreground">{title}</h2>
+      </div>
+
+      <div className="mt-4 space-y-3.5">
+        {items.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t('noData')}</p>
+        ) : (
+          items.map(([label, value]) => (
+            <div key={label}>
+              <div className="flex justify-between gap-3 text-xs">
+                <span className="truncate text-muted-foreground">{label}</span>
+                <span className="font-bold text-foreground">{value}</span>
+              </div>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary transition-all"
+                  style={{ width: `${Math.max(8, (value / max) * 100)}%` }}
+                />
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </section>
+  );
+}

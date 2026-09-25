@@ -193,7 +193,7 @@
     "history": { "title": "Justificaciones ingresadas", "subtitle": "Consulta todas las solicitudes que ya fueron leídas y registradas.", "empty": "No hay justificaciones para este filtro." },
     "filters": { "all": "Todas" },
     "statuses": { "unread": "Sin leer", "pending": "Pendiente", "accepted": "Aceptada", "rejected": "Rechazada" },
-    "detail": { "eyebrow": "Detalle de justificación", "close": "Cerrar", "student": "Correo del alumno", "date": "Día de inasistencia", "course": "Asignatura", "nrc": "NRC", "teacher": "Profesor asociado al NRC", "noTeacher": "No hay un profesor asociado a este NRC en el semestre activo.", "notAvailable": "No indicado", "reason": "Observación del formulario", "reasonCategory": "Motivo de la inasistencia", "reasonCategoryPlaceholder": "Selecciona un motivo", "evidence": "Abrir evidencia", "rejectionReason": "Motivo del rechazo (obligatorio al rechazar)", "rejectionPlaceholder": "Describe el motivo que se notificará al alumno…", "reject": "Rechazar", "accept": "Aceptar" },
+    "detail": { "eyebrow": "Detalle de justificación", "close": "Cerrar", "student": "Correo del alumno", "date": "Día de inasistencia", "course": "Asignatura", "nrc": "NRC", "scheduleBlock": "Bloque de cátedra", "scheduleBlockEmpty": "Sin clase registrada para este día", "teacher": "Profesor asociado al NRC", "noTeacher": "No hay un profesor asociado a este NRC en el semestre activo.", "notAvailable": "No indicado", "reason": "Observación del formulario", "reasonCategory": "Motivo de la inasistencia", "reasonCategoryPlaceholder": "Selecciona un motivo", "evidence": "Abrir evidencia", "evidenceAttached": "Documento adjunto disponible", "rejectionReason": "Motivo del rechazo (obligatorio al rechazar)", "rejectionPlaceholder": "Describe el motivo que se notificará al alumno…", "reject": "Rechazar", "accept": "Aceptar" },
     "reasonCategories": { "MEDICAL": "Motivo médico", "FAMILY_DEATH": "Fallecimiento de familiar cercano", "PERSONAL": "Situación personal", "ACADEMIC": "Actividad académica", "OTHER": "Otro motivo" },
     "errors": { "load": "No se pudieron cargar las justificaciones.", "open": "No se pudo ingresar la justificación.", "decision": "No se pudo registrar la decisión.", "evidence": "No se pudo abrir la evidencia.", "access": "No tienes acceso a esta página." }
   },
@@ -215,10 +215,15 @@
     "detail": { "eyebrow": "Asignaciones del semestre activo", "close": "Cerrar", "nrc": "NRC", "student": "Alumno", "empty": "Este docente no tiene asignaciones activas." },
     "import": { "success": "Se importaron {count} filas correctamente." },
     "errors": { "load": "No se pudo cargar la información.", "import": "No se pudo importar el archivo CSV.", "history": "No se pudo cargar el histórico de justificaciones.", "access": "No tienes acceso a esta página." },
-    "history": { "title": "Histórico de justificaciones", "subtitle": "Analiza estados, períodos y motivos de las solicitudes recibidas.", "empty": "No hay justificaciones para los filtros seleccionados.", "allStatuses": "Todos los estados", "allReasons": "Todos los motivos", "from": "Desde", "to": "Hasta", "search": "Buscar por alumno, asignatura o NRC…", "period": "Período", "month": "Mes", "week": "Semana", "topMonths": "Meses con más solicitudes", "topWeeks": "Semanas con más solicitudes", "topReasons": "Motivos más recibidos", "noData": "Sin datos" },
+    "history": { "title": "Histórico de justificaciones", "subtitle": "Analiza estados, períodos y motivos de las solicitudes recibidas.", "empty": "No hay justificaciones para los filtros seleccionados.", "allStatuses": "Todos los estados", "allReasons": "Todos los motivos", "from": "Desde", "to": "Hasta", "search": "Buscar por alumno, asignatura o NRC…", "period": "Período", "subject": "Asignatura", "action": "Acción", "view": "Ver", "clearFilters": "Limpiar filtros", "month": "Mes", "week": "Semana", "topMonths": "Meses con más solicitudes", "topWeeks": "Semanas con más solicitudes", "topReasons": "Motivos más recibidos", "noData": "Sin datos" },
     "historyStats": { "total": "Total recibidas", "pending": "Pendientes", "accepted": "Aceptadas", "rejected": "Rechazadas" },
     "statuses": { "pending": "Pendiente", "accepted": "Aceptada", "rejected": "Rechazada" },
     "reasonCategories": { "MEDICAL": "Motivo médico", "FAMILY_DEATH": "Fallecimiento de familiar cercano", "PERSONAL": "Situación personal", "ACADEMIC": "Actividad académica", "OTHER": "Otro motivo" }
+  },
+  "Pagination": {
+    "summary": "Página {page} de {totalPages} · {total} registros",
+    "previous": "Página anterior",
+    "next": "Página siguiente"
   },
   "SubjectsPage": {
     "eyebrow": "Carga académica",
@@ -530,7 +535,14 @@
     "emptyDescription": "Prueba con otro nombre, correo o filtro de rol.",
     "userColumn": "Cuenta",
     "rolesColumn": "Roles asignados",
-    "actionsColumn": "Administrar roles",
+    "actionsColumn": "Acciones",
+    "manageRoles": "Gestionar roles",
+    "manageRolesTitle": "Roles de {user}",
+    "manageRolesSubtitle": "Asigna o revoca los roles de acceso para definir las atribuciones de este usuario en MARSYS.",
+    "roleAssigned": "Asignado",
+    "roleNotAssigned": "Sin asignar",
+    "rolesCount": "{count, plural, =0 {Sin roles} one {# rol} other {# roles}}",
+    "close": "Cerrar",
     "noRoles": "Sin roles asignados",
     "active": "Activa",
     "inactive": "Inactiva",
@@ -594,5 +606,12 @@
       }
     },
     "errors": { "load": "No se pudieron cargar los usuarios.", "update": "No se pudo actualizar el rol.", "updateStatus": "No se pudo cambiar el estado de la cuenta.", "delete": "No se pudo eliminar la cuenta." }
+  },
+  "UnderDevelopment": {
+    "badge": "Módulo en desarrollo",
+    "title": "Sección planificada en la hoja de ruta",
+    "description": "Esta funcionalidad se encuentra en fase de desarrollo e integración dentro de la plataforma MARSYS.",
+    "privacyNotice": "El diseño de este módulo incorpora por defecto los lineamientos de la Ley N° 21.719 de protección de datos personales y control de acceso por rol.",
+    "backToDashboard": "Volver al panel principal"
   }
 }

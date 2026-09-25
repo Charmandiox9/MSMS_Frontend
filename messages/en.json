@@ -193,7 +193,7 @@
     "history": { "title": "Entered justifications", "subtitle": "Review every request that has already been read and registered.", "empty": "There are no justifications for this filter." },
     "filters": { "all": "All" },
     "statuses": { "unread": "Unread", "pending": "Pending", "accepted": "Accepted", "rejected": "Rejected" },
-    "detail": { "eyebrow": "Justification detail", "close": "Close", "student": "Student email", "date": "Absence date", "course": "Course", "nrc": "NRC", "teacher": "Teacher associated with the NRC", "noTeacher": "No teacher is associated with this NRC in the active semester.", "notAvailable": "Not provided", "reason": "Form note", "reasonCategory": "Absence reason", "reasonCategoryPlaceholder": "Select a reason", "evidence": "Open evidence", "rejectionReason": "Rejection reason (required when rejecting)", "rejectionPlaceholder": "Describe the reason that will be sent to the student…", "reject": "Reject", "accept": "Accept" },
+    "detail": { "eyebrow": "Justification detail", "close": "Close", "student": "Student email", "date": "Absence date", "course": "Course", "nrc": "NRC", "scheduleBlock": "Lecture block", "scheduleBlockEmpty": "No lecture registered for this day", "teacher": "Teacher associated with the NRC", "noTeacher": "No teacher is associated with this NRC in the active semester.", "notAvailable": "Not provided", "reason": "Form note", "reasonCategory": "Absence reason", "reasonCategoryPlaceholder": "Select a reason", "evidence": "Open evidence", "evidenceAttached": "Attached document available", "rejectionReason": "Rejection reason (required when rejecting)", "rejectionPlaceholder": "Describe the reason that will be sent to the student…", "reject": "Reject", "accept": "Accept" },
     "reasonCategories": { "MEDICAL": "Medical reason", "FAMILY_DEATH": "Death of a close family member", "PERSONAL": "Personal situation", "ACADEMIC": "Academic activity", "OTHER": "Other reason" },
     "errors": { "load": "Justifications could not be loaded.", "open": "The justification could not be entered.", "decision": "The decision could not be recorded.", "evidence": "The evidence could not be opened.", "access": "You do not have access to this page." }
   },
@@ -215,10 +215,15 @@
     "detail": { "eyebrow": "Active-semester assignments", "close": "Close", "nrc": "NRC", "student": "Student", "empty": "This faculty member has no active assignments." },
     "import": { "success": "{count} rows were imported successfully." },
     "errors": { "load": "The information could not be loaded.", "import": "The CSV file could not be imported.", "history": "The justification history could not be loaded.", "access": "You do not have access to this page." },
-    "history": { "title": "Justification history", "subtitle": "Analyze statuses, periods, and reasons for received requests.", "empty": "There are no justifications for the selected filters.", "allStatuses": "All statuses", "allReasons": "All reasons", "from": "From", "to": "To", "search": "Search by student, course, or NRC…", "period": "Period", "month": "Month", "week": "Week", "topMonths": "Months with most requests", "topWeeks": "Weeks with most requests", "topReasons": "Most received reasons", "noData": "No data" },
+    "history": { "title": "Justification history", "subtitle": "Analyze statuses, periods, and reasons for received requests.", "empty": "There are no justifications for the selected filters.", "allStatuses": "All statuses", "allReasons": "All reasons", "from": "From", "to": "To", "search": "Search by student, course, or NRC…", "period": "Period", "subject": "Course", "action": "Action", "view": "View", "clearFilters": "Clear filters", "month": "Month", "week": "Week", "topMonths": "Months with most requests", "topWeeks": "Weeks with most requests", "topReasons": "Most received reasons", "noData": "No data" },
     "historyStats": { "total": "Total received", "pending": "Pending", "accepted": "Accepted", "rejected": "Rejected" },
     "statuses": { "pending": "Pending", "accepted": "Accepted", "rejected": "Rejected" },
     "reasonCategories": { "MEDICAL": "Medical reason", "FAMILY_DEATH": "Death of a close family member", "PERSONAL": "Personal situation", "ACADEMIC": "Academic activity", "OTHER": "Other reason" }
+  },
+  "Pagination": {
+    "summary": "Page {page} of {totalPages} · {total} records",
+    "previous": "Previous page",
+    "next": "Next page"
   },
   "SubjectsPage": {
     "eyebrow": "Academic workload",
@@ -530,7 +535,14 @@
     "emptyDescription": "Try another name, email, or role filter.",
     "userColumn": "Account",
     "rolesColumn": "Assigned roles",
-    "actionsColumn": "Manage roles",
+    "actionsColumn": "Actions",
+    "manageRoles": "Manage roles",
+    "manageRolesTitle": "Roles for {user}",
+    "manageRolesSubtitle": "Assign or revoke access roles to configure user permissions across MARSYS modules.",
+    "roleAssigned": "Assigned",
+    "roleNotAssigned": "Unassigned",
+    "rolesCount": "{count, plural, =0 {No roles} one {# role} other {# roles}}",
+    "close": "Close",
     "noRoles": "No roles assigned",
     "active": "Active",
     "inactive": "Inactive",
@@ -594,5 +606,12 @@
       }
     },
     "errors": { "load": "Could not load users.", "update": "Could not update the role.", "updateStatus": "Could not change the account status.", "delete": "Could not delete the account." }
+  },
+  "UnderDevelopment": {
+    "badge": "Module under development",
+    "title": "Section planned in roadmap",
+    "description": "This functionality is currently under development and integration within the MARSYS platform.",
+    "privacyNotice": "The design of this module inherently adheres to Chilean Law No. 21.719 on personal data protection and role-based access control.",
+    "backToDashboard": "Back to dashboard"
   }
 }
