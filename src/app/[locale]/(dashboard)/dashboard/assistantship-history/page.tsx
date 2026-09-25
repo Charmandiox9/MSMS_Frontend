@@ -1,16 +1,17 @@
 import { CalendarDays, ClipboardList, Search, UsersRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import DashboardPageHeader from '@/components/dashboard/DashboardPageHeader';
 
 export default function AssistantshipHistoryPage() {
   const t = useTranslations('AssistantshipHistoryPage');
 
   return (
     <section className="space-y-6">
-      <div>
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t('eyebrow')}</p>
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">{t('title')}</h1>
-        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{t('subtitle')}</p>
-      </div>
+      <DashboardPageHeader
+        eyebrow={t('eyebrow')}
+        title={t('title')}
+        subtitle={t('subtitle')}
+      />
 
       <div className="grid gap-4 md:grid-cols-3">
         <article className="rounded-3xl border border-border bg-card p-5 shadow-sm"><div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary"><UsersRound className="h-5 w-5" /></div><p className="mt-5 text-sm text-muted-foreground">{t('stats.assistants')}</p><p className="mt-1 text-3xl font-black text-foreground">—</p></article>

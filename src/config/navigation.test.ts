@@ -51,7 +51,6 @@ describe('Navigation configuration and filtering', () => {
     expect(itemKeys).toContain('teachers');
     const systemSection = filtered.find((section) => section.key === 'system');
     expect(systemSection?.items.map((item) => item.key)).toEqual(['settings']);
-    expect(itemKeys).toContain('settings');
   });
 
   it('should provide analysis and relevant academic sections for ACADEMIC_PROCESS_ANALYST', () => {

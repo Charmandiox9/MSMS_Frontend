@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import Modal from '@/components/ui/Modal';
 import { useActiveRole } from '@/context/ActiveRoleContext';
 import { apiFetch } from '@/lib/api';
 
@@ -162,11 +163,38 @@ export default function SubjectsPage() {
       {error && <div role="alert" className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">{error}</div>}
 
       <section className="rounded-3xl border border-border bg-card p-4 shadow-sm md:p-5">
-        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(180px,240px)] md:items-center">
-          <div>{rows[0] && <p className="text-xs text-muted-foreground">{t('semester')}: {rows[0].semester.name}</p>}</div>
-          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(160px,200px)]">
-            <label className="relative block"><span className="sr-only">{t('search')}</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t('search')} className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none transition focus:border-primary" /></label>
-            <label><span className="sr-only">{t('filterDay')}</span><select value={selectedDay} onChange={(event) => { setSelectedDay(event.target.value); setPage(1); }} aria-label={t('filterDay')} className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary"><option value="">{t('allDays')}</option>{days.map((day) => <option key={day} value={day}>{t(`days.${day}`)}</option>)}</select></label>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            {rows[0] && (
+              <p className="text-xs font-medium text-muted-foreground">
+                {t('semester')}: <span className="font-semibold text-foreground">{rows[0].semester.name}</span>
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <label className="relative block w-full sm:w-64 md:w-80">
+              <span className="sr-only">{t('search')}</span>
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => { setSearch(event.target.value); setPage(1); }}
+                placeholder={t('search')}
+                className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            <label className="block w-full sm:w-48">
+              <span className="sr-only">{t('filterDay')}</span>
+              <select
+                value={selectedDay}
+                onChange={(event) => { setSelectedDay(event.target.value); setPage(1); }}
+                aria-label={t('filterDay')}
+                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="">{t('allDays')}</option>
+                {days.map((day) => <option key={day} value={day}>{t(`days.${day}`)}</option>)}
+              </select>
+            </label>
           </div>
         </div>
       </section>
@@ -199,37 +227,187 @@ export default function SubjectsPage() {
   );
 }
 
-function HelpDialog({ title, description, format, downloadLabel, closeLabel, onDownload, onClose }: { title: string; description: string; format: string; downloadLabel: string; closeLabel: string; onDownload: () => void; onClose: () => void }) {
-  return <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/65 p-4" role="dialog" aria-modal="true"><div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-primary">CSV</p><h2 className="mt-2 text-xl font-black text-foreground">{title}</h2></div><button type="button" onClick={onClose} className="rounded-xl p-2 text-muted-foreground hover:bg-muted" aria-label={closeLabel}><X className="h-5 w-5" /></button></div><p className="mt-4 text-sm text-muted-foreground">{description}</p><code className="mt-4 block rounded-2xl bg-muted p-4 text-xs text-foreground">{format}</code><button type="button" onClick={onDownload} className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground"><Download className="h-4 w-4" />{downloadLabel}</button></div></div>;
+function HelpDialog({
+  title,
+  description,
+  format,
+  downloadLabel,
+  closeLabel,
+  onDownload,
+  onClose,
+}: {
+  title: string;
+  description: string;
+  format: string;
+  downloadLabel: string;
+  closeLabel: string;
+  onDownload: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      eyebrow="CSV"
+      title={title}
+      closeLabel={closeLabel}
+      size="lg"
+      footer={
+        <button
+          type="button"
+          onClick={onDownload}
+          className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
+        >
+          <Download className="h-4 w-4" />
+          {downloadLabel}
+        </button>
+      }
+    >
+      <p className="text-sm text-muted-foreground">{description}</p>
+      <code className="mt-4 block rounded-2xl bg-muted p-4 text-xs font-mono text-foreground">
+        {format}
+      </code>
+    </Modal>
+  );
 }
 
-function ScheduleDialog({ subject, t, onClose }: { subject: Subject; t: (key: string) => string; onClose: () => void }) {
-  return <ScheduleModal title={`NRC ${subject.nrc} · ${subject.semester}`} subtitle={subject.name} teachers={subject.teachers} entries={subject.entries} t={t} onClose={onClose} />;
+function ScheduleDialog({
+  subject,
+  t,
+  onClose,
+}: {
+  subject: Subject;
+  t: (key: string) => string;
+  onClose: () => void;
+}) {
+  return (
+    <ScheduleModal
+      title={`NRC ${subject.nrc} · ${subject.semester}`}
+      subtitle={subject.name}
+      teachers={subject.teachers}
+      entries={subject.entries}
+      t={t}
+      onClose={onClose}
+    />
+  );
 }
 
-function AllSchedulesDialog({ entries, t, onClose }: { entries: ScheduleRow[]; t: (key: string) => string; onClose: () => void }) {
-  return <ScheduleModal title={t('allScheduleTitle')} subtitle={t('allScheduleDescription')} teachers={[]} entries={entries} t={t} onClose={onClose} />;
+function AllSchedulesDialog({
+  entries,
+  t,
+  onClose,
+}: {
+  entries: ScheduleRow[];
+  t: (key: string) => string;
+  onClose: () => void;
+}) {
+  return (
+    <ScheduleModal
+      title={t('allScheduleTitle')}
+      subtitle={t('allScheduleDescription')}
+      teachers={[]}
+      entries={entries}
+      t={t}
+      onClose={onClose}
+    />
+  );
 }
 
-function ScheduleModal({ title, subtitle, teachers, entries, t, onClose }: { title: string; subtitle: string; teachers: Instructor[]; entries: ScheduleRow[]; t: (key: string) => string; onClose: () => void }) {
+function ScheduleModal({
+  title,
+  subtitle,
+  teachers,
+  entries,
+  t,
+  onClose,
+}: {
+  title: string;
+  subtitle: string;
+  teachers: Instructor[];
+  entries: ScheduleRow[];
+  t: (key: string) => string;
+  onClose: () => void;
+}) {
   const bySlot = new Map<string, ScheduleRow[]>();
   for (const entry of entries) {
     const key = `${entry.day}|${entry.block}`;
     bySlot.set(key, [...(bySlot.get(key) ?? []), entry]);
   }
 
-  return <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/65 p-3 sm:p-6" role="dialog" aria-modal="true" aria-label={subtitle}>
-    <div className="max-h-[92vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
-      <div className="flex items-start justify-between gap-4 border-b border-border p-5 md:p-6"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-primary">{title}</p><h2 className="mt-2 text-2xl font-black text-foreground">{subtitle}</h2>{teachers.length > 0 && <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><UsersRound className="h-4 w-4" />{teachers.map((teacher) => teacher.name).join(', ')}</p>}{teachers.length === 0 && entries.length === 0 && <p className="mt-1 text-sm text-muted-foreground">{t('noScheduleEntries')}</p>}</div><button type="button" onClick={onClose} className="rounded-xl p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground" aria-label={t('close')}><X className="h-5 w-5" /></button></div>
-      <div className="overflow-auto p-4 md:p-6"><div className="min-w-[900px] overflow-hidden rounded-2xl border border-border">
-        <div className="grid grid-cols-[150px_repeat(6,minmax(125px,1fr))] bg-primary/10 text-xs font-black text-foreground"><div className="p-3">{t('block')}</div>{days.map((day) => <div key={day} className="border-l border-border p-3 text-center">{t(`days.${day}`)}</div>)}</div>
-        {blocks.map((block) => <div key={block} className="grid grid-cols-[150px_repeat(6,minmax(125px,1fr))] border-t border-border"><div className="bg-muted/40 p-3 text-xs font-bold text-muted-foreground">{t(`blocks.${block}`)}</div>{days.map((day) => {
-          const slotEntries = bySlot.get(`${day}|${block}`) ?? [];
-          return <div key={day} className={`min-h-16 space-y-1 border-l border-border p-1.5 ${slotEntries.length > 0 ? 'bg-primary/10' : 'bg-background'}`}>
-            {slotEntries.map((entry) => <div key={entry.id} className="rounded-lg border border-primary/30 bg-card p-2 shadow-sm"><p className="text-xs font-black text-primary">{entry.course.name}</p><p className="mt-0.5 text-[10px] text-muted-foreground">NRC {entry.nrc}</p><p className="mt-0.5 text-[10px] text-muted-foreground">{entry.teachers.length ? entry.teachers.map((teacher) => teacher.name).join(', ') : t('noTeacher')}</p></div>)}
-          </div>;
-        })}</div>)}
-      </div></div>
+  const headerTitle = (
+    <div>
+      <span>{subtitle}</span>
+      {teachers.length > 0 && (
+        <p className="mt-1 flex items-center gap-1.5 text-sm font-normal text-muted-foreground">
+          <UsersRound className="h-4 w-4" />
+          {teachers.map((teacher) => teacher.name).join(', ')}
+        </p>
+      )}
+      {teachers.length === 0 && entries.length === 0 && (
+        <p className="mt-1 text-sm font-normal text-muted-foreground">
+          {t('noScheduleEntries')}
+        </p>
+      )}
     </div>
-  </div>;
+  );
+
+  return (
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      eyebrow={title}
+      title={headerTitle}
+      closeLabel={t('close')}
+      size="6xl"
+    >
+      <div className="overflow-auto">
+        <div className="min-w-[900px] overflow-hidden rounded-2xl border border-border">
+          <div className="grid grid-cols-[150px_repeat(6,minmax(125px,1fr))] bg-primary/10 text-xs font-black text-foreground">
+            <div className="p-3">{t('block')}</div>
+            {days.map((day) => (
+              <div key={day} className="border-l border-border p-3 text-center">
+                {t(`days.${day}`)}
+              </div>
+            ))}
+          </div>
+          {blocks.map((block) => (
+            <div
+              key={block}
+              className="grid grid-cols-[150px_repeat(6,minmax(125px,1fr))] border-t border-border"
+            >
+              <div className="bg-muted/40 p-3 text-xs font-bold text-muted-foreground">
+                {t(`blocks.${block}`)}
+              </div>
+              {days.map((day) => {
+                const slotEntries = bySlot.get(`${day}|${block}`) ?? [];
+                return (
+                  <div
+                    key={day}
+                    className={`min-h-16 space-y-1 border-l border-border p-1.5 ${
+                      slotEntries.length > 0 ? 'bg-primary/10' : 'bg-background'
+                    }`}
+                  >
+                    {slotEntries.map((entry) => (
+                      <div
+                        key={entry.id}
+                        className="rounded-lg border border-primary/30 bg-card p-2 shadow-sm"
+                      >
+                        <p className="text-xs font-black text-primary">{entry.course.name}</p>
+                        <p className="mt-0.5 text-[10px] text-muted-foreground">NRC {entry.nrc}</p>
+                        <p className="mt-0.5 text-[10px] text-muted-foreground">
+                          {entry.teachers.length
+                            ? entry.teachers.map((teacher) => teacher.name).join(', ')
+                            : t('noTeacher')}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+    </Modal>
+  );
 }

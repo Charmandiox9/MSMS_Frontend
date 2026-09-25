@@ -23,6 +23,24 @@ vi.mock('@/lib/auth', () => ({
   logout: vi.fn(),
 }));
 
+vi.mock('animejs', () => ({
+  default: Object.assign(
+    vi.fn((config?: { targets?: HTMLElement | HTMLElement[]; complete?: () => void }) => {
+      if (config?.targets) {
+        const targets = Array.isArray(config.targets) ? config.targets : [config.targets];
+        targets.forEach((target) => {
+          if (target && target.style) target.style.opacity = '1';
+        });
+      }
+      config?.complete?.();
+      return {};
+    }),
+    {
+      stagger: vi.fn(),
+    },
+  ),
+}));
+
 describe('DashboardUserDial', () => {
   afterEach(() => {
     vi.restoreAllMocks();

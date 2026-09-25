@@ -6,7 +6,7 @@ import { LoaderCircle, Mail, Plus, ShieldCheck, Trash2, UserRoundPlus, X } from 
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/api';
 
-export type UserRole = { id: string; code: string; name: string };
+export type UserRole = { id: string; code: string; name: string; description?: string | null };
 
 type PreloadedUser = {
   id: string;
