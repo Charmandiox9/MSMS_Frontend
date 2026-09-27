@@ -40,9 +40,12 @@ El frontend depende de que las URLs configuradas apunten a servicios disponibles
 
 ```bash
 pnpm lint
-pnpm test
+pnpm test        # unitarias e integración (Vitest)
+pnpm test:e2e    # E2E con Playwright contra un backend simulado
 pnpm build
 ```
+
+El detalle de qué cubren las pruebas y los problemas que detectaron está en [docs/tests.md](docs/tests.md).
 
 ## Organización
 

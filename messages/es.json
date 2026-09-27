@@ -605,7 +605,7 @@
         "cancelError": "No se pudo cancelar la precarga."
       }
     },
-    "errors": { "load": "No se pudieron cargar los usuarios.", "update": "No se pudo actualizar el rol.", "updateStatus": "No se pudo cambiar el estado de la cuenta.", "delete": "No se pudo eliminar la cuenta." }
+    "errors": { "load": "No se pudieron cargar los usuarios.", "update": "No se pudo actualizar el rol.", "updateStatus": "No se pudo cambiar el estado de la cuenta.", "delete": "No se pudo eliminar la cuenta.", "access": "No tienes acceso a esta página." }
   },
   "UnderDevelopment": {
     "badge": "Módulo en desarrollo",

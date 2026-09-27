@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Download, FileUp, HelpCircle, Loader2, Mail, Search, UserRound, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, FileUp, HelpCircle, Loader2, Mail, Search, UserRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import Modal from '@/components/ui/Modal';
@@ -30,14 +30,20 @@ export default function TeachersPage() {
     const link = document.createElement('a'); link.href = url; link.download = 'ejemplo-profesores.csv'; link.click(); URL.revokeObjectURL(url);
   };
 
-  const loadTeachers = async () => {
-    setLoading(true);
-    try { setTeachers(await apiFetch<Teacher[]>('/academic/teachers')); setError(null); }
-    catch (cause) { const message = cause instanceof Error ? cause.message : t('errors.load'); setError(message); toast.error(message); }
-    finally { setLoading(false); }
-  };
+  const [reloadKey, setReloadKey] = useState(0);
+  const canManage = activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY';
+  const loadErrorMessage = t('errors.load');
 
-  useEffect(() => { if (activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY') void loadTeachers(); }, [activeRole]);
+  // Carga al entrar y cada vez que `reloadKey` cambia (tras importar el padrón).
+  useEffect(() => {
+    if (!canManage) return;
+    let active = true;
+    apiFetch<Teacher[]>('/academic/teachers')
+      .then((data) => { if (active) { setTeachers(data); setError(null); } })
+      .catch((cause: unknown) => { if (!active) return; const message = cause instanceof Error ? cause.message : loadErrorMessage; setError(message); toast.error(message); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [canManage, loadErrorMessage, reloadKey]);
 
   const filtered = useMemo(() => teachers.filter((teacher) => `${teacher.name} ${teacher.email} ${teacher.assignments.map((assignment) => assignment.nrc).join(' ')}`.toLowerCase().includes(search.toLowerCase().trim())), [search, teachers]);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -49,7 +55,8 @@ export default function TeachersPage() {
       const result = await apiFetch<{ importedTeachers: number; importedAssignments: number }>('/academic/teachers/import-roster', { method: 'POST', body: JSON.stringify({ csv: await file.text() }) });
       setMessage(t('importSuccess', { teachers: result.importedTeachers, assignments: result.importedAssignments }));
       toast.success(t('importSuccess', { teachers: result.importedTeachers, assignments: result.importedAssignments }));
-      await loadTeachers();
+      setLoading(true);
+      setReloadKey((key) => key + 1);
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : t('errors.import');
       setError(message);

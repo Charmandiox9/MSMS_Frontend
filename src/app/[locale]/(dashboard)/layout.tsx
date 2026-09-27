@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { ActiveRoleProvider, useActiveRole } from '@/context/ActiveRoleContext';
-import { getActiveSession, type ActiveSession } from '@/lib/auth';
+import { getActiveSession, logout, type ActiveSession } from '@/lib/auth';
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -51,14 +51,18 @@ export default function DashboardLayout({
   useEffect(() => {
     let mounted = true;
 
-    void getActiveSession().then((activeSession) => {
+    void getActiveSession().then(async (activeSession) => {
       if (!mounted) return;
 
       setSession(activeSession);
       setIsLoading(false);
 
       if (!activeSession) {
-        router.replace(`/${locale}/login`);
+        // Una cookie vencida, inválida o de una cuenta desactivada sigue en el navegador:
+        // el middleware la vería y devolvería /login → /dashboard. El logout del backend
+        // es público y la borra aunque la sesión ya no sea válida.
+        await logout().catch(() => undefined);
+        if (mounted) router.replace(`/${locale}/login`);
       }
     });
 

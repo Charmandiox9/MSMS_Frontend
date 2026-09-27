@@ -41,9 +41,11 @@ const REASON_VALUES: ReasonFilter[] = [
 ];
 const PAGE_SIZE = 10;
 
+// La fecha de inasistencia llega como medianoche UTC del día que indicó el alumno
+// ("2026-09-15T00:00:00Z"). Se trabaja en UTC para que en Chile no se vea el día anterior.
 function formatDate(value: string): string {
   try {
-    return new Intl.DateTimeFormat('es-CL', { dateStyle: 'medium' }).format(new Date(value));
+    return new Intl.DateTimeFormat('es-CL', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(value));
   } catch {
     return value;
   }
@@ -51,7 +53,7 @@ function formatDate(value: string): string {
 
 function getMonthKey(value: string): string {
   try {
-    return new Intl.DateTimeFormat('es-CL', { month: 'long', year: 'numeric' }).format(new Date(value));
+    return new Intl.DateTimeFormat('es-CL', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(value));
   } catch {
     return value;
   }
@@ -60,12 +62,17 @@ function getMonthKey(value: string): string {
 function getWeekKey(value: string): string {
   try {
     const date = new Date(value);
-    const day = date.getDay() || 7;
-    date.setDate(date.getDate() - day + 1);
-    return new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: 'short' }).format(date);
+    const day = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() - day + 1);
+    return new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: 'short', timeZone: 'UTC' }).format(date);
   } catch {
     return value;
   }
+}
+
+/** Día calendario de la inasistencia (YYYY-MM-DD), comparable con los filtros Desde/Hasta. */
+function absenceDay(value: string): string {
+  return value.slice(0, 10);
 }
 
 function countBy(
@@ -96,30 +103,35 @@ export default function JustificationsManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadJustifications = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiFetch<Justification[]>('/justifications');
-      setJustifications(data);
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : t('errors.history');
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const canView = activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY';
+  const loadErrorMessage = t('errors.history');
 
   useEffect(() => {
-    if (activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY') {
-      void loadJustifications();
-    }
-  }, [activeRole]);
+    if (!canView) return;
+    let active = true;
+    apiFetch<Justification[]>('/justifications')
+      .then((data) => {
+        if (!active) return;
+        setJustifications(data);
+        setError(null);
+      })
+      .catch((cause: unknown) => {
+        if (!active) return;
+        const message = cause instanceof Error ? cause.message : loadErrorMessage;
+        setError(message);
+        toast.error(message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [canView, loadErrorMessage]);
 
   const filtered = useMemo(() => {
     return justifications.filter((item) => {
-      const itemDate = new Date(item.absenceDate).getTime();
+      const day = absenceDay(item.absenceDate);
       const matchesStatus = status === 'ALL' || item.status === status;
       const matchesReason = reason === 'ALL' || item.reasonCategory === reason;
       const matchesSearch =
@@ -127,8 +139,8 @@ export default function JustificationsManagementPage() {
         `${item.studentEmail} ${item.subjectName} ${item.subjectCode ?? ''} ${item.nrc ?? ''}`
           .toLowerCase()
           .includes(search.toLowerCase().trim());
-      const matchesFrom = !from || itemDate >= new Date(`${from}T00:00:00`).getTime();
-      const matchesTo = !to || itemDate <= new Date(`${to}T23:59:59`).getTime();
+      const matchesFrom = !from || day >= from;
+      const matchesTo = !to || day <= to;
 
       return matchesStatus && matchesReason && matchesSearch && matchesFrom && matchesTo;
     });

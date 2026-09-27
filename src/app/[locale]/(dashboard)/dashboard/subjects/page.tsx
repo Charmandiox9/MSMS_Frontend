@@ -12,7 +12,6 @@ import {
   Search,
   UserRound,
   UsersRound,
-  X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -34,6 +33,28 @@ type ScheduleRow = {
   teachers: Instructor[];
 };
 type Subject = { nrc: string; name: string; entries: ScheduleRow[]; semester: string; teachers: Instructor[] };
+
+/** Horarios del semestre activo con los profesores asignados a cada NRC. */
+async function fetchSchedules(): Promise<ScheduleRow[]> {
+  const [schedules, teachers] = await Promise.all([
+    apiFetch<Omit<ScheduleRow, 'teachers'>[]>('/academic/courses'),
+    apiFetch<TeacherResponse[]>('/academic/teachers'),
+  ]);
+  const instructorsByNrc = new Map<string, Instructor[]>();
+  for (const teacher of teachers) {
+    for (const assignment of teacher.assignments) {
+      const instructors = instructorsByNrc.get(assignment.nrc) ?? [];
+      if (!instructors.some((instructor) => instructor.id === teacher.id)) {
+        instructors.push({ id: teacher.id, name: teacher.name, email: teacher.email });
+      }
+      instructorsByNrc.set(assignment.nrc, instructors);
+    }
+  }
+  return schedules.map((schedule) => ({
+    ...schedule,
+    teachers: instructorsByNrc.get(schedule.nrc) ?? [],
+  }));
+}
 
 const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'] as const;
 const blocks = ['A', 'B', 'C', 'C2', 'D', 'E', 'F', 'G', 'H'] as const;
@@ -64,40 +85,33 @@ export default function SubjectsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const loadSchedules = async () => {
-    setLoading(true);
-    try {
-      const [schedules, teachers] = await Promise.all([
-        apiFetch<Omit<ScheduleRow, 'teachers'>[]>('/academic/courses'),
-        apiFetch<TeacherResponse[]>('/academic/teachers'),
-      ]);
-      const instructorsByNrc = new Map<string, Instructor[]>();
-      for (const teacher of teachers) {
-        for (const assignment of teacher.assignments) {
-          const instructors = instructorsByNrc.get(assignment.nrc) ?? [];
-          if (!instructors.some((instructor) => instructor.id === teacher.id)) {
-            instructors.push({ id: teacher.id, name: teacher.name, email: teacher.email });
-          }
-          instructorsByNrc.set(assignment.nrc, instructors);
-        }
-      }
-      setRows(schedules.map((schedule) => ({
-        ...schedule,
-        teachers: instructorsByNrc.get(schedule.nrc) ?? [],
-      })));
-      setError(null);
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : t('errors.load');
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [reloadKey, setReloadKey] = useState(0);
+  const canManage = activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY';
+  const loadErrorMessage = t('errors.load');
 
+  // Carga al entrar y cada vez que `reloadKey` cambia (tras importar horarios).
   useEffect(() => {
-    if (activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY') void loadSchedules();
-  }, [activeRole]);
+    if (!canManage) return;
+    let active = true;
+    fetchSchedules()
+      .then((data) => {
+        if (!active) return;
+        setRows(data);
+        setError(null);
+      })
+      .catch((cause: unknown) => {
+        if (!active) return;
+        const message = cause instanceof Error ? cause.message : loadErrorMessage;
+        setError(message);
+        toast.error(message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [canManage, loadErrorMessage, reloadKey]);
 
   const allSubjects = useMemo(() => {
     const grouped = new Map<string, Subject>();
@@ -133,7 +147,8 @@ export default function SubjectsPage() {
         body: JSON.stringify({ csv: await file.text() }),
       });
       toast.success(t('importSuccess', { count: result.importedRows }));
-      await loadSchedules();
+      setLoading(true);
+      setReloadKey((key) => key + 1);
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : t('errors.import');
       setError(message);

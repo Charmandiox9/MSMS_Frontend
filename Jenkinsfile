@@ -16,8 +16,9 @@ pipeline {
         stage('Install & Test') {
             steps {
                 sh 'npm ci'
-                // Reemplazar con 'npm run test' cuando agregues los tests de React
                 sh 'npm run lint'
+                // Unitarias e integración (Vitest). Las E2E (npm run test:e2e) requieren navegador.
+                sh 'npm run test'
             }
         }
 

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/api';
+import { useActiveRole } from '@/context/ActiveRoleContext';
 import Modal from '@/components/ui/Modal';
 import PreloadedUsersPanel, { type UserRole } from '@/components/dashboard/users/PreloadedUsersPanel';
 
@@ -57,6 +58,8 @@ function getRoleBadgeStyle(roleCode: string) {
 
 export default function UsersPage() {
   const t = useTranslations('UsersPage');
+  const { activeRole } = useActiveRole();
+  const isAdmin = activeRole === 'SYSTEM_ADMIN';
   const [data, setData] = useState<UserPage | null>(null);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -79,7 +82,11 @@ export default function UsersPage() {
     finally { if (showLoading) setLoading(false); }
   }, [page, search, roleFilter, t]);
 
-  useEffect(() => { const timer = window.setTimeout(() => { void load(); }, 250); return () => window.clearTimeout(timer); }, [load]);
+  useEffect(() => {
+    if (!isAdmin) return;
+    const timer = window.setTimeout(() => { void load(); }, 250);
+    return () => window.clearTimeout(timer);
+  }, [isAdmin, load]);
 
   const mutateRole = async (user: User, role: Role, assign: boolean) => {
     const key = `${user.id}:${role.id}`; setBusy(key);
@@ -87,11 +94,12 @@ export default function UsersPage() {
       const request = assign
         ? apiFetch(`/users/${user.id}/roles`, { method: 'POST', body: JSON.stringify({ roleId: role.id }) })
         : apiFetch(`/users/${user.id}/roles/${role.id}`, { method: 'DELETE' });
+      // unwrap(): espera la respuesta y relanza el error; sin él la UI seguiría aunque el backend rechace.
       await toast.promise(request, {
         loading: t(assign ? 'notifications.assigning' : 'notifications.revoking'),
         success: t(assign ? 'notifications.assigned' : 'notifications.revoked', { role: role.name, user: user.name }),
         error: (cause) => cause instanceof Error ? cause.message : t('errors.update'),
-      });
+      }).unwrap();
       let pageWillChange = false;
       if (!assign && roleFilter === role.code && data) {
         const lastPage = Math.max(1, Math.ceil((data.total - 1) / data.pageSize));
@@ -145,7 +153,7 @@ export default function UsersPage() {
         loading: t(isActive ? 'notifications.activating' : 'notifications.deactivating'),
         success: t(isActive ? 'notifications.activated' : 'notifications.deactivated', { user: user.name }),
         error: (cause) => cause instanceof Error ? cause.message : t('errors.updateStatus'),
-      });
+      }).unwrap();
       setData((current) => current && ({
         ...current,
         items: current.items.map((item) => item.id === user.id ? { ...item, isActive } : item),
@@ -168,7 +176,7 @@ export default function UsersPage() {
         loading: t('notifications.deleting'),
         success: t('notifications.deleted', { user: user.name }),
         error: (cause) => cause instanceof Error ? cause.message : t('errors.delete'),
-      });
+      }).unwrap();
       if (data) {
         const total = Math.max(0, data.total - 1);
         const totalPages = Math.max(1, Math.ceil(total / data.pageSize));
@@ -194,6 +202,9 @@ export default function UsersPage() {
       setAccountBusy(null);
     }
   };
+
+  if (activeRole === null) return <p className="py-16 text-center text-sm text-muted-foreground">{t('loading')}</p>;
+  if (!isAdmin) return <p className="py-16 text-center text-sm text-muted-foreground">{t('errors.access')}</p>;
 
   return (
     <section className="space-y-5">

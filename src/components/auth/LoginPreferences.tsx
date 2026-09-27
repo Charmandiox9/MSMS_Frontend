@@ -3,8 +3,8 @@
 import { Moon, Sun } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from '@/i18n/routing';
+import { useMounted } from '@/hooks/useMounted';
 
 export default function LoginPreferences() {
   const t = useTranslations('Login');
@@ -12,9 +12,7 @@ export default function LoginPreferences() {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme, systemTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useMounted();
 
   const isDark = theme === 'dark' || (theme === 'system' && systemTheme === 'dark');
 

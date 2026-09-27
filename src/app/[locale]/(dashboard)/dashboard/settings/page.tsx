@@ -22,14 +22,20 @@ export default function SettingsPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const loadSemesters = async () => {
-    setLoading(true);
-    try { setSemesters(await apiFetch<Semester[]>('/academic/semesters')); setError(null); }
-    catch (cause) { const message = cause instanceof Error ? cause.message : t('errors.load'); setError(message); toast.error(message); }
-    finally { setLoading(false); }
-  };
+  const [reloadKey, setReloadKey] = useState(0);
+  const canManage = activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY';
+  const loadErrorMessage = t('errors.load');
 
-  useEffect(() => { if (activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY') void loadSemesters(); }, [activeRole]);
+  // Carga al entrar y cada vez que `reloadKey` cambia (tras activar un semestre).
+  useEffect(() => {
+    if (!canManage) return;
+    let active = true;
+    apiFetch<Semester[]>('/academic/semesters')
+      .then((data) => { if (active) { setSemesters(data); setError(null); } })
+      .catch((cause: unknown) => { if (!active) return; const message = cause instanceof Error ? cause.message : loadErrorMessage; setError(message); toast.error(message); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [canManage, loadErrorMessage, reloadKey]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setSaving(true); setError(null); setMessage(null);
@@ -37,7 +43,8 @@ export default function SettingsPage() {
       await apiFetch<Semester>('/academic/semesters/activate', { method: 'POST', body: JSON.stringify({ name, startsOn, endsOn }) });
       setMessage(t('success', { name }));
       toast.success(t('success', { name }));
-      await loadSemesters();
+      setLoading(true);
+      setReloadKey((key) => key + 1);
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : t('errors.save');
       setError(message);

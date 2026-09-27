@@ -58,30 +58,35 @@ export default function JustificationsPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [expandedPanel, setExpandedPanel] = useState<'incoming' | 'history' | null>(null);
 
-  const loadData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [incoming, processed] = await Promise.all([
-        apiFetch<JustificationInboxEntry[]>('/justifications/inbox'),
-        apiFetch<Justification[]>('/justifications'),
-      ]);
-      setInbox(incoming);
-      setHistory(processed);
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : t('errors.load');
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const canReview = activeRole === 'TEACHING_SUPPORT_COORDINATOR';
+  const loadErrorMessage = t('errors.load');
 
   useEffect(() => {
-    if (activeRole === 'TEACHING_SUPPORT_COORDINATOR') {
-      void loadData();
-    }
-  }, [activeRole]);
+    if (!canReview) return;
+    let active = true;
+    Promise.all([
+      apiFetch<JustificationInboxEntry[]>('/justifications/inbox'),
+      apiFetch<Justification[]>('/justifications'),
+    ])
+      .then(([incoming, processed]) => {
+        if (!active) return;
+        setInbox(incoming);
+        setHistory(processed);
+        setError(null);
+      })
+      .catch((cause: unknown) => {
+        if (!active) return;
+        const message = cause instanceof Error ? cause.message : loadErrorMessage;
+        setError(message);
+        toast.error(message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [canReview, loadErrorMessage]);
 
   const filteredHistory = useMemo(() => {
     return filter === 'ALL'

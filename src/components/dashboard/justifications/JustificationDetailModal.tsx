@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Calendar,
   Clock,
@@ -11,7 +11,6 @@ import {
   Mail,
   User,
   UserRound,
-  X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Modal from '@/components/ui/Modal';
@@ -93,16 +92,19 @@ export default function JustificationDetailModal({
   isProcessing = false,
 }: JustificationDetailModalProps) {
   const t = useTranslations('JustificationsPage');
-  const [reasonCategory, setReasonCategory] = useState<JustificationReasonCategory | ''>('');
-  const [rejectionReason, setRejectionReason] = useState('');
+  const [reasonCategory, setReasonCategory] = useState<JustificationReasonCategory | ''>(item?.reasonCategory ?? '');
+  const [rejectionReason, setRejectionReason] = useState(item?.rejectionReason ?? '');
   const [openingEvidence, setOpeningEvidence] = useState(false);
+  const [formItem, setFormItem] = useState(item);
 
-  useEffect(() => {
+  // Al cambiar de justificación, el formulario parte con sus valores guardados.
+  if (item !== formItem) {
+    setFormItem(item);
     if (item) {
       setReasonCategory(item.reasonCategory ?? '');
       setRejectionReason(item.rejectionReason ?? '');
     }
-  }, [item]);
+  }
 
   if (!isOpen || !item) {
     return null;

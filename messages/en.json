@@ -605,7 +605,7 @@
         "cancelError": "Could not cancel the preload."
       }
     },
-    "errors": { "load": "Could not load users.", "update": "Could not update the role.", "updateStatus": "Could not change the account status.", "delete": "Could not delete the account." }
+    "errors": { "load": "Could not load users.", "update": "Could not update the role.", "updateStatus": "Could not change the account status.", "delete": "Could not delete the account.", "access": "You do not have access to this page." }
   },
   "UnderDevelopment": {
     "badge": "Module under development",
