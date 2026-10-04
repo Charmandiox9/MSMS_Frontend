@@ -2,8 +2,10 @@ import {
   BookOpenCheck,
   CalendarDays,
   ClipboardCheck,
+  ClipboardList,
   FileBarChart,
   GraduationCap,
+  History,
   LayoutDashboard,
   Settings,
   ShieldCheck,
@@ -15,8 +17,12 @@ import type { UserRoleCode } from '@/types/auth';
 export type NavigationKey =
   | 'dashboard'
   | 'justifications'
+  | 'justificationsManagement'
   | 'academicInformation'
+  | 'subjects'
+  | 'teachers'
   | 'academicWorkload'
+  | 'assistantshipHistory'
   | 'titulation'
   | 'reports'
   | 'users'
@@ -53,11 +59,13 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: 'justifications',
         href: '/dashboard/justifications',
         icon: ClipboardCheck,
-        allowedRoles: [
-          'SYSTEM_ADMIN',
-          'TEACHING_SUPPORT_COORDINATOR',
-          'ACADEMIC_PROCESS_ANALYST',
-        ],
+        allowedRoles: ['TEACHING_SUPPORT_COORDINATOR'],
+      },
+      {
+        key: 'justificationsManagement',
+        href: '/dashboard/justifications/management',
+        icon: ClipboardList,
+        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
       },
       {
         key: 'academicInformation',
@@ -75,6 +83,24 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         href: '/dashboard/academic-workload',
         icon: CalendarDays,
         allowedRoles: ['SYSTEM_ADMIN', 'TEACHING_SUPPORT_COORDINATOR'],
+      },
+      {
+        key: 'subjects',
+        href: '/dashboard/subjects',
+        icon: BookOpenCheck,
+        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
+      },
+      {
+        key: 'teachers',
+        href: '/dashboard/teachers',
+        icon: Users,
+        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
+      },
+      {
+        key: 'assistantshipHistory',
+        href: '/dashboard/assistantship-history',
+        icon: History,
+        allowedRoles: ['TEACHING_SUPPORT_COORDINATOR'],
       },
       {
         key: 'titulation',
@@ -118,7 +144,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: 'settings',
         href: '/dashboard/settings',
         icon: Settings,
-        allowedRoles: ['SYSTEM_ADMIN'],
+        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
       },
     ],
   },

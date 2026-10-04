@@ -35,7 +35,11 @@ export default function DashboardSidebar({
   const sections = getFilteredNavigation(DASHBOARD_SECTIONS, activeRole);
 
   const renderNavigation = (isCollapsed: boolean, closeMobile?: () => void) => (
-    <nav aria-label="Sidebar Navigation" className="flex-1 space-y-5 overflow-y-auto px-3 py-5">
+    <nav
+      aria-label="Sidebar Navigation"
+      data-lenis-prevent
+      className="flex-1 space-y-5 overflow-y-auto px-3 py-5"
+    >
       {sections.map((section) => (
         <section key={section.key} aria-label={t(`sections.${section.key}`)}>
           {!isCollapsed && (
@@ -81,7 +85,10 @@ export default function DashboardSidebar({
             onClick={() => onMobileOpenChange(false)}
             aria-label={t('closeMenu')}
           />
-          <aside className="relative flex h-full w-[290px] max-w-[85vw] flex-col bg-ucn-navy py-5 text-primary-foreground shadow-2xl ring-1 ring-primary-foreground/10">
+          <aside
+            data-lenis-prevent
+            className="relative flex h-full w-[290px] max-w-[85vw] flex-col bg-ucn-navy py-5 text-primary-foreground shadow-2xl ring-1 ring-primary-foreground/10"
+          >
             <div className="flex items-center justify-between px-5">
               <Link
                 href="/dashboard"
@@ -109,6 +116,7 @@ export default function DashboardSidebar({
       )}
 
       <aside
+        data-lenis-prevent
         className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-primary-foreground/10 bg-ucn-navy py-5 text-primary-foreground transition-[width] duration-300 md:flex ${
           collapsed ? 'w-20' : 'w-72'
         }`}

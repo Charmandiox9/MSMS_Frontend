@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  FileCheck,
+  ClipboardCheck,
   Shield,
   ShieldAlert,
   ShieldCheck,
@@ -10,10 +10,10 @@ import {
   Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import StatCard from '@/components/dashboard/widgets/StatCard';
 import QuickActionCard from '@/components/dashboard/widgets/QuickActionCard';
 import WidgetCard from '@/components/dashboard/widgets/WidgetCard';
 import { Link } from '@/i18n/routing';
+import RoleDashboardStats from '@/components/dashboard/RoleDashboardStats';
 
 export default function SystemAdminDashboard() {
   const t = useTranslations('DashboardViews.systemAdmin');
@@ -27,35 +27,12 @@ export default function SystemAdminDashboard() {
         <p className="mt-1 text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title={t('stats.users')}
-          value="48"
-          description={t('stats.usersDesc')}
-          icon={Users}
-          trend={{ value: t('stats.usersTrend'), isPositive: true }}
-        />
-        <StatCard
-          title={t('stats.roles')}
-          value="4"
-          description={t('stats.rolesDesc')}
-          icon={Shield}
-        />
-        <StatCard
-          title={t('stats.audit')}
-          value="1,280"
-          description={t('stats.auditDesc')}
-          icon={FileCheck}
-          trend={{ value: t('stats.auditTrend'), isPositive: true }}
-        />
-        <StatCard
-          title={t('stats.compliance')}
-          value="100%"
-          description={t('stats.complianceDesc')}
-          icon={ShieldCheck}
-          trend={{ value: t('stats.complianceTrend'), isPositive: true }}
-        />
-      </div>
+      <RoleDashboardStats endpoint="/dashboard/system-admin" metrics={[
+        { key: 'users', title: t('stats.users'), description: t('stats.usersDesc'), icon: Users },
+        { key: 'roles', title: t('stats.roles'), description: t('stats.rolesDesc'), icon: Shield },
+        { key: 'activeUsers', title: t('stats.activeUsers'), description: t('stats.activeUsersDesc'), icon: ShieldCheck },
+        { key: 'pendingJustifications', title: t('stats.pending'), description: t('stats.pendingDesc'), icon: ClipboardCheck },
+      ]} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -63,18 +40,12 @@ export default function SystemAdminDashboard() {
             title={t('actionsTitle')}
             subtitle={t('actionsSubtitle')}
           >
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               <QuickActionCard
                 title={t('actions.manageUsers')}
                 description={t('actions.manageUsersDesc')}
                 href="/dashboard/users"
                 icon={UserCheck}
-              />
-              <QuickActionCard
-                title={t('actions.auditLogs')}
-                description={t('actions.auditLogsDesc')}
-                href="/dashboard/audit"
-                icon={FileCheck}
               />
               <QuickActionCard
                 title={t('actions.systemSettings')}
@@ -96,7 +67,7 @@ export default function SystemAdminDashboard() {
                 <h3 className="text-sm font-bold text-foreground">
                   {t('law21719.title')}
                 </h3>
-                <span className="inline-block rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-500">
+                <span className="inline-block rounded-full bg-ocean-cyan/10 px-2 py-0.5 text-[10px] font-bold text-ocean-cyan">
                   {t('law21719.status')}
                 </span>
               </div>

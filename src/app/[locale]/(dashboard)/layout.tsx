@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { ActiveRoleProvider, useActiveRole } from '@/context/ActiveRoleContext';
-import { getActiveSession, type ActiveSession } from '@/lib/auth';
+import { getActiveSession, logout, type ActiveSession } from '@/lib/auth';
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -40,11 +42,42 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const locale = useLocale();
+  const t = useTranslations('Dashboard');
+  const router = useRouter();
   const [session, setSession] = useState<ActiveSession | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    void getActiveSession().then(setSession);
-  }, []);
+    let mounted = true;
+
+    void getActiveSession().then(async (activeSession) => {
+      if (!mounted) return;
+
+      setSession(activeSession);
+      setIsLoading(false);
+
+      if (!activeSession) {
+        // Una cookie vencida, inválida o de una cuenta desactivada sigue en el navegador:
+        // el middleware la vería y devolvería /login → /dashboard. El logout del backend
+        // es público y la borra aunque la sesión ya no sea válida.
+        await logout().catch(() => undefined);
+        if (mounted) router.replace(`/${locale}/login`);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [locale, router]);
+
+  if (isLoading || !session) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+        {t('sessionChecking')}
+      </div>
+    );
+  }
 
   return (
     <ActiveRoleProvider initialSession={session}>

@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import CookieConsent from "@/components/providers/CookieConsent";
 import SmoothScroll from "@/components/behavior/SmoothScroll";
+import { Toaster } from 'sonner';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +53,7 @@ export default async function RootLayout({
           <NextIntlClientProvider messages={messages}>
             {children}
             <CookieConsent />
+            <Toaster position="bottom-right" theme="system" richColors closeButton expand visibleToasts={4} />
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

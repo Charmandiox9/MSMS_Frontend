@@ -8,9 +8,9 @@ import {
   Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import StatCard from '@/components/dashboard/widgets/StatCard';
 import QuickActionCard from '@/components/dashboard/widgets/QuickActionCard';
 import WidgetCard from '@/components/dashboard/widgets/WidgetCard';
+import RoleDashboardStats from '@/components/dashboard/RoleDashboardStats';
 
 export default function AcademicSecretaryDashboard() {
   const t = useTranslations('DashboardViews.academicSecretary');
@@ -24,37 +24,14 @@ export default function AcademicSecretaryDashboard() {
         <p className="mt-1 text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title={t('stats.records')}
-          value="342"
-          description={t('stats.recordsDesc')}
-          icon={BookOpenCheck}
-          trend={{ value: t('stats.recordsTrend'), isPositive: true }}
-        />
-        <StatCard
-          title={t('stats.pending')}
-          value="12"
-          description={t('stats.pendingDesc')}
-          icon={ClipboardList}
-          trend={{ value: t('stats.pendingTrend'), isPositive: false }}
-        />
-        <StatCard
-          title={t('stats.certificates')}
-          value="89"
-          description={t('stats.certificatesDesc')}
-          icon={GraduationCap}
-        />
-        <StatCard
-          title={t('stats.faculty')}
-          value="36"
-          description={t('stats.facultyDesc')}
-          icon={Users}
-        />
-      </div>
+      <RoleDashboardStats endpoint="/dashboard/academic-secretary" metrics={[
+        { key: 'teachers', title: t('stats.faculty'), description: t('stats.facultyDesc'), icon: Users },
+        { key: 'activeCourses', title: t('stats.courses'), description: t('stats.coursesDesc'), icon: BookOpenCheck },
+        { key: 'activeSchedules', title: t('stats.schedules'), description: t('stats.schedulesDesc'), icon: ClipboardList },
+        { key: 'pendingJustifications', title: t('stats.pending'), description: t('stats.pendingDesc'), icon: GraduationCap },
+      ]} />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid gap-6">
           <WidgetCard
             title={t('actionsTitle')}
             subtitle={t('actionsSubtitle')}
@@ -74,25 +51,6 @@ export default function AcademicSecretaryDashboard() {
               />
             </div>
           </WidgetCard>
-        </div>
-
-        <div>
-          <WidgetCard
-            title={t('noticesTitle')}
-            subtitle={t('noticesSubtitle')}
-          >
-            <div className="space-y-3">
-              <div className="rounded-xl border border-border bg-muted/40 p-3 text-xs">
-                <p className="font-bold text-foreground">{t('notices.gradesCloseTitle')}</p>
-                <p className="mt-1 text-muted-foreground">{t('notices.gradesCloseDesc')}</p>
-              </div>
-              <div className="rounded-xl border border-border bg-muted/40 p-3 text-xs">
-                <p className="font-bold text-foreground">{t('notices.filesValidationTitle')}</p>
-                <p className="mt-1 text-muted-foreground">{t('notices.filesValidationDesc')}</p>
-              </div>
-            </div>
-          </WidgetCard>
-        </div>
       </div>
     </div>
   );

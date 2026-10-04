@@ -20,7 +20,7 @@ interface ActiveRoleContextValue {
 
 const STORAGE_KEY = 'marsys_active_role';
 
-const ActiveRoleContext = createContext<ActiveRoleContextValue | undefined>(
+export const ActiveRoleContext = createContext<ActiveRoleContextValue | undefined>(
   undefined
 );
 

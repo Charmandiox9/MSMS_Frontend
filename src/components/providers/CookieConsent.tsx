@@ -1,40 +1,43 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from 'next-intl';
 import { Link } from "@/i18n/routing";
+import { useMounted } from "@/hooks/useMounted";
+
+const STORAGE_KEY = "marsys_cookie_consent";
+
+type CookiePreferences = { necessary: boolean; analytics: boolean; marketing: boolean };
+
+const DEFAULT_PREFERENCES: CookiePreferences = { necessary: true, analytics: false, marketing: false };
+
+// null si el usuario aún no decidió o si quedó un valor antiguo sin formato JSON.
+function readSavedConsent(): CookiePreferences | null {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return null;
+  try {
+    return JSON.parse(saved) as CookiePreferences;
+  } catch {
+    return null;
+  }
+}
 
 export default function CookieConsent() {
   const t = useTranslations("Privacy");
-  const [showBanner, setShowBanner] = useState(false);
+  const mounted = useMounted();
+  const savedConsent = useMemo(() => (mounted ? readSavedConsent() : undefined), [mounted]);
+  const [decided, setDecided] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [editedPreferences, setPreferences] = useState<CookiePreferences | null>(null);
 
-  const [preferences, setPreferences] = useState({
-    necessary: true,
-    analytics: false,
-    marketing: false,
-  });
+  // El banner solo aparece en el cliente, cuando no hay una decisión guardada.
+  const showBanner = savedConsent === null && !decided;
+  const preferences = editedPreferences ?? savedConsent ?? DEFAULT_PREFERENCES;
 
-  useEffect(() => {
-    // Verificar si el usuario ya configuró las cookies
-    const saved = localStorage.getItem("marsys_cookie_consent");
-    if (!saved) {
-      setShowBanner(true);
-    } else {
-      try {
-        const parsed = JSON.parse(saved);
-        setPreferences(parsed);
-      } catch (e) {
-        // En caso de que haya una cookie antigua sin formato JSON
-        setShowBanner(true);
-      }
-    }
-  }, []);
-
-  const saveConsent = (prefs: typeof preferences) => {
-    localStorage.setItem("marsys_cookie_consent", JSON.stringify(prefs));
+  const saveConsent = (prefs: CookiePreferences) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
     setPreferences(prefs);
-    setShowBanner(false);
+    setDecided(true);
     setShowModal(false);
   };
 
