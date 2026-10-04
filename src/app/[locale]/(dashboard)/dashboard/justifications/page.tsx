@@ -23,6 +23,7 @@ import {
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import JustificationStatusBadge from "@/components/dashboard/justifications/JustificationStatusBadge";
 import JustificationDetailModal from "@/components/dashboard/justifications/JustificationDetailModal";
+import PaginationControls from "@/components/ui/PaginationControls";
 import type {
   Justification,
   JustificationInboxEntry,
@@ -31,6 +32,7 @@ import type {
 } from "@/types/justifications";
 
 const STATUS_ORDER: JustificationStatus[] = ["PENDING", "ACCEPTED", "REJECTED"];
+const PAGE_SIZE = 5;
 
 function formatDate(value: string): string {
   try {
@@ -56,6 +58,8 @@ export default function JustificationsPage() {
   const [inbox, setInbox] = useState<JustificationInboxEntry[]>([]);
   const [history, setHistory] = useState<Justification[]>([]);
   const [filter, setFilter] = useState<"ALL" | JustificationStatus>("ALL");
+  const [incomingPage, setIncomingPage] = useState(1);
+  const [historyPage, setHistoryPage] = useState(1);
   const [selected, setSelected] = useState<Justification | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -102,6 +106,22 @@ export default function JustificationsPage() {
       : history.filter((item) => item.status === filter);
   }, [filter, history]);
 
+  const incomingPages = Math.max(1, Math.ceil(inbox.length / PAGE_SIZE));
+  const historyPages = Math.max(
+    1,
+    Math.ceil(filteredHistory.length / PAGE_SIZE),
+  );
+  const currentIncomingPage = Math.min(incomingPage, incomingPages);
+  const currentHistoryPage = Math.min(historyPage, historyPages);
+  const visibleInbox = inbox.slice(
+    (currentIncomingPage - 1) * PAGE_SIZE,
+    currentIncomingPage * PAGE_SIZE,
+  );
+  const visibleHistory = filteredHistory.slice(
+    (currentHistoryPage - 1) * PAGE_SIZE,
+    currentHistoryPage * PAGE_SIZE,
+  );
+
   const openIncoming = async (entry: JustificationInboxEntry) => {
     setActionError(null);
     try {
@@ -110,6 +130,10 @@ export default function JustificationsPage() {
         { method: "POST" },
       );
       setInbox((items) => items.filter((item) => item.id !== entry.id));
+      setIncomingPage((page) =>
+        Math.min(page, Math.max(1, Math.ceil((inbox.length - 1) / PAGE_SIZE))),
+      );
+      setHistoryPage(1);
       setHistory((items) => [
         justification,
         ...items.filter((item) => item.id !== justification.id),
@@ -148,6 +172,21 @@ export default function JustificationsPage() {
       );
       setHistory((items) =>
         items.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      const removedFromFilter =
+        filter !== "ALL" &&
+        selected.status === filter &&
+        updated.status !== filter;
+      setHistoryPage((page) =>
+        Math.min(
+          page,
+          Math.max(
+            1,
+            Math.ceil(
+              (filteredHistory.length - Number(removedFromFilter)) / PAGE_SIZE,
+            ),
+          ),
+        ),
       );
       setSelected(null);
       toast.success(
@@ -200,7 +239,7 @@ export default function JustificationsPage() {
     </div>
   ) : (
     <div className="space-y-3">
-      {inbox.map((entry) => (
+      {visibleInbox.map((entry) => (
         <button
           key={entry.id}
           type="button"
@@ -244,7 +283,10 @@ export default function JustificationsPage() {
           <button
             key={value}
             type="button"
-            onClick={() => setFilter(value as "ALL" | JustificationStatus)}
+            onClick={() => {
+              setFilter(value as "ALL" | JustificationStatus);
+              setHistoryPage(1);
+            }}
             className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${
               filter === value
                 ? "bg-primary text-primary-foreground"
@@ -267,7 +309,7 @@ export default function JustificationsPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredHistory.map((item) => (
+          {visibleHistory.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -363,6 +405,17 @@ export default function JustificationsPage() {
           subtitle={t("incoming.subtitle")}
           expandLabel={t("expand")}
           onExpand={() => setExpandedPanel("incoming")}
+          footer={
+            !loading &&
+            incomingPages > 1 && (
+              <PaginationControls
+                page={currentIncomingPage}
+                totalPages={incomingPages}
+                totalItems={inbox.length}
+                onPageChange={setIncomingPage}
+              />
+            )
+          }
         >
           {incomingContent}
         </Panel>
@@ -372,6 +425,17 @@ export default function JustificationsPage() {
           subtitle={t("history.subtitle")}
           expandLabel={t("expand")}
           onExpand={() => setExpandedPanel("history")}
+          footer={
+            !loading &&
+            historyPages > 1 && (
+              <PaginationControls
+                page={currentHistoryPage}
+                totalPages={historyPages}
+                totalItems={filteredHistory.length}
+                onPageChange={setHistoryPage}
+              />
+            )
+          }
         >
           {historyContent}
         </Panel>
@@ -398,6 +462,34 @@ export default function JustificationsPage() {
               expanded
               closeLabel={t("detail.close")}
               onClose={() => setExpandedPanel(null)}
+              footer={
+                !loading &&
+                (expandedPanel === "incoming" ? incomingPages : historyPages) >
+                  1 && (
+                  <PaginationControls
+                    page={
+                      expandedPanel === "incoming"
+                        ? currentIncomingPage
+                        : currentHistoryPage
+                    }
+                    totalPages={
+                      expandedPanel === "incoming"
+                        ? incomingPages
+                        : historyPages
+                    }
+                    totalItems={
+                      expandedPanel === "incoming"
+                        ? inbox.length
+                        : filteredHistory.length
+                    }
+                    onPageChange={
+                      expandedPanel === "incoming"
+                        ? setIncomingPage
+                        : setHistoryPage
+                    }
+                  />
+                )
+              }
             >
               {expandedPanel === "incoming" ? incomingContent : historyContent}
             </Panel>
@@ -452,6 +544,7 @@ function Panel({
   title,
   subtitle,
   children,
+  footer,
   expanded = false,
   expandLabel,
   closeLabel,
@@ -461,6 +554,7 @@ function Panel({
   title: string;
   subtitle: string;
   children: React.ReactNode;
+  footer?: React.ReactNode;
   expanded?: boolean;
   expandLabel?: string;
   closeLabel?: string;
@@ -499,7 +593,17 @@ function Panel({
           </button>
         )}
       </div>
-      <div className="flex-1 overflow-y-auto pr-1">{children}</div>
+      <div
+        data-lenis-prevent
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1"
+      >
+        {children}
+      </div>
+      {footer && (
+        <div className="mt-4 shrink-0 border-t border-border pt-4">
+          {footer}
+        </div>
+      )}
     </section>
   );
 }
