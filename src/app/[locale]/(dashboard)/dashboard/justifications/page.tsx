@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
   Check,
@@ -24,6 +24,7 @@ import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import JustificationStatusBadge from "@/components/dashboard/justifications/JustificationStatusBadge";
 import JustificationDetailModal from "@/components/dashboard/justifications/JustificationDetailModal";
 import PaginationControls from "@/components/ui/PaginationControls";
+import { useInboxAutoRefresh } from "./hooks/useInboxAutoRefresh";
 import type {
   Justification,
   JustificationInboxEntry,
@@ -65,6 +66,7 @@ export default function JustificationsPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const inboxRevision = useRef(0);
   const [expandedPanel, setExpandedPanel] = useState<
     "incoming" | "history" | null
   >(null);
@@ -100,6 +102,18 @@ export default function JustificationsPage() {
     };
   }, [canReview, loadErrorMessage]);
 
+  const receiveIncoming = useCallback((incoming: JustificationInboxEntry[]) => {
+    setInbox(incoming);
+    setIncomingPage((page) =>
+      Math.min(page, Math.max(1, Math.ceil(incoming.length / PAGE_SIZE))),
+    );
+  }, []);
+  const inboxRefreshError = useInboxAutoRefresh({
+    enabled: canReview && !loading,
+    revision: inboxRevision,
+    onRefresh: receiveIncoming,
+  });
+
   const filteredHistory = useMemo(() => {
     return filter === "ALL"
       ? history
@@ -129,6 +143,7 @@ export default function JustificationsPage() {
         `/justifications/inbox/${entry.id}/open`,
         { method: "POST" },
       );
+      inboxRevision.current += 1;
       setInbox((items) => items.filter((item) => item.id !== entry.id));
       setIncomingPage((page) =>
         Math.min(page, Math.max(1, Math.ceil((inbox.length - 1) / PAGE_SIZE))),
@@ -399,10 +414,19 @@ export default function JustificationsPage() {
         </section>
       )}
 
+      {inboxRefreshError && (
+        <p
+          role="status"
+          className="rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-foreground"
+        >
+          {t("incoming.refreshError")}
+        </p>
+      )}
+
       <section className="grid gap-6 xl:grid-cols-2">
         <Panel
           title={t("incoming.title")}
-          subtitle={t("incoming.subtitle")}
+          subtitle={`${t("incoming.subtitle")} ${t("incoming.autoRefresh")}`}
           expandLabel={t("expand")}
           onExpand={() => setExpandedPanel("incoming")}
           footer={
@@ -456,7 +480,7 @@ export default function JustificationsPage() {
               }
               subtitle={
                 expandedPanel === "incoming"
-                  ? t("incoming.subtitle")
+                  ? `${t("incoming.subtitle")} ${t("incoming.autoRefresh")}`
                   : t("history.subtitle")
               }
               expanded

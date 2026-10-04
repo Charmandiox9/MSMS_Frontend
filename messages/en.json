@@ -276,6 +276,8 @@
     },
     "incoming": {
       "title": "Incoming justifications",
+      "autoRefresh": "Automatically refreshed every 30 seconds.",
+      "refreshError": "Incoming justifications could not be refreshed. The last available data is shown and another attempt will be made automatically.",
       "subtitle": "Submitted through the Google Form and not yet entered into the system.",
       "empty": "There are no new incoming justifications.",
       "openHint": "Open to read and enter as pending"

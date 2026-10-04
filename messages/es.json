@@ -276,6 +276,8 @@
     },
     "incoming": {
       "title": "Justificaciones entrantes",
+      "autoRefresh": "Se actualizan automáticamente cada 30 segundos.",
+      "refreshError": "No se pudieron actualizar las justificaciones entrantes. Se muestran los últimos datos disponibles y se reintentará automáticamente.",
       "subtitle": "Provienen del formulario de Google y aún no han sido ingresadas al sistema.",
       "empty": "No hay nuevas justificaciones entrantes.",
       "openHint": "Abrir para leer e ingresar como pendiente"

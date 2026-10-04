@@ -1,4 +1,10 @@
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import JustificationsPage from "./page";
 import { renderAs } from "@/test/render";
@@ -29,6 +35,7 @@ describe("JustificationsPage (coordinación de apoyo docente)", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
@@ -458,6 +465,179 @@ describe("JustificationsPage (coordinación de apoyo docente)", () => {
     expect(
       within(panel).queryByRole("button", { name: /siguiente/i }),
     ).toBeNull();
+  });
+
+  it("actualiza las entrantes cada 30 segundos sin recargar el historial ni cambiar la página", async () => {
+    vi.useFakeTimers();
+    const incoming = Array.from({ length: 6 }, (_, index) =>
+      inboxEntry({ id: `inbox-${index}`, subjectName: `Entrante ${index}` }),
+    );
+    const api = installFakeApi({
+      "GET /justifications/inbox": ok(incoming),
+      "GET /justifications": ok([]),
+    });
+    const view = renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    const panel = screen
+      .getByRole("heading", { name: "Justificaciones entrantes" })
+      .closest("section")!;
+    fireEvent.click(within(panel).getByRole("button", { name: /siguiente/i }));
+    api.on(
+      "GET /justifications/inbox",
+      ok([
+        ...incoming,
+        inboxEntry({ id: "new", subjectName: "Nueva entrante" }),
+      ]),
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(29_999);
+    });
+    expect(screen.queryByText("Nueva entrante · NRC 1234")).toBeNull();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+    expect(within(panel).getByText("Nueva entrante · NRC 1234")).toBeDefined();
+    expect(
+      within(panel).getByText("Página 2 de 2 · 7 registros"),
+    ).toBeDefined();
+    expect(api.calls("GET /justifications/inbox")).toHaveLength(2);
+    expect(api.calls("GET /justifications")).toHaveLength(1);
+    expect(toast.success).not.toHaveBeenCalled();
+    view.unmount();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(api.calls("GET /justifications/inbox")).toHaveLength(2);
+  });
+
+  it("pausa las consultas con la pestaña oculta y actualiza al volver sin solicitudes solapadas", async () => {
+    vi.useFakeTimers();
+    const visibility = vi
+      .spyOn(document, "visibilityState", "get")
+      .mockReturnValue("visible");
+    const api = installFakeApi({
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok([]),
+    });
+    const view = renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    visibility.mockReturnValue("hidden");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    expect(api.calls("GET /justifications/inbox")).toHaveLength(1);
+    let finish: (response: {
+      body: ReturnType<typeof inboxEntry>[];
+    }) => void = () => undefined;
+    api.on(
+      "GET /justifications/inbox",
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    visibility.mockReturnValue("visible");
+    await act(async () => {
+      fireEvent(document, new Event("visibilitychange"));
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      fireEvent(window, new Event("focus"));
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(api.calls("GET /justifications/inbox")).toHaveLength(2);
+    await act(async () => {
+      finish({ body: [inboxEntry({ subjectName: "Nueva solicitud" })] });
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(screen.getByText("Nueva solicitud · NRC 1234")).toBeDefined();
+    view.unmount();
+  });
+
+  it("conserva los datos ante un error de actualización y se recupera al reintentar", async () => {
+    vi.useFakeTimers();
+    const api = installFakeApi({
+      "GET /justifications/inbox": ok([inboxEntry()]),
+      "GET /justifications": ok([]),
+    });
+    const view = renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    api.on(
+      "GET /justifications/inbox",
+      fail(503, "Temporalmente no disponible"),
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(screen.getByText("Cálculo I · NRC 1234")).toBeDefined();
+    expect(screen.getByRole("status").textContent).toContain(
+      "Se muestran los últimos datos disponibles",
+    );
+    expect(toast.error).not.toHaveBeenCalled();
+    api.on(
+      "GET /justifications/inbox",
+      ok([
+        inboxEntry(),
+        inboxEntry({ id: "new", subjectName: "Nueva solicitud" }),
+      ]),
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(screen.getByText("Nueva solicitud · NRC 1234")).toBeDefined();
+    expect(screen.queryByRole("status")).toBeNull();
+    view.unmount();
+  });
+
+  it("no restaura una entrante ingresada aunque una actualización anterior termine después", async () => {
+    vi.useFakeTimers();
+    const api = installFakeApi({
+      "GET /justifications/inbox": ok([inboxEntry()]),
+      "GET /justifications": ok([]),
+      "POST /justifications/inbox/inbox-1/open": ok(justification()),
+    });
+    const view = renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    let finish: (response: {
+      body: ReturnType<typeof inboxEntry>[];
+    }) => void = () => undefined;
+    api.on(
+      "GET /justifications/inbox",
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole("button", { name: /Cálculo I · NRC 1234/ }),
+      );
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      finish({ body: [inboxEntry()] });
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    const panel = screen
+      .getByRole("heading", { name: "Justificaciones entrantes" })
+      .closest("section")!;
+    expect(
+      within(panel).getByText("No hay nuevas justificaciones entrantes."),
+    ).toBeDefined();
+    expect(screen.getByRole("dialog")).toBeDefined();
+    expect(within(dialog()).getByText("alumno@alumnos.ucn.cl")).toBeDefined();
+    view.unmount();
   });
 
   it("muestra el error de carga si el backend niega el acceso", async () => {
