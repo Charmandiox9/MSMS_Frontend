@@ -306,7 +306,11 @@
       "rejectionReason": "Rejection reason (required when rejecting)",
       "rejectionPlaceholder": "Describe the reason that will be sent to the student…",
       "reject": "Reject",
-      "accept": "Accept"
+      "accept": "Accept",
+      "assistants": "Assistants receiving the approval",
+      "scheduleBlock": "Time block",
+      "scheduleBlockEmpty": "No class registered for this day",
+      "evidenceAttached": "Evidence attached"
     },
     "reasonCategories": {
       "MEDICAL": "Medical reason",
@@ -322,14 +326,6 @@
       "evidence": "The evidence could not be opened.",
       "access": "You do not have access to this page."
     }
-  },
-  "AssistantshipHistoryPage": {
-    "eyebrow": "Teaching support",
-    "title": "Assistantship history",
-    "subtitle": "Review the historical record of assistants, courses, and academic periods.",
-    "stats": { "assistants": "Registered assistants", "semesters": "Semesters with records", "records": "Historical assignments" },
-    "history": { "title": "Assistantship records", "subtitle": "Filter the history by assistant or semester.", "empty": "There are no assistantship records yet.", "emptyDescription": "Once assistantships are loaded, you will be able to review their courses, periods, schedules, and status here." },
-    "filters": { "search": "Search assistant…", "semester": "Semester", "allSemesters": "All semesters" }
   },
   "JustificationsManagementPage": {
     "eyebrow": "Academic secretary",
@@ -382,7 +378,11 @@
       "topMonths": "Months with most requests",
       "topWeeks": "Weeks with most requests",
       "topReasons": "Most received reasons",
-      "noData": "No data"
+      "noData": "No data",
+      "clearFilters": "Clear filters",
+      "subject": "Course",
+      "action": "Action",
+      "view": "View details"
     },
     "historyStats": {
       "total": "Total received",
@@ -449,7 +449,8 @@
       "Miércoles": "Wednesday",
       "Jueves": "Thursday",
       "Viernes": "Friday",
-      "Sábado": "Saturday"
+      "Sábado": "Saturday",
+      "Domingo": "Sunday"
     },
     "blocks": {
       "A": "A · 08:10 - 09:40",
@@ -466,7 +467,10 @@
       "load": "Subjects could not be loaded.",
       "import": "The CSV could not be imported.",
       "access": "You do not have access to this page."
-    }
+    },
+    "assistantship": "Assistantship",
+    "otherSchedules": "Historical schedules outside academic blocks",
+    "customSchedule": "Historical schedule"
   },
   "TeachersPage": {
     "eyebrow": "Academic workload",
@@ -554,7 +558,11 @@
         "roles": "RBAC Roles",
         "rolesDesc": "Configured profiles",
         "pending": "Pending Justifications",
-        "pendingDesc": "Requests waiting for review"
+        "pendingDesc": "Requests waiting for review",
+        "assistantships": "Assistantships",
+        "assistantshipsDesc": "Registered in the active semester",
+        "assistants": "Student assistants",
+        "assistantsDesc": "Active assistants in the semester"
       },
       "actions": {
         "manageUsers": "User Management",
@@ -593,7 +601,11 @@
         "pending": "Pending Justifications",
         "pendingDesc": "Requests waiting for review",
         "faculty": "Active Faculty",
-        "facultyDesc": "With assignments in the active term"
+        "facultyDesc": "With assignments in the active term",
+        "assistantships": "Assistantships",
+        "assistantshipsDesc": "Registered in the active semester",
+        "assistants": "Student assistants",
+        "assistantsDesc": "Active assistants in the semester"
       },
       "actions": {
         "academicInfo": "Academic Repository",
@@ -622,7 +634,11 @@
         "assignments": "Teaching Assignments",
         "assignmentsDesc": "Registered in the active term",
         "justifications": "Recorded Justifications",
-        "justificationsDesc": "Total requests recorded"
+        "justificationsDesc": "Total requests recorded",
+        "assistantships": "Assistantships",
+        "assistantshipsDesc": "Registered in the active semester",
+        "assistants": "Student assistants",
+        "assistantsDesc": "Active assistants in the semester"
       },
       "actions": {
         "reports": "Generate Reports",
@@ -656,7 +672,11 @@
         "schedulesDesc": "Coordinated timetables",
         "schedulesTrend": "No conflicts",
         "titulations": "Titulations in Progress",
-        "titulationsDesc": "Scheduled defenses"
+        "titulationsDesc": "Scheduled defenses",
+        "assistantships": "Assistantships",
+        "assistantshipsDesc": "Registered in the active semester",
+        "assistants": "Student assistants",
+        "assistantsDesc": "Active assistants in the semester"
       },
       "actions": {
         "createJustification": "Submit Justification",
@@ -821,7 +841,8 @@
       "load": "Could not load users.",
       "update": "Could not update the role.",
       "updateStatus": "Could not change the account status.",
-      "delete": "Could not delete the account."
+      "delete": "Could not delete the account.",
+      "access": "You do not have access to this page."
     }
   },
   "AssistantshipsPage": {
@@ -869,7 +890,8 @@
       "state": "Status",
       "noEnd": "No end date",
       "noSchedule": "To be defined",
-      "hours": "{hours} h/week"
+      "hours": "{hours} h/week",
+      "actions": "Actions"
     },
     "pagination": {
       "summary": "Page {page} of {pages} · {count, plural, one {# assistantship} other {# assistantships}}",
@@ -904,6 +926,7 @@
       "scheduleHint": "Select the day and academic block; its time is predefined. You may leave the schedule to be defined. Overlapping schedules are not allowed.",
       "block": "Time block",
       "selectBlock": "Select a block",
+      "historicalBlock": "Historical schedule",
       "day": "Day",
       "from": "From",
       "to": "To",
@@ -917,7 +940,11 @@
       "cancel": "Cancel",
       "save": "Save assistantship",
       "saving": "Saving assistantship…",
-      "success": "Assistantship registered successfully."
+      "success": "Assistantship registered successfully.",
+      "assistantshipNrc": "Assistantship NRC",
+      "editTitle": "Edit assistantship",
+      "update": "Save changes",
+      "updated": "Assistantship updated successfully."
     },
     "errors": {
       "load": "We could not load assistantships. Please try again.",
@@ -935,13 +962,61 @@
       "INVALID_SCHEDULE": "Check the schedule: the end must be after the start.",
       "ASSIGNMENT_NOT_FOUND": "The selected teaching assignment no longer exists. Refresh and try again.",
       "RETRY": "The data changed while saving. Please try again."
-    }
+    },
+    "edit": "Edit"
   },
   "UnderDevelopment": {
     "badge": "Module under development",
     "title": "Section planned in roadmap",
     "description": "This functionality is currently under development and integration within the MARSYS platform.",
-    "privacyNotice": "The design of this module inherently adheres to Chilean Law No. 21.719 on personal data protection and role-based access control.",
+    "privacyNotice": "Only authorized users will be able to access this module’s information.",
     "backToDashboard": "Back to dashboard"
+  },
+  "ReportsPage": {
+    "title": "Academic reports",
+    "subtitle": "View and export registered academic information by semester.",
+    "dataset": "Data",
+    "semester": "Semester",
+    "allSemesters": "All semesters",
+    "search": "Search data",
+    "export": "Export CSV",
+    "exporting": "Preparing export…",
+    "exported": "Report exported successfully.",
+    "loading": "Loading data…",
+    "error": "Data could not be loaded.",
+    "retry": "Retry",
+    "empty": "No data for this query.",
+    "rows": "{count} records",
+    "previous": "Previous",
+    "next": "Next",
+    "access": "You do not have access to reports.",
+    "datasets": {
+      "teachers": "Teachers",
+      "courses": "Courses",
+      "assignments": "Teaching assignments",
+      "assistants": "Student assistants",
+      "assistantships": "Assistantships",
+      "semesters": "Semesters"
+    },
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "courses": "Courses / NRC",
+      "code": "Code",
+      "semester": "Semester",
+      "course": "Course",
+      "courseNrc": "Course NRC",
+      "teacher": "Teacher",
+      "assistantshipNrc": "Assistantship NRC",
+      "startsOn": "Start",
+      "endsOn": "End",
+      "weeklyHours": "Weekly hours",
+      "schedules": "Schedules (ISO weekday)"
+    },
+    "statuses": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    }
   }
 }

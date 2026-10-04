@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import {
   ASSIGNMENTS,
   REGISTER,
+  UPDATE,
+  type Assistantship,
   type Registration,
   type SemesterOption,
 } from "../graphql";
@@ -18,12 +20,14 @@ import type { AssistantshipBlockOption } from "../schema-types";
 export default function RegisterAssistantshipDialog({
   semesters,
   blocks,
+  initialRecord,
   initialSemesterId,
   onClose,
   onRegistered,
 }: {
   semesters: SemesterOption[];
   blocks: AssistantshipBlockOption[];
+  initialRecord?: Assistantship;
   initialSemesterId?: string;
   onClose: () => void;
   onRegistered: (semesterId: string) => void;
@@ -32,13 +36,46 @@ export default function RegisterAssistantshipDialog({
   const dialog = useRef<HTMLDialogElement>(null);
   const savingRef = useRef(false);
   const [semesterId, setSemesterId] = useState(
-    initialSemesterId ??
+    initialRecord?.semesterId ??
+      initialSemesterId ??
       semesters.find((semester) => semester.isActive)?.id ??
       semesters[0]?.id ??
       "",
   );
-  const [assignmentId, setAssignmentId] = useState("");
-  const [schedules, setSchedules] = useState<ScheduleDraft[]>([]);
+  const [assignmentId, setAssignmentId] = useState(
+    initialRecord?.teachingAssignmentId ?? "",
+  );
+  const effectiveBlocks = [
+    ...blocks,
+    ...(initialRecord?.schedules ?? []).flatMap((schedule, index) =>
+      blocks.some(
+        (block) =>
+          block.startsAtMinute === schedule.startsAtMinute &&
+          block.endsAtMinute === schedule.endsAtMinute,
+      )
+        ? []
+        : [
+            {
+              code: `legacy-${index}`,
+              startsAtMinute: schedule.startsAtMinute,
+              endsAtMinute: schedule.endsAtMinute,
+            },
+          ],
+    ),
+  ];
+  const [schedules, setSchedules] = useState<ScheduleDraft[]>(() =>
+    (initialRecord?.schedules ?? []).map((schedule, index) => ({
+      id: crypto.randomUUID(),
+      weekday: String(schedule.weekday),
+      location: schedule.location ?? "",
+      block:
+        effectiveBlocks.find(
+          (block) =>
+            block.startsAtMinute === schedule.startsAtMinute &&
+            block.endsAtMinute === schedule.endsAtMinute,
+        )?.code ?? `legacy-${index}`,
+    })),
+  );
   const semester = semesters.find((item) => item.id === semesterId);
   const assignments = useQuery(ASSIGNMENTS, {
     variables: { semesterId },
@@ -46,6 +83,8 @@ export default function RegisterAssistantshipDialog({
     fetchPolicy: "network-only",
   });
   const [register, { loading: saving }] = useMutation(REGISTER);
+  const [update, { loading: updating }] = useMutation(UPDATE);
+  const busy = saving || updating;
   useEffect(() => {
     const element = dialog.current;
     const focus = document.activeElement;
@@ -67,7 +106,7 @@ export default function RegisterAssistantshipDialog({
       teachingAssignmentId: assignmentId,
       assistantName: text("name"),
       assistantEmail: text("email"),
-      studentCode: text("studentCode") || undefined,
+      assistantshipNrc: text("assistantshipNrc"),
       approvedOn: text("approvedOn"),
       startsOn: text("startsOn"),
       endsOn: text("endsOn"),
@@ -76,7 +115,9 @@ export default function RegisterAssistantshipDialog({
         ? Number(text("weeklyHours"))
         : undefined,
       schedules: schedules.map((schedule) => {
-        const block = blocks.find((item) => item.code === schedule.block)!;
+        const block = effectiveBlocks.find(
+          (item) => item.code === schedule.block,
+        )!;
         return {
           weekday: Number(schedule.weekday),
           startsAtMinute: block.startsAtMinute,
@@ -87,10 +128,12 @@ export default function RegisterAssistantshipDialog({
     };
     savingRef.current = true;
     try {
-      const operation = register({ variables: { input } });
+      const operation: Promise<unknown> = initialRecord
+        ? update({ variables: { id: initialRecord.id, input } })
+        : register({ variables: { input } });
       toast.promise(operation, {
         loading: t("form.saving"),
-        success: t("form.success"),
+        success: t(initialRecord ? "form.updated" : "form.success"),
         error: (error: unknown) => t(`errors.${assistantshipErrorKey(error)}`),
       });
       await operation;
@@ -115,7 +158,7 @@ export default function RegisterAssistantshipDialog({
       <div className="flex items-start justify-between gap-4 border-b border-border p-5">
         <div>
           <h2 id="assistantship-dialog-title" className="text-xl font-bold">
-            {t("form.title")}
+            {t(initialRecord ? "form.editTitle" : "form.title")}
           </h2>
           <p
             id="assistantship-dialog-description"
@@ -128,7 +171,7 @@ export default function RegisterAssistantshipDialog({
           type="button"
           className={`${buttonClass} shrink-0 px-3`}
           aria-label={t("form.close")}
-          disabled={saving}
+          disabled={busy}
           onClick={onClose}
         >
           <X className="h-4 w-4" />
@@ -145,7 +188,7 @@ export default function RegisterAssistantshipDialog({
         </div>
       ) : (
         <form onSubmit={(event) => void submit(event)}>
-          <fieldset disabled={saving} className="space-y-6 p-5">
+          <fieldset disabled={busy} className="space-y-6 p-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label={t("form.semester")} htmlFor="register-semester">
                 <select
@@ -219,6 +262,7 @@ export default function RegisterAssistantshipDialog({
                 <input
                   id="register-name"
                   name="name"
+                  defaultValue={initialRecord?.assistantName}
                   className={inputClass}
                   autoComplete="name"
                   maxLength={150}
@@ -229,6 +273,7 @@ export default function RegisterAssistantshipDialog({
                 <input
                   id="register-email"
                   name="email"
+                  defaultValue={initialRecord?.assistantEmail}
                   type="email"
                   className={inputClass}
                   autoComplete="email"
@@ -236,10 +281,12 @@ export default function RegisterAssistantshipDialog({
                   required
                 />
               </Field>
-              <Field label={t("form.studentCode")} htmlFor="register-code">
+              <Field label={t("form.assistantshipNrc")} htmlFor="register-code">
                 <input
                   id="register-code"
-                  name="studentCode"
+                  name="assistantshipNrc"
+                  defaultValue={initialRecord?.assistantshipNrc ?? ""}
+                  required
                   className={inputClass}
                   maxLength={50}
                 />
@@ -248,6 +295,7 @@ export default function RegisterAssistantshipDialog({
                 <input
                   id="register-hours"
                   name="weeklyHours"
+                  defaultValue={initialRecord?.weeklyHours ?? ""}
                   type="number"
                   min="0.01"
                   max="168"
@@ -261,6 +309,7 @@ export default function RegisterAssistantshipDialog({
                 <input
                   id="register-approval"
                   name="approvedOn"
+                  defaultValue={initialRecord?.approvedOn}
                   type="date"
                   className={inputClass}
                   required
@@ -274,7 +323,7 @@ export default function RegisterAssistantshipDialog({
                   type="date"
                   min={semester?.startsOn}
                   max={semester?.endsOn}
-                  defaultValue={semester?.startsOn}
+                  defaultValue={initialRecord?.startsOn ?? semester?.startsOn}
                   className={inputClass}
                   required
                 />
@@ -287,7 +336,7 @@ export default function RegisterAssistantshipDialog({
                   type="date"
                   min={semester?.startsOn}
                   max={semester?.endsOn}
-                  defaultValue={semester?.endsOn}
+                  defaultValue={initialRecord?.endsOn ?? semester?.endsOn}
                   className={inputClass}
                   required
                 />
@@ -296,19 +345,24 @@ export default function RegisterAssistantshipDialog({
             <label className="flex items-start gap-3 rounded-2xl border border-secondary/20 bg-secondary/5 p-4 text-xs leading-relaxed text-foreground">
               <input
                 name="approvalConfirmed"
+                defaultChecked={Boolean(initialRecord)}
                 type="checkbox"
                 required
                 className="mt-0.5 h-4 w-4 shrink-0 accent-secondary"
               />
               {t("form.confirmApproval")}
             </label>
-            <ScheduleFields value={schedules} onChange={setSchedules} blocks={blocks} />
+            <ScheduleFields
+              value={schedules}
+              onChange={setSchedules}
+              blocks={effectiveBlocks}
+            />
           </fieldset>
           <div className="flex justify-end gap-3 border-t border-border p-5">
             <button
               type="button"
               className={buttonClass}
-              disabled={saving}
+              disabled={busy}
               onClick={onClose}
             >
               {t("form.cancel")}
@@ -317,16 +371,22 @@ export default function RegisterAssistantshipDialog({
               type="submit"
               className={primaryClass}
               disabled={
-                saving ||
+                busy ||
                 !assignmentId ||
                 assignments.loading ||
                 Boolean(assignments.error)
               }
             >
-              {saving && (
+              {busy && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
-              {t(saving ? "form.saving" : "form.save")}
+              {t(
+                busy
+                  ? "form.saving"
+                  : initialRecord
+                    ? "form.update"
+                    : "form.save",
+              )}
             </button>
           </div>
         </form>

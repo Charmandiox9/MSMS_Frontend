@@ -35,6 +35,8 @@ export interface OptionsData {
 const fields = gql`
   fragment AssistantshipFields on AssistantshipView {
     id
+    teachingAssignmentId
+    assistantshipNrc
     assistantName
     assistantEmail
     studentCode
@@ -118,6 +120,18 @@ export const REGISTER: TypedDocumentNode<
 > = gql`
   mutation RegisterAssistantship($input: RegisterAssistantshipInput!) {
     registerAssistantship(input: $input) {
+      ...AssistantshipFields
+    }
+  }
+  ${fields}
+`;
+
+export const UPDATE: TypedDocumentNode<
+  { updateAssistantship: Assistantship },
+  { id: string; input: Registration }
+> = gql`
+  mutation UpdateAssistantship($id: ID!, $input: RegisterAssistantshipInput!) {
+    updateAssistantship(id: $id, input: $input) {
       ...AssistantshipFields
     }
   }

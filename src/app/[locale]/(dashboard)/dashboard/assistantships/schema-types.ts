@@ -9,6 +9,8 @@ export interface AssistantshipScheduleView {
 
 export interface AssistantshipView {
   id: string;
+  teachingAssignmentId: string;
+  assistantshipNrc: string | null;
   assistantName: string;
   assistantEmail: string;
   studentCode: string | null;
@@ -80,6 +82,7 @@ export interface AssistantshipFilters {
 }
 
 export interface RegisterAssistantshipInput {
+  assistantshipNrc: string;
   teachingAssignmentId: string;
   assistantName: string;
   assistantEmail: string;

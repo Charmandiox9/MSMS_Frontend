@@ -64,7 +64,7 @@ export default function ScheduleFields({
               <option value="">{t("form.selectBlock")}</option>
               {blocks.map((block) => (
                 <option key={block.code} value={block.code}>
-                  {block.code} · {time(block.startsAtMinute)}–{time(block.endsAtMinute)}
+                  {block.code.startsWith('legacy-') ? t('form.historicalBlock') : block.code} · {time(block.startsAtMinute)}–{time(block.endsAtMinute)}
                 </option>
               ))}
             </select>

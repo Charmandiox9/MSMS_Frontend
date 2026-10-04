@@ -306,7 +306,11 @@
       "rejectionReason": "Motivo del rechazo (obligatorio al rechazar)",
       "rejectionPlaceholder": "Describe el motivo que se notificará al alumno…",
       "reject": "Rechazar",
-      "accept": "Aceptar"
+      "accept": "Aceptar",
+      "assistants": "Ayudantes destinatarios de la aprobación",
+      "scheduleBlock": "Bloque horario",
+      "scheduleBlockEmpty": "Sin clase registrada para este día",
+      "evidenceAttached": "Justificativo adjunto"
     },
     "reasonCategories": {
       "MEDICAL": "Motivo médico",
@@ -374,7 +378,11 @@
       "topMonths": "Meses con más solicitudes",
       "topWeeks": "Semanas con más solicitudes",
       "topReasons": "Motivos más recibidos",
-      "noData": "Sin datos"
+      "noData": "Sin datos",
+      "clearFilters": "Limpiar filtros",
+      "subject": "Asignatura",
+      "action": "Acción",
+      "view": "Ver detalle"
     },
     "historyStats": {
       "total": "Total recibidas",
@@ -441,7 +449,8 @@
       "Miércoles": "Miércoles",
       "Jueves": "Jueves",
       "Viernes": "Viernes",
-      "Sábado": "Sábado"
+      "Sábado": "Sábado",
+      "Domingo": "Domingo"
     },
     "blocks": {
       "A": "A · 08:10 - 09:40",
@@ -458,7 +467,10 @@
       "load": "No se pudieron cargar las asignaturas.",
       "import": "No se pudo importar el archivo CSV.",
       "access": "No tienes acceso a esta página."
-    }
+    },
+    "assistantship": "Ayudantía",
+    "otherSchedules": "Horarios históricos fuera de los bloques académicos",
+    "customSchedule": "Horario histórico"
   },
   "TeachersPage": {
     "eyebrow": "Carga académica",
@@ -546,7 +558,11 @@
         "roles": "Roles RBAC",
         "rolesDesc": "Perfiles configurados",
         "pending": "Justificaciones Pendientes",
-        "pendingDesc": "Solicitudes esperando revisión"
+        "pendingDesc": "Solicitudes esperando revisión",
+        "assistantships": "Ayudantías",
+        "assistantshipsDesc": "Registradas en el semestre activo",
+        "assistants": "Estudiantes ayudantes",
+        "assistantsDesc": "Ayudantes activos del semestre"
       },
       "actions": {
         "manageUsers": "Gestión de Usuarios",
@@ -585,7 +601,11 @@
         "pending": "Justificaciones Pendientes",
         "pendingDesc": "Solicitudes esperando revisión",
         "faculty": "Docentes Activos",
-        "facultyDesc": "Con asignaciones en el semestre activo"
+        "facultyDesc": "Con asignaciones en el semestre activo",
+        "assistantships": "Ayudantías",
+        "assistantshipsDesc": "Registradas en el semestre activo",
+        "assistants": "Estudiantes ayudantes",
+        "assistantsDesc": "Ayudantes activos del semestre"
       },
       "actions": {
         "academicInfo": "Repositorio Académico",
@@ -614,7 +634,11 @@
         "assignments": "Asignaciones Docentes",
         "assignmentsDesc": "Registradas en el semestre activo",
         "justifications": "Justificaciones Registradas",
-        "justificationsDesc": "Total de solicitudes registradas"
+        "justificationsDesc": "Total de solicitudes registradas",
+        "assistantships": "Ayudantías",
+        "assistantshipsDesc": "Registradas en el semestre activo",
+        "assistants": "Estudiantes ayudantes",
+        "assistantsDesc": "Ayudantes activos del semestre"
       },
       "actions": {
         "reports": "Generar Reportes",
@@ -648,7 +672,11 @@
         "schedulesDesc": "Horarios coordinados",
         "schedulesTrend": "Sin topes",
         "titulations": "Titulaciones en Proceso",
-        "titulationsDesc": "Defensas calendarizadas"
+        "titulationsDesc": "Defensas calendarizadas",
+        "assistantships": "Ayudantías",
+        "assistantshipsDesc": "Registradas en el semestre activo",
+        "assistants": "Estudiantes ayudantes",
+        "assistantsDesc": "Ayudantes activos del semestre"
       },
       "actions": {
         "createJustification": "Cargar Justificación",
@@ -813,7 +841,8 @@
       "load": "No se pudieron cargar los usuarios.",
       "update": "No se pudo actualizar el rol.",
       "updateStatus": "No se pudo cambiar el estado de la cuenta.",
-      "delete": "No se pudo eliminar la cuenta."
+      "delete": "No se pudo eliminar la cuenta.",
+      "access": "No tienes acceso a esta página."
     }
   },
   "AssistantshipsPage": {
@@ -861,7 +890,8 @@
       "state": "Estado",
       "noEnd": "Sin fecha de término",
       "noSchedule": "Por definir",
-      "hours": "{hours} h/semana"
+      "hours": "{hours} h/semana",
+      "actions": "Acciones"
     },
     "pagination": {
       "summary": "Página {page} de {pages} · {count, plural, one {# ayudantía} other {# ayudantías}}",
@@ -896,6 +926,7 @@
       "scheduleHint": "Selecciona el día y el bloque académico; su hora ya está definida. Puedes dejar el horario por definir. No se permiten horarios superpuestos.",
       "block": "Bloque horario",
       "selectBlock": "Selecciona un bloque",
+      "historicalBlock": "Horario histórico",
       "day": "Día",
       "from": "Desde",
       "to": "Hasta",
@@ -909,7 +940,11 @@
       "cancel": "Cancelar",
       "save": "Guardar ayudantía",
       "saving": "Guardando ayudantía…",
-      "success": "Ayudantía registrada correctamente."
+      "success": "Ayudantía registrada correctamente.",
+      "assistantshipNrc": "NRC de la ayudantía",
+      "editTitle": "Editar ayudantía",
+      "update": "Guardar cambios",
+      "updated": "Ayudantía actualizada correctamente."
     },
     "errors": {
       "load": "No pudimos cargar las ayudantías. Intenta nuevamente.",
@@ -927,6 +962,61 @@
       "INVALID_SCHEDULE": "Revisa los horarios: el término debe ser posterior al inicio.",
       "ASSIGNMENT_NOT_FOUND": "La carga docente seleccionada ya no existe. Actualiza e intenta nuevamente.",
       "RETRY": "Los datos cambiaron mientras guardabas. Intenta nuevamente."
+    },
+    "edit": "Editar"
+  },
+  "ReportsPage": {
+    "title": "Reportes académicos",
+    "subtitle": "Consulta y exporta la información académica registrada, por semestre.",
+    "dataset": "Datos",
+    "semester": "Semestre",
+    "allSemesters": "Todos los semestres",
+    "search": "Buscar en los datos",
+    "export": "Exportar CSV",
+    "exporting": "Preparando exportación…",
+    "exported": "Reporte exportado correctamente.",
+    "loading": "Cargando datos…",
+    "error": "No se pudieron cargar los datos.",
+    "retry": "Reintentar",
+    "empty": "No hay datos para esta consulta.",
+    "rows": "{count} registros",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "access": "No tienes acceso a los reportes.",
+    "datasets": {
+      "teachers": "Profesores",
+      "courses": "Asignaturas",
+      "assignments": "Carga docente",
+      "assistants": "Estudiantes ayudantes",
+      "assistantships": "Ayudantías",
+      "semesters": "Semestres"
+    },
+    "columns": {
+      "name": "Nombre",
+      "email": "Correo",
+      "status": "Estado",
+      "courses": "Asignaturas / NRC",
+      "code": "Código",
+      "semester": "Semestre",
+      "course": "Asignatura",
+      "courseNrc": "NRC de asignatura",
+      "teacher": "Profesor",
+      "assistantshipNrc": "NRC de ayudantía",
+      "startsOn": "Inicio",
+      "endsOn": "Término",
+      "weeklyHours": "Horas semanales",
+      "schedules": "Horarios (día ISO)"
+    },
+    "statuses": {
+      "ACTIVE": "Activo",
+      "INACTIVE": "Inactivo"
     }
+  },
+  "UnderDevelopment": {
+    "badge": "En desarrollo",
+    "title": "Sección prevista en la planificación",
+    "description": "Este módulo estará disponible próximamente.",
+    "privacyNotice": "Solo los usuarios autorizados podrán acceder a la información de este módulo.",
+    "backToDashboard": "Volver al dashboard"
   }
 }

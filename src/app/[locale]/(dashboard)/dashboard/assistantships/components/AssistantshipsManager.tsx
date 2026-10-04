@@ -18,6 +18,7 @@ import {
   OPTIONS,
   type AssistantshipState,
   type Filters,
+  type Assistantship,
 } from "../graphql";
 import { buttonClass, Field, inputClass, primaryClass } from "./controls";
 import AssistantshipsTable from "./AssistantshipsTable";
@@ -49,7 +50,9 @@ export default function AssistantshipsManager() {
     );
   if (
     activeRole !== "TEACHING_SUPPORT_COORDINATOR" &&
-    activeRole !== "SYSTEM_ADMIN"
+    activeRole !== "SYSTEM_ADMIN" &&
+    activeRole !== "ACADEMIC_SECRETARY" &&
+    activeRole !== "ACADEMIC_PROCESS_ANALYST"
   )
     return (
       <p role="alert" className="py-12 text-center text-muted-foreground">
@@ -58,11 +61,17 @@ export default function AssistantshipsManager() {
     );
   return (
     <ApolloProvider client={client}>
-      <AssistantshipsWorkspace />
+      <AssistantshipsWorkspace
+        readOnly={activeRole === "ACADEMIC_PROCESS_ANALYST"}
+      />
     </ApolloProvider>
   );
 }
-export function AssistantshipsWorkspace() {
+export function AssistantshipsWorkspace({
+  readOnly = false,
+}: {
+  readOnly?: boolean;
+}) {
   const t = useTranslations("AssistantshipsPage");
   const [filters, setFilters] = useState<Filters>({
     search: "",
@@ -71,6 +80,7 @@ export function AssistantshipsWorkspace() {
   });
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Assistantship | null>(null);
   const options = useQuery(OPTIONS, { fetchPolicy: "network-only" });
   const history = useQuery(HISTORY, {
     variables: { filters },
@@ -116,15 +126,20 @@ export function AssistantshipsWorkspace() {
             {t("subtitle")}
           </p>
         </div>
-        <button
-          type="button"
-          className={primaryClass}
-          disabled={!options.data || failed}
-          onClick={() => setDialogOpen(true)}
-        >
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          {t("register")}
-        </button>
+        {!readOnly && (
+          <button
+            type="button"
+            className={primaryClass}
+            disabled={!options.data || failed}
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            {t("register")}
+          </button>
+        )}
       </header>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-busy={busy}>
         {stats.map(({ key, value, icon: Icon }) => (
@@ -253,7 +268,18 @@ export function AssistantshipsWorkspace() {
           </div>
         ) : page?.items.length ? (
           <>
-            <AssistantshipsTable items={page.items} blocks={options.data?.assistantshipOptions.blocks ?? []} />
+            <AssistantshipsTable
+              items={page.items}
+              blocks={options.data?.assistantshipOptions.blocks ?? []}
+              onEdit={
+                readOnly
+                  ? undefined
+                  : (item) => {
+                      setEditing(item);
+                      setDialogOpen(true);
+                    }
+              }
+            />
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border p-4">
               <p className="text-xs tabular-nums text-muted-foreground">
                 {t("pagination.summary", {
@@ -320,6 +346,8 @@ export function AssistantshipsWorkspace() {
       <p className="text-xs text-muted-foreground">{t("stats.scope")}</p>
       {dialogOpen && options.data && (
         <RegisterAssistantshipDialog
+          key={editing?.id ?? "new"}
+          initialRecord={editing ?? undefined}
           semesters={options.data.assistantshipOptions.semesters}
           blocks={options.data.assistantshipOptions.blocks}
           initialSemesterId={filters.semesterId}

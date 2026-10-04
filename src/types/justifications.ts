@@ -1,5 +1,6 @@
-export type JustificationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
-export type JustificationReasonCategory = 'MEDICAL' | 'FAMILY_DEATH' | 'PERSONAL' | 'ACADEMIC' | 'OTHER';
+export type JustificationStatus = "PENDING" | "ACCEPTED" | "REJECTED";
+export type JustificationReasonCategory =
+  "MEDICAL" | "FAMILY_DEATH" | "PERSONAL" | "ACADEMIC" | "OTHER";
 
 export interface JustificationInboxEntry {
   id: string;
@@ -23,6 +24,8 @@ export interface Justification extends JustificationInboxEntry {
   openedAt: string;
   decidedAt?: string | null;
   teachers?: { name: string; email: string }[];
+  assistants?: { name: string; email: string }[];
+  absenceBlocks?: string[];
 }
 
 export interface TeacherAssignment {

@@ -12,15 +12,19 @@ const stateClass = {
 export default function AssistantshipsTable({
   items,
   blocks,
+  onEdit,
 }: {
   items: Assistantship[];
   blocks: AssistantshipBlockOption[];
+  onEdit?: (item: Assistantship) => void;
 }) {
   const t = useTranslations("AssistantshipsPage");
   const format = useFormatter();
   const blockLabel = (startsAtMinute: number, endsAtMinute: number) => {
-    const code = blocks.find((block) =>
-      block.startsAtMinute === startsAtMinute && block.endsAtMinute === endsAtMinute
+    const code = blocks.find(
+      (block) =>
+        block.startsAtMinute === startsAtMinute &&
+        block.endsAtMinute === endsAtMinute,
     )?.code;
     return code ? `${code} · ` : "";
   };
@@ -42,6 +46,7 @@ export default function AssistantshipsTable({
               "period",
               "schedule",
               "state",
+              ...(onEdit ? ["actions"] : []),
             ].map((column) => (
               <th key={column} scope="col" className="px-5 py-3 font-semibold">
                 {t(`table.${column}`)}
@@ -62,11 +67,6 @@ export default function AssistantshipsTable({
                 <p className="mt-1 text-xs text-muted-foreground">
                   {item.assistantEmail}
                 </p>
-                {item.studentCode && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {item.studentCode}
-                  </p>
-                )}
               </td>
               <td className="px-5 py-4">
                 <p className="font-semibold text-foreground">
@@ -83,6 +83,9 @@ export default function AssistantshipsTable({
                 {item.semesterName}
               </td>
               <td className="px-5 py-4 text-xs text-muted-foreground">
+                <p className="mb-2 font-semibold">
+                  {t("form.assistantshipNrc")}: {item.assistantshipNrc ?? "—"}
+                </p>
                 <p>{date(item.startsOn)}</p>
                 <p className="mt-1">
                   {item.endsOn ? date(item.endsOn) : t("table.noEnd")}
@@ -101,7 +104,10 @@ export default function AssistantshipsTable({
                         <p className="font-medium text-foreground">
                           {t(`days.${schedule.weekday}`)} ·{" "}
                           <span className="tabular-nums">
-                            {blockLabel(schedule.startsAtMinute, schedule.endsAtMinute)}
+                            {blockLabel(
+                              schedule.startsAtMinute,
+                              schedule.endsAtMinute,
+                            )}
                             {time(schedule.startsAtMinute)}–
                             {time(schedule.endsAtMinute)}
                           </span>
@@ -123,6 +129,17 @@ export default function AssistantshipsTable({
                   {t(`states.${item.state}`)}
                 </span>
               </td>
+              {onEdit && (
+                <td className="px-5 py-4">
+                  <button
+                    type="button"
+                    className="rounded-xl border border-border px-3 py-2 font-semibold text-primary hover:bg-primary/10"
+                    onClick={() => onEdit(item)}
+                  >
+                    {t("edit")}
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

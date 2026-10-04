@@ -163,7 +163,7 @@ describe("Navigation configuration and filtering", () => {
         DASHBOARD_SECTIONS,
         "ACADEMIC_SECRETARY",
       ),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       isRouteAllowed(
         "/dashboard/justifications/management",

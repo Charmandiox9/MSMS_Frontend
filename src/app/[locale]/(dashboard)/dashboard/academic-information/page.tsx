@@ -1,16 +1,17 @@
-'use client';
+"use client";
 
-import { BookOpenCheck } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import UnderDevelopmentPlaceholder from '@/components/dashboard/UnderDevelopmentPlaceholder';
+import { useTranslations } from "next-intl";
+import AcademicQuickLinks from "@/components/dashboard/AcademicQuickLinks";
 
 export default function AcademicInformationPage() {
-  const t = useTranslations('DashboardNav');
+  const t = useTranslations("DashboardNav");
 
   return (
-    <UnderDevelopmentPlaceholder
-      moduleTitle={t('academicInformation')}
-      icon={BookOpenCheck}
-    />
+    <section className="space-y-6">
+      <h1 className="text-3xl font-black text-foreground">
+        {t("academicInformation")}
+      </h1>
+      <AcademicQuickLinks />
+    </section>
   );
 }

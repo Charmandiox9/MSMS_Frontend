@@ -9,6 +9,7 @@ import {
   HISTORY,
   OPTIONS,
   REGISTER,
+  UPDATE,
   type Assistantship,
   type Filters,
 } from "../graphql";
@@ -49,6 +50,8 @@ const semester = {
 const item: Assistantship & { __typename: "AssistantshipView" } = {
   __typename: "AssistantshipView",
   id: "record",
+  teachingAssignmentId: "assignment",
+  assistantshipNrc: "20001",
   assistantName: "Ana Pérez",
   assistantEmail: "ana@example.test",
   studentCode: "123",
@@ -109,6 +112,103 @@ beforeAll(() => {
 beforeEach(() => vi.clearAllMocks());
 
 describe("assistantship management", () => {
+  it("provides read-only history to the analyst", async () => {
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <MockedProvider
+          mocks={[
+            optionsMock,
+            {
+              request: { query: HISTORY, variables: () => true },
+              result: {
+                data: {
+                  assistantships: {
+                    items: [item],
+                    total: 1,
+                    assistants: 1,
+                    semesters: 1,
+                    page: 1,
+                    totalPages: 1,
+                  },
+                },
+              },
+            },
+          ]}
+        >
+          <AssistantshipsWorkspace readOnly />
+        </MockedProvider>
+      </NextIntlClientProvider>,
+    );
+    expect(await screen.findByText("Ana Pérez")).toBeDefined();
+    expect(
+      screen.queryByRole("button", { name: "Registrar ayudantía" }),
+    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Editar" })).toBeNull();
+  });
+
+  it("prefills an existing assistantship and sends the update mutation", async () => {
+    const result = vi.fn(() => ({ data: { updateAssistantship: item } }));
+    const onRegistered = vi.fn();
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <MockedProvider
+          mocks={[
+            assignmentsMock,
+            { request: { query: UPDATE, variables: () => true }, result },
+          ]}
+        >
+          <RegisterAssistantshipDialog
+            initialRecord={{
+              ...item,
+              schedules: [
+                {
+                  weekday: 1,
+                  startsAtMinute: 490,
+                  endsAtMinute: 580,
+                  location: "Sala 2",
+                },
+              ],
+            }}
+            semesters={[semester]}
+            blocks={optionsMock.result.data.assistantshipOptions.blocks}
+            onClose={vi.fn()}
+            onRegistered={onRegistered}
+          />
+        </MockedProvider>
+      </NextIntlClientProvider>,
+    );
+    await screen.findByRole("option", { name: /Biología marina/ });
+    expect(
+      (screen.getByLabelText("Nombre completo") as HTMLInputElement).value,
+    ).toBe("Ana Pérez");
+    expect(
+      (screen.getByLabelText("Bloque horario") as HTMLSelectElement).value,
+    ).toBe("A");
+    fireEvent.change(screen.getByLabelText("NRC de la ayudantía"), {
+      target: { value: "20002" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+    await waitFor(() => expect(onRegistered).toHaveBeenCalledWith(semester.id));
+    expect(result).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: item.id,
+        input: expect.objectContaining({
+          assistantshipNrc: "20002",
+          schedules: [
+            {
+              weekday: 1,
+              startsAtMinute: 490,
+              endsAtMinute: 580,
+              location: "Sala 2",
+            },
+          ],
+        }),
+      }),
+    );
+    expect(notifications.success).toHaveBeenCalledWith(
+      "Ayudantía actualizada correctamente.",
+    );
+  });
   it("loads records and sends semester/status/search filters to the server", async () => {
     const result = vi.fn(({ filters }: { filters: Filters }) => ({
       data: {
@@ -196,6 +296,9 @@ describe("assistantship management", () => {
   });
 
   const fillRegistration = async () => {
+    fireEvent.change(screen.getByLabelText("NRC de la ayudantía"), {
+      target: { value: "20001" },
+    });
     const assignmentSelect = await screen.findByLabelText(
       "Asignatura, NRC y profesor",
     );
@@ -239,8 +342,12 @@ describe("assistantship management", () => {
     );
     await fillRegistration();
     fireEvent.click(screen.getByRole("button", { name: "Agregar horario" }));
-    expect(screen.getByRole("option", { name: "A · 08:10–09:40" })).toBeDefined();
-    expect(screen.getByRole("option", { name: "H · 21:30–23:00" })).toBeDefined();
+    expect(
+      screen.getByRole("option", { name: "A · 08:10–09:40" }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole("option", { name: "H · 21:30–23:00" }),
+    ).toBeDefined();
     expect(document.querySelector('input[type="time"]')).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Guardar ayudantía" }));
     expect(notifications.pending).not.toHaveBeenCalled();
