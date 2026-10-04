@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate:assistantship-types": "node scripts/generate-assistantship-types.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

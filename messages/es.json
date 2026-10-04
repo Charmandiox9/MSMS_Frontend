@@ -15,10 +15,22 @@
     "features": {
       "title": "¿Qué ofrece MARSYS?",
       "subtitle": "Herramientas diseñadas para las necesidades de la Facultad de Ciencias del Mar",
-      "lab": { "title": "Gestión de Laboratorios", "desc": "Centraliza y optimiza el uso de laboratorios y equipamiento." },
-      "vehicles": { "title": "Reserva de Vehículos", "desc": "Administra salidas a terreno y disponibilidad de la flota." },
-      "tracking": { "title": "Seguimiento Académico", "desc": "Monitorea el avance de estudiantes y procesos de título." },
-      "roles": { "title": "Roles Flexibles", "desc": "Múltiples perfiles con permisos adaptados a cada usuario." }
+      "lab": {
+        "title": "Gestión de Laboratorios",
+        "desc": "Centraliza y optimiza el uso de laboratorios y equipamiento."
+      },
+      "vehicles": {
+        "title": "Reserva de Vehículos",
+        "desc": "Administra salidas a terreno y disponibilidad de la flota."
+      },
+      "tracking": {
+        "title": "Seguimiento Académico",
+        "desc": "Monitorea el avance de estudiantes y procesos de título."
+      },
+      "roles": {
+        "title": "Roles Flexibles",
+        "desc": "Múltiples perfiles con permisos adaptados a cada usuario."
+      }
     },
     "recent": {
       "title": "Proyectos A+S e Investigaciones",
@@ -55,23 +67,65 @@
     "whatIsDesc": "MARSYS es una plataforma de gestión académica y administrativa desarrollada para la Facultad de Ciencias del Mar de la Universidad Católica del Norte. Su objetivo principal es centralizar y optimizar la administración de laboratorios, vehículos y el seguimiento de estudiantes, conectando a toda la comunidad en un solo entorno colaborativo.",
     "proposal": "Nuestra propuesta",
     "proposalCards": {
-      "transparency": { "title": "Trazabilidad", "desc": "Registro histórico y detallado de todas las actividades académicas y de reserva de recursos." },
-      "efficiency": { "title": "Eficiencia", "desc": "Optimización en la solicitud de laboratorios y vehículos para salidas a terreno." },
-      "collaboration": { "title": "Colaboración", "desc": "Herramientas unificadas para docentes, estudiantes e investigadores de la FCM." }
+      "transparency": {
+        "title": "Trazabilidad",
+        "desc": "Registro histórico y detallado de todas las actividades académicas y de reserva de recursos."
+      },
+      "efficiency": {
+        "title": "Eficiencia",
+        "desc": "Optimización en la solicitud de laboratorios y vehículos para salidas a terreno."
+      },
+      "collaboration": {
+        "title": "Colaboración",
+        "desc": "Herramientas unificadas para docentes, estudiantes e investigadores de la FCM."
+      }
     },
     "tech": "Tecnología",
     "techItems": {
-      "nextjs": { "name": "Next.js", "desc": "React Framework" },
-      "nestjs": { "name": "NestJS", "desc": "Node Framework" },
-      "postgresql": { "name": "PostgreSQL", "desc": "Database" },
-      "prisma": { "name": "Prisma", "desc": "ORM" },
-      "oauth": { "name": "Google OAuth", "desc": "Authentication" },
-      "nginx": { "name": "Nginx", "desc": "Reverse Proxy" },
-      "redis": { "name": "Redis", "desc": "Caching en Memoria" },
-      "podman": { "name": "Podman", "desc": "Contenedores" },
-      "graphql": { "name": "GraphQL", "desc": "Lenguaje de Consultas" },
-      "rest": { "name": "API REST", "desc": "Integración" },
-      "jenkins": { "name": "Jenkins", "desc": "CI/CD" }
+      "nextjs": {
+        "name": "Next.js",
+        "desc": "React Framework"
+      },
+      "nestjs": {
+        "name": "NestJS",
+        "desc": "Node Framework"
+      },
+      "postgresql": {
+        "name": "PostgreSQL",
+        "desc": "Database"
+      },
+      "prisma": {
+        "name": "Prisma",
+        "desc": "ORM"
+      },
+      "oauth": {
+        "name": "Google OAuth",
+        "desc": "Authentication"
+      },
+      "nginx": {
+        "name": "Nginx",
+        "desc": "Reverse Proxy"
+      },
+      "redis": {
+        "name": "Redis",
+        "desc": "Caching en Memoria"
+      },
+      "podman": {
+        "name": "Podman",
+        "desc": "Contenedores"
+      },
+      "graphql": {
+        "name": "GraphQL",
+        "desc": "Lenguaje de Consultas"
+      },
+      "rest": {
+        "name": "API REST",
+        "desc": "Integración"
+      },
+      "jenkins": {
+        "name": "Jenkins",
+        "desc": "CI/CD"
+      }
     },
     "devs": "Desarrolladores",
     "eyebrows": {
@@ -109,15 +163,33 @@
     "whoAreWeDesc": "La Facultad de Ciencias del Mar de la UCN, sede Coquimbo, es una unidad académica pionera dedicada al estudio, investigación y conservación de los recursos y ecosistemas marinos. Formamos profesionales de excelencia, contribuyendo al desarrollo sostenible a través de la ciencia, la docencia y la vinculación con la comunidad.",
     "links": "Enlaces oficiales",
     "linksCards": {
-      "ucn": { "title": "Sitio oficial UCN", "desc": "Visitar plataforma" },
-      "fcm": { "title": "Ciencias del Mar", "desc": "Visitar plataforma" },
-      "campus": { "title": "Campus Virtual", "desc": "Visitar plataforma" }
+      "ucn": {
+        "title": "Sitio oficial UCN",
+        "desc": "Visitar plataforma"
+      },
+      "fcm": {
+        "title": "Ciencias del Mar",
+        "desc": "Visitar plataforma"
+      },
+      "campus": {
+        "title": "Campus Virtual",
+        "desc": "Visitar plataforma"
+      }
     },
     "careers": "Nuestras carreras",
     "careersCards": {
-      "biologia": { "title": "Biología Marina", "desc": "Ver programa" },
-      "acuicultura": { "title": "Ingeniería en Acuicultura", "desc": "Ver programa" },
-      "prevencion": { "title": "Ing. en Prevención de Riesgos y Medioambiente", "desc": "Ver programa" }
+      "biologia": {
+        "title": "Biología Marina",
+        "desc": "Ver programa"
+      },
+      "acuicultura": {
+        "title": "Ingeniería en Acuicultura",
+        "desc": "Ver programa"
+      },
+      "prevencion": {
+        "title": "Ing. en Prevención de Riesgos y Medioambiente",
+        "desc": "Ver programa"
+      }
     }
   },
   "Login": {
@@ -150,7 +222,6 @@
     "subjects": "Asignaturas",
     "teachers": "Profesores",
     "academicWorkload": "Carga académica",
-    "assistantshipHistory": "Historial de ayudantías",
     "titulation": "Titulaciones",
     "reports": "Reportes e indicadores",
     "users": "Usuarios",
@@ -179,7 +250,8 @@
       "TEACHING_SUPPORT_COORDINATOR": "Apoyo docente"
     },
     "switchRole": "Cambiar rol activo",
-    "switchRoleTitle": "Roles asignados"
+    "switchRoleTitle": "Roles asignados",
+    "assistantships": "Ayudantías"
   },
   "JustificationsPage": {
     "eyebrow": "Apoyo docente",
@@ -187,38 +259,141 @@
     "subtitle": "Revisa las solicitudes entrantes, consulta sus evidencias y registra una decisión con trazabilidad.",
     "loading": "Cargando justificaciones…",
     "expand": "Expandir panel",
-    "notifications": { "entered": "Justificación ingresada como pendiente.", "accepted": "Justificación aprobada y notificada.", "rejected": "Justificación rechazada y notificada." },
-    "stats": { "incoming": "Entrantes sin leer", "pending": "Pendientes de decisión", "resolved": "Resueltas" },
-    "incoming": { "title": "Justificaciones entrantes", "subtitle": "Provienen del formulario de Google y aún no han sido ingresadas al sistema.", "empty": "No hay nuevas justificaciones entrantes.", "openHint": "Abrir para leer e ingresar como pendiente" },
-    "history": { "title": "Justificaciones ingresadas", "subtitle": "Consulta todas las solicitudes que ya fueron leídas y registradas.", "empty": "No hay justificaciones para este filtro." },
-    "filters": { "all": "Todas" },
-    "statuses": { "unread": "Sin leer", "pending": "Pendiente", "accepted": "Aceptada", "rejected": "Rechazada" },
-    "detail": { "eyebrow": "Detalle de justificación", "close": "Cerrar", "student": "Correo del alumno", "date": "Día de inasistencia", "course": "Asignatura", "nrc": "NRC", "scheduleBlock": "Bloque de cátedra", "scheduleBlockEmpty": "Sin clase registrada para este día", "teacher": "Profesor asociado al NRC", "noTeacher": "No hay un profesor asociado a este NRC en el semestre activo.", "notAvailable": "No indicado", "reason": "Observación del formulario", "reasonCategory": "Motivo de la inasistencia", "reasonCategoryPlaceholder": "Selecciona un motivo", "evidence": "Abrir evidencia", "evidenceAttached": "Documento adjunto disponible", "rejectionReason": "Motivo del rechazo (obligatorio al rechazar)", "rejectionPlaceholder": "Describe el motivo que se notificará al alumno…", "reject": "Rechazar", "accept": "Aceptar" },
-    "reasonCategories": { "MEDICAL": "Motivo médico", "FAMILY_DEATH": "Fallecimiento de familiar cercano", "PERSONAL": "Situación personal", "ACADEMIC": "Actividad académica", "OTHER": "Otro motivo" },
-    "errors": { "load": "No se pudieron cargar las justificaciones.", "open": "No se pudo ingresar la justificación.", "decision": "No se pudo registrar la decisión.", "evidence": "No se pudo abrir la evidencia.", "access": "No tienes acceso a esta página." }
-  },
-  "AssistantshipHistoryPage": {
-    "eyebrow": "Apoyo docente",
-    "title": "Histórico de ayudantías",
-    "subtitle": "Consulta el registro histórico de ayudantes, asignaturas y períodos académicos.",
-    "stats": { "assistants": "Ayudantes registrados", "semesters": "Semestres con registros", "records": "Asignaciones históricas" },
-    "history": { "title": "Registro de ayudantías", "subtitle": "Filtra el histórico por ayudante o semestre.", "empty": "Todavía no hay registros de ayudantías.", "emptyDescription": "Cuando se carguen ayudantías, aquí podrás consultar sus asignaturas, períodos, horarios y estado." },
-    "filters": { "search": "Buscar ayudante…", "semester": "Semestre", "allSemesters": "Todos los semestres" }
+    "notifications": {
+      "entered": "Justificación ingresada como pendiente.",
+      "accepted": "Justificación aprobada y notificada.",
+      "rejected": "Justificación rechazada y notificada."
+    },
+    "stats": {
+      "incoming": "Entrantes sin leer",
+      "pending": "Pendientes de decisión",
+      "resolved": "Resueltas"
+    },
+    "incoming": {
+      "title": "Justificaciones entrantes",
+      "subtitle": "Provienen del formulario de Google y aún no han sido ingresadas al sistema.",
+      "empty": "No hay nuevas justificaciones entrantes.",
+      "openHint": "Abrir para leer e ingresar como pendiente"
+    },
+    "history": {
+      "title": "Justificaciones ingresadas",
+      "subtitle": "Consulta todas las solicitudes que ya fueron leídas y registradas.",
+      "empty": "No hay justificaciones para este filtro."
+    },
+    "filters": {
+      "all": "Todas"
+    },
+    "statuses": {
+      "unread": "Sin leer",
+      "pending": "Pendiente",
+      "accepted": "Aceptada",
+      "rejected": "Rechazada"
+    },
+    "detail": {
+      "eyebrow": "Detalle de justificación",
+      "close": "Cerrar",
+      "student": "Correo del alumno",
+      "date": "Día de inasistencia",
+      "course": "Asignatura",
+      "nrc": "NRC",
+      "teacher": "Profesor asociado al NRC",
+      "noTeacher": "No hay un profesor asociado a este NRC en el semestre activo.",
+      "notAvailable": "No indicado",
+      "reason": "Observación del formulario",
+      "reasonCategory": "Motivo de la inasistencia",
+      "reasonCategoryPlaceholder": "Selecciona un motivo",
+      "evidence": "Abrir evidencia",
+      "rejectionReason": "Motivo del rechazo (obligatorio al rechazar)",
+      "rejectionPlaceholder": "Describe el motivo que se notificará al alumno…",
+      "reject": "Rechazar",
+      "accept": "Aceptar"
+    },
+    "reasonCategories": {
+      "MEDICAL": "Motivo médico",
+      "FAMILY_DEATH": "Fallecimiento de familiar cercano",
+      "PERSONAL": "Situación personal",
+      "ACADEMIC": "Actividad académica",
+      "OTHER": "Otro motivo"
+    },
+    "errors": {
+      "load": "No se pudieron cargar las justificaciones.",
+      "open": "No se pudo ingresar la justificación.",
+      "decision": "No se pudo registrar la decisión.",
+      "evidence": "No se pudo abrir la evidencia.",
+      "access": "No tienes acceso a esta página."
+    }
   },
   "JustificationsManagementPage": {
     "eyebrow": "Secretaría docente",
     "title": "Gestión de justificaciones",
     "subtitle": "Administra el padrón de docentes y las asignaturas que imparten durante el semestre activo.",
     "loading": "Cargando información…",
-    "stats": { "teachers": "Docentes registrados", "assignments": "Asignaciones activas", "activeSemester": "Semestre activo", "available": "Disponible", "pending": "Sin cargar" },
-    "teachers": { "title": "Docentes y asignaturas", "subtitle": "Selecciona un docente para revisar sus ramos y NRC.", "import": "Importar CSV", "format": "Columnas: teacherEmail, teacherName, courseCode, courseName, nrc, semesterName, startsOn, endsOn, employeeCode.", "courses": "Ver asignaturas del semestre activo", "empty": "Todavía no hay docentes cargados." },
-    "detail": { "eyebrow": "Asignaciones del semestre activo", "close": "Cerrar", "nrc": "NRC", "student": "Alumno", "empty": "Este docente no tiene asignaciones activas." },
-    "import": { "success": "Se importaron {count} filas correctamente." },
-    "errors": { "load": "No se pudo cargar la información.", "import": "No se pudo importar el archivo CSV.", "history": "No se pudo cargar el histórico de justificaciones.", "access": "No tienes acceso a esta página." },
-    "history": { "title": "Histórico de justificaciones", "subtitle": "Analiza estados, períodos y motivos de las solicitudes recibidas.", "empty": "No hay justificaciones para los filtros seleccionados.", "allStatuses": "Todos los estados", "allReasons": "Todos los motivos", "from": "Desde", "to": "Hasta", "search": "Buscar por alumno, asignatura o NRC…", "period": "Período", "subject": "Asignatura", "action": "Acción", "view": "Ver", "clearFilters": "Limpiar filtros", "month": "Mes", "week": "Semana", "topMonths": "Meses con más solicitudes", "topWeeks": "Semanas con más solicitudes", "topReasons": "Motivos más recibidos", "noData": "Sin datos" },
-    "historyStats": { "total": "Total recibidas", "pending": "Pendientes", "accepted": "Aceptadas", "rejected": "Rechazadas" },
-    "statuses": { "pending": "Pendiente", "accepted": "Aceptada", "rejected": "Rechazada" },
-    "reasonCategories": { "MEDICAL": "Motivo médico", "FAMILY_DEATH": "Fallecimiento de familiar cercano", "PERSONAL": "Situación personal", "ACADEMIC": "Actividad académica", "OTHER": "Otro motivo" }
+    "stats": {
+      "teachers": "Docentes registrados",
+      "assignments": "Asignaciones activas",
+      "activeSemester": "Semestre activo",
+      "available": "Disponible",
+      "pending": "Sin cargar"
+    },
+    "teachers": {
+      "title": "Docentes y asignaturas",
+      "subtitle": "Selecciona un docente para revisar sus ramos y NRC.",
+      "import": "Importar CSV",
+      "format": "Columnas: teacherEmail, teacherName, courseCode, courseName, nrc, semesterName, startsOn, endsOn, employeeCode.",
+      "courses": "Ver asignaturas del semestre activo",
+      "empty": "Todavía no hay docentes cargados."
+    },
+    "detail": {
+      "eyebrow": "Asignaciones del semestre activo",
+      "close": "Cerrar",
+      "nrc": "NRC",
+      "student": "Alumno",
+      "empty": "Este docente no tiene asignaciones activas."
+    },
+    "import": {
+      "success": "Se importaron {count} filas correctamente."
+    },
+    "errors": {
+      "load": "No se pudo cargar la información.",
+      "import": "No se pudo importar el archivo CSV.",
+      "history": "No se pudo cargar el histórico de justificaciones.",
+      "access": "No tienes acceso a esta página."
+    },
+    "history": {
+      "title": "Histórico de justificaciones",
+      "subtitle": "Analiza estados, períodos y motivos de las solicitudes recibidas.",
+      "empty": "No hay justificaciones para los filtros seleccionados.",
+      "allStatuses": "Todos los estados",
+      "allReasons": "Todos los motivos",
+      "from": "Desde",
+      "to": "Hasta",
+      "search": "Buscar por alumno, asignatura o NRC…",
+      "period": "Período",
+      "month": "Mes",
+      "week": "Semana",
+      "topMonths": "Meses con más solicitudes",
+      "topWeeks": "Semanas con más solicitudes",
+      "topReasons": "Motivos más recibidos",
+      "noData": "Sin datos"
+    },
+    "historyStats": {
+      "total": "Total recibidas",
+      "pending": "Pendientes",
+      "accepted": "Aceptadas",
+      "rejected": "Rechazadas"
+    },
+    "statuses": {
+      "pending": "Pendiente",
+      "accepted": "Aceptada",
+      "rejected": "Rechazada"
+    },
+    "reasonCategories": {
+      "MEDICAL": "Motivo médico",
+      "FAMILY_DEATH": "Fallecimiento de familiar cercano",
+      "PERSONAL": "Situación personal",
+      "ACADEMIC": "Actividad académica",
+      "OTHER": "Otro motivo"
+    }
   },
   "Pagination": {
     "summary": "Página {page} de {totalPages} · {total} registros",
@@ -260,9 +435,30 @@
     "close": "Cerrar",
     "day": "Día",
     "block": "Bloque",
-    "days": { "Lunes": "Lunes", "Martes": "Martes", "Miércoles": "Miércoles", "Jueves": "Jueves", "Viernes": "Viernes", "Sábado": "Sábado" },
-    "blocks": { "A": "A · 08:10 - 09:40", "B": "B · 09:55 - 11:25", "C": "C · 11:40 - 13:10", "C2": "C2 · 13:10 - 14:30", "D": "D · 14:30 - 16:00", "E": "E · 16:15 - 17:45", "F": "F · 18:00 - 19:30", "G": "G · 19:45 - 21:15", "H": "H · 21:30 - 23:00" },
-    "errors": { "load": "No se pudieron cargar las asignaturas.", "import": "No se pudo importar el archivo CSV.", "access": "No tienes acceso a esta página." }
+    "days": {
+      "Lunes": "Lunes",
+      "Martes": "Martes",
+      "Miércoles": "Miércoles",
+      "Jueves": "Jueves",
+      "Viernes": "Viernes",
+      "Sábado": "Sábado"
+    },
+    "blocks": {
+      "A": "A · 08:10 - 09:40",
+      "B": "B · 09:55 - 11:25",
+      "C": "C · 11:40 - 13:10",
+      "C2": "C2 · 13:10 - 14:30",
+      "D": "D · 14:30 - 16:00",
+      "E": "E · 16:15 - 17:45",
+      "F": "F · 18:00 - 19:30",
+      "G": "G · 19:45 - 21:15",
+      "H": "H · 21:30 - 23:00"
+    },
+    "errors": {
+      "load": "No se pudieron cargar las asignaturas.",
+      "import": "No se pudo importar el archivo CSV.",
+      "access": "No tienes acceso a esta página."
+    }
   },
   "TeachersPage": {
     "eyebrow": "Carga académica",
@@ -286,7 +482,11 @@
     "pagination": "Página {page} de {totalPages} · {total} profesores",
     "previous": "Página anterior",
     "next": "Página siguiente",
-    "errors": { "load": "No se pudieron cargar los profesores.", "import": "No se pudo importar el padrón de profesores.", "access": "No tienes acceso a esta página." }
+    "errors": {
+      "load": "No se pudieron cargar los profesores.",
+      "import": "No se pudo importar el padrón de profesores.",
+      "access": "No tienes acceso a esta página."
+    }
   },
   "SemesterSettingsPage": {
     "eyebrow": "Configuración académica",
@@ -303,7 +503,11 @@
     "active": "Activo",
     "inactive": "Inactivo",
     "empty": "Todavía no hay semestres registrados.",
-    "errors": { "load": "No se pudieron cargar los semestres.", "save": "No se pudo activar el semestre.", "access": "No tienes acceso a esta página." }
+    "errors": {
+      "load": "No se pudieron cargar los semestres.",
+      "save": "No se pudo activar el semestre.",
+      "access": "No tienes acceso a esta página."
+    }
   },
   "DashboardViews": {
     "justificationsManagement": {
@@ -605,13 +809,124 @@
         "cancelError": "No se pudo cancelar la precarga."
       }
     },
-    "errors": { "load": "No se pudieron cargar los usuarios.", "update": "No se pudo actualizar el rol.", "updateStatus": "No se pudo cambiar el estado de la cuenta.", "delete": "No se pudo eliminar la cuenta.", "access": "No tienes acceso a esta página." }
+    "errors": {
+      "load": "No se pudieron cargar los usuarios.",
+      "update": "No se pudo actualizar el rol.",
+      "updateStatus": "No se pudo cambiar el estado de la cuenta.",
+      "delete": "No se pudo eliminar la cuenta."
+    }
   },
-  "UnderDevelopment": {
-    "badge": "Módulo en desarrollo",
-    "title": "Sección planificada en la hoja de ruta",
-    "description": "Esta funcionalidad se encuentra en fase de desarrollo e integración dentro de la plataforma MARSYS.",
-    "privacyNotice": "El diseño de este módulo incorpora por defecto los lineamientos de la Ley N° 21.719 de protección de datos personales y control de acceso por rol.",
-    "backToDashboard": "Volver al panel principal"
+  "AssistantshipsPage": {
+    "eyebrow": "Apoyo docente",
+    "title": "Ayudantías",
+    "subtitle": "Registra ayudantías y consulta sus estudiantes, asignaturas y horarios por semestre.",
+    "register": "Registrar ayudantía",
+    "loading": "Cargando…",
+    "retry": "Reintentar",
+    "nrc": "NRC {nrc}",
+    "stats": {
+      "records": "Ayudantías",
+      "assistants": "Estudiantes ayudantes",
+      "semesters": "Semestres",
+      "scope": "Los totales corresponden a los filtros seleccionados."
+    },
+    "history": {
+      "title": "Registro por semestre",
+      "subtitle": "Cada registro conserva el estudiante, el profesor responsable y el período de la ayudantía.",
+      "empty": "No hay ayudantías para esta consulta",
+      "emptyDescription": "Prueba con otros filtros o registra la primera ayudantía desde el botón superior."
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Estudiante, asignatura, profesor o NRC…",
+      "semester": "Semestre",
+      "allSemesters": "Todos los semestres",
+      "teacher": "Profesor",
+      "allTeachers": "Todos los profesores",
+      "state": "Estado",
+      "allStates": "Todos los estados",
+      "clear": "Limpiar filtros"
+    },
+    "states": {
+      "ACTIVE": "En curso",
+      "SCHEDULED": "Programada",
+      "COMPLETED": "Finalizada"
+    },
+    "table": {
+      "assistant": "Estudiante ayudante",
+      "course": "Asignatura y profesor",
+      "semester": "Semestre",
+      "period": "Período",
+      "schedule": "Horario",
+      "state": "Estado",
+      "noEnd": "Sin fecha de término",
+      "noSchedule": "Por definir",
+      "hours": "{hours} h/semana"
+    },
+    "pagination": {
+      "summary": "Página {page} de {pages} · {count, plural, one {# ayudantía} other {# ayudantías}}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "days": {
+      "1": "Lunes",
+      "2": "Martes",
+      "3": "Miércoles",
+      "4": "Jueves",
+      "5": "Viernes",
+      "6": "Sábado",
+      "7": "Domingo"
+    },
+    "form": {
+      "title": "Registrar ayudantía",
+      "description": "Selecciona una carga docente y registra al estudiante que ya aprobó esa asignatura.",
+      "semester": "Semestre",
+      "course": "Asignatura, NRC y profesor",
+      "selectCourse": "Seleccionar asignatura…",
+      "student": "Estudiante ayudante",
+      "name": "Nombre completo",
+      "email": "Correo electrónico",
+      "studentCode": "Código estudiantil (opcional)",
+      "hours": "Horas semanales (opcional)",
+      "approvedOn": "Fecha de aprobación",
+      "startsOn": "Inicio",
+      "endsOn": "Término",
+      "confirmApproval": "Confirmo que el estudiante aprobó esta asignatura antes del inicio de la ayudantía y que la fecha indicada es correcta.",
+      "schedule": "Horario de la ayudantía",
+      "scheduleHint": "Selecciona el día y el bloque académico; su hora ya está definida. Puedes dejar el horario por definir. No se permiten horarios superpuestos.",
+      "block": "Bloque horario",
+      "selectBlock": "Selecciona un bloque",
+      "day": "Día",
+      "from": "Desde",
+      "to": "Hasta",
+      "location": "Sala o lugar (opcional)",
+      "addSchedule": "Agregar horario",
+      "remove": "Quitar",
+      "removeSchedule": "Quitar horario {number}",
+      "noSemesters": "Aún no hay semestres. Solicita al Secretario Docente que registre el semestre y la carga académica.",
+      "noAssignments": "Este semestre no tiene cargas docentes con profesores activos y NRC. Solicita su carga antes de registrar la ayudantía.",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "save": "Guardar ayudantía",
+      "saving": "Guardando ayudantía…",
+      "success": "Ayudantía registrada correctamente."
+    },
+    "errors": {
+      "load": "No pudimos cargar las ayudantías. Intenta nuevamente.",
+      "generic": "No pudimos guardar la ayudantía. Revisa los datos e intenta nuevamente.",
+      "ACCESS_DENIED": "No tienes permiso para gestionar ayudantías.",
+      "APPROVAL_REQUIRED": "Debes confirmar que el estudiante aprobó la asignatura.",
+      "APPROVAL_DATE": "La aprobación debe ser anterior al inicio de la ayudantía.",
+      "INVALID_PERIOD": "Revisa las fechas: el término debe ser igual o posterior al inicio.",
+      "SEMESTER_PERIOD": "El período de la ayudantía debe estar dentro del semestre elegido.",
+      "INACTIVE_PROFILE": "El estudiante o el profesor está inactivo, o la carga no tiene NRC.",
+      "ASSISTANT_IDENTITY": "Este correo ya pertenece a un estudiante con otro nombre o código. Usa sus datos registrados.",
+      "APPROVAL_MISMATCH": "La fecha de aprobación no coincide con la ya registrada para este estudiante y asignatura.",
+      "DUPLICATE": "La ayudantía o el correo/código estudiantil ya está registrado.",
+      "SCHEDULE_CONFLICT": "Los horarios se superponen entre sí o con otra ayudantía del estudiante.",
+      "INVALID_SCHEDULE": "Revisa los horarios: el término debe ser posterior al inicio.",
+      "ASSIGNMENT_NOT_FOUND": "La carga docente seleccionada ya no existe. Actualiza e intenta nuevamente.",
+      "RETRY": "Los datos cambiaron mientras guardabas. Intenta nuevamente."
+    }
   }
 }
