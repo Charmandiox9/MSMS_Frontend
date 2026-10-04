@@ -41,7 +41,7 @@ describe('DashboardUserDial', () => {
     await waitFor(() => expect(screen.getByRole('link', { name: 'openDashboard' })).toBeTruthy());
 
     const overlay = document.body.lastElementChild as HTMLElement;
-    expect(overlay.style.opacity).toBe('1');
+    await waitFor(() => expect(overlay.style.opacity).toBe('1'));
   });
 
   it('keeps the menu visible when reduced motion is enabled', async () => {

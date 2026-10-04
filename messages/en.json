@@ -15,10 +15,22 @@
     "features": {
       "title": "What does MARSYS offer?",
       "subtitle": "Tools designed for the needs of the Faculty of Marine Sciences",
-      "lab": { "title": "Laboratory Management", "desc": "Centralize and optimize the use of labs and equipment." },
-      "vehicles": { "title": "Vehicle Reservation", "desc": "Manage field trips and fleet availability." },
-      "tracking": { "title": "Academic Tracking", "desc": "Monitor student progress and graduation processes." },
-      "roles": { "title": "Flexible Roles", "desc": "Multiple profiles with permissions adapted to each user." }
+      "lab": {
+        "title": "Laboratory Management",
+        "desc": "Centralize and optimize the use of labs and equipment."
+      },
+      "vehicles": {
+        "title": "Vehicle Reservation",
+        "desc": "Manage field trips and fleet availability."
+      },
+      "tracking": {
+        "title": "Academic Tracking",
+        "desc": "Monitor student progress and graduation processes."
+      },
+      "roles": {
+        "title": "Flexible Roles",
+        "desc": "Multiple profiles with permissions adapted to each user."
+      }
     },
     "recent": {
       "title": "A+S Projects & Research",
@@ -55,23 +67,65 @@
     "whatIsDesc": "MARSYS is an academic and administrative management platform developed for the Faculty of Marine Sciences of the Universidad Católica del Norte. Its main objective is to centralize and optimize the administration of laboratories, vehicles, and student tracking, connecting the entire community in a single collaborative environment.",
     "proposal": "Our proposal",
     "proposalCards": {
-      "transparency": { "title": "Traceability", "desc": "Detailed historical record of all academic activities and resource reservations." },
-      "efficiency": { "title": "Efficiency", "desc": "Optimization in requesting laboratories and vehicles for field trips." },
-      "collaboration": { "title": "Collaboration", "desc": "Unified tools for teachers, students, and researchers of the FCM." }
+      "transparency": {
+        "title": "Traceability",
+        "desc": "Detailed historical record of all academic activities and resource reservations."
+      },
+      "efficiency": {
+        "title": "Efficiency",
+        "desc": "Optimization in requesting laboratories and vehicles for field trips."
+      },
+      "collaboration": {
+        "title": "Collaboration",
+        "desc": "Unified tools for teachers, students, and researchers of the FCM."
+      }
     },
     "tech": "Technology",
     "techItems": {
-      "nextjs": { "name": "Next.js", "desc": "React Framework" },
-      "nestjs": { "name": "NestJS", "desc": "Node Framework" },
-      "postgresql": { "name": "PostgreSQL", "desc": "Database" },
-      "prisma": { "name": "Prisma", "desc": "ORM" },
-      "oauth": { "name": "Google OAuth", "desc": "Authentication" },
-      "nginx": { "name": "Nginx", "desc": "Reverse Proxy" },
-      "redis": { "name": "Redis", "desc": "In-Memory Cache" },
-      "podman": { "name": "Podman", "desc": "Containers" },
-      "graphql": { "name": "GraphQL", "desc": "Query Language" },
-      "rest": { "name": "REST API", "desc": "Integration" },
-      "jenkins": { "name": "Jenkins", "desc": "CI/CD" }
+      "nextjs": {
+        "name": "Next.js",
+        "desc": "React Framework"
+      },
+      "nestjs": {
+        "name": "NestJS",
+        "desc": "Node Framework"
+      },
+      "postgresql": {
+        "name": "PostgreSQL",
+        "desc": "Database"
+      },
+      "prisma": {
+        "name": "Prisma",
+        "desc": "ORM"
+      },
+      "oauth": {
+        "name": "Google OAuth",
+        "desc": "Authentication"
+      },
+      "nginx": {
+        "name": "Nginx",
+        "desc": "Reverse Proxy"
+      },
+      "redis": {
+        "name": "Redis",
+        "desc": "In-Memory Cache"
+      },
+      "podman": {
+        "name": "Podman",
+        "desc": "Containers"
+      },
+      "graphql": {
+        "name": "GraphQL",
+        "desc": "Query Language"
+      },
+      "rest": {
+        "name": "REST API",
+        "desc": "Integration"
+      },
+      "jenkins": {
+        "name": "Jenkins",
+        "desc": "CI/CD"
+      }
     },
     "devs": "Developers",
     "eyebrows": {
@@ -109,15 +163,33 @@
     "whoAreWeDesc": "The Faculty of Marine Sciences of UCN, Coquimbo campus, is a pioneering academic unit dedicated to the study, research, and conservation of marine resources and ecosystems. We train professionals of excellence, contributing to sustainable development through science, teaching, and community outreach.",
     "links": "Official links",
     "linksCards": {
-      "ucn": { "title": "UCN Official Site", "desc": "Visit platform" },
-      "fcm": { "title": "Marine Sciences", "desc": "Visit platform" },
-      "campus": { "title": "Virtual Campus", "desc": "Visit platform" }
+      "ucn": {
+        "title": "UCN Official Site",
+        "desc": "Visit platform"
+      },
+      "fcm": {
+        "title": "Marine Sciences",
+        "desc": "Visit platform"
+      },
+      "campus": {
+        "title": "Virtual Campus",
+        "desc": "Visit platform"
+      }
     },
     "careers": "Our programs",
     "careersCards": {
-      "biologia": { "title": "Marine Biology", "desc": "View program" },
-      "acuicultura": { "title": "Aquaculture Engineering", "desc": "View program" },
-      "prevencion": { "title": "Risk Prevention and Environmental Engineering", "desc": "View program" }
+      "biologia": {
+        "title": "Marine Biology",
+        "desc": "View program"
+      },
+      "acuicultura": {
+        "title": "Aquaculture Engineering",
+        "desc": "View program"
+      },
+      "prevencion": {
+        "title": "Risk Prevention and Environmental Engineering",
+        "desc": "View program"
+      }
     }
   },
   "Login": {
@@ -150,7 +222,6 @@
     "subjects": "Subjects",
     "teachers": "Teachers",
     "academicWorkload": "Academic workload",
-    "assistantshipHistory": "Assistantship history",
     "titulation": "Graduation",
     "reports": "Reports and indicators",
     "users": "Users",
@@ -179,7 +250,8 @@
       "TEACHING_SUPPORT_COORDINATOR": "Teaching support coordinator"
     },
     "switchRole": "Switch active role",
-    "switchRoleTitle": "Assigned roles"
+    "switchRoleTitle": "Assigned roles",
+    "assistantships": "Assistantships"
   },
   "JustificationsPage": {
     "eyebrow": "Teaching support",
@@ -187,38 +259,141 @@
     "subtitle": "Review incoming requests, inspect their evidence, and record a traceable decision.",
     "loading": "Loading justifications…",
     "expand": "Expand panel",
-    "notifications": { "entered": "Justification entered as pending.", "accepted": "Justification approved and notifications sent.", "rejected": "Justification rejected and notification sent." },
-    "stats": { "incoming": "Unread incoming", "pending": "Pending decision", "resolved": "Resolved" },
-    "incoming": { "title": "Incoming justifications", "subtitle": "Submitted through the Google Form and not yet entered into the system.", "empty": "There are no new incoming justifications.", "openHint": "Open to read and enter as pending" },
-    "history": { "title": "Entered justifications", "subtitle": "Review every request that has already been read and registered.", "empty": "There are no justifications for this filter." },
-    "filters": { "all": "All" },
-    "statuses": { "unread": "Unread", "pending": "Pending", "accepted": "Accepted", "rejected": "Rejected" },
-    "detail": { "eyebrow": "Justification detail", "close": "Close", "student": "Student email", "date": "Absence date", "course": "Course", "nrc": "NRC", "teacher": "Teacher associated with the NRC", "noTeacher": "No teacher is associated with this NRC in the active semester.", "notAvailable": "Not provided", "reason": "Form note", "reasonCategory": "Absence reason", "reasonCategoryPlaceholder": "Select a reason", "evidence": "Open evidence", "rejectionReason": "Rejection reason (required when rejecting)", "rejectionPlaceholder": "Describe the reason that will be sent to the student…", "reject": "Reject", "accept": "Accept" },
-    "reasonCategories": { "MEDICAL": "Medical reason", "FAMILY_DEATH": "Death of a close family member", "PERSONAL": "Personal situation", "ACADEMIC": "Academic activity", "OTHER": "Other reason" },
-    "errors": { "load": "Justifications could not be loaded.", "open": "The justification could not be entered.", "decision": "The decision could not be recorded.", "evidence": "The evidence could not be opened.", "access": "You do not have access to this page." }
-  },
-  "AssistantshipHistoryPage": {
-    "eyebrow": "Teaching support",
-    "title": "Assistantship history",
-    "subtitle": "Review the historical record of assistants, courses, and academic periods.",
-    "stats": { "assistants": "Registered assistants", "semesters": "Semesters with records", "records": "Historical assignments" },
-    "history": { "title": "Assistantship records", "subtitle": "Filter the history by assistant or semester.", "empty": "There are no assistantship records yet.", "emptyDescription": "Once assistantships are loaded, you will be able to review their courses, periods, schedules, and status here." },
-    "filters": { "search": "Search assistant…", "semester": "Semester", "allSemesters": "All semesters" }
+    "notifications": {
+      "entered": "Justification entered as pending.",
+      "accepted": "Justification approved and notifications sent.",
+      "rejected": "Justification rejected and notification sent."
+    },
+    "stats": {
+      "incoming": "Unread incoming",
+      "pending": "Pending decision",
+      "resolved": "Resolved"
+    },
+    "incoming": {
+      "title": "Incoming justifications",
+      "subtitle": "Submitted through the Google Form and not yet entered into the system.",
+      "empty": "There are no new incoming justifications.",
+      "openHint": "Open to read and enter as pending"
+    },
+    "history": {
+      "title": "Entered justifications",
+      "subtitle": "Review every request that has already been read and registered.",
+      "empty": "There are no justifications for this filter."
+    },
+    "filters": {
+      "all": "All"
+    },
+    "statuses": {
+      "unread": "Unread",
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "detail": {
+      "eyebrow": "Justification detail",
+      "close": "Close",
+      "student": "Student email",
+      "date": "Absence date",
+      "course": "Course",
+      "nrc": "NRC",
+      "teacher": "Teacher associated with the NRC",
+      "noTeacher": "No teacher is associated with this NRC in the active semester.",
+      "notAvailable": "Not provided",
+      "reason": "Form note",
+      "reasonCategory": "Absence reason",
+      "reasonCategoryPlaceholder": "Select a reason",
+      "evidence": "Open evidence",
+      "rejectionReason": "Rejection reason (required when rejecting)",
+      "rejectionPlaceholder": "Describe the reason that will be sent to the student…",
+      "reject": "Reject",
+      "accept": "Accept"
+    },
+    "reasonCategories": {
+      "MEDICAL": "Medical reason",
+      "FAMILY_DEATH": "Death of a close family member",
+      "PERSONAL": "Personal situation",
+      "ACADEMIC": "Academic activity",
+      "OTHER": "Other reason"
+    },
+    "errors": {
+      "load": "Justifications could not be loaded.",
+      "open": "The justification could not be entered.",
+      "decision": "The decision could not be recorded.",
+      "evidence": "The evidence could not be opened.",
+      "access": "You do not have access to this page."
+    }
   },
   "JustificationsManagementPage": {
     "eyebrow": "Academic secretary",
     "title": "Justification management",
     "subtitle": "Manage the faculty roster and the courses they teach during the active semester.",
     "loading": "Loading information…",
-    "stats": { "teachers": "Registered faculty", "assignments": "Active assignments", "activeSemester": "Active semester", "available": "Available", "pending": "Not loaded" },
-    "teachers": { "title": "Faculty and courses", "subtitle": "Select a faculty member to review their courses and NRCs.", "import": "Import CSV", "format": "Columns: teacherEmail, teacherName, courseCode, courseName, nrc, semesterName, startsOn, endsOn, employeeCode.", "courses": "View active-semester courses", "empty": "No faculty have been loaded yet." },
-    "detail": { "eyebrow": "Active-semester assignments", "close": "Close", "nrc": "NRC", "student": "Student", "empty": "This faculty member has no active assignments." },
-    "import": { "success": "{count} rows were imported successfully." },
-    "errors": { "load": "The information could not be loaded.", "import": "The CSV file could not be imported.", "history": "The justification history could not be loaded.", "access": "You do not have access to this page." },
-    "history": { "title": "Justification history", "subtitle": "Analyze statuses, periods, and reasons for received requests.", "empty": "There are no justifications for the selected filters.", "allStatuses": "All statuses", "allReasons": "All reasons", "from": "From", "to": "To", "search": "Search by student, course, or NRC…", "period": "Period", "month": "Month", "week": "Week", "topMonths": "Months with most requests", "topWeeks": "Weeks with most requests", "topReasons": "Most received reasons", "noData": "No data" },
-    "historyStats": { "total": "Total received", "pending": "Pending", "accepted": "Accepted", "rejected": "Rejected" },
-    "statuses": { "pending": "Pending", "accepted": "Accepted", "rejected": "Rejected" },
-    "reasonCategories": { "MEDICAL": "Medical reason", "FAMILY_DEATH": "Death of a close family member", "PERSONAL": "Personal situation", "ACADEMIC": "Academic activity", "OTHER": "Other reason" }
+    "stats": {
+      "teachers": "Registered faculty",
+      "assignments": "Active assignments",
+      "activeSemester": "Active semester",
+      "available": "Available",
+      "pending": "Not loaded"
+    },
+    "teachers": {
+      "title": "Faculty and courses",
+      "subtitle": "Select a faculty member to review their courses and NRCs.",
+      "import": "Import CSV",
+      "format": "Columns: teacherEmail, teacherName, courseCode, courseName, nrc, semesterName, startsOn, endsOn, employeeCode.",
+      "courses": "View active-semester courses",
+      "empty": "No faculty have been loaded yet."
+    },
+    "detail": {
+      "eyebrow": "Active-semester assignments",
+      "close": "Close",
+      "nrc": "NRC",
+      "student": "Student",
+      "empty": "This faculty member has no active assignments."
+    },
+    "import": {
+      "success": "{count} rows were imported successfully."
+    },
+    "errors": {
+      "load": "The information could not be loaded.",
+      "import": "The CSV file could not be imported.",
+      "history": "The justification history could not be loaded.",
+      "access": "You do not have access to this page."
+    },
+    "history": {
+      "title": "Justification history",
+      "subtitle": "Analyze statuses, periods, and reasons for received requests.",
+      "empty": "There are no justifications for the selected filters.",
+      "allStatuses": "All statuses",
+      "allReasons": "All reasons",
+      "from": "From",
+      "to": "To",
+      "search": "Search by student, course, or NRC…",
+      "period": "Period",
+      "month": "Month",
+      "week": "Week",
+      "topMonths": "Months with most requests",
+      "topWeeks": "Weeks with most requests",
+      "topReasons": "Most received reasons",
+      "noData": "No data"
+    },
+    "historyStats": {
+      "total": "Total received",
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "reasonCategories": {
+      "MEDICAL": "Medical reason",
+      "FAMILY_DEATH": "Death of a close family member",
+      "PERSONAL": "Personal situation",
+      "ACADEMIC": "Academic activity",
+      "OTHER": "Other reason"
+    }
   },
   "SubjectsPage": {
     "eyebrow": "Academic workload",
@@ -255,9 +430,30 @@
     "close": "Close",
     "day": "Day",
     "block": "Block",
-    "days": { "Lunes": "Monday", "Martes": "Tuesday", "Miércoles": "Wednesday", "Jueves": "Thursday", "Viernes": "Friday", "Sábado": "Saturday" },
-    "blocks": { "A": "A · 08:10 - 09:40", "B": "B · 09:55 - 11:25", "C": "C · 11:40 - 13:10", "C2": "C2 · 13:10 - 14:30", "D": "D · 14:30 - 16:00", "E": "E · 16:15 - 17:45", "F": "F · 18:00 - 19:30", "G": "G · 19:45 - 21:15", "H": "H · 21:30 - 23:00" },
-    "errors": { "load": "Subjects could not be loaded.", "import": "The CSV could not be imported.", "access": "You do not have access to this page." }
+    "days": {
+      "Lunes": "Monday",
+      "Martes": "Tuesday",
+      "Miércoles": "Wednesday",
+      "Jueves": "Thursday",
+      "Viernes": "Friday",
+      "Sábado": "Saturday"
+    },
+    "blocks": {
+      "A": "A · 08:10 - 09:40",
+      "B": "B · 09:55 - 11:25",
+      "C": "C · 11:40 - 13:10",
+      "C2": "C2 · 13:10 - 14:30",
+      "D": "D · 14:30 - 16:00",
+      "E": "E · 16:15 - 17:45",
+      "F": "F · 18:00 - 19:30",
+      "G": "G · 19:45 - 21:15",
+      "H": "H · 21:30 - 23:00"
+    },
+    "errors": {
+      "load": "Subjects could not be loaded.",
+      "import": "The CSV could not be imported.",
+      "access": "You do not have access to this page."
+    }
   },
   "TeachersPage": {
     "eyebrow": "Academic workload",
@@ -281,7 +477,11 @@
     "pagination": "Page {page} of {totalPages} · {total} teachers",
     "previous": "Previous page",
     "next": "Next page",
-    "errors": { "load": "Teachers could not be loaded.", "import": "The teacher roster could not be imported.", "access": "You do not have access to this page." }
+    "errors": {
+      "load": "Teachers could not be loaded.",
+      "import": "The teacher roster could not be imported.",
+      "access": "You do not have access to this page."
+    }
   },
   "SemesterSettingsPage": {
     "eyebrow": "Academic settings",
@@ -298,7 +498,11 @@
     "active": "Active",
     "inactive": "Inactive",
     "empty": "No semesters have been registered yet.",
-    "errors": { "load": "Semesters could not be loaded.", "save": "The semester could not be activated.", "access": "You do not have access to this page." }
+    "errors": {
+      "load": "Semesters could not be loaded.",
+      "save": "The semester could not be activated.",
+      "access": "You do not have access to this page."
+    }
   },
   "DashboardViews": {
     "justificationsManagement": {
@@ -593,6 +797,122 @@
         "cancelError": "Could not cancel the preload."
       }
     },
-    "errors": { "load": "Could not load users.", "update": "Could not update the role.", "updateStatus": "Could not change the account status.", "delete": "Could not delete the account." }
+    "errors": {
+      "load": "Could not load users.",
+      "update": "Could not update the role.",
+      "updateStatus": "Could not change the account status.",
+      "delete": "Could not delete the account."
+    }
+  },
+  "AssistantshipsPage": {
+    "eyebrow": "Teaching support",
+    "title": "Assistantships",
+    "subtitle": "Register assistantships and review their students, courses, and schedules by semester.",
+    "register": "Register assistantship",
+    "loading": "Loading…",
+    "retry": "Try again",
+    "nrc": "NRC {nrc}",
+    "stats": {
+      "records": "Assistantships",
+      "assistants": "Student assistants",
+      "semesters": "Semesters",
+      "scope": "Totals reflect the selected filters."
+    },
+    "history": {
+      "title": "Semester records",
+      "subtitle": "Each record keeps the student, supervising teacher, and assistantship period.",
+      "empty": "No assistantships match this search",
+      "emptyDescription": "Try different filters or register the first assistantship using the button above."
+    },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Student, course, teacher, or NRC…",
+      "semester": "Semester",
+      "allSemesters": "All semesters",
+      "teacher": "Teacher",
+      "allTeachers": "All teachers",
+      "state": "Status",
+      "allStates": "All statuses",
+      "clear": "Clear filters"
+    },
+    "states": {
+      "ACTIVE": "In progress",
+      "SCHEDULED": "Scheduled",
+      "COMPLETED": "Completed"
+    },
+    "table": {
+      "assistant": "Student assistant",
+      "course": "Course and teacher",
+      "semester": "Semester",
+      "period": "Period",
+      "schedule": "Schedule",
+      "state": "Status",
+      "noEnd": "No end date",
+      "noSchedule": "To be defined",
+      "hours": "{hours} h/week"
+    },
+    "pagination": {
+      "summary": "Page {page} of {pages} · {count, plural, one {# assistantship} other {# assistantships}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "days": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    },
+    "form": {
+      "title": "Register assistantship",
+      "description": "Select a teaching assignment and register a student who has already passed that course.",
+      "semester": "Semester",
+      "course": "Course, NRC, and teacher",
+      "selectCourse": "Select a course…",
+      "student": "Student assistant",
+      "name": "Full name",
+      "email": "Email address",
+      "studentCode": "Student code (optional)",
+      "hours": "Weekly hours (optional)",
+      "approvedOn": "Course completion date",
+      "startsOn": "Start date",
+      "endsOn": "End date",
+      "confirmApproval": "I confirm that the student passed this course before the assistantship starts and that the completion date is correct.",
+      "schedule": "Assistantship schedule",
+      "scheduleHint": "Add the schedule now or leave it to be defined. Overlapping schedules are not allowed.",
+      "day": "Day",
+      "from": "From",
+      "to": "To",
+      "location": "Room or location (optional)",
+      "addSchedule": "Add schedule",
+      "remove": "Remove",
+      "removeSchedule": "Remove schedule {number}",
+      "noSemesters": "No semesters exist yet. Ask the Academic Secretary to register a semester and teaching assignments.",
+      "noAssignments": "This semester has no teaching assignments with active teachers and an NRC. Ask for them to be loaded before registering an assistantship.",
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save assistantship",
+      "saving": "Saving assistantship…",
+      "success": "Assistantship registered successfully."
+    },
+    "errors": {
+      "load": "We could not load assistantships. Please try again.",
+      "generic": "We could not save the assistantship. Check the details and try again.",
+      "ACCESS_DENIED": "You do not have permission to manage assistantships.",
+      "APPROVAL_REQUIRED": "Confirm that the student passed the course.",
+      "APPROVAL_DATE": "The course completion date must be before the assistantship starts.",
+      "INVALID_PERIOD": "Check the dates: the end must be on or after the start.",
+      "SEMESTER_PERIOD": "The assistantship must fall within the selected semester.",
+      "INACTIVE_PROFILE": "The student or teacher is inactive, or the assignment has no NRC.",
+      "ASSISTANT_IDENTITY": "This email belongs to a student with a different name or code. Use the registered details.",
+      "APPROVAL_MISMATCH": "The completion date differs from the one already recorded for this student and course.",
+      "DUPLICATE": "The assistantship or student email/code is already registered.",
+      "SCHEDULE_CONFLICT": "Schedules overlap with each other or another assistantship held by this student.",
+      "INVALID_SCHEDULE": "Check the schedule: the end must be after the start.",
+      "ASSIGNMENT_NOT_FOUND": "The selected teaching assignment no longer exists. Refresh and try again.",
+      "RETRY": "The data changed while saving. Please try again."
+    }
   }
 }
