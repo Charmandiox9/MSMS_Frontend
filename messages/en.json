@@ -1,4 +1,9 @@
 {
+  "Loading": {
+    "content": "Loading content…",
+    "metrics": "Loading metrics…",
+    "table": "Loading records…"
+  },
   "Landing": {
     "badge": "MARSYS · Welcome",
     "title_part1": "Centralized academic",

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertCircle,
   Check,
@@ -10,33 +10,38 @@ import {
   Inbox,
   X,
   type LucideIcon,
-} from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
-import { useActiveRole } from '@/context/ActiveRoleContext';
-import { apiFetch } from '@/lib/api';
-import DashboardPageHeader from '@/components/dashboard/DashboardPageHeader';
-import JustificationStatusBadge from '@/components/dashboard/justifications/JustificationStatusBadge';
-import JustificationDetailModal from '@/components/dashboard/justifications/JustificationDetailModal';
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { useActiveRole } from "@/context/ActiveRoleContext";
+import { apiFetch } from "@/lib/api";
+import {
+  CardsSkeleton,
+  MetricsSkeleton,
+  PageSkeleton,
+} from "@/components/ui/LoadingSkeletons";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import JustificationStatusBadge from "@/components/dashboard/justifications/JustificationStatusBadge";
+import JustificationDetailModal from "@/components/dashboard/justifications/JustificationDetailModal";
 import type {
   Justification,
   JustificationInboxEntry,
   JustificationReasonCategory,
   JustificationStatus,
-} from '@/types/justifications';
+} from "@/types/justifications";
 
-const STATUS_ORDER: JustificationStatus[] = ['PENDING', 'ACCEPTED', 'REJECTED'];
+const STATUS_ORDER: JustificationStatus[] = ["PENDING", "ACCEPTED", "REJECTED"];
 
 function formatDate(value: string): string {
   try {
-    const [y, m, d] = value.slice(0, 10).split('-').map(Number);
+    const [y, m, d] = value.slice(0, 10).split("-").map(Number);
     const date = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
-    const formatted = new Intl.DateTimeFormat('es-CL', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      timeZone: 'UTC',
+    const formatted = new Intl.DateTimeFormat("es-CL", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
     }).format(date);
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   } catch {
@@ -45,28 +50,30 @@ function formatDate(value: string): string {
 }
 
 export default function JustificationsPage() {
-  const t = useTranslations('JustificationsPage');
+  const t = useTranslations("JustificationsPage");
   const { activeRole } = useActiveRole();
 
   const [inbox, setInbox] = useState<JustificationInboxEntry[]>([]);
   const [history, setHistory] = useState<Justification[]>([]);
-  const [filter, setFilter] = useState<'ALL' | JustificationStatus>('ALL');
+  const [filter, setFilter] = useState<"ALL" | JustificationStatus>("ALL");
   const [selected, setSelected] = useState<Justification | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [expandedPanel, setExpandedPanel] = useState<'incoming' | 'history' | null>(null);
+  const [expandedPanel, setExpandedPanel] = useState<
+    "incoming" | "history" | null
+  >(null);
 
-  const canReview = activeRole === 'TEACHING_SUPPORT_COORDINATOR';
-  const loadErrorMessage = t('errors.load');
+  const canReview = activeRole === "TEACHING_SUPPORT_COORDINATOR";
+  const loadErrorMessage = t("errors.load");
 
   useEffect(() => {
     if (!canReview) return;
     let active = true;
     Promise.all([
-      apiFetch<JustificationInboxEntry[]>('/justifications/inbox'),
-      apiFetch<Justification[]>('/justifications'),
+      apiFetch<JustificationInboxEntry[]>("/justifications/inbox"),
+      apiFetch<Justification[]>("/justifications"),
     ])
       .then(([incoming, processed]) => {
         if (!active) return;
@@ -76,7 +83,8 @@ export default function JustificationsPage() {
       })
       .catch((cause: unknown) => {
         if (!active) return;
-        const message = cause instanceof Error ? cause.message : loadErrorMessage;
+        const message =
+          cause instanceof Error ? cause.message : loadErrorMessage;
         setError(message);
         toast.error(message);
       })
@@ -89,7 +97,7 @@ export default function JustificationsPage() {
   }, [canReview, loadErrorMessage]);
 
   const filteredHistory = useMemo(() => {
-    return filter === 'ALL'
+    return filter === "ALL"
       ? history
       : history.filter((item) => item.status === filter);
   }, [filter, history]);
@@ -99,7 +107,7 @@ export default function JustificationsPage() {
     try {
       const justification = await apiFetch<Justification>(
         `/justifications/inbox/${entry.id}/open`,
-        { method: 'POST' },
+        { method: "POST" },
       );
       setInbox((items) => items.filter((item) => item.id !== entry.id));
       setHistory((items) => [
@@ -107,16 +115,16 @@ export default function JustificationsPage() {
         ...items.filter((item) => item.id !== justification.id),
       ]);
       setSelected(justification);
-      toast.info(t('notifications.entered'));
+      toast.info(t("notifications.entered"));
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : t('errors.open');
+      const message = cause instanceof Error ? cause.message : t("errors.open");
       setActionError(message);
       toast.error(message);
     }
   };
 
   const handleDecision = async (
-    status: Exclude<JustificationStatus, 'PENDING'>,
+    status: Exclude<JustificationStatus, "PENDING">,
     category: JustificationReasonCategory,
     rejectionReason?: string,
   ) => {
@@ -129,10 +137,11 @@ export default function JustificationsPage() {
       const updated = await apiFetch<Justification>(
         `/justifications/${selected.id}/decision`,
         {
-          method: 'PATCH',
+          method: "PATCH",
           body: JSON.stringify({
             status,
-            rejectionReason: status === 'REJECTED' ? rejectionReason : undefined,
+            rejectionReason:
+              status === "REJECTED" ? rejectionReason : undefined,
             reasonCategory: category,
           }),
         },
@@ -142,12 +151,13 @@ export default function JustificationsPage() {
       );
       setSelected(null);
       toast.success(
-        status === 'ACCEPTED'
-          ? t('notifications.accepted')
-          : t('notifications.rejected'),
+        status === "ACCEPTED"
+          ? t("notifications.accepted")
+          : t("notifications.rejected"),
       );
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : t('errors.decision');
+      const message =
+        cause instanceof Error ? cause.message : t("errors.decision");
       setActionError(message);
       toast.error(message);
     } finally {
@@ -160,38 +170,33 @@ export default function JustificationsPage() {
       const result = await apiFetch<{ downloadUrl: string }>(
         `/justifications/${id}/evidence-url`,
       );
-      window.open(result.downloadUrl, '_blank', 'noopener,noreferrer');
+      window.open(result.downloadUrl, "_blank", "noopener,noreferrer");
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : t('errors.evidence');
+      const message =
+        cause instanceof Error ? cause.message : t("errors.evidence");
       setActionError(message);
       toast.error(message);
     }
   };
 
   if (activeRole === null) {
-    return (
-      <div className="py-20 text-center text-sm font-medium text-muted-foreground">
-        {t('loading')}
-      </div>
-    );
+    return <PageSkeleton label={t("loading")} />;
   }
 
-  if (activeRole !== 'TEACHING_SUPPORT_COORDINATOR') {
+  if (activeRole !== "TEACHING_SUPPORT_COORDINATOR") {
     return (
       <div className="py-20 text-center text-sm font-medium text-muted-foreground">
-        {t('errors.access')}
+        {t("errors.access")}
       </div>
     );
   }
 
   const incomingContent = loading ? (
-    <div className="animate-pulse rounded-2xl bg-muted px-4 py-12 text-center text-sm font-medium text-muted-foreground">
-      {t('loading')}
-    </div>
+    <CardsSkeleton label={t("loading")} />
   ) : inbox.length === 0 ? (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border px-4 py-12 text-center text-sm text-muted-foreground">
       <Inbox className="mb-3 h-6 w-6 text-muted-foreground" />
-      <span>{t('incoming.empty')}</span>
+      <span>{t("incoming.empty")}</span>
     </div>
   ) : (
     <div className="space-y-3">
@@ -206,7 +211,7 @@ export default function JustificationsPage() {
             <div>
               <p className="font-bold text-foreground">
                 {entry.subjectName}
-                {entry.nrc ? ` · NRC ${entry.nrc}` : ''}
+                {entry.nrc ? ` · NRC ${entry.nrc}` : ""}
               </p>
               <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                 <span>{entry.studentEmail}</span>
@@ -216,7 +221,7 @@ export default function JustificationsPage() {
                   <>
                     <span>·</span>
                     <span className="rounded-md bg-primary/10 px-1.5 py-0.5 font-bold text-primary">
-                      Bloque {entry.blocks.join(', ')}
+                      Bloque {entry.blocks.join(", ")}
                     </span>
                   </>
                 )}
@@ -225,7 +230,7 @@ export default function JustificationsPage() {
             <JustificationStatusBadge status="UNREAD" size="sm" />
           </div>
           <p className="mt-3 text-xs font-medium text-primary">
-            {t('incoming.openHint')}
+            {t("incoming.openHint")}
           </p>
         </button>
       ))}
@@ -235,32 +240,30 @@ export default function JustificationsPage() {
   const historyContent = (
     <>
       <div className="mb-4 flex shrink-0 flex-wrap gap-2">
-        {['ALL', ...STATUS_ORDER].map((value) => (
+        {["ALL", ...STATUS_ORDER].map((value) => (
           <button
             key={value}
             type="button"
-            onClick={() => setFilter(value as 'ALL' | JustificationStatus)}
+            onClick={() => setFilter(value as "ALL" | JustificationStatus)}
             className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${
               filter === value
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:text-foreground'
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground"
             }`}
           >
-            {value === 'ALL'
-              ? t('filters.all')
+            {value === "ALL"
+              ? t("filters.all")
               : t(`statuses.${value.toLowerCase()}` as Parameters<typeof t>[0])}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="animate-pulse rounded-2xl bg-muted px-4 py-12 text-center text-sm font-medium text-muted-foreground">
-          {t('loading')}
-        </div>
+        <CardsSkeleton label={t("loading")} />
       ) : filteredHistory.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border px-4 py-12 text-center text-sm text-muted-foreground">
           <FileText className="mb-3 h-6 w-6 text-muted-foreground" />
-          <span>{t('history.empty')}</span>
+          <span>{t("history.empty")}</span>
         </div>
       ) : (
         <div className="space-y-3">
@@ -278,7 +281,7 @@ export default function JustificationsPage() {
                 <div>
                   <p className="font-bold text-foreground">
                     {item.subjectName}
-                    {item.nrc ? ` · NRC ${item.nrc}` : ''}
+                    {item.nrc ? ` · NRC ${item.nrc}` : ""}
                   </p>
                   <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                     <span>{item.studentEmail}</span>
@@ -288,7 +291,7 @@ export default function JustificationsPage() {
                       <>
                         <span>·</span>
                         <span className="rounded-md bg-primary/10 px-1.5 py-0.5 font-bold text-primary">
-                          Bloque {item.blocks.join(', ')}
+                          Bloque {item.blocks.join(", ")}
                         </span>
                       </>
                     )}
@@ -306,9 +309,9 @@ export default function JustificationsPage() {
   return (
     <div className="space-y-8">
       <DashboardPageHeader
-        eyebrow={t('eyebrow')}
-        title={t('title')}
-        subtitle={t('subtitle')}
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={t("subtitle")}
       />
 
       {error && (
@@ -324,42 +327,51 @@ export default function JustificationsPage() {
         </div>
       )}
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <SummaryCard
-          icon={Inbox}
-          label={t('stats.incoming')}
-          value={inbox.length}
-          tone="cyan"
+      {loading ? (
+        <MetricsSkeleton
+          count={3}
+          compact
+          className="grid gap-4 md:grid-cols-3"
+          label={t("loading")}
         />
-        <SummaryCard
-          icon={Clock3}
-          label={t('stats.pending')}
-          value={history.filter((item) => item.status === 'PENDING').length}
-          tone="amber"
-        />
-        <SummaryCard
-          icon={Check}
-          label={t('stats.resolved')}
-          value={history.filter((item) => item.status !== 'PENDING').length}
-          tone="green"
-        />
-      </section>
+      ) : (
+        <section className="grid gap-4 md:grid-cols-3">
+          <SummaryCard
+            icon={Inbox}
+            label={t("stats.incoming")}
+            value={inbox.length}
+            tone="cyan"
+          />
+          <SummaryCard
+            icon={Clock3}
+            label={t("stats.pending")}
+            value={history.filter((item) => item.status === "PENDING").length}
+            tone="amber"
+          />
+          <SummaryCard
+            icon={Check}
+            label={t("stats.resolved")}
+            value={history.filter((item) => item.status !== "PENDING").length}
+            tone="green"
+          />
+        </section>
+      )}
 
       <section className="grid gap-6 xl:grid-cols-2">
         <Panel
-          title={t('incoming.title')}
-          subtitle={t('incoming.subtitle')}
-          expandLabel={t('expand')}
-          onExpand={() => setExpandedPanel('incoming')}
+          title={t("incoming.title")}
+          subtitle={t("incoming.subtitle")}
+          expandLabel={t("expand")}
+          onExpand={() => setExpandedPanel("incoming")}
         >
           {incomingContent}
         </Panel>
 
         <Panel
-          title={t('history.title')}
-          subtitle={t('history.subtitle')}
-          expandLabel={t('expand')}
-          onExpand={() => setExpandedPanel('history')}
+          title={t("history.title")}
+          subtitle={t("history.subtitle")}
+          expandLabel={t("expand")}
+          onExpand={() => setExpandedPanel("history")}
         >
           {historyContent}
         </Panel>
@@ -374,20 +386,20 @@ export default function JustificationsPage() {
           <div className="w-full max-w-5xl">
             <Panel
               title={
-                expandedPanel === 'incoming'
-                  ? t('incoming.title')
-                  : t('history.title')
+                expandedPanel === "incoming"
+                  ? t("incoming.title")
+                  : t("history.title")
               }
               subtitle={
-                expandedPanel === 'incoming'
-                  ? t('incoming.subtitle')
-                  : t('history.subtitle')
+                expandedPanel === "incoming"
+                  ? t("incoming.subtitle")
+                  : t("history.subtitle")
               }
               expanded
-              closeLabel={t('detail.close')}
+              closeLabel={t("detail.close")}
               onClose={() => setExpandedPanel(null)}
             >
-              {expandedPanel === 'incoming' ? incomingContent : historyContent}
+              {expandedPanel === "incoming" ? incomingContent : historyContent}
             </Panel>
           </div>
         </div>
@@ -415,12 +427,12 @@ function SummaryCard({
   icon: LucideIcon;
   label: string;
   value: number;
-  tone: 'cyan' | 'amber' | 'green';
+  tone: "cyan" | "amber" | "green";
 }) {
   const toneClasses = {
-    cyan: 'bg-ocean-cyan/15 text-ocean-cyan',
-    amber: 'bg-accent/15 text-accent',
-    green: 'bg-secondary/15 text-secondary',
+    cyan: "bg-ocean-cyan/15 text-ocean-cyan",
+    amber: "bg-accent/15 text-accent",
+    green: "bg-secondary/15 text-secondary",
   };
 
   return (
@@ -458,7 +470,7 @@ function Panel({
   return (
     <section
       className={`flex flex-col rounded-3xl border border-border bg-card p-5 shadow-sm md:p-6 ${
-        expanded ? 'h-[min(85vh,54rem)]' : 'min-h-[28rem]'
+        expanded ? "h-[min(85vh,54rem)]" : "min-h-[28rem]"
       }`}
     >
       <div className="mb-5 flex shrink-0 items-start justify-between gap-4">

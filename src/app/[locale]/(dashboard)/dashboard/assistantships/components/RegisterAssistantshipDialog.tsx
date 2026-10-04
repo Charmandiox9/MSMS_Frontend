@@ -4,6 +4,8 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import Skeleton from "@/components/ui/Skeleton";
+import { SkeletonStatus } from "@/components/ui/LoadingSkeletons";
 import {
   ASSIGNMENTS,
   REGISTER,
@@ -210,24 +212,30 @@ export default function RegisterAssistantshipDialog({
                 </select>
               </Field>
               <Field label={t("form.course")} htmlFor="register-assignment">
-                <select
-                  id="register-assignment"
-                  className={inputClass}
-                  required
-                  value={assignmentId}
-                  disabled={assignments.loading || Boolean(assignments.error)}
-                  onChange={(event) => setAssignmentId(event.target.value)}
-                >
-                  <option value="">
-                    {t(assignments.loading ? "loading" : "form.selectCourse")}
-                  </option>
-                  {assignments.data?.assistantshipAssignments.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.courseName} · {t("nrc", { nrc: item.nrc })} ·{" "}
-                      {item.teacherName}
+                {assignments.loading ? (
+                  <SkeletonStatus label={t("loading")}>
+                    <Skeleton className="h-11 w-full rounded-xl" />
+                  </SkeletonStatus>
+                ) : (
+                  <select
+                    id="register-assignment"
+                    className={inputClass}
+                    required
+                    value={assignmentId}
+                    disabled={assignments.loading || Boolean(assignments.error)}
+                    onChange={(event) => setAssignmentId(event.target.value)}
+                  >
+                    <option value="">
+                      {t(assignments.loading ? "loading" : "form.selectCourse")}
                     </option>
-                  ))}
-                </select>
+                    {assignments.data?.assistantshipAssignments.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.courseName} · {t("nrc", { nrc: item.nrc })} ·{" "}
+                        {item.teacherName}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </Field>
             </div>
             {assignments.error ? (

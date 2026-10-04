@@ -6,6 +6,7 @@ import type { LucideIcon } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import StatCard from "@/components/dashboard/widgets/StatCard";
 import AcademicQuickLinks from "./AcademicQuickLinks";
+import { MetricsSkeleton } from "@/components/ui/LoadingSkeletons";
 
 type Metric = {
   key: string;
@@ -53,18 +54,21 @@ export default function RoleDashboardStats({
           {t("metricsError")}
         </p>
       )}
-      <div
-        className={`grid gap-5 sm:grid-cols-2 ${metrics.length === 6 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}
-        aria-busy={loading}
-      >
-        {metrics.map(({ key, ...metric }) => (
-          <StatCard
-            key={key}
-            {...metric}
-            value={loading ? "…" : (values?.[key] ?? "—")}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <MetricsSkeleton
+          count={metrics.length}
+          className={`grid gap-5 sm:grid-cols-2 ${metrics.length === 6 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}
+        />
+      ) : (
+        <div
+          className={`grid gap-5 sm:grid-cols-2 ${metrics.length === 6 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}
+          aria-busy={loading}
+        >
+          {metrics.map(({ key, ...metric }) => (
+            <StatCard key={key} {...metric} value={values?.[key] ?? "—"} />
+          ))}
+        </div>
+      )}
       <AcademicQuickLinks />
     </>
   );

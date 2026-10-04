@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import Modal from "@/components/ui/Modal";
 import { useActiveRole } from "@/context/ActiveRoleContext";
+import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
 import type { Teacher } from "@/types/justifications";
 
@@ -130,12 +131,7 @@ export default function TeachersPage() {
     }
   };
 
-  if (activeRole === null)
-    return (
-      <div className="py-16 text-center text-sm text-muted-foreground">
-        {t("loading")}
-      </div>
-    );
+  if (activeRole === null) return <PageSkeleton label={t("loading")} />;
   if (!canRead)
     return (
       <div className="py-16 text-center text-sm text-muted-foreground">
@@ -231,9 +227,7 @@ export default function TeachersPage() {
         </div>
       </section>
       {loading ? (
-        <div className="animate-pulse rounded-3xl bg-muted px-4 py-16 text-center text-sm text-muted-foreground">
-          {t("loading")}
-        </div>
+        <TableSkeleton columns={3} label={t("loading")} />
       ) : filtered.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">
           {teachers.length === 0 ? t("empty") : t("noMatches")}

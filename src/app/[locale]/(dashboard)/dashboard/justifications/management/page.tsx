@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertCircle,
   BarChart3,
@@ -12,32 +12,43 @@ import {
   Search,
   XCircle,
   type LucideIcon,
-} from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
-import { useActiveRole } from '@/context/ActiveRoleContext';
-import { apiFetch } from '@/lib/api';
-import DashboardPageHeader from '@/components/dashboard/DashboardPageHeader';
-import JustificationStatusBadge from '@/components/dashboard/justifications/JustificationStatusBadge';
-import JustificationDetailModal from '@/components/dashboard/justifications/JustificationDetailModal';
-import PaginationControls from '@/components/ui/PaginationControls';
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { useActiveRole } from "@/context/ActiveRoleContext";
+import { apiFetch } from "@/lib/api";
+import {
+  AnalyticsSkeleton,
+  MetricsSkeleton,
+  PageSkeleton,
+  TableSkeleton,
+} from "@/components/ui/LoadingSkeletons";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import JustificationStatusBadge from "@/components/dashboard/justifications/JustificationStatusBadge";
+import JustificationDetailModal from "@/components/dashboard/justifications/JustificationDetailModal";
+import PaginationControls from "@/components/ui/PaginationControls";
 import type {
   Justification,
   JustificationReasonCategory,
   JustificationStatus,
-} from '@/types/justifications';
+} from "@/types/justifications";
 
-type StatusFilter = 'ALL' | JustificationStatus;
-type ReasonFilter = 'ALL' | JustificationReasonCategory;
+type StatusFilter = "ALL" | JustificationStatus;
+type ReasonFilter = "ALL" | JustificationReasonCategory;
 
-const STATUS_VALUES: StatusFilter[] = ['ALL', 'PENDING', 'ACCEPTED', 'REJECTED'];
+const STATUS_VALUES: StatusFilter[] = [
+  "ALL",
+  "PENDING",
+  "ACCEPTED",
+  "REJECTED",
+];
 const REASON_VALUES: ReasonFilter[] = [
-  'ALL',
-  'MEDICAL',
-  'FAMILY_DEATH',
-  'PERSONAL',
-  'ACADEMIC',
-  'OTHER',
+  "ALL",
+  "MEDICAL",
+  "FAMILY_DEATH",
+  "PERSONAL",
+  "ACADEMIC",
+  "OTHER",
 ];
 const PAGE_SIZE = 10;
 
@@ -45,7 +56,10 @@ const PAGE_SIZE = 10;
 // ("2026-09-15T00:00:00Z"). Se trabaja en UTC para que en Chile no se vea el día anterior.
 function formatDate(value: string): string {
   try {
-    return new Intl.DateTimeFormat('es-CL', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(value));
+    return new Intl.DateTimeFormat("es-CL", {
+      dateStyle: "medium",
+      timeZone: "UTC",
+    }).format(new Date(value));
   } catch {
     return value;
   }
@@ -53,7 +67,11 @@ function formatDate(value: string): string {
 
 function getMonthKey(value: string): string {
   try {
-    return new Intl.DateTimeFormat('es-CL', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(value));
+    return new Intl.DateTimeFormat("es-CL", {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(new Date(value));
   } catch {
     return value;
   }
@@ -64,7 +82,11 @@ function getWeekKey(value: string): string {
     const date = new Date(value);
     const day = date.getUTCDay() || 7;
     date.setUTCDate(date.getUTCDate() - day + 1);
-    return new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: 'short', timeZone: 'UTC' }).format(date);
+    return new Intl.DateTimeFormat("es-CL", {
+      day: "2-digit",
+      month: "short",
+      timeZone: "UTC",
+    }).format(date);
   } catch {
     return value;
   }
@@ -88,28 +110,30 @@ function countBy(
 }
 
 export default function JustificationsManagementPage() {
-  const t = useTranslations('JustificationsManagementPage');
-  const tDetail = useTranslations('JustificationsPage.detail');
+  const t = useTranslations("JustificationsManagementPage");
+  const tDetail = useTranslations("JustificationsPage.detail");
   const { activeRole } = useActiveRole();
 
   const [justifications, setJustifications] = useState<Justification[]>([]);
-  const [status, setStatus] = useState<StatusFilter>('ALL');
-  const [reason, setReason] = useState<ReasonFilter>('ALL');
-  const [search, setSearch] = useState('');
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
+  const [status, setStatus] = useState<StatusFilter>("ALL");
+  const [reason, setReason] = useState<ReasonFilter>("ALL");
+  const [search, setSearch] = useState("");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
-  const [selectedJustification, setSelectedJustification] = useState<Justification | null>(null);
+  const [selectedJustification, setSelectedJustification] =
+    useState<Justification | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const canView = activeRole === 'SYSTEM_ADMIN' || activeRole === 'ACADEMIC_SECRETARY';
-  const loadErrorMessage = t('errors.history');
+  const canView =
+    activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY";
+  const loadErrorMessage = t("errors.history");
 
   useEffect(() => {
     if (!canView) return;
     let active = true;
-    apiFetch<Justification[]>('/justifications')
+    apiFetch<Justification[]>("/justifications")
       .then((data) => {
         if (!active) return;
         setJustifications(data);
@@ -117,7 +141,8 @@ export default function JustificationsManagementPage() {
       })
       .catch((cause: unknown) => {
         if (!active) return;
-        const message = cause instanceof Error ? cause.message : loadErrorMessage;
+        const message =
+          cause instanceof Error ? cause.message : loadErrorMessage;
         setError(message);
         toast.error(message);
       })
@@ -132,17 +157,23 @@ export default function JustificationsManagementPage() {
   const filtered = useMemo(() => {
     return justifications.filter((item) => {
       const day = absenceDay(item.absenceDate);
-      const matchesStatus = status === 'ALL' || item.status === status;
-      const matchesReason = reason === 'ALL' || item.reasonCategory === reason;
+      const matchesStatus = status === "ALL" || item.status === status;
+      const matchesReason = reason === "ALL" || item.reasonCategory === reason;
       const matchesSearch =
         !search ||
-        `${item.studentEmail} ${item.subjectName} ${item.subjectCode ?? ''} ${item.nrc ?? ''}`
+        `${item.studentEmail} ${item.subjectName} ${item.subjectCode ?? ""} ${item.nrc ?? ""}`
           .toLowerCase()
           .includes(search.toLowerCase().trim());
       const matchesFrom = !from || day >= from;
       const matchesTo = !to || day <= to;
 
-      return matchesStatus && matchesReason && matchesSearch && matchesFrom && matchesTo;
+      return (
+        matchesStatus &&
+        matchesReason &&
+        matchesSearch &&
+        matchesFrom &&
+        matchesTo
+      );
     });
   }, [from, justifications, reason, search, status, to]);
 
@@ -161,44 +192,47 @@ export default function JustificationsManagementPage() {
     [filtered],
   );
   const reasonCounts = useMemo(
-    () => countBy(filtered, (item) => item.reasonCategory ?? 'OTHER'),
+    () => countBy(filtered, (item) => item.reasonCategory ?? "OTHER"),
     [filtered],
   );
 
   const openEvidence = async (id: string) => {
     try {
-      const result = await apiFetch<{ downloadUrl: string }>(`/justifications/${id}/evidence-url`);
-      window.open(result.downloadUrl, '_blank', 'noopener,noreferrer');
+      const result = await apiFetch<{ downloadUrl: string }>(
+        `/justifications/${id}/evidence-url`,
+      );
+      window.open(result.downloadUrl, "_blank", "noopener,noreferrer");
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : tDetail('evidence');
+      const message =
+        cause instanceof Error ? cause.message : tDetail("evidence");
       toast.error(message);
     }
   };
 
   const handleResetFilters = () => {
-    setStatus('ALL');
-    setReason('ALL');
-    setSearch('');
-    setFrom('');
-    setTo('');
+    setStatus("ALL");
+    setReason("ALL");
+    setSearch("");
+    setFrom("");
+    setTo("");
     setPage(1);
   };
 
   const hasActiveFilters =
-    status !== 'ALL' || reason !== 'ALL' || Boolean(search) || Boolean(from) || Boolean(to);
+    status !== "ALL" ||
+    reason !== "ALL" ||
+    Boolean(search) ||
+    Boolean(from) ||
+    Boolean(to);
 
   if (activeRole === null) {
-    return (
-      <div className="py-20 text-center text-sm font-medium text-muted-foreground">
-        {t('loading')}
-      </div>
-    );
+    return <PageSkeleton label={t("loading")} />;
   }
 
-  if (activeRole !== 'SYSTEM_ADMIN' && activeRole !== 'ACADEMIC_SECRETARY') {
+  if (activeRole !== "SYSTEM_ADMIN" && activeRole !== "ACADEMIC_SECRETARY") {
     return (
       <div className="py-20 text-center text-sm font-medium text-muted-foreground">
-        {t('errors.access')}
+        {t("errors.access")}
       </div>
     );
   }
@@ -206,9 +240,9 @@ export default function JustificationsManagementPage() {
   return (
     <div className="space-y-8">
       <DashboardPageHeader
-        eyebrow={t('eyebrow')}
-        title={t('history.title')}
-        subtitle={t('history.subtitle')}
+        eyebrow={t("eyebrow")}
+        title={t("history.title")}
+        subtitle={t("history.subtitle")}
       />
 
       {error && (
@@ -218,31 +252,35 @@ export default function JustificationsManagementPage() {
         </div>
       )}
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          icon={BarChart3}
-          label={t('historyStats.total')}
-          value={filtered.length}
-        />
-        <MetricCard
-          icon={Clock3}
-          label={t('historyStats.pending')}
-          value={filtered.filter((item) => item.status === 'PENDING').length}
-          tone="accent"
-        />
-        <MetricCard
-          icon={CheckCircle2}
-          label={t('historyStats.accepted')}
-          value={filtered.filter((item) => item.status === 'ACCEPTED').length}
-          tone="secondary"
-        />
-        <MetricCard
-          icon={XCircle}
-          label={t('historyStats.rejected')}
-          value={filtered.filter((item) => item.status === 'REJECTED').length}
-          tone="destructive"
-        />
-      </section>
+      {loading ? (
+        <MetricsSkeleton label={t("loading")} />
+      ) : (
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <MetricCard
+            icon={BarChart3}
+            label={t("historyStats.total")}
+            value={filtered.length}
+          />
+          <MetricCard
+            icon={Clock3}
+            label={t("historyStats.pending")}
+            value={filtered.filter((item) => item.status === "PENDING").length}
+            tone="accent"
+          />
+          <MetricCard
+            icon={CheckCircle2}
+            label={t("historyStats.accepted")}
+            value={filtered.filter((item) => item.status === "ACCEPTED").length}
+            tone="secondary"
+          />
+          <MetricCard
+            icon={XCircle}
+            label={t("historyStats.rejected")}
+            value={filtered.filter((item) => item.status === "REJECTED").length}
+            tone="destructive"
+          />
+        </section>
+      )}
 
       <section className="rounded-3xl border border-border bg-card p-5 shadow-sm md:p-6">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
@@ -255,13 +293,13 @@ export default function JustificationsManagementPage() {
                 setPage(1);
               }}
               type="search"
-              placeholder={t('history.search')}
+              placeholder={t("history.search")}
               className="h-10 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-foreground outline-none transition focus:border-primary"
             />
           </div>
 
           <select
-            aria-label={t('history.allStatuses')}
+            aria-label={t("history.allStatuses")}
             value={status}
             onChange={(event) => {
               setStatus(event.target.value as StatusFilter);
@@ -271,15 +309,19 @@ export default function JustificationsManagementPage() {
           >
             {STATUS_VALUES.map((value) => (
               <option key={value} value={value}>
-                {value === 'ALL'
-                  ? t('history.allStatuses')
-                  : t(`statuses.${value.toLowerCase()}` as Parameters<typeof t>[0])}
+                {value === "ALL"
+                  ? t("history.allStatuses")
+                  : t(
+                      `statuses.${value.toLowerCase()}` as Parameters<
+                        typeof t
+                      >[0],
+                    )}
               </option>
             ))}
           </select>
 
           <select
-            aria-label={t('history.allReasons')}
+            aria-label={t("history.allReasons")}
             value={reason}
             onChange={(event) => {
               setReason(event.target.value as ReasonFilter);
@@ -289,8 +331,8 @@ export default function JustificationsManagementPage() {
           >
             {REASON_VALUES.map((value) => (
               <option key={value} value={value}>
-                {value === 'ALL'
-                  ? t('history.allReasons')
+                {value === "ALL"
+                  ? t("history.allReasons")
                   : t(`reasonCategories.${value}` as Parameters<typeof t>[0])}
               </option>
             ))}
@@ -298,7 +340,7 @@ export default function JustificationsManagementPage() {
 
           <div className="flex gap-2">
             <input
-              aria-label={t('history.from')}
+              aria-label={t("history.from")}
               value={from}
               onChange={(event) => {
                 setFrom(event.target.value);
@@ -308,7 +350,7 @@ export default function JustificationsManagementPage() {
               className="h-10 min-w-0 w-full rounded-xl border border-border bg-background px-2 text-xs text-foreground outline-none transition focus:border-primary"
             />
             <input
-              aria-label={t('history.to')}
+              aria-label={t("history.to")}
               value={to}
               onChange={(event) => {
                 setTo(event.target.value);
@@ -328,38 +370,39 @@ export default function JustificationsManagementPage() {
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              <span>{t('history.clearFilters')}</span>
+              <span>{t("history.clearFilters")}</span>
             </button>
           </div>
         )}
       </section>
 
       {loading ? (
-        <div className="animate-pulse rounded-3xl bg-muted px-4 py-16 text-center text-sm font-medium text-muted-foreground">
-          {t('loading')}
+        <div className="space-y-6">
+          <AnalyticsSkeleton label={t("loading")} />
+          <TableSkeleton columns={5} label={t("loading")} />
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">
-          {t('history.empty')}
+          {t("history.empty")}
         </div>
       ) : (
         <>
           <section className="grid gap-6 lg:grid-cols-3">
             <AnalyticsList
-              title={t('history.topMonths')}
+              title={t("history.topMonths")}
               items={monthCounts}
               icon={CalendarDays}
             />
             <AnalyticsList
-              title={t('history.topWeeks')}
+              title={t("history.topWeeks")}
               items={weekCounts}
               icon={CalendarDays}
             />
             <AnalyticsList
-              title={t('history.topReasons')}
+              title={t("history.topReasons")}
               items={reasonCounts.map(([key, count]) => [
-                key === 'OTHER'
-                  ? t('reasonCategories.OTHER')
+                key === "OTHER"
+                  ? t("reasonCategories.OTHER")
                   : t(`reasonCategories.${key}` as Parameters<typeof t>[0]),
                 count,
               ])}
@@ -372,13 +415,15 @@ export default function JustificationsManagementPage() {
               <table className="w-full min-w-[760px] text-left text-sm">
                 <thead className="border-b border-border bg-muted/40 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="px-5 py-4">{t('history.period')}</th>
-                    <th className="px-5 py-4">{t('history.subject')}</th>
-                    <th className="px-5 py-4">{t('detail.nrc')}</th>
-                    <th className="px-5 py-4">{t('detail.student')}</th>
-                    <th className="px-5 py-4">{t('history.allReasons')}</th>
-                    <th className="px-5 py-4">{t('history.allStatuses')}</th>
-                    <th className="px-5 py-4 text-right">{t('history.action')}</th>
+                    <th className="px-5 py-4">{t("history.period")}</th>
+                    <th className="px-5 py-4">{t("history.subject")}</th>
+                    <th className="px-5 py-4">{t("detail.nrc")}</th>
+                    <th className="px-5 py-4">{t("detail.student")}</th>
+                    <th className="px-5 py-4">{t("history.allReasons")}</th>
+                    <th className="px-5 py-4">{t("history.allStatuses")}</th>
+                    <th className="px-5 py-4 text-right">
+                      {t("history.action")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -395,23 +440,30 @@ export default function JustificationsManagementPage() {
                         {item.subjectName}
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">
-                        {item.nrc ?? '—'}
+                        {item.nrc ?? "—"}
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">
                         {item.studentEmail}
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">
                         {item.reasonCategory
-                          ? t(`reasonCategories.${item.reasonCategory}` as Parameters<typeof t>[0])
-                          : '—'}
+                          ? t(
+                              `reasonCategories.${item.reasonCategory}` as Parameters<
+                                typeof t
+                              >[0],
+                            )
+                          : "—"}
                       </td>
                       <td className="px-5 py-4">
-                        <JustificationStatusBadge status={item.status} size="sm" />
+                        <JustificationStatusBadge
+                          status={item.status}
+                          size="sm"
+                        />
                       </td>
                       <td className="px-5 py-4 text-right">
                         <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary transition hover:underline">
                           <Eye className="h-3.5 w-3.5" />
-                          <span>{t('history.view')}</span>
+                          <span>{t("history.view")}</span>
                         </span>
                       </td>
                     </tr>
@@ -447,18 +499,18 @@ function MetricCard({
   icon: Icon,
   label,
   value,
-  tone = 'default',
+  tone = "default",
 }: {
   icon: LucideIcon;
   label: string;
   value: number;
-  tone?: 'default' | 'accent' | 'secondary' | 'destructive';
+  tone?: "default" | "accent" | "secondary" | "destructive";
 }) {
   const toneClasses = {
-    default: 'bg-primary/10 text-primary',
-    accent: 'bg-accent/15 text-accent',
-    secondary: 'bg-secondary/15 text-secondary',
-    destructive: 'bg-coral-red/15 text-coral-red',
+    default: "bg-primary/10 text-primary",
+    accent: "bg-accent/15 text-accent",
+    secondary: "bg-secondary/15 text-secondary",
+    destructive: "bg-coral-red/15 text-coral-red",
   };
 
   return (
@@ -483,7 +535,7 @@ function AnalyticsList({
   items: [string, number][];
   icon: LucideIcon;
 }) {
-  const t = useTranslations('JustificationsManagementPage.history');
+  const t = useTranslations("JustificationsManagementPage.history");
   const max = items[0]?.[1] ?? 1;
 
   return (
@@ -497,7 +549,7 @@ function AnalyticsList({
 
       <div className="mt-4 space-y-3.5">
         {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t('noData')}</p>
+          <p className="text-sm text-muted-foreground">{t("noData")}</p>
         ) : (
           items.map(([label, value]) => (
             <div key={label}>

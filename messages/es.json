@@ -1,4 +1,9 @@
 {
+  "Loading": {
+    "content": "Cargando contenido…",
+    "metrics": "Cargando indicadores…",
+    "table": "Cargando registros…"
+  },
   "Landing": {
     "badge": "Plataforma de gestión para la FCM",
     "title_part1": "Gestión académica y",

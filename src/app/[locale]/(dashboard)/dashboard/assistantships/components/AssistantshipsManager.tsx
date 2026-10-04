@@ -1,11 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
+import {
+  MetricsSkeleton,
+  PageSkeleton,
+  TableSkeleton,
+} from "@/components/ui/LoadingSkeletons";
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider, useQuery } from "@apollo/client/react";
 import {
   CalendarDays,
   ClipboardList,
-  Loader2,
   Plus,
   Search,
   UsersRound,
@@ -42,12 +46,7 @@ export default function AssistantshipsManager() {
   const t = useTranslations("AssistantshipsPage");
   const { activeRole } = useActiveRole();
   const [client] = useState(createClient);
-  if (!activeRole)
-    return (
-      <p role="status" className="py-12 text-center text-muted-foreground">
-        {t("loading")}
-      </p>
-    );
+  if (!activeRole) return <PageSkeleton label={t("loading")} />;
   if (
     activeRole !== "TEACHING_SUPPORT_COORDINATOR" &&
     activeRole !== "SYSTEM_ADMIN" &&
@@ -141,26 +140,35 @@ export function AssistantshipsWorkspace({
           </button>
         )}
       </header>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-busy={busy}>
-        {stats.map(({ key, value, icon: Icon }) => (
-          <div
-            key={key}
-            className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4"
-          >
-            <div className="rounded-xl bg-secondary/10 p-3 text-secondary">
-              <Icon className="h-5 w-5" aria-hidden="true" />
+      {busy ? (
+        <MetricsSkeleton
+          count={3}
+          compact
+          className="grid grid-cols-1 gap-3 sm:grid-cols-3"
+          label={t("loading")}
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {stats.map(({ key, value, icon: Icon }) => (
+            <div
+              key={key}
+              className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4"
+            >
+              <div className="rounded-xl bg-secondary/10 p-3 text-secondary">
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold tabular-nums text-foreground">
+                  {failed ? "—" : (value ?? 0)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t(`stats.${key}`)}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-2xl font-bold tabular-nums text-foreground">
-                {busy || failed ? "—" : (value ?? 0)}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {t(`stats.${key}`)}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       <section className="overflow-hidden rounded-3xl border border-border bg-card">
         <div className="space-y-5 border-b border-border p-5">
           <div>
@@ -259,13 +267,11 @@ export function AssistantshipsWorkspace({
             </button>
           </div>
         ) : busy ? (
-          <div
-            role="status"
-            className="flex items-center justify-center gap-3 py-20 text-sm text-muted-foreground"
-          >
-            <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-            {t("loading")}
-          </div>
+          <TableSkeleton
+            columns={6}
+            label={t("loading")}
+            className="rounded-none border-0"
+          />
         ) : page?.items.length ? (
           <>
             <AssistantshipsTable

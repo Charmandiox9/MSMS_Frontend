@@ -17,6 +17,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import Modal from "@/components/ui/Modal";
 import { useActiveRole } from "@/context/ActiveRoleContext";
+import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
 
 type Instructor = { id: string; name: string; email: string };
@@ -205,12 +206,7 @@ export default function SubjectsPage() {
     }
   };
 
-  if (activeRole === null)
-    return (
-      <div className="py-16 text-center text-sm text-muted-foreground">
-        {t("loading")}
-      </div>
-    );
+  if (activeRole === null) return <PageSkeleton label={t("loading")} />;
   if (!canRead)
     return (
       <div className="py-16 text-center text-sm text-muted-foreground">
@@ -344,9 +340,7 @@ export default function SubjectsPage() {
       </section>
 
       {loading ? (
-        <div className="animate-pulse rounded-3xl bg-muted px-4 py-16 text-center text-sm text-muted-foreground">
-          {t("loading")}
-        </div>
+        <TableSkeleton columns={4} label={t("loading")} />
       ) : subjects.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">
           {rows.length === 0 ? t("empty") : t("noMatches")}
@@ -407,7 +401,9 @@ export default function SubjectsPage() {
                           className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-bold text-muted-foreground"
                         >
                           {t(`days.${entry.day}`)} ·{" "}
-                          {entry.block ? t(`blocks.${entry.block}`).split(" · ")[0] : t('customSchedule')}
+                          {entry.block
+                            ? t(`blocks.${entry.block}`).split(" · ")[0]
+                            : t("customSchedule")}
                         </span>
                       ))}
                     </div>
@@ -585,8 +581,13 @@ function ScheduleModal({
   onClose: () => void;
 }) {
   const bySlot = new Map<string, ScheduleRow[]>();
-  const historicalEntries = entries.filter((entry) => !blocks.some((block) => block === entry.block));
-  const time = (minute: number | undefined) => minute === undefined ? '—' : `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
+  const historicalEntries = entries.filter(
+    (entry) => !blocks.some((block) => block === entry.block),
+  );
+  const time = (minute: number | undefined) =>
+    minute === undefined
+      ? "—"
+      : `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
   for (const entry of entries) {
     const key = `${entry.day}|${entry.block}`;
     bySlot.set(key, [...(bySlot.get(key) ?? []), entry]);
@@ -618,7 +619,23 @@ function ScheduleModal({
       closeLabel={t("close")}
       size="6xl"
     >
-      {!!historicalEntries.length && <section className="mb-4 rounded-2xl border border-border bg-muted/30 p-4"><p className="text-sm font-semibold text-foreground">{t('otherSchedules')}</p><ul className="mt-2 space-y-2 text-xs text-muted-foreground">{historicalEntries.map((entry) => <li key={entry.id}>{entry.course.name} · {t(`days.${entry.day}`)} · {time(entry.startsAtMinute)}–{time(entry.endsAtMinute)} · {entry.assistant?.name} · NRC {entry.assistantshipNrc ?? entry.nrc}</li>)}</ul></section>}
+      {!!historicalEntries.length && (
+        <section className="mb-4 rounded-2xl border border-border bg-muted/30 p-4">
+          <p className="text-sm font-semibold text-foreground">
+            {t("otherSchedules")}
+          </p>
+          <ul className="mt-2 space-y-2 text-xs text-muted-foreground">
+            {historicalEntries.map((entry) => (
+              <li key={entry.id}>
+                {entry.course.name} · {t(`days.${entry.day}`)} ·{" "}
+                {time(entry.startsAtMinute)}–{time(entry.endsAtMinute)} ·{" "}
+                {entry.assistant?.name} · NRC{" "}
+                {entry.assistantshipNrc ?? entry.nrc}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <div className="overflow-auto">
         <div className="min-w-[900px] overflow-hidden rounded-2xl border border-border">
           <div className="grid grid-cols-[150px_repeat(7,minmax(125px,1fr))] bg-primary/10 text-xs font-black text-foreground">

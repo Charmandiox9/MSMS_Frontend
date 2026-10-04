@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
 import { createCsv, downloadCsv } from "@/lib/csv";
 import { useActiveRole } from "@/context/ActiveRoleContext";
+import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 
 const datasets = [
   "assistantships",
@@ -123,12 +124,7 @@ export default function AcademicReports() {
       setExporting(false);
     }
   };
-  if (!activeRole)
-    return (
-      <p role="status" className="py-12 text-muted-foreground">
-        {t("loading")}
-      </p>
-    );
+  if (!activeRole) return <PageSkeleton label={t("loading")} />;
   if (!allowed)
     return (
       <p role="alert" className="py-12 text-muted-foreground">
@@ -214,12 +210,7 @@ export default function AcademicReports() {
           </button>
         </div>
       ) : loading ? (
-        <p
-          role="status"
-          className="animate-pulse rounded-2xl bg-muted p-12 text-center"
-        >
-          {t("loading")}
-        </p>
+        <TableSkeleton columns={6} label={t("loading")} />
       ) : !report?.rows.length ? (
         <p className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
           {t("empty")}
