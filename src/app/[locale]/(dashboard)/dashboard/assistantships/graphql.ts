@@ -90,6 +90,11 @@ export const OPTIONS: TypedDocumentNode<
         id
         name
       }
+      blocks {
+        code
+        startsAtMinute
+        endsAtMinute
+      }
     }
   }
 `;

@@ -13,18 +13,17 @@ import {
 import { assistantshipErrorKey } from "../errors";
 import { buttonClass, Field, inputClass, primaryClass } from "./controls";
 import ScheduleFields, { type ScheduleDraft } from "./ScheduleFields";
+import type { AssistantshipBlockOption } from "../schema-types";
 
-const minutes = (time: string) => {
-  const [hours, minute] = time.split(":").map(Number);
-  return hours * 60 + minute;
-};
 export default function RegisterAssistantshipDialog({
   semesters,
+  blocks,
   initialSemesterId,
   onClose,
   onRegistered,
 }: {
   semesters: SemesterOption[];
+  blocks: AssistantshipBlockOption[];
   initialSemesterId?: string;
   onClose: () => void;
   onRegistered: (semesterId: string) => void;
@@ -76,12 +75,15 @@ export default function RegisterAssistantshipDialog({
       weeklyHours: text("weeklyHours")
         ? Number(text("weeklyHours"))
         : undefined,
-      schedules: schedules.map((schedule) => ({
-        weekday: Number(schedule.weekday),
-        startsAtMinute: minutes(schedule.startsAt),
-        endsAtMinute: minutes(schedule.endsAt),
-        location: schedule.location.trim() || undefined,
-      })),
+      schedules: schedules.map((schedule) => {
+        const block = blocks.find((item) => item.code === schedule.block)!;
+        return {
+          weekday: Number(schedule.weekday),
+          startsAtMinute: block.startsAtMinute,
+          endsAtMinute: block.endsAtMinute,
+          location: schedule.location.trim() || undefined,
+        };
+      }),
     };
     savingRef.current = true;
     try {
@@ -300,7 +302,7 @@ export default function RegisterAssistantshipDialog({
               />
               {t("form.confirmApproval")}
             </label>
-            <ScheduleFields value={schedules} onChange={setSchedules} />
+            <ScheduleFields value={schedules} onChange={setSchedules} blocks={blocks} />
           </fieldset>
           <div className="flex justify-end gap-3 border-t border-border p-5">
             <button

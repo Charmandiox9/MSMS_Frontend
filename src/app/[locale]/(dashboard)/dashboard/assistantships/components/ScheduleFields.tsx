@@ -2,19 +2,23 @@
 import { useTranslations } from "next-intl";
 import { Plus, Trash2 } from "lucide-react";
 import { buttonClass, Field, inputClass } from "./controls";
+import type { AssistantshipBlockOption } from "../schema-types";
+const time = (minute: number) =>
+  `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
 export interface ScheduleDraft {
   id: string;
   weekday: string;
-  startsAt: string;
-  endsAt: string;
+  block: string;
   location: string;
 }
 export default function ScheduleFields({
   value,
   onChange,
+  blocks,
 }: {
   value: ScheduleDraft[];
   onChange: (schedules: ScheduleDraft[]) => void;
+  blocks: AssistantshipBlockOption[];
 }) {
   const t = useTranslations("AssistantshipsPage");
   const update = (id: string, patch: Partial<ScheduleDraft>) =>
@@ -49,32 +53,22 @@ export default function ScheduleFields({
               ))}
             </select>
           </Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label={t("form.from")} htmlFor={`from-${item.id}`}>
-              <input
-                id={`from-${item.id}`}
-                type="time"
-                required
-                className={inputClass}
-                value={item.startsAt}
-                onChange={(event) =>
-                  update(item.id, { startsAt: event.target.value })
-                }
-              />
-            </Field>
-            <Field label={t("form.to")} htmlFor={`to-${item.id}`}>
-              <input
-                id={`to-${item.id}`}
-                type="time"
-                required
-                className={inputClass}
-                value={item.endsAt}
-                onChange={(event) =>
-                  update(item.id, { endsAt: event.target.value })
-                }
-              />
-            </Field>
-          </div>
+          <Field label={t("form.block")} htmlFor={`block-${item.id}`}>
+            <select
+              id={`block-${item.id}`}
+              required
+              className={inputClass}
+              value={item.block}
+              onChange={(event) => update(item.id, { block: event.target.value })}
+            >
+              <option value="">{t("form.selectBlock")}</option>
+              {blocks.map((block) => (
+                <option key={block.code} value={block.code}>
+                  {block.code} · {time(block.startsAtMinute)}–{time(block.endsAtMinute)}
+                </option>
+              ))}
+            </select>
+          </Field>
           <Field label={t("form.location")} htmlFor={`location-${item.id}`}>
             <input
               id={`location-${item.id}`}
@@ -102,15 +96,14 @@ export default function ScheduleFields({
       <button
         type="button"
         className={buttonClass}
-        disabled={value.length >= 14}
+        disabled={value.length >= 14 || blocks.length === 0}
         onClick={() =>
           onChange([
             ...value,
             {
               id: crypto.randomUUID(),
               weekday: "1",
-              startsAt: "",
-              endsAt: "",
+              block: "",
               location: "",
             },
           ])

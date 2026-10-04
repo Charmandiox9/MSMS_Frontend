@@ -253,7 +253,7 @@ export function AssistantshipsWorkspace() {
           </div>
         ) : page?.items.length ? (
           <>
-            <AssistantshipsTable items={page.items} />
+            <AssistantshipsTable items={page.items} blocks={options.data?.assistantshipOptions.blocks ?? []} />
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border p-4">
               <p className="text-xs tabular-nums text-muted-foreground">
                 {t("pagination.summary", {
@@ -321,6 +321,7 @@ export function AssistantshipsWorkspace() {
       {dialogOpen && options.data && (
         <RegisterAssistantshipDialog
           semesters={options.data.assistantshipOptions.semesters}
+          blocks={options.data.assistantshipOptions.blocks}
           initialSemesterId={filters.semesterId}
           onClose={() => setDialogOpen(false)}
           onRegistered={(semesterId) => {

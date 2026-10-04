@@ -50,7 +50,14 @@ export interface AssistantshipTeacherOption {
   name: string;
 }
 
+export interface AssistantshipBlockOption {
+  code: string;
+  startsAtMinute: number;
+  endsAtMinute: number;
+}
+
 export interface AssistantshipOptions {
+  blocks: Array<AssistantshipBlockOption>;
   semesters: Array<AssistantshipSemesterOption>;
   teachers: Array<AssistantshipTeacherOption>;
 }

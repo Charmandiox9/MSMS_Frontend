@@ -1,6 +1,7 @@
 "use client";
 import { useFormatter, useTranslations } from "next-intl";
 import type { Assistantship } from "../graphql";
+import type { AssistantshipBlockOption } from "../schema-types";
 const time = (minute: number) =>
   `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
 const stateClass = {
@@ -10,11 +11,19 @@ const stateClass = {
 };
 export default function AssistantshipsTable({
   items,
+  blocks,
 }: {
   items: Assistantship[];
+  blocks: AssistantshipBlockOption[];
 }) {
   const t = useTranslations("AssistantshipsPage");
   const format = useFormatter();
+  const blockLabel = (startsAtMinute: number, endsAtMinute: number) => {
+    const code = blocks.find((block) =>
+      block.startsAtMinute === startsAtMinute && block.endsAtMinute === endsAtMinute
+    )?.code;
+    return code ? `${code} · ` : "";
+  };
   const date = (value: string) =>
     format.dateTime(new Date(`${value}T00:00:00Z`), {
       dateStyle: "medium",
@@ -92,6 +101,7 @@ export default function AssistantshipsTable({
                         <p className="font-medium text-foreground">
                           {t(`days.${schedule.weekday}`)} ·{" "}
                           <span className="tabular-nums">
+                            {blockLabel(schedule.startsAtMinute, schedule.endsAtMinute)}
                             {time(schedule.startsAtMinute)}–
                             {time(schedule.endsAtMinute)}
                           </span>

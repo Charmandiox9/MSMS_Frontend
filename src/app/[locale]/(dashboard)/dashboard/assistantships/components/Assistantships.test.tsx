@@ -72,6 +72,10 @@ const optionsMock = {
       assistantshipOptions: {
         semesters: [semester],
         teachers: [{ id: "teacher", name: "Docente" }],
+        blocks: [
+          { code: "A", startsAtMinute: 490, endsAtMinute: 580 },
+          { code: "H", startsAtMinute: 1290, endsAtMinute: 1380 },
+        ],
       },
     },
   },
@@ -226,6 +230,7 @@ describe("assistantship management", () => {
         >
           <RegisterAssistantshipDialog
             semesters={[semester]}
+            blocks={optionsMock.result.data.assistantshipOptions.blocks}
             onClose={vi.fn()}
             onRegistered={onRegistered}
           />
@@ -234,11 +239,13 @@ describe("assistantship management", () => {
     );
     await fillRegistration();
     fireEvent.click(screen.getByRole("button", { name: "Agregar horario" }));
-    fireEvent.change(screen.getByLabelText("Desde"), {
-      target: { value: "09:00" },
-    });
-    fireEvent.change(screen.getByLabelText("Hasta"), {
-      target: { value: "10:00" },
+    expect(screen.getByRole("option", { name: "A · 08:10–09:40" })).toBeDefined();
+    expect(screen.getByRole("option", { name: "H · 21:30–23:00" })).toBeDefined();
+    expect(document.querySelector('input[type="time"]')).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Guardar ayudantía" }));
+    expect(notifications.pending).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText("Bloque horario"), {
+      target: { value: "H" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Guardar ayudantía" }));
     expect(onRegistered).not.toHaveBeenCalled();
@@ -250,7 +257,7 @@ describe("assistantship management", () => {
           teachingAssignmentId: "assignment",
           assistantEmail: "ana@example.test",
           approvalConfirmed: true,
-          schedules: [{ weekday: 1, startsAtMinute: 540, endsAtMinute: 600 }],
+          schedules: [{ weekday: 1, startsAtMinute: 1290, endsAtMinute: 1380 }],
         }),
       }),
     );
@@ -280,6 +287,7 @@ describe("assistantship management", () => {
         >
           <RegisterAssistantshipDialog
             semesters={[semester]}
+            blocks={optionsMock.result.data.assistantshipOptions.blocks}
             onClose={vi.fn()}
             onRegistered={onRegistered}
           />
