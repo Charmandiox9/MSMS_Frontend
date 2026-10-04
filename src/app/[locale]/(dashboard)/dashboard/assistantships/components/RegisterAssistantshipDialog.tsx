@@ -147,9 +147,10 @@ export default function RegisterAssistantshipDialog({
   return (
     <dialog
       ref={dialog}
+      data-lenis-prevent
       aria-labelledby="assistantship-dialog-title"
       aria-describedby="assistantship-dialog-description"
-      className="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-3xl border border-border bg-card p-0 text-foreground shadow-xl backdrop:bg-slate-950/65"
+      className="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto overscroll-contain rounded-3xl border border-border bg-card p-0 text-foreground shadow-xl backdrop:bg-slate-950/65"
       onCancel={(event) => {
         event.preventDefault();
         if (!savingRef.current) onClose();
