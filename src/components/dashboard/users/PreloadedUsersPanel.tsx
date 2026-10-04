@@ -6,7 +6,7 @@ import { LoaderCircle, Mail, Plus, ShieldCheck, Trash2, UserRoundPlus, X } from 
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/api';
 
-export type UserRole = { id: string; code: string; name: string };
+export type UserRole = { id: string; code: string; name: string; description?: string | null };
 
 type PreloadedUser = {
   id: string;
@@ -92,7 +92,7 @@ export default function PreloadedUsersPanel({ roles }: PreloadedUsersPanelProps)
         loading: t('preloads.notifications.creating'),
         success: t('preloads.notifications.created'),
         error: (cause) => cause instanceof Error ? cause.message : t('preloads.notifications.createError'),
-      });
+      }).unwrap();
       setDialogOpen(false);
       resetForm();
       await loadPreloads();
@@ -111,7 +111,7 @@ export default function PreloadedUsersPanel({ roles }: PreloadedUsersPanelProps)
         loading: t('preloads.notifications.cancelling'),
         success: t('preloads.notifications.cancelled'),
         error: (cause) => cause instanceof Error ? cause.message : t('preloads.notifications.cancelError'),
-      });
+      }).unwrap();
       setPreloads((current) => current.filter((item) => item.id !== preload.id));
     } catch {
       // Sonner presents the request error to the administrator.

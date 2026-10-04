@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { logout, type ActiveSession } from '@/lib/auth';
+import { useMounted } from '@/hooks/useMounted';
 
 type SpeedDialItem = {
   id: string;
@@ -37,7 +38,7 @@ export default function DashboardUserDial({
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme, systemTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [open, setOpen] = useState(false);
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -48,10 +49,6 @@ export default function DashboardUserDial({
   const initials = session?.email?.slice(0, 1).toUpperCase() ?? 'U';
   const isDark = theme === 'dark' || (theme === 'system' && systemTheme === 'dark');
   const nextLocale = locale === 'es' ? 'en' : 'es';
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleLogout = async () => {
     await logout();

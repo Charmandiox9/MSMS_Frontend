@@ -6,19 +6,19 @@ import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { hasActiveSession, logout } from '@/lib/auth';
+import { useMounted } from '@/hooks/useMounted';
 
 export default function Navbar() {
   const t = useTranslations('Navigation');
   const { theme, setTheme, systemTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
+
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    setMounted(true);
     void hasActiveSession().then(setIsLoggedIn);
   }, []);
 

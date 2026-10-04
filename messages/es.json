@@ -395,6 +395,11 @@
       "OTHER": "Otro motivo"
     }
   },
+  "Pagination": {
+    "summary": "Página {page} de {totalPages} · {total} registros",
+    "previous": "Página anterior",
+    "next": "Página siguiente"
+  },
   "SubjectsPage": {
     "eyebrow": "Carga académica",
     "title": "Asignaturas y horarios",
@@ -734,7 +739,14 @@
     "emptyDescription": "Prueba con otro nombre, correo o filtro de rol.",
     "userColumn": "Cuenta",
     "rolesColumn": "Roles asignados",
-    "actionsColumn": "Administrar roles",
+    "actionsColumn": "Acciones",
+    "manageRoles": "Gestionar roles",
+    "manageRolesTitle": "Roles de {user}",
+    "manageRolesSubtitle": "Asigna o revoca los roles de acceso para definir las atribuciones de este usuario en MARSYS.",
+    "roleAssigned": "Asignado",
+    "roleNotAssigned": "Sin asignar",
+    "rolesCount": "{count, plural, =0 {Sin roles} one {# rol} other {# roles}}",
+    "close": "Cerrar",
     "noRoles": "Sin roles asignados",
     "active": "Activa",
     "inactive": "Inactiva",

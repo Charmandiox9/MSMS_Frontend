@@ -323,6 +323,14 @@
       "access": "You do not have access to this page."
     }
   },
+  "AssistantshipHistoryPage": {
+    "eyebrow": "Teaching support",
+    "title": "Assistantship history",
+    "subtitle": "Review the historical record of assistants, courses, and academic periods.",
+    "stats": { "assistants": "Registered assistants", "semesters": "Semesters with records", "records": "Historical assignments" },
+    "history": { "title": "Assistantship records", "subtitle": "Filter the history by assistant or semester.", "empty": "There are no assistantship records yet.", "emptyDescription": "Once assistantships are loaded, you will be able to review their courses, periods, schedules, and status here." },
+    "filters": { "search": "Search assistant…", "semester": "Semester", "allSemesters": "All semesters" }
+  },
   "JustificationsManagementPage": {
     "eyebrow": "Academic secretary",
     "title": "Justification management",
@@ -394,6 +402,11 @@
       "ACADEMIC": "Academic activity",
       "OTHER": "Other reason"
     }
+  },
+  "Pagination": {
+    "summary": "Page {page} of {totalPages} · {total} records",
+    "previous": "Previous page",
+    "next": "Next page"
   },
   "SubjectsPage": {
     "eyebrow": "Academic workload",
@@ -734,7 +747,14 @@
     "emptyDescription": "Try another name, email, or role filter.",
     "userColumn": "Account",
     "rolesColumn": "Assigned roles",
-    "actionsColumn": "Manage roles",
+    "actionsColumn": "Actions",
+    "manageRoles": "Manage roles",
+    "manageRolesTitle": "Roles for {user}",
+    "manageRolesSubtitle": "Assign or revoke access roles to configure user permissions across MARSYS modules.",
+    "roleAssigned": "Assigned",
+    "roleNotAssigned": "Unassigned",
+    "rolesCount": "{count, plural, =0 {No roles} one {# role} other {# roles}}",
+    "close": "Close",
     "noRoles": "No roles assigned",
     "active": "Active",
     "inactive": "Inactive",
@@ -916,5 +936,12 @@
       "ASSIGNMENT_NOT_FOUND": "The selected teaching assignment no longer exists. Refresh and try again.",
       "RETRY": "The data changed while saving. Please try again."
     }
+  },
+  "UnderDevelopment": {
+    "badge": "Module under development",
+    "title": "Section planned in roadmap",
+    "description": "This functionality is currently under development and integration within the MARSYS platform.",
+    "privacyNotice": "The design of this module inherently adheres to Chilean Law No. 21.719 on personal data protection and role-based access control.",
+    "backToDashboard": "Back to dashboard"
   }
 }
