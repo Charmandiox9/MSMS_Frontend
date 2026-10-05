@@ -664,38 +664,40 @@ function ScheduleModal({
                     }`}
                   >
                     {slotEntries.map((entry) => (
-                      <div
+                      <article
                         key={entry.id}
                         className="rounded-lg border border-primary/30 bg-card p-2 shadow-sm"
                       >
-                        <p className="text-xs font-black text-primary">
-                          {entry.course.name}
-                        </p>
-                        {entry.kind === "ASSISTANTSHIP" && (
-                          <div className="mt-1 space-y-1 border-l-2 border-secondary pl-2 text-[10px] text-secondary">
-                            <p className="font-bold">
-                              {t("assistantship")} · NRC{" "}
-                              {entry.assistantshipNrc ?? "—"}
-                            </p>
-                            <p>{entry.assistant?.name}</p>
-                            {entry.location && <p>{entry.location}</p>}
-                            <p>
-                              {entry.startsOn?.slice(0, 10)} –{" "}
-                              {entry.endsOn?.slice(0, 10) ?? "—"}
-                            </p>
-                          </div>
-                        )}
+                        <div className="flex items-start justify-between gap-1.5">
+                          <p className="min-w-0 text-xs font-black text-primary">
+                            {entry.course.name}
+                          </p>
+                          {entry.kind === "ASSISTANTSHIP" && (
+                            <span
+                              aria-label={t("assistantship")}
+                              title={t("assistantship")}
+                              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-secondary/15 text-[10px] font-black text-secondary"
+                            >
+                              {t("assistantshipMarker")}
+                            </span>
+                          )}
+                        </div>
                         <p className="mt-0.5 text-[10px] text-muted-foreground">
-                          NRC {entry.nrc}
+                          NRC{" "}
+                          {entry.kind === "ASSISTANTSHIP"
+                            ? (entry.assistantshipNrc ?? entry.nrc)
+                            : entry.nrc}
                         </p>
                         <p className="mt-0.5 text-[10px] text-muted-foreground">
-                          {entry.teachers.length
-                            ? entry.teachers
-                                .map((teacher) => teacher.name)
-                                .join(", ")
-                            : t("noTeacher")}
+                          {entry.kind === "ASSISTANTSHIP"
+                            ? (entry.assistant?.name ?? "—")
+                            : entry.teachers.length
+                              ? entry.teachers
+                                  .map((teacher) => teacher.name)
+                                  .join(", ")
+                              : t("noTeacher")}
                         </p>
-                      </div>
+                      </article>
                     ))}
                   </div>
                 );

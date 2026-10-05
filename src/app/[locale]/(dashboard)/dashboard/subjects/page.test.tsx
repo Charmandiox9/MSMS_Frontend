@@ -139,6 +139,47 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
     });
   });
 
+  it.each([["SYSTEM_ADMIN"], ["ACADEMIC_SECRETARY"]] as const)(
+    "muestra la ayudantía compacta con A y ayudante, sin profesor, para %s",
+    async (role) => {
+      installFakeApi({
+        "GET /academic/courses": ok([
+          ...COURSES,
+          {
+            ...COURSES[0],
+            id: "helper-slot",
+            kind: "ASSISTANTSHIP",
+            block: "F",
+            assistantshipNrc: "20001",
+            assistant: { name: "María Ayudante", email: "helper@example.test" },
+            location: "Sala 47",
+            startsOn: "2026-08-24",
+            endsOn: "2026-12-18",
+          },
+        ]),
+        "GET /academic/teachers": ok(TEACHERS),
+      });
+      renderAs(<SubjectsPage />, [role]);
+      await screen.findByText("Estructura de Datos");
+      fireEvent.click(
+        screen.getByRole("button", { name: "Ver horario completo" }),
+      );
+      const modal = screen.getByRole("dialog");
+      const marker = within(modal).getByLabelText("Ayudantía");
+      const card = marker.closest("article")!;
+      expect(marker.textContent).toBe("A");
+      expect(within(card).getByText("María Ayudante")).toBeDefined();
+      expect(within(card).getByText("NRC 20001")).toBeDefined();
+      expect(within(card).queryByText("Juan Pérez")).toBeNull();
+      expect(within(card).queryByText("Sala 47")).toBeNull();
+      const lecture = within(modal)
+        .getAllByText("Juan Pérez")[0]
+        .closest("article")!;
+      expect(within(lecture).getByText("NRC 10001")).toBeDefined();
+      expect(within(lecture).queryByLabelText("Ayudantía")).toBeNull();
+    },
+  );
+
   it("muestra el error del backend al importar", async () => {
     installFakeApi({
       "GET /academic/courses": ok([]),
