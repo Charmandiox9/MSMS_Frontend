@@ -4,7 +4,9 @@ import SubjectsPage from "./page";
 import { renderAs } from "@/test/render";
 import { fail, installFakeApi, ok } from "@/test/fake-api";
 
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({
+  toast: { success: vi.fn(), error: vi.fn(), promise: vi.fn() },
+}));
 
 const COURSES = [
   {
@@ -69,6 +71,7 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
     expect(
       screen.queryByRole("button", { name: "Importar asignaturas" }),
     ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Editar" })).toBeNull();
   });
 
   it("agrupa los horarios por NRC y asocia el profesor", async () => {
@@ -86,6 +89,58 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
     expect(within(row as HTMLElement).getByText("Juan Pérez")).toBeDefined();
     expect(screen.getByText("Sin profesor asignado")).toBeDefined();
   });
+
+  it.each(["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"] as const)(
+    "abre el editor y actualiza el listado y calendario con las salas para %s",
+    async (role) => {
+      const changed = COURSES.map((course) =>
+        course.nrc === "10001"
+          ? {
+              ...course,
+              location: course.day === "Lunes" ? "Sala Norte" : "Sala Sur",
+              course: { ...course.course, name: "Estructuras actualizadas" },
+            }
+          : course,
+      );
+      const api = installFakeApi({
+        "GET /academic/courses": ok(COURSES),
+        "GET /academic/teachers": ok(TEACHERS),
+        "GET /academic/courses/options": ok({
+          days: ["Lunes", "Miércoles"],
+          blocks: [{ code: "A", startsAtMinute: 490, endsAtMinute: 580 }],
+        }),
+        "PATCH /academic/courses/10001": () => {
+          api.on("GET /academic/courses", ok(changed));
+          return { body: { nrc: "10001" } };
+        },
+      });
+      renderAs(<SubjectsPage />, [role]);
+      const title = await screen.findByText("Estructura de Datos");
+      fireEvent.click(
+        within(title.closest("li")!).getByRole("button", { name: "Editar" }),
+      );
+      await screen.findAllByLabelText("Sala");
+      fireEvent.change(screen.getByLabelText("Nombre de la asignatura"), {
+        target: { value: "Estructuras actualizadas" },
+      });
+      fireEvent.change(screen.getAllByLabelText("Sala")[0], {
+        target: { value: "Sala Norte" },
+      });
+      fireEvent.change(screen.getAllByLabelText("Sala")[1], {
+        target: { value: "Sala Sur" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+      await screen.findByText("Estructuras actualizadas");
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(api.calls("GET /academic/courses")).toHaveLength(2);
+      fireEvent.click(
+        screen.getByRole("button", { name: "Ver horario completo" }),
+      );
+      const modal = within(screen.getByRole("dialog"));
+      expect(modal.getByText("Sala: Sala Norte")).toBeDefined();
+      expect(modal.getByText("Sala: Sala Sur")).toBeDefined();
+    },
+  );
 
   it("filtra por día y búsqueda", async () => {
     installFakeApi({
@@ -171,7 +226,7 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
       expect(within(card).getByText("María Ayudante")).toBeDefined();
       expect(within(card).getByText("NRC 20001")).toBeDefined();
       expect(within(card).queryByText("Juan Pérez")).toBeNull();
-      expect(within(card).queryByText("Sala 47")).toBeNull();
+      expect(within(card).getByText("Sala: Sala 47")).toBeDefined();
       const lecture = within(modal)
         .getAllByText("Juan Pérez")[0]
         .closest("article")!;

@@ -20,6 +20,8 @@ import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
 
+import EditSubjectDialog from "./EditSubjectDialog";
+
 type Instructor = { id: string; name: string; email: string };
 type TeacherResponse = {
   assignments: { nrc: string; teacherId: string; teacher?: Instructor }[];
@@ -96,6 +98,7 @@ export default function SubjectsPage() {
   const [selectedDay, setSelectedDay] = useState("");
   const [page, setPage] = useState(1);
   const [selectedNrc, setSelectedNrc] = useState<string | null>(null);
+  const [editing, setEditing] = useState<Subject | null>(null);
   const [allScheduleOpen, setAllScheduleOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
@@ -104,7 +107,7 @@ export default function SubjectsPage() {
 
   const downloadExample = () => {
     const content =
-      "nrc;asignatura;dia;bloque\n10001;Estructura de Datos;Lunes;A\n10001;Estructura de Datos;Miércoles;A\n10002;Biología Marina;Martes;C";
+      "nrc;asignatura;dia;bloque;sala\n10001;Estructura de Datos;Lunes;A;G6-47\n10001;Estructura de Datos;Miércoles;A;G6-48\n10002;Biología Marina;Martes;C;G6-49";
     const url = URL.createObjectURL(
       new Blob([content], { type: "text/csv;charset=utf-8" }),
     );
@@ -404,16 +407,28 @@ export default function SubjectsPage() {
                           {entry.block
                             ? t(`blocks.${entry.block}`).split(" · ")[0]
                             : t("customSchedule")}
+                          {entry.location && ` · ${entry.location}`}
                         </span>
                       ))}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedNrc(subject.nrc)}
-                      className="min-h-10 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary transition hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                    >
-                      {t("viewSchedule")}
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      {canManage && (
+                        <button
+                          type="button"
+                          onClick={() => setEditing(subject)}
+                          className="min-h-10 rounded-xl border border-border px-3 py-2 text-xs font-bold text-foreground hover:bg-muted"
+                        >
+                          {t("edit")}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedNrc(subject.nrc)}
+                        className="min-h-10 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary transition hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        {t("viewSchedule")}
+                      </button>
+                    </div>
                   </li>
                 );
               })}
@@ -450,6 +465,19 @@ export default function SubjectsPage() {
         </>
       )}
 
+      {editing && canManage && (
+        <EditSubjectDialog
+          subject={editing}
+          onClose={() => setEditing(null)}
+          onSaved={(nrc) => {
+            if (selectedNrc === editing.nrc) setSelectedNrc(nrc);
+            setEditing(null);
+            setPage(1);
+            setLoading(true);
+            setReloadKey((key) => key + 1);
+          }}
+        />
+      )}
       {showHelp && (
         <HelpDialog
           title={t("helpTitle")}
@@ -631,6 +659,7 @@ function ScheduleModal({
                 {time(entry.startsAtMinute)}–{time(entry.endsAtMinute)} ·{" "}
                 {entry.assistant?.name} · NRC{" "}
                 {entry.assistantshipNrc ?? entry.nrc}
+                {entry.location && ` · ${entry.location}`}
               </li>
             ))}
           </ul>
@@ -697,6 +726,11 @@ function ScheduleModal({
                                   .join(", ")
                               : t("noTeacher")}
                         </p>
+                        {entry.location && (
+                          <p className="mt-0.5 text-[10px] text-muted-foreground">
+                            {t("room")}: {entry.location}
+                          </p>
+                        )}
                       </article>
                     ))}
                   </div>
