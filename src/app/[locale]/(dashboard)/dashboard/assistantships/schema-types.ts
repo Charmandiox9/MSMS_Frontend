@@ -15,7 +15,7 @@ export interface AssistantshipView {
   assistantEmail: string;
   studentCode: string | null;
   courseName: string;
-  courseCode: string;
+  courseCode: string | null;
   nrc: string;
   teacherName: string;
   semesterId: string;
@@ -67,7 +67,7 @@ export interface AssistantshipOptions {
 export interface AssistantshipAssignmentOption {
   id: string;
   courseName: string;
-  courseCode: string;
+  courseCode: string | null;
   nrc: string;
   teacherName: string;
 }

@@ -31,7 +31,7 @@ type ScheduleRow = {
   nrc: string;
   day: string;
   block: string;
-  course: { code: string; name: string };
+  course: { code: string | null; name: string };
   semester: { name: string };
   teachers: Instructor[];
   kind?: "COURSE" | "ASSISTANTSHIP";

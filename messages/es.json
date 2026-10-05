@@ -485,7 +485,7 @@
       "title": "Editar asignatura y horarios",
       "description": "Actualiza la asignatura y asigna una sala independiente a cada horario de cátedra.",
       "name": "Nombre de la asignatura",
-      "code": "Código de asignatura",
+      "code": "Código de asignatura (opcional)",
       "catalogHint": "El nombre y código pertenecen al catálogo: sus cambios se reflejan en todos los NRC y semestres de esta asignatura. Los horarios y el NRC se actualizan solo en el semestre activo.",
       "day": "Día",
       "add": "Añadir horario",

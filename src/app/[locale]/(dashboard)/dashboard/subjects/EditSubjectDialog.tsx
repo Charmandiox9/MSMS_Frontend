@@ -15,7 +15,7 @@ type Options = {
 export type EditableSubject = {
   nrc: string;
   name: string;
-  entries: (Schedule & { kind?: string; course: { code: string } })[];
+  entries: (Schedule & { kind?: string; course: { code: string | null } })[];
 };
 const fieldClass =
   "mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30";
@@ -33,7 +33,7 @@ export default function EditSubjectDialog({
 }) {
   const t = useTranslations("SubjectsPage");
   const [name, setName] = useState(subject.name);
-  const [code, setCode] = useState(subject.entries[0].course.code);
+  const [code, setCode] = useState(subject.entries[0].course.code ?? "");
   const [nrc, setNrc] = useState(subject.nrc);
   const [schedules, setSchedules] = useState<Schedule[]>(
     subject.entries
@@ -86,7 +86,7 @@ export default function EditSubjectDialog({
         method: "PATCH",
         body: JSON.stringify({
           name: name.trim(),
-          code: code.trim(),
+          code: code.trim() || null,
           nrc: nrc.trim(),
           schedules: schedules.map((schedule) => ({
             ...schedule,
@@ -162,7 +162,6 @@ export default function EditSubjectDialog({
           <label className="text-sm font-semibold">
             {t("editForm.code")}
             <input
-              required
               maxLength={50}
               value={code}
               onChange={(event) => setCode(event.target.value)}

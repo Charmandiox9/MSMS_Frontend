@@ -33,6 +33,40 @@ const subject = {
   ],
 };
 describe("Editor de asignaturas", () => {
+  it("guarda sin código y no lo rellena con el NRC", async () => {
+    const api = installFakeApi({
+      "GET /academic/courses/options": ok(options),
+      "PATCH /academic/courses/10001": ok({ nrc: "10001" }),
+    });
+    renderAs(
+      <EditSubjectDialog
+        subject={{
+          ...subject,
+          entries: subject.entries.map((entry) => ({
+            ...entry,
+            course: { code: null },
+          })),
+        }}
+        onSaved={vi.fn()}
+        onClose={vi.fn()}
+      />,
+      ["SYSTEM_ADMIN"],
+    );
+    await screen.findAllByLabelText("Sala");
+    const code = screen.getByLabelText(
+      "Código de asignatura (opcional)",
+    ) as HTMLInputElement;
+    expect(code.value).toBe("");
+    expect(code.required).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+    await waitFor(() =>
+      expect(api.calls("PATCH /academic/courses/10001")).toHaveLength(1),
+    );
+    expect(api.calls("PATCH /academic/courses/10001")[0].body).toMatchObject({
+      code: null,
+      nrc: "10001",
+    });
+  });
   beforeEach(() => {
     localStorage.clear();
   });

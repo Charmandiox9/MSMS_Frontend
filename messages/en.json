@@ -485,7 +485,7 @@
       "title": "Edit course and schedules",
       "description": "Update the course and assign a separate room to each lecture session.",
       "name": "Course name",
-      "code": "Course code",
+      "code": "Course code (optional)",
       "catalogHint": "The name and code belong to the catalog: changes apply to every NRC and semester for this course. Schedules and NRC are updated only in the active semester.",
       "day": "Day",
       "add": "Add schedule",

@@ -31,7 +31,7 @@ export interface Justification extends JustificationInboxEntry {
 export interface TeacherAssignment {
   id: string;
   nrc: string;
-  course: { code: string; name: string };
+  course: { code: string | null; name: string };
   semester: { name: string; isActive: boolean };
 }
 
