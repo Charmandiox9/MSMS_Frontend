@@ -42,3 +42,12 @@ export interface Teacher {
   employeeCode?: string | null;
   assignments: TeacherAssignment[];
 }
+
+/** Respuesta paginada de GET /academic/teachers. */
+export interface TeacherPage<T = Teacher> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}

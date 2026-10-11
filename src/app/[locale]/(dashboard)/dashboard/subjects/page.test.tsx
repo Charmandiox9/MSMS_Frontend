@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import SubjectsPage from "./page";
 import { renderAs } from "@/test/render";
 import { fail, installFakeApi, ok } from "@/test/fake-api";
+import { teachersApi } from "@/test/fixtures";
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn(), promise: vi.fn() },
@@ -64,7 +65,7 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   it("permite al analista consultar horarios sin importar datos", async () => {
     installFakeApi({
       "GET /academic/courses": ok(COURSES),
-      "GET /academic/teachers": ok(TEACHERS),
+      "GET /academic/teachers": teachersApi(TEACHERS),
     });
     renderAs(<SubjectsPage />, ["ACADEMIC_PROCESS_ANALYST"]);
     expect(await screen.findByText("Estructura de Datos")).toBeDefined();
@@ -77,7 +78,7 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   it("agrupa los horarios por NRC y asocia el profesor", async () => {
     installFakeApi({
       "GET /academic/courses": ok(COURSES),
-      "GET /academic/teachers": ok(TEACHERS),
+      "GET /academic/teachers": teachersApi(TEACHERS),
     });
     renderAs(<SubjectsPage />, ["ACADEMIC_SECRETARY"]);
 
@@ -104,7 +105,7 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
       );
       const api = installFakeApi({
         "GET /academic/courses": ok(COURSES),
-        "GET /academic/teachers": ok(TEACHERS),
+        "GET /academic/teachers": teachersApi(TEACHERS),
         "GET /academic/courses/options": ok({
           days: ["Lunes", "Miércoles"],
           blocks: [{ code: "A", startsAtMinute: 490, endsAtMinute: 580 }],
@@ -145,7 +146,7 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   it("filtra por día y búsqueda", async () => {
     installFakeApi({
       "GET /academic/courses": ok(COURSES),
-      "GET /academic/teachers": ok(TEACHERS),
+      "GET /academic/teachers": teachersApi(TEACHERS),
     });
     renderAs(<SubjectsPage />, ["ACADEMIC_SECRETARY"]);
     await screen.findByText("Estructura de Datos");
@@ -170,7 +171,7 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   it("importa el CSV de horarios y recarga", async () => {
     const api = installFakeApi({
       "GET /academic/courses": ok([]),
-      "GET /academic/teachers": ok([]),
+      "GET /academic/teachers": teachersApi([]),
       "POST /academic/courses/import-csv": ok({ importedRows: 3 }),
     });
     renderAs(<SubjectsPage />, ["SYSTEM_ADMIN"]);
@@ -212,7 +213,7 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
             endsOn: "2026-12-18",
           },
         ]),
-        "GET /academic/teachers": ok(TEACHERS),
+        "GET /academic/teachers": teachersApi(TEACHERS),
       });
       renderAs(<SubjectsPage />, [role]);
       await screen.findByText("Estructura de Datos");
@@ -238,7 +239,7 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   it("muestra el error del backend al importar", async () => {
     installFakeApi({
       "GET /academic/courses": ok([]),
-      "GET /academic/teachers": ok([]),
+      "GET /academic/teachers": teachersApi([]),
       "POST /academic/courses/import-csv": fail(400, "Fila 3: bloque inválido"),
     });
     renderAs(<SubjectsPage />, ["SYSTEM_ADMIN"]);

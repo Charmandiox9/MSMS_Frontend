@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -18,16 +18,20 @@ import Modal from "@/components/ui/Modal";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
+import { fetchTeachersPage } from "@/lib/teachers";
 import type { Teacher } from "@/types/justifications";
 
 const PAGE_SIZE = 10;
+const SEARCH_DEBOUNCE_MS = 300;
 
 export default function TeachersPage() {
   const t = useTranslations("TeachersPage");
   const { activeRole } = useActiveRole();
   const inputRef = useRef<HTMLInputElement>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
@@ -54,16 +58,32 @@ export default function TeachersPage() {
   const canRead = canManage || activeRole === "ACADEMIC_PROCESS_ANALYST";
   const loadErrorMessage = t("errors.load");
 
-  // Carga al entrar y cada vez que `reloadKey` cambia (tras importar el padrón).
+  // La búsqueda se envía al backend recién cuando el usuario deja de escribir.
+  useEffect(() => {
+    const timeout = setTimeout(
+      () => setAppliedSearch(search.trim()),
+      SEARCH_DEBOUNCE_MS,
+    );
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  // El backend filtra y pagina. Se recarga al cambiar de página o búsqueda y
+  // cada vez que `reloadKey` cambia (tras importar el padrón).
   useEffect(() => {
     if (!canRead) return;
     let active = true;
-    apiFetch<Teacher[]>("/academic/teachers")
+    fetchTeachersPage({ page, pageSize: PAGE_SIZE, search: appliedSearch })
       .then((data) => {
-        if (active) {
-          setTeachers(data);
-          setError(null);
+        if (!active) return;
+        // Si la página quedó fuera de rango (p. ej. tras reimportar), se
+        // vuelve a la última; el efecto recarga con la página corregida.
+        if (data.total > 0 && page > data.totalPages) {
+          setPage(data.totalPages);
+          return;
         }
+        setTeachers(data.items);
+        setTotal(data.total);
+        setError(null);
       })
       .catch((cause: unknown) => {
         if (!active) return;
@@ -78,22 +98,9 @@ export default function TeachersPage() {
     return () => {
       active = false;
     };
-  }, [canRead, loadErrorMessage, reloadKey]);
+  }, [canRead, loadErrorMessage, reloadKey, page, appliedSearch]);
 
-  const filtered = useMemo(
-    () =>
-      teachers.filter((teacher) =>
-        `${teacher.name} ${teacher.email} ${teacher.assignments.map((assignment) => assignment.nrc).join(" ")}`
-          .toLowerCase()
-          .includes(search.toLowerCase().trim()),
-      ),
-    [search, teachers],
-  );
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const visibleTeachers = filtered.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE,
-  );
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const importRoster = async (file: File) => {
     setImporting(true);
@@ -228,9 +235,9 @@ export default function TeachersPage() {
       </section>
       {loading ? (
         <TableSkeleton columns={3} label={t("loading")} />
-      ) : filtered.length === 0 ? (
+      ) : total === 0 ? (
         <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">
-          {teachers.length === 0 ? t("empty") : t("noMatches")}
+          {appliedSearch ? t("noMatches") : t("empty")}
         </div>
       ) : (
         <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
@@ -240,7 +247,7 @@ export default function TeachersPage() {
             <span>{t("nrcs")}</span>
           </div>
           <ul className="divide-y divide-border">
-            {visibleTeachers.map((teacher) => (
+            {teachers.map((teacher) => (
               <li
                 key={teacher.id}
                 className="grid gap-2.5 px-4 py-3 md:grid-cols-[minmax(200px,1.2fr)_minmax(200px,1fr)_minmax(240px,1.4fr)] md:items-center md:gap-4 md:px-5"
@@ -280,7 +287,7 @@ export default function TeachersPage() {
           </ul>
           <footer className="flex flex-col gap-3 border-t border-border bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-muted-foreground">
-              {t("pagination", { page, totalPages, total: filtered.length })}
+              {t("pagination", { page, totalPages, total })}
             </p>
             <div className="flex items-center gap-2">
               <button

@@ -1,4 +1,37 @@
+import type { FakeRequest, FakeResponse } from './fake-api';
 import type { Justification, JustificationInboxEntry } from '@/types/justifications';
+
+type TeacherLike = {
+  name: string;
+  email: string;
+  employeeCode?: string | null;
+  assignments: { nrc: string }[];
+};
+
+/**
+ * Simula GET /academic/teachers: busca sin distinguir mayúsculas por nombre,
+ * correo, código o NRC y pagina con `page`/`pageSize` como el backend.
+ */
+export function teachersApi<T extends TeacherLike>(teachers: T[]) {
+  return ({ query }: FakeRequest): FakeResponse => {
+    const page = Number(query.get('page') ?? 1);
+    const pageSize = Number(query.get('pageSize') ?? 10);
+    const term = (query.get('search') ?? '').toLowerCase();
+    const matches = teachers.filter((teacher) =>
+      [teacher.name, teacher.email, teacher.employeeCode ?? '', ...teacher.assignments.map((assignment) => assignment.nrc)]
+        .some((value) => value.toLowerCase().includes(term)),
+    );
+    return {
+      body: {
+        items: matches.slice((page - 1) * pageSize, page * pageSize),
+        total: matches.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(matches.length / pageSize),
+      },
+    };
+  };
+}
 
 // El backend guarda la fecha de inasistencia como medianoche UTC ("2026-09-15" → 00:00Z).
 export function inboxEntry(overrides: Partial<JustificationInboxEntry> = {}): JustificationInboxEntry {
