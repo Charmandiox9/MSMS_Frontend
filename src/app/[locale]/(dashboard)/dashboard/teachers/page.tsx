@@ -55,7 +55,11 @@ export default function TeachersPage() {
   const [reloadKey, setReloadKey] = useState(0);
   const canManage =
     activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY";
-  const canRead = canManage || activeRole === "ACADEMIC_PROCESS_ANALYST";
+  // Consulta abierta a quienes tienen ACADEMIC_RECORDS_VIEW en el backend.
+  const canRead =
+    canManage ||
+    activeRole === "ACADEMIC_PROCESS_ANALYST" ||
+    activeRole === "TEACHING_SUPPORT_COORDINATOR";
   const loadErrorMessage = t("errors.load");
 
   // La búsqueda se envía al backend recién cuando el usuario deja de escribir.

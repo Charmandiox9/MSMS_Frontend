@@ -33,25 +33,18 @@ describe("TeachersPage (padrón de profesores)", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.unstubAllGlobals());
 
-  it.each([["TEACHING_SUPPORT_COORDINATOR"]] as const)(
-    "bloquea la vista para %s",
+  it.each([
+    ["ACADEMIC_PROCESS_ANALYST"],
+    ["TEACHING_SUPPORT_COORDINATOR"],
+  ] as const)(
+    "permite consultar profesores a %s y oculta la importación",
     async (role) => {
-      const api = installFakeApi();
+      installFakeApi({ "GET /academic/teachers": teachersApi([teacher(1)]) });
       renderAs(<TeachersPage />, [role]);
-
-      expect(
-        await screen.findByText("No tienes acceso a esta página."),
-      ).toBeDefined();
-      expect(api.requests).toHaveLength(0);
+      expect(await screen.findByText("Profesor 01")).toBeDefined();
+      expect(screen.queryByRole("button", { name: /Importar/ })).toBeNull();
     },
   );
-
-  it("permite consultar profesores al analista y oculta la importación", async () => {
-    installFakeApi({ "GET /academic/teachers": teachersApi([teacher(1)]) });
-    renderAs(<TeachersPage />, ["ACADEMIC_PROCESS_ANALYST"]);
-    expect(await screen.findByText("Profesor 01")).toBeDefined();
-    expect(screen.queryByRole("button", { name: /Importar/ })).toBeNull();
-  });
 
   it("busca por nombre, correo o NRC y pagina de a 10 en el backend", async () => {
     const api = installFakeApi({

@@ -94,6 +94,8 @@ describe("Navigation configuration and filtering", () => {
     expect(itemKeys).toContain("assistantships");
     expect(itemKeys).toContain("titulation");
     expect(itemKeys).toContain("academicInformation");
+    expect(itemKeys).toContain("subjects");
+    expect(itemKeys).toContain("teachers");
   });
 
   it("should only return public/unrestricted items when role is null", () => {
@@ -194,7 +196,7 @@ describe("Navigation configuration and filtering", () => {
         DASHBOARD_SECTIONS,
         "TEACHING_SUPPORT_COORDINATOR",
       ),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       isRouteAllowed("/dashboard/teachers", DASHBOARD_SECTIONS, "SYSTEM_ADMIN"),
     ).toBe(true);
@@ -211,7 +213,7 @@ describe("Navigation configuration and filtering", () => {
         DASHBOARD_SECTIONS,
         "TEACHING_SUPPORT_COORDINATOR",
       ),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       isRouteAllowed("/dashboard/settings", DASHBOARD_SECTIONS, "SYSTEM_ADMIN"),
     ).toBe(true);

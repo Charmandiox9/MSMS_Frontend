@@ -122,7 +122,11 @@ export default function SubjectsPage() {
   const [reloadKey, setReloadKey] = useState(0);
   const canManage =
     activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY";
-  const canRead = canManage || activeRole === "ACADEMIC_PROCESS_ANALYST";
+  // Consulta abierta a quienes tienen ACADEMIC_RECORDS_VIEW en el backend.
+  const canRead =
+    canManage ||
+    activeRole === "ACADEMIC_PROCESS_ANALYST" ||
+    activeRole === "TEACHING_SUPPORT_COORDINATOR";
   const loadErrorMessage = t("errors.load");
 
   // Carga al entrar y cada vez que `reloadKey` cambia (tras importar horarios).

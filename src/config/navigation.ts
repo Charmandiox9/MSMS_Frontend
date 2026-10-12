@@ -91,6 +91,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "SYSTEM_ADMIN",
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
+          "TEACHING_SUPPORT_COORDINATOR",
         ],
       },
       {
@@ -101,6 +102,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "SYSTEM_ADMIN",
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
+          "TEACHING_SUPPORT_COORDINATOR",
         ],
       },
       {

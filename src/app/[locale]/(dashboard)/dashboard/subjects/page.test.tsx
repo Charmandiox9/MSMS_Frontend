@@ -49,31 +49,24 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.unstubAllGlobals());
 
-  it.each([["TEACHING_SUPPORT_COORDINATOR"]] as const)(
-    "bloquea la vista para %s",
+  it.each([
+    ["ACADEMIC_PROCESS_ANALYST"],
+    ["TEACHING_SUPPORT_COORDINATOR"],
+  ] as const)(
+    "permite a %s consultar horarios sin importar ni editar",
     async (role) => {
-      const api = installFakeApi();
+      installFakeApi({
+        "GET /academic/courses": ok(COURSES),
+        "GET /academic/teachers": teachersApi(TEACHERS),
+      });
       renderAs(<SubjectsPage />, [role]);
-
+      expect(await screen.findByText("Estructura de Datos")).toBeDefined();
       expect(
-        await screen.findByText("No tienes acceso a esta página."),
-      ).toBeDefined();
-      expect(api.requests).toHaveLength(0);
+        screen.queryByRole("button", { name: "Importar asignaturas" }),
+      ).toBeNull();
+      expect(screen.queryByRole("button", { name: "Editar" })).toBeNull();
     },
   );
-
-  it("permite al analista consultar horarios sin importar datos", async () => {
-    installFakeApi({
-      "GET /academic/courses": ok(COURSES),
-      "GET /academic/teachers": teachersApi(TEACHERS),
-    });
-    renderAs(<SubjectsPage />, ["ACADEMIC_PROCESS_ANALYST"]);
-    expect(await screen.findByText("Estructura de Datos")).toBeDefined();
-    expect(
-      screen.queryByRole("button", { name: "Importar asignaturas" }),
-    ).toBeNull();
-    expect(screen.queryByRole("button", { name: "Editar" })).toBeNull();
-  });
 
   it("agrupa los horarios por NRC y asocia el profesor", async () => {
     installFakeApi({
