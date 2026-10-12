@@ -1,5 +1,9 @@
 import { apiFetch } from "./api";
-import type { Teacher, TeacherPage } from "@/types/justifications";
+import type {
+  Teacher,
+  TeacherPage,
+  TeacherSchedule,
+} from "@/types/justifications";
 
 /** Máximo que acepta el backend por página. */
 export const TEACHERS_MAX_PAGE_SIZE = 100;
@@ -42,4 +46,11 @@ export async function fetchAllTeachers<T = Teacher>(): Promise<T[]> {
     ),
   );
   return [first, ...rest].flatMap((result) => result.items);
+}
+
+/** Horario semanal del docente en el semestre activo. */
+export function fetchTeacherSchedule(teacherId: string) {
+  return apiFetch<TeacherSchedule>(
+    `/academic/teachers/${encodeURIComponent(teacherId)}/schedule`,
+  );
 }
