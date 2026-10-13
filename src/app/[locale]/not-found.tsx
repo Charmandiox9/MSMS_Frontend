@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { ArrowLeft, Home } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import LoginPreferences from '@/components/auth/LoginPreferences';
 
 export default function NotFoundPage() {
   const t = useTranslations('NotFound');
@@ -18,7 +19,8 @@ export default function NotFoundPage() {
   };
 
   return (
-    <div className="flex-grow w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-[#020b18] min-h-[calc(100vh-73px)] relative overflow-hidden transition-colors duration-500 selection:bg-ocean-cyan/30">
+    <div className="w-full min-h-screen min-h-dvh flex-1 flex flex-col items-center justify-center bg-slate-50 dark:bg-[#020b18] relative overflow-hidden transition-colors duration-500 selection:bg-ocean-cyan/30">
+      <LoginPreferences />
       
       <style>{`
         @keyframes sway {
@@ -41,10 +43,10 @@ export default function NotFoundPage() {
 
       {/* Oceanic Waves at the bottom */}
       <div className="absolute bottom-0 left-0 right-0 h-[40vh] md:h-[50vh] pointer-events-none overflow-hidden opacity-80 dark:opacity-40 mix-blend-multiply dark:mix-blend-color-dodge z-0 transition-opacity duration-500">
-        <svg className="absolute w-[200%] h-[150%] bottom-[-20%] left-[-50%] wave-bottom-1" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <svg className="absolute w-[200%] h-[150%] bottom-0 left-[-50%] wave-bottom-1" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
           <path d="M0 400C100 300 200 500 400 400C600 300 700 500 800 400L800 800L0 800Z" fill="#0ea5e9" opacity="0.3" />
         </svg>
-        <svg className="absolute w-[200%] h-[150%] bottom-[-20%] left-[-50%] wave-bottom-2" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <svg className="absolute w-[200%] h-[150%] bottom-0 left-[-50%] wave-bottom-2" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
           <path d="M0 500C200 400 300 600 500 500C700 400 800 600 800 500L800 800L0 800Z" fill="#0369a1" opacity="0.4" />
         </svg>
       </div>
