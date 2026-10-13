@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   createContext,
@@ -7,8 +7,9 @@ import {
   useMemo,
   useState,
   type ReactNode,
-} from 'react';
-import type { ActiveSession, UserRoleCode } from '@/types/auth';
+} from "react";
+import type { ActiveSession, UserRoleCode } from "@/types/auth";
+import { ACTIVE_ROLE_STORAGE_KEY, getSessionRoles } from "@/lib/active-role";
 
 interface ActiveRoleContextValue {
   activeRole: UserRoleCode | null;
@@ -18,11 +19,9 @@ interface ActiveRoleContextValue {
   session: ActiveSession | null;
 }
 
-const STORAGE_KEY = 'marsys_active_role';
-
-export const ActiveRoleContext = createContext<ActiveRoleContextValue | undefined>(
-  undefined
-);
+export const ActiveRoleContext = createContext<
+  ActiveRoleContextValue | undefined
+>(undefined);
 
 export function ActiveRoleProvider({
   children,
@@ -35,12 +34,14 @@ export function ActiveRoleProvider({
 
   const roles = useMemo<UserRoleCode[]>(() => {
     if (!session?.roles) return [];
-    return session.roles as UserRoleCode[];
-  }, [session?.roles]);
+    return getSessionRoles(session);
+  }, [session]);
 
   const [selectedRole, setSelectedRole] = useState<UserRoleCode | null>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem(STORAGE_KEY) as UserRoleCode | null;
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(
+        ACTIVE_ROLE_STORAGE_KEY,
+      ) as UserRoleCode | null;
     }
     return null;
   });
@@ -57,12 +58,12 @@ export function ActiveRoleProvider({
     (newRole: UserRoleCode) => {
       if (roles.includes(newRole)) {
         setSelectedRole(newRole);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(STORAGE_KEY, newRole);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, newRole);
         }
       }
     },
-    [roles]
+    [roles],
   );
 
   const value = useMemo<ActiveRoleContextValue>(
@@ -73,7 +74,7 @@ export function ActiveRoleProvider({
       setActiveRole,
       session,
     }),
-    [activeRole, roles, setActiveRole, session]
+    [activeRole, roles, setActiveRole, session],
   );
 
   return (
@@ -86,7 +87,7 @@ export function ActiveRoleProvider({
 export function useActiveRole(): ActiveRoleContextValue {
   const context = useContext(ActiveRoleContext);
   if (!context) {
-    throw new Error('useActiveRole must be used within an ActiveRoleProvider');
+    throw new Error("useActiveRole must be used within an ActiveRoleProvider");
   }
   return context;
 }

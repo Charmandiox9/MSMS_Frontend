@@ -1090,5 +1090,13 @@
     "loadError": "Could not load the options. Reload and try again.",
     "saveError": "Could not save the changes.",
     "manageTeachers": "Manage teachers"
+  },
+  "SessionEntry": {
+    "checking": "Checking session…",
+    "entering": "Opening your dashboard…",
+    "title": "Choose your workspace",
+    "description": "Your session is active. Select the role you want to use.",
+    "roleLabel": "Available roles",
+    "continue": "Open dashboard"
   }
 }

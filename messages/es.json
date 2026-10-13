@@ -1090,5 +1090,13 @@
     "loadError": "No fue posible cargar las opciones. Recarga e intenta nuevamente.",
     "saveError": "No fue posible guardar los cambios.",
     "manageTeachers": "Gestionar profesores"
+  },
+  "SessionEntry": {
+    "checking": "Verificando sesión…",
+    "entering": "Abriendo tu dashboard…",
+    "title": "Elige tu vista de trabajo",
+    "description": "Tu sesión está activa. Selecciona el rol con el que quieres ingresar.",
+    "roleLabel": "Roles disponibles",
+    "continue": "Entrar al dashboard"
   }
 }
