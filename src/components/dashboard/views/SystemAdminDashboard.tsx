@@ -90,27 +90,32 @@ export default function SystemAdminDashboard() {
         </div>
 
         <div>
-          <div className="rounded-2xl border border-ocean-cyan/35 bg-gradient-to-br from-ocean-cyan/10 via-card to-card p-6 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ocean-cyan/20 text-ocean-cyan">
+          <div className="relative overflow-hidden rounded-2xl border border-ocean-cyan/35 dark:border-cyan-500/35 bg-gradient-to-br from-ocean-cyan/15 via-card to-card dark:from-ocean-cyan/25 dark:via-[#0c182c] dark:to-card p-6 shadow-sm dark:shadow-[0_4px_25px_rgba(2,132,199,0.15)]">
+            {/* Resplandor ambiental de esquina para mantener el efecto en ambos temas */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -left-6 -top-6 h-28 w-28 rounded-full bg-cyan-400/15 blur-2xl dark:bg-cyan-400/25"
+            />
+            <div className="relative z-10 flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ocean-cyan/20 text-ocean-cyan dark:bg-cyan-500/20 dark:text-cyan-300">
                 <ShieldAlert className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-foreground">
                   {t("law21719.title")}
                 </h3>
-                <span className="inline-block rounded-full bg-ocean-cyan/10 px-2 py-0.5 text-[10px] font-bold text-ocean-cyan">
+                <span className="inline-block rounded-full bg-ocean-cyan/10 px-2 py-0.5 text-[10px] font-bold text-ocean-cyan dark:bg-cyan-500/15 dark:text-cyan-300">
                   {t("law21719.status")}
                 </span>
               </div>
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+            <p className="relative z-10 mt-4 text-xs leading-relaxed text-muted-foreground">
               {t("law21719.statusDesc")}
             </p>
-            <div className="mt-5 border-t border-border/60 pt-4">
+            <div className="relative z-10 mt-5 border-t border-border/60 pt-4">
               <Link
                 href="/privacy"
-                className="inline-flex items-center text-xs font-semibold text-ocean-cyan hover:underline"
+                className="inline-flex items-center text-xs font-semibold text-ocean-cyan dark:text-cyan-400 dark:hover:text-cyan-300 hover:underline"
               >
                 {t("law21719.viewPolicy")} &rarr;
               </Link>
