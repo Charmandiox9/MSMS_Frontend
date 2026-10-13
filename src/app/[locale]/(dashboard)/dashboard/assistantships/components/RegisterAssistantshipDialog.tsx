@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery } from "@apollo/client/react";
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import Modal from "@/components/ui/Modal";
 import Skeleton from "@/components/ui/Skeleton";
 import { SkeletonStatus } from "@/components/ui/LoadingSkeletons";
 import {
@@ -15,7 +16,7 @@ import {
   type SemesterOption,
 } from "../graphql";
 import { assistantshipErrorKey } from "../errors";
-import { buttonClass, Field, inputClass, primaryClass } from "./controls";
+import { buttonClass, Field, inputClass } from "./controls";
 import ScheduleFields, { type ScheduleDraft } from "./ScheduleFields";
 import type { AssistantshipBlockOption } from "../schema-types";
 
@@ -35,7 +36,6 @@ export default function RegisterAssistantshipDialog({
   onRegistered: (semesterId: string) => void;
 }) {
   const t = useTranslations("AssistantshipsPage");
-  const dialog = useRef<HTMLDialogElement>(null);
   const savingRef = useRef(false);
   const [semesterId, setSemesterId] = useState(
     initialRecord?.semesterId ??
@@ -87,18 +87,7 @@ export default function RegisterAssistantshipDialog({
   const [register, { loading: saving }] = useMutation(REGISTER);
   const [update, { loading: updating }] = useMutation(UPDATE);
   const busy = saving || updating;
-  useEffect(() => {
-    const element = dialog.current;
-    const focus = document.activeElement;
-    if (element && !element.open) element.showModal();
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      element?.close();
-      document.body.style.overflow = previousOverflow;
-      if (focus instanceof HTMLElement && focus.isConnected) focus.focus();
-    };
-  }, []);
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (savingRef.current) return;
@@ -146,260 +135,254 @@ export default function RegisterAssistantshipDialog({
       savingRef.current = false;
     }
   };
-  return (
-    <dialog
-      ref={dialog}
-      data-lenis-prevent
-      aria-labelledby="assistantship-dialog-title"
-      aria-describedby="assistantship-dialog-description"
-      className="fixed inset-0 m-auto flex max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl flex-col overflow-hidden rounded-3xl border border-border bg-card p-0 text-foreground shadow-xl backdrop:bg-slate-950/65"
-      onCancel={(event) => {
-        event.preventDefault();
-        if (!savingRef.current) onClose();
-      }}
-    >
-      <div className="flex items-start justify-between gap-4 border-b border-border p-5 md:p-6 shrink-0">
-        <div>
-          <h2 id="assistantship-dialog-title" className="text-xl md:text-2xl font-bold">
-            {t(initialRecord ? "form.editTitle" : "form.title")}
-          </h2>
-          <p
-            id="assistantship-dialog-description"
-            className="mt-1 text-xs text-muted-foreground"
-          >
-            {t("form.description")}
-          </p>
-        </div>
-        <button
-          type="button"
-          className="btn-modal-close"
-          aria-label={t("form.close")}
-          disabled={busy}
-          onClick={onClose}
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-      {!semesters.length ? (
-        <div className="space-y-4 p-6">
-          <p className="text-sm text-muted-foreground">
-            {t("form.noSemesters")}
-          </p>
-          <button type="button" className={buttonClass} onClick={onClose}>
+
+  if (!semesters.length) {
+    return (
+      <Modal
+        isOpen={true}
+        onClose={onClose}
+        size="2xl"
+        title={t(initialRecord ? "form.editTitle" : "form.title")}
+        description={t("form.description")}
+        closeLabel={t("form.close")}
+        footer={
+          <button type="button" className="btn-cta-secondary" onClick={onClose}>
             {t("form.close")}
           </button>
+        }
+      >
+        <p className="text-sm text-muted-foreground">{t("form.noSemesters")}</p>
+      </Modal>
+    );
+  }
+
+  return (
+    <Modal
+      isOpen={true}
+      onClose={() => {
+        if (!savingRef.current && !busy) onClose();
+      }}
+      size="2xl"
+      title={t(initialRecord ? "form.editTitle" : "form.title")}
+      description={t("form.description")}
+      closeLabel={t("form.close")}
+      onSubmit={submit}
+      footer={
+        <div className="flex w-full items-center justify-end gap-3">
+          <button
+            type="button"
+            className="btn-cta-secondary"
+            disabled={busy}
+            onClick={onClose}
+          >
+            {t("form.cancel")}
+          </button>
+          <button
+            type="submit"
+            className="btn-cta-primary"
+            disabled={
+              busy ||
+              !assignmentId ||
+              assignments.loading ||
+              Boolean(assignments.error)
+            }
+          >
+            {busy && (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            )}
+            {t(
+              busy
+                ? "form.saving"
+                : initialRecord
+                  ? "form.update"
+                  : "form.save",
+            )}
+          </button>
         </div>
-      ) : (
-        <form onSubmit={(event) => void submit(event)} className="flex flex-1 flex-col overflow-hidden">
-          <fieldset disabled={busy} className="flex-1 space-y-6 overflow-y-auto overscroll-contain p-5 md:p-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label={t("form.semester")} htmlFor="register-semester">
-                <select
-                  id="register-semester"
-                  className={inputClass}
-                  required
-                  value={semesterId}
-                  onChange={(event) => {
-                    setSemesterId(event.target.value);
-                    setAssignmentId("");
-                  }}
-                >
-                  {semesters.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              <Field label={t("form.course")} htmlFor="register-assignment">
-                {assignments.loading ? (
-                  <SkeletonStatus label={t("loading")}>
-                    <Skeleton className="h-11 w-full rounded-xl" />
-                  </SkeletonStatus>
-                ) : (
-                  <select
-                    id="register-assignment"
-                    className={inputClass}
-                    required
-                    value={assignmentId}
-                    disabled={assignments.loading || Boolean(assignments.error)}
-                    onChange={(event) => setAssignmentId(event.target.value)}
-                  >
-                    <option value="">
-                      {t(assignments.loading ? "loading" : "form.selectCourse")}
-                    </option>
-                    {assignments.data?.assistantshipAssignments.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.courseName} · {t("nrc", { nrc: item.nrc })} ·{" "}
-                        {item.teacherName}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </Field>
-            </div>
-            {assignments.error ? (
-              <div
-                role="alert"
-                className="flex flex-wrap items-center gap-3 text-sm text-coral-red"
-              >
-                <p>{t("errors.load")}</p>
-                <button
-                  type="button"
-                  className={buttonClass}
-                  onClick={() =>
-                    void assignments.refetch().catch(() => undefined)
-                  }
-                >
-                  {t("retry")}
-                </button>
-              </div>
-            ) : !assignments.loading &&
-              !assignments.data?.assistantshipAssignments.length ? (
-              <p
-                role="status"
-                className="rounded-xl bg-muted p-3 text-xs text-muted-foreground"
-              >
-                {t("form.noAssignments")}
-              </p>
-            ) : null}
-            <fieldset className="grid gap-4 sm:grid-cols-2">
-              <legend className="mb-3 text-sm font-bold">
-                {t("form.student")}
-              </legend>
-              <Field label={t("form.name")} htmlFor="register-name">
-                <input
-                  id="register-name"
-                  name="name"
-                  defaultValue={initialRecord?.assistantName}
-                  className={inputClass}
-                  autoComplete="name"
-                  maxLength={150}
-                  required
-                />
-              </Field>
-              <Field label={t("form.email")} htmlFor="register-email">
-                <input
-                  id="register-email"
-                  name="email"
-                  defaultValue={initialRecord?.assistantEmail}
-                  type="email"
-                  className={inputClass}
-                  autoComplete="email"
-                  maxLength={254}
-                  required
-                />
-              </Field>
-              <Field label={t("form.assistantshipNrc")} htmlFor="register-code">
-                <input
-                  id="register-code"
-                  name="assistantshipNrc"
-                  defaultValue={initialRecord?.assistantshipNrc ?? ""}
-                  required
-                  className={inputClass}
-                  maxLength={50}
-                />
-              </Field>
-              <Field label={t("form.hours")} htmlFor="register-hours">
-                <input
-                  id="register-hours"
-                  name="weeklyHours"
-                  defaultValue={initialRecord?.weeklyHours ?? ""}
-                  type="number"
-                  min="0.01"
-                  max="168"
-                  step="0.01"
-                  className={inputClass}
-                />
-              </Field>
-            </fieldset>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Field label={t("form.approvedOn")} htmlFor="register-approval">
-                <input
-                  id="register-approval"
-                  name="approvedOn"
-                  defaultValue={initialRecord?.approvedOn}
-                  type="date"
-                  className={inputClass}
-                  required
-                />
-              </Field>
-              <Field label={t("form.startsOn")} htmlFor="register-start">
-                <input
-                  key={`start-${semesterId}`}
-                  id="register-start"
-                  name="startsOn"
-                  type="date"
-                  min={semester?.startsOn}
-                  max={semester?.endsOn}
-                  defaultValue={initialRecord?.startsOn ?? semester?.startsOn}
-                  className={inputClass}
-                  required
-                />
-              </Field>
-              <Field label={t("form.endsOn")} htmlFor="register-end">
-                <input
-                  key={`end-${semesterId}`}
-                  id="register-end"
-                  name="endsOn"
-                  type="date"
-                  min={semester?.startsOn}
-                  max={semester?.endsOn}
-                  defaultValue={initialRecord?.endsOn ?? semester?.endsOn}
-                  className={inputClass}
-                  required
-                />
-              </Field>
-            </div>
-            <label className="flex items-start gap-3 rounded-2xl border border-secondary/20 bg-secondary/5 p-4 text-xs leading-relaxed text-foreground">
-              <input
-                name="approvalConfirmed"
-                defaultChecked={Boolean(initialRecord)}
-                type="checkbox"
+      }
+    >
+      <div className={`space-y-6 ${busy ? "pointer-events-none opacity-60" : ""}`}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t("form.semester")} htmlFor="register-semester">
+            <select
+              id="register-semester"
+              className={inputClass}
+              required
+              value={semesterId}
+              onChange={(event) => {
+                setSemesterId(event.target.value);
+                setAssignmentId("");
+              }}
+            >
+              {semesters.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label={t("form.course")} htmlFor="register-assignment">
+            {assignments.loading ? (
+              <SkeletonStatus label={t("loading")}>
+                <Skeleton className="h-11 w-full rounded-xl" />
+              </SkeletonStatus>
+            ) : (
+              <select
+                id="register-assignment"
+                className={inputClass}
                 required
-                className="mt-0.5 h-4 w-4 shrink-0 accent-secondary"
-              />
-              {t("form.confirmApproval")}
-            </label>
-            <ScheduleFields
-              value={schedules}
-              onChange={setSchedules}
-              blocks={effectiveBlocks}
-            />
-          </fieldset>
-          <div className="flex justify-end gap-3 border-t border-border bg-muted/20 p-4 md:p-5 shrink-0">
+                value={assignmentId}
+                disabled={assignments.loading || Boolean(assignments.error)}
+                onChange={(event) => setAssignmentId(event.target.value)}
+              >
+                <option value="">
+                  {t(assignments.loading ? "loading" : "form.selectCourse")}
+                </option>
+                {assignments.data?.assistantshipAssignments.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.courseName} · {t("nrc", { nrc: item.nrc })} ·{" "}
+                    {item.teacherName}
+                  </option>
+                ))}
+              </select>
+            )}
+          </Field>
+        </div>
+        {assignments.error ? (
+          <div
+            role="alert"
+            className="flex flex-wrap items-center gap-3 text-sm text-coral-red"
+          >
+            <p>{t("errors.load")}</p>
             <button
               type="button"
-              className={buttonClass}
-              disabled={busy}
-              onClick={onClose}
-            >
-              {t("form.cancel")}
-            </button>
-            <button
-              type="submit"
-              className={primaryClass}
-              disabled={
-                busy ||
-                !assignmentId ||
-                assignments.loading ||
-                Boolean(assignments.error)
+              className="inline-flex items-center gap-1.5 rounded-xl border border-coral-red/30 bg-coral-red/10 px-3 py-1.5 text-xs font-bold text-coral-red hover:bg-coral-red/20 transition-all cursor-pointer"
+              onClick={() =>
+                void assignments.refetch().catch(() => undefined)
               }
             >
-              {busy && (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              )}
-              {t(
-                busy
-                  ? "form.saving"
-                  : initialRecord
-                    ? "form.update"
-                    : "form.save",
-              )}
+              {t("retry")}
             </button>
           </div>
-        </form>
-      )}
-    </dialog>
+        ) : !assignments.loading &&
+          !assignments.data?.assistantshipAssignments.length ? (
+          <p
+            role="status"
+            className="rounded-xl bg-muted p-3 text-xs text-muted-foreground"
+          >
+            {t("form.noAssignments")}
+          </p>
+        ) : null}
+
+        <div className="space-y-3">
+          <h3 className="text-sm font-bold text-foreground">
+            {t("form.student")}
+          </h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={t("form.name")} htmlFor="register-name">
+              <input
+                id="register-name"
+                name="name"
+                defaultValue={initialRecord?.assistantName}
+                className={inputClass}
+                autoComplete="name"
+                maxLength={150}
+                required
+              />
+            </Field>
+            <Field label={t("form.email")} htmlFor="register-email">
+              <input
+                id="register-email"
+                name="email"
+                defaultValue={initialRecord?.assistantEmail}
+                type="email"
+                className={inputClass}
+                autoComplete="email"
+                maxLength={254}
+                required
+              />
+            </Field>
+            <Field label={t("form.assistantshipNrc")} htmlFor="register-code">
+              <input
+                id="register-code"
+                name="assistantshipNrc"
+                defaultValue={initialRecord?.assistantshipNrc ?? ""}
+                required
+                className={inputClass}
+                maxLength={50}
+              />
+            </Field>
+            <Field label={t("form.hours")} htmlFor="register-hours">
+              <input
+                id="register-hours"
+                name="weeklyHours"
+                defaultValue={initialRecord?.weeklyHours ?? ""}
+                type="number"
+                min="0.01"
+                max="168"
+                step="0.01"
+                className={inputClass}
+              />
+            </Field>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field label={t("form.approvedOn")} htmlFor="register-approval">
+            <input
+              id="register-approval"
+              name="approvedOn"
+              defaultValue={initialRecord?.approvedOn}
+              type="date"
+              className={inputClass}
+              required
+            />
+          </Field>
+          <Field label={t("form.startsOn")} htmlFor="register-start">
+            <input
+              key={`start-${semesterId}`}
+              id="register-start"
+              name="startsOn"
+              type="date"
+              min={semester?.startsOn}
+              max={semester?.endsOn}
+              defaultValue={initialRecord?.startsOn ?? semester?.startsOn}
+              className={inputClass}
+              required
+            />
+          </Field>
+          <Field label={t("form.endsOn")} htmlFor="register-end">
+            <input
+              key={`end-${semesterId}`}
+              id="register-end"
+              name="endsOn"
+              type="date"
+              min={semester?.startsOn}
+              max={semester?.endsOn}
+              defaultValue={initialRecord?.endsOn ?? semester?.endsOn}
+              className={inputClass}
+              required
+            />
+          </Field>
+        </div>
+
+        <label className="flex items-start gap-3 rounded-2xl border border-secondary/30 bg-secondary/10 p-4 text-xs font-medium leading-relaxed text-foreground transition-all hover:border-secondary/50">
+          <input
+            name="approvalConfirmed"
+            defaultChecked={Boolean(initialRecord)}
+            type="checkbox"
+            required
+            className="mt-0.5 h-4 w-4 shrink-0 accent-secondary"
+          />
+          {t("form.confirmApproval")}
+        </label>
+
+        <ScheduleFields
+          value={schedules}
+          onChange={setSchedules}
+          blocks={effectiveBlocks}
+        />
+      </div>
+    </Modal>
   );
 }

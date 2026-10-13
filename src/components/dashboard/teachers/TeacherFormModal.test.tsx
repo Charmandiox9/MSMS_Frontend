@@ -38,7 +38,6 @@ describe("TeacherFormModal", () => {
     expect(screen.getByText("Registrar nuevo docente")).toBeDefined();
     expect(screen.getByLabelText(/Nombre completo/)).toBeDefined();
     expect(screen.getByLabelText(/Correo institucional/)).toBeDefined();
-    expect(screen.getAllByText(/Ley N° 21.719/).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Registrar docente" })).toBeDefined();
   });
 

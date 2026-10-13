@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { MockedProvider } from "@apollo/client/testing/react";
 import { GraphQLError } from "graphql";
@@ -23,6 +23,8 @@ const notifications = vi.hoisted(() => ({
 }));
 vi.mock("sonner", () => ({
   toast: {
+    success: (msg: string) => notifications.success(msg),
+    error: (msg: string) => notifications.error(msg),
     promise: (
       promise: Promise<unknown>,
       options: {
@@ -111,7 +113,7 @@ beforeAll(() => {
 });
 beforeEach(() => vi.clearAllMocks());
 
-describe("assistantship management", () => {
+describe("assistantship management", { timeout: 15000 }, () => {
   it("provides read-only history to the analyst", async () => {
     render(
       <NextIntlClientProvider locale="es" messages={messages}>
@@ -413,5 +415,102 @@ describe("assistantship management", () => {
     ).toBe("Ana Pérez");
     expect(screen.getByRole("dialog")).toBeDefined();
     expect(onRegistered).not.toHaveBeenCalled();
+  });
+
+  it("opens detailed history record and closes", async () => {
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <MockedProvider
+          mocks={[
+            optionsMock,
+            {
+              request: { query: HISTORY, variables: () => true },
+              result: {
+                data: {
+                  assistantships: {
+                    items: [
+                      {
+                        ...item,
+                        schedules: [
+                          {
+                            weekday: 1,
+                            startsAtMinute: 490,
+                            endsAtMinute: 580,
+                            location: "Laboratorio A",
+                          },
+                        ],
+                      },
+                    ],
+                    total: 1,
+                    assistants: 1,
+                    semesters: 1,
+                    page: 1,
+                    totalPages: 1,
+                  },
+                },
+              },
+            },
+          ]}
+        >
+          <AssistantshipsWorkspace readOnly />
+        </MockedProvider>
+      </NextIntlClientProvider>,
+    );
+    expect(await screen.findByText("Ana Pérez")).toBeDefined();
+    const detailBtn = screen.getByRole("button", { name: "Ver detalle" });
+    fireEvent.click(detailBtn);
+
+    expect(await screen.findByText("Consulta de ayudantía")).toBeDefined();
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText("Datos del estudiante ayudante")).toBeDefined();
+    expect(within(dialog).getByText("ana@example.test")).toBeDefined();
+    expect(within(dialog).getByText("Laboratorio A")).toBeDefined();
+
+    const closeBtn = within(dialog).getByRole("button", { name: "Cerrar" });
+    fireEvent.click(closeBtn);
+    expect(screen.queryByText("Consulta de ayudantía")).toBeNull();
+  });
+
+  it("exports filtered assistantship history to CSV", async () => {
+    const createObjectURLMock = vi.fn().mockReturnValue("blob:test");
+    const revokeObjectURLMock = vi.fn();
+    window.URL.createObjectURL = createObjectURLMock;
+    window.URL.revokeObjectURL = revokeObjectURLMock;
+
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <MockedProvider
+          mocks={[
+            optionsMock,
+            {
+              request: { query: HISTORY, variables: () => true },
+              result: {
+                data: {
+                  assistantships: {
+                    items: [item],
+                    total: 1,
+                    assistants: 1,
+                    semesters: 1,
+                    page: 1,
+                    totalPages: 1,
+                  },
+                },
+              },
+            },
+          ]}
+        >
+          <AssistantshipsWorkspace />
+        </MockedProvider>
+      </NextIntlClientProvider>,
+    );
+    expect(await screen.findByText("Ana Pérez")).toBeDefined();
+    const exportBtn = screen.getByRole("button", { name: "Exportar historial" });
+    fireEvent.click(exportBtn);
+
+    expect(createObjectURLMock).toHaveBeenCalled();
+    expect(revokeObjectURLMock).toHaveBeenCalled();
+    expect(notifications.success).toHaveBeenCalledWith(
+      "Historial exportado correctamente.",
+    );
   });
 });

@@ -92,10 +92,7 @@ describe("Flujo Integral del Módulo Académico / Docentes (E2E Frontend)", () =
 
     const dialog = screen.getByRole("dialog");
 
-    // 2. Comprobar cumplimiento Ley N° 21.719
-    expect(within(dialog).getAllByText(/Ley N° 21.719/).length).toBeGreaterThan(0);
-
-    // 3. Rellenar datos principales y acreditación
+    // 2. Rellenar datos principales y acreditación
     fireEvent.change(within(dialog).getByLabelText(/Nombre completo/), {
       target: { value: "Dra. Valentina Lagos" },
     });

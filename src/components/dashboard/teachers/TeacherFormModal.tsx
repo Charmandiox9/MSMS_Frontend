@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, Loader2, Plus, ShieldCheck, UserCheck, X } from "lucide-react";
+import { BookOpen, Loader2, Plus, UserCheck, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import Modal from "@/components/ui/Modal";
@@ -511,18 +511,6 @@ export default function TeacherFormModal({
           </div>
         </fieldset>
 
-        <div className="h-px bg-border/60" />
-
-        {/* Sección 4: Protección de Datos Ley 21.719 */}
-        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
-            <ShieldCheck className="h-4 w-4 shrink-0" />
-            <span>{t("form.privacyBadge")}</span>
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-            {t("form.privacyNotice")}
-          </p>
-        </div>
       </div>
     </Modal>
   );
