@@ -152,15 +152,15 @@ export default function RegisterAssistantshipDialog({
       data-lenis-prevent
       aria-labelledby="assistantship-dialog-title"
       aria-describedby="assistantship-dialog-description"
-      className="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto overscroll-contain rounded-3xl border border-border bg-card p-0 text-foreground shadow-xl backdrop:bg-slate-950/65"
+      className="fixed inset-0 m-auto flex max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl flex-col overflow-hidden rounded-3xl border border-border bg-card p-0 text-foreground shadow-xl backdrop:bg-slate-950/65"
       onCancel={(event) => {
         event.preventDefault();
         if (!savingRef.current) onClose();
       }}
     >
-      <div className="flex items-start justify-between gap-4 border-b border-border p-5">
+      <div className="flex items-start justify-between gap-4 border-b border-border p-5 md:p-6 shrink-0">
         <div>
-          <h2 id="assistantship-dialog-title" className="text-xl font-bold">
+          <h2 id="assistantship-dialog-title" className="text-xl md:text-2xl font-bold">
             {t(initialRecord ? "form.editTitle" : "form.title")}
           </h2>
           <p
@@ -172,7 +172,7 @@ export default function RegisterAssistantshipDialog({
         </div>
         <button
           type="button"
-          className={`${buttonClass} shrink-0 px-3`}
+          className="btn-modal-close"
           aria-label={t("form.close")}
           disabled={busy}
           onClick={onClose}
@@ -190,8 +190,8 @@ export default function RegisterAssistantshipDialog({
           </button>
         </div>
       ) : (
-        <form onSubmit={(event) => void submit(event)}>
-          <fieldset disabled={busy} className="space-y-6 p-5">
+        <form onSubmit={(event) => void submit(event)} className="flex flex-1 flex-col overflow-hidden">
+          <fieldset disabled={busy} className="flex-1 space-y-6 overflow-y-auto overscroll-contain p-5 md:p-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label={t("form.semester")} htmlFor="register-semester">
                 <select
@@ -367,7 +367,7 @@ export default function RegisterAssistantshipDialog({
               blocks={effectiveBlocks}
             />
           </fieldset>
-          <div className="flex justify-end gap-3 border-t border-border p-5">
+          <div className="flex justify-end gap-3 border-t border-border bg-muted/20 p-4 md:p-5 shrink-0">
             <button
               type="button"
               className={buttonClass}
