@@ -1105,7 +1105,13 @@
       "startsOn": "Inicio",
       "endsOn": "Término",
       "weeklyHours": "Horas semanales",
-      "schedules": "Horarios (día ISO)"
+      "schedules": "Horarios (día ISO)",
+      "employeeCode": "Código de empleado",
+      "academicDegree": "Grado académico",
+      "professionalTitle": "Título profesional",
+      "institution": "Institución",
+      "joinedOn": "Fecha de ingreso",
+      "leftOn": "Fecha de egreso"
     },
     "statuses": {
       "ACTIVE": "Activo",
