@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -19,6 +19,7 @@ import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
 import type { Teacher } from "@/types/justifications";
+import type { PaginatedResponse } from "@/types/pagination";
 
 const PAGE_SIZE = 10;
 
@@ -27,6 +28,8 @@ export default function TeachersPage() {
   const { activeRole } = useActiveRole();
   const inputRef = useRef<HTMLInputElement>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -58,10 +61,17 @@ export default function TeachersPage() {
   useEffect(() => {
     if (!canRead) return;
     let active = true;
-    apiFetch<Teacher[]>("/academic/teachers")
+    const query = new URLSearchParams({
+      page: String(page),
+      pageSize: String(PAGE_SIZE),
+      search: search.trim(),
+    });
+    apiFetch<PaginatedResponse<Teacher>>(`/academic/teachers?${query}`)
       .then((data) => {
         if (active) {
-          setTeachers(data);
+          setTeachers(data.items);
+          setTotal(data.total);
+          setTotalPages(Math.max(1, data.totalPages));
           setError(null);
         }
       })
@@ -78,22 +88,7 @@ export default function TeachersPage() {
     return () => {
       active = false;
     };
-  }, [canRead, loadErrorMessage, reloadKey]);
-
-  const filtered = useMemo(
-    () =>
-      teachers.filter((teacher) =>
-        `${teacher.name} ${teacher.email} ${teacher.assignments.map((assignment) => assignment.nrc).join(" ")}`
-          .toLowerCase()
-          .includes(search.toLowerCase().trim()),
-      ),
-    [search, teachers],
-  );
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const visibleTeachers = filtered.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE,
-  );
+  }, [canRead, loadErrorMessage, reloadKey, page, search]);
 
   const importRoster = async (file: File) => {
     setImporting(true);
@@ -120,6 +115,7 @@ export default function TeachersPage() {
         }),
       );
       setLoading(true);
+      setPage(1);
       setReloadKey((key) => key + 1);
     } catch (cause) {
       const message =
@@ -217,6 +213,7 @@ export default function TeachersPage() {
               type="search"
               value={search}
               onChange={(event) => {
+                setLoading(true);
                 setSearch(event.target.value);
                 setPage(1);
               }}
@@ -228,9 +225,9 @@ export default function TeachersPage() {
       </section>
       {loading ? (
         <TableSkeleton columns={3} label={t("loading")} />
-      ) : filtered.length === 0 ? (
+      ) : teachers.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">
-          {teachers.length === 0 ? t("empty") : t("noMatches")}
+          {search.trim() ? t("noMatches") : t("empty")}
         </div>
       ) : (
         <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
@@ -240,7 +237,7 @@ export default function TeachersPage() {
             <span>{t("nrcs")}</span>
           </div>
           <ul className="divide-y divide-border">
-            {visibleTeachers.map((teacher) => (
+            {teachers.map((teacher) => (
               <li
                 key={teacher.id}
                 className="grid gap-2.5 px-4 py-3 md:grid-cols-[minmax(200px,1.2fr)_minmax(200px,1fr)_minmax(240px,1.4fr)] md:items-center md:gap-4 md:px-5"
@@ -280,13 +277,16 @@ export default function TeachersPage() {
           </ul>
           <footer className="flex flex-col gap-3 border-t border-border bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-muted-foreground">
-              {t("pagination", { page, totalPages, total: filtered.length })}
+              {t("pagination", { page, totalPages, total })}
             </p>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 disabled={page <= 1}
-                onClick={() => setPage((current) => current - 1)}
+                onClick={() => {
+                  setLoading(true);
+                  setPage((current) => current - 1);
+                }}
                 aria-label={t("previous")}
                 className="rounded-xl border border-border p-2 text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
               >
@@ -298,7 +298,10 @@ export default function TeachersPage() {
               <button
                 type="button"
                 disabled={page >= totalPages}
-                onClick={() => setPage((current) => current + 1)}
+                onClick={() => {
+                  setLoading(true);
+                  setPage((current) => current + 1);
+                }}
                 aria-label={t("next")}
                 className="rounded-xl border border-border p-2 text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
               >

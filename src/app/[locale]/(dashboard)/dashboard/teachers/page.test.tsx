@@ -28,6 +28,28 @@ function csvInput() {
   return document.querySelector('input[type="file"]') as HTMLInputElement;
 }
 
+function teacherList(items: Teacher[]) {
+  return (request: { query: URLSearchParams }) => {
+    const page = Number(request.query.get("page") ?? 1);
+    const pageSize = Number(request.query.get("pageSize") ?? 10);
+    const search = request.query.get("search")?.toLowerCase() ?? "";
+    const filtered = items.filter((item) =>
+      `${item.name} ${item.email} ${item.assignments.map(({ nrc }) => nrc).join(" ")}`
+        .toLowerCase()
+        .includes(search),
+    );
+    return {
+      body: {
+        items: filtered.slice((page - 1) * pageSize, page * pageSize),
+        total: filtered.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(filtered.length / pageSize),
+      },
+    };
+  };
+}
+
 describe("TeachersPage (padrón de profesores)", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.unstubAllGlobals());
@@ -46,15 +68,15 @@ describe("TeachersPage (padrón de profesores)", () => {
   );
 
   it("permite consultar profesores al analista y oculta la importación", async () => {
-    installFakeApi({ "GET /academic/teachers": ok([teacher(1)]) });
+    installFakeApi({ "GET /academic/teachers": teacherList([teacher(1)]) });
     renderAs(<TeachersPage />, ["ACADEMIC_PROCESS_ANALYST"]);
     expect(await screen.findByText("Profesor 01")).toBeDefined();
     expect(screen.queryByRole("button", { name: /Importar/ })).toBeNull();
   });
 
   it("busca por nombre, correo o NRC y pagina de a 10", async () => {
-    installFakeApi({
-      "GET /academic/teachers": ok(
+    const api = installFakeApi({
+      "GET /academic/teachers": teacherList(
         Array.from({ length: 12 }, (_, index) => teacher(index + 1)),
       ),
     });
@@ -65,13 +87,16 @@ describe("TeachersPage (padrón de profesores)", () => {
     expect(screen.getByText("Página 1 de 2 · 12 profesores")).toBeDefined();
 
     fireEvent.click(screen.getByRole("button", { name: "Página siguiente" }));
-    expect(screen.getByText("Profesor 11")).toBeDefined();
+    expect(await screen.findByText("Profesor 11")).toBeDefined();
+    expect(api.calls("GET /academic/teachers").at(-1)?.query.get("page")).toBe("2");
 
     fireEvent.change(
       screen.getByPlaceholderText("Buscar por nombre, correo o NRC…"),
       { target: { value: "10005" } },
     );
-    expect(screen.getByText("Profesor 05")).toBeDefined();
+    expect(await screen.findByText("Profesor 05")).toBeDefined();
+    expect(api.calls("GET /academic/teachers").at(-1)?.query.get("search")).toBe("10005");
+    expect(api.calls("GET /academic/teachers").at(-1)?.query.get("page")).toBe("1");
     expect(screen.getByText("Página 1 de 1 · 1 profesores")).toBeDefined();
 
     fireEvent.change(
@@ -79,13 +104,13 @@ describe("TeachersPage (padrón de profesores)", () => {
       { target: { value: "nadie" } },
     );
     expect(
-      screen.getByText("No hay profesores que coincidan con la búsqueda."),
+      await screen.findByText("No hay profesores que coincidan con la búsqueda."),
     ).toBeDefined();
   });
 
   it("importa el CSV enviando su contenido y recarga", async () => {
     const api = installFakeApi({
-      "GET /academic/teachers": ok([]),
+      "GET /academic/teachers": teacherList([]),
       "POST /academic/teachers/import-roster": ok({
         importedTeachers: 2,
         importedAssignments: 3,
@@ -117,7 +142,7 @@ describe("TeachersPage (padrón de profesores)", () => {
 
   it("muestra el error del backend si el CSV es inválido", async () => {
     installFakeApi({
-      "GET /academic/teachers": ok([]),
+      "GET /academic/teachers": teacherList([]),
       "POST /academic/teachers/import-roster": fail(
         400,
         "Fila 2: correo inválido",

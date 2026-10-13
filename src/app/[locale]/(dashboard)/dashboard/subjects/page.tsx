@@ -19,13 +19,11 @@ import Modal from "@/components/ui/Modal";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
+import { fetchAllTeachers } from "@/lib/teachers";
 
 import EditSubjectDialog from "./EditSubjectDialog";
 
 type Instructor = { id: string; name: string; email: string };
-type TeacherResponse = {
-  assignments: { nrc: string; teacherId: string; teacher?: Instructor }[];
-} & Instructor;
 type ScheduleRow = {
   id: string;
   nrc: string;
@@ -55,7 +53,7 @@ type Subject = {
 async function fetchSchedules(): Promise<ScheduleRow[]> {
   const [schedules, teachers] = await Promise.all([
     apiFetch<Omit<ScheduleRow, "teachers">[]>("/academic/courses"),
-    apiFetch<TeacherResponse[]>("/academic/teachers"),
+    fetchAllTeachers(),
   ]);
   const instructorsByNrc = new Map<string, Instructor[]>();
   for (const teacher of teachers) {
