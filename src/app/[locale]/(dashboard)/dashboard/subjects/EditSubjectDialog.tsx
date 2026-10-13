@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Modal from "@/components/ui/Modal";
 import { FormSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
+import type { CurrentCourseCatalog } from "@/types/academic";
 
 type Schedule = { day: string; block: string; location?: string | null };
 type Options = {
@@ -27,31 +28,45 @@ export default function EditSubjectDialog({
   onClose,
   onSaved,
 }: {
-  subject: EditableSubject;
+  subject?: EditableSubject;
   onClose: () => void;
   onSaved: (nrc: string) => void;
 }) {
   const t = useTranslations("SubjectsPage");
-  const [name, setName] = useState(subject.name);
-  const [code, setCode] = useState(subject.entries[0].course.code ?? "");
-  const [nrc, setNrc] = useState(subject.nrc);
+  const [name, setName] = useState(subject?.name ?? "");
+  const [code, setCode] = useState(subject?.entries[0]?.course.code ?? "");
+  const [nrc, setNrc] = useState(subject?.nrc ?? "");
+  const [semesterId, setSemesterId] = useState<string | null>(null);
   const [schedules, setSchedules] = useState<Schedule[]>(
-    subject.entries
+    subject?.entries
       .filter((entry) => entry.kind !== "ASSISTANTSHIP")
-      .map(({ day, block, location }) => ({ day, block, location })),
+      .map(({ day, block, location }) => ({ day, block, location })) ?? [],
   );
   const [options, setOptions] = useState<Options | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [retry, setRetry] = useState(0);
   const loadError = t("errors.load");
+  const creating = !subject;
+  const noSemesterError = t("createForm.noSemester");
   useEffect(() => {
     let active = true;
-    apiFetch<Options>("/academic/courses/options")
-      .then((value) => {
+    Promise.all([
+      apiFetch<Options>("/academic/courses/options"),
+      creating
+        ? apiFetch<CurrentCourseCatalog>("/academic/courses/current")
+        : Promise.resolve(null),
+    ])
+      .then(([value, catalog]) => {
         if (active) {
           setOptions(value);
-          setError(null);
+          setSemesterId(catalog?.semester?.id ?? null);
+          setError(creating && !catalog?.semester ? noSemesterError : null);
+          if (creating && value.days[0] && value.blocks[0]) {
+            setSchedules([
+              { day: value.days[0], block: value.blocks[0].code, location: "" },
+            ]);
+          }
         }
       })
       .catch((cause: unknown) => {
@@ -61,7 +76,7 @@ export default function EditSubjectDialog({
     return () => {
       active = false;
     };
-  }, [loadError, retry]);
+  }, [loadError, noSemesterError, retry, creating]);
   const update = (index: number, value: Partial<Schedule>) =>
     setSchedules((current) =>
       current.map((schedule, position) =>
@@ -70,7 +85,7 @@ export default function EditSubjectDialog({
     );
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (saving || !options) return;
+    if (saving || !options || (creating && !semesterId)) return;
     if (
       new Set(schedules.map((schedule) => `${schedule.day}|${schedule.block}`))
         .size !== schedules.length
@@ -81,13 +96,16 @@ export default function EditSubjectDialog({
     setSaving(true);
     setError(null);
     const operation = apiFetch<{ nrc: string }>(
-      `/academic/courses/${encodeURIComponent(subject.nrc)}`,
+      subject
+        ? `/academic/courses/${encodeURIComponent(subject.nrc)}`
+        : "/academic/courses",
       {
-        method: "PATCH",
+        method: subject ? "PATCH" : "POST",
         body: JSON.stringify({
           name: name.trim(),
           code: code.trim() || null,
           nrc: nrc.trim(),
+          ...(creating ? { semesterId } : {}),
           schedules: schedules.map((schedule) => ({
             ...schedule,
             location: schedule.location?.trim() || null,
@@ -97,7 +115,7 @@ export default function EditSubjectDialog({
     );
     toast.promise(operation, {
       loading: t("editForm.saving"),
-      success: t("editForm.saved"),
+      success: t(creating ? "createForm.saved" : "editForm.saved"),
       error: (cause: unknown) =>
         cause instanceof Error ? cause.message : t("editForm.error"),
     });
@@ -116,8 +134,10 @@ export default function EditSubjectDialog({
       onClose={() => {
         if (!saving) onClose();
       }}
-      title={t("editForm.title")}
-      description={t("editForm.description")}
+      title={t(creating ? "createForm.title" : "editForm.title")}
+      description={t(
+        creating ? "createForm.description" : "editForm.description",
+      )}
       closeLabel={t("close")}
       size="4xl"
       closeOnEscape={!saving}
@@ -135,10 +155,21 @@ export default function EditSubjectDialog({
           <button
             type="submit"
             form="edit-subject"
-            disabled={saving || !options || !schedules.length}
+            disabled={
+              saving ||
+              !options ||
+              !schedules.length ||
+              (creating && !semesterId)
+            }
             className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
           >
-            {t(saving ? "editForm.saving" : "editForm.save")}
+            {t(
+              saving
+                ? "editForm.saving"
+                : creating
+                  ? "createForm.save"
+                  : "editForm.save",
+            )}
           </button>
         </>
       }
@@ -180,7 +211,7 @@ export default function EditSubjectDialog({
           </label>
         </fieldset>
         <p className="text-xs text-muted-foreground">
-          {t("editForm.catalogHint")}
+          {t(creating ? "createForm.catalogHint" : "editForm.catalogHint")}
         </p>
         {error && (
           <p

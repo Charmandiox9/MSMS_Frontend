@@ -12,6 +12,7 @@ import {
   Search,
   UserRound,
   UsersRound,
+  Plus,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ import { apiFetch } from "@/lib/api";
 import { fetchAllTeachers } from "@/lib/teachers";
 
 import EditSubjectDialog from "./EditSubjectDialog";
+import CourseTeachersDialog from "./CourseTeachersDialog";
 
 type Instructor = { id: string; name: string; email: string };
 type ScheduleRow = {
@@ -97,6 +99,10 @@ export default function SubjectsPage() {
   const [page, setPage] = useState(1);
   const [selectedNrc, setSelectedNrc] = useState<string | null>(null);
   const [editing, setEditing] = useState<Subject | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [managingTeachers, setManagingTeachers] = useState<Subject | null>(
+    null,
+  );
   const [allScheduleOpen, setAllScheduleOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
@@ -234,6 +240,16 @@ export default function SubjectsPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {canManage && (
+            <button
+              type="button"
+              onClick={() => setCreating(true)}
+              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <Plus className="h-4 w-4" />
+              {t("create")}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setShowHelp(true)}
@@ -411,13 +427,22 @@ export default function SubjectsPage() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {canManage && (
-                        <button
-                          type="button"
-                          onClick={() => setEditing(subject)}
-                          className="min-h-10 rounded-xl border border-border px-3 py-2 text-xs font-bold text-foreground hover:bg-muted"
-                        >
-                          {t("edit")}
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setEditing(subject)}
+                            className="min-h-10 rounded-xl border border-border px-3 py-2 text-xs font-bold text-foreground hover:bg-muted"
+                          >
+                            {t("edit")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setManagingTeachers(subject)}
+                            className="min-h-10 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                          >
+                            {t("manageTeachers")}
+                          </button>
+                        </>
                       )}
                       <button
                         type="button"
@@ -463,14 +488,30 @@ export default function SubjectsPage() {
         </>
       )}
 
-      {editing && canManage && (
+      {(editing || creating) && canManage && (
         <EditSubjectDialog
-          subject={editing}
-          onClose={() => setEditing(null)}
-          onSaved={(nrc) => {
-            if (selectedNrc === editing.nrc) setSelectedNrc(nrc);
+          subject={editing ?? undefined}
+          onClose={() => {
             setEditing(null);
+            setCreating(false);
+          }}
+          onSaved={(nrc) => {
+            if (editing && selectedNrc === editing.nrc) setSelectedNrc(nrc);
+            setEditing(null);
+            setCreating(false);
             setPage(1);
+            setLoading(true);
+            setReloadKey((key) => key + 1);
+          }}
+        />
+      )}
+      {managingTeachers && canManage && (
+        <CourseTeachersDialog
+          nrc={managingTeachers.nrc}
+          name={managingTeachers.name}
+          onClose={() => setManagingTeachers(null)}
+          onSaved={() => {
+            setManagingTeachers(null);
             setLoading(true);
             setReloadKey((key) => key + 1);
           }}

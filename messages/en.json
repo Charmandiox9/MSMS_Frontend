@@ -498,6 +498,16 @@
       "duplicate": "A day and block cannot be repeated.",
       "cancel": "Cancel",
       "retry": "Retry"
+    },
+    "create": "Create course",
+    "manageTeachers": "Teachers",
+    "createForm": {
+      "title": "Create course",
+      "description": "Register an NRC and its schedules in the active semester. You can then link teachers from the list.",
+      "save": "Create course",
+      "saved": "Course created.",
+      "noSemester": "Activate a semester before creating a course.",
+      "catalogHint": "The NRC and schedules identify this course in the active semester."
     }
   },
   "TeachersPage": {
@@ -526,7 +536,10 @@
       "load": "Teachers could not be loaded.",
       "import": "The teacher roster could not be imported.",
       "access": "You do not have access to this page."
-    }
+    },
+    "create": "Create teacher",
+    "editTeacher": "Edit {name} and their courses",
+    "editAndCourses": "Edit and courses"
   },
   "SemesterSettingsPage": {
     "eyebrow": "Academic settings",
@@ -1046,5 +1059,36 @@
       "ACTIVE": "Active",
       "INACTIVE": "Inactive"
     }
+  },
+  "AcademicManagement": {
+    "createTeacher": "Create teacher",
+    "editTeacher": "Edit teacher",
+    "teacherDescription": "Manage the teacher details and their courses for the current semester.",
+    "name": "Teacher name",
+    "email": "Email address",
+    "employeeCode": "Employee code (optional)",
+    "linkedCourses": "Linked courses",
+    "courseSelectionHint": "Check to link and uncheck to unlink. Changes apply when you save.",
+    "teacherSelectionHint": "Select the teachers for this course. Uncheck to unlink them.",
+    "semester": "Active semester: {name}",
+    "noSemester": "There is no active semester. You can save the teacher details; activate a semester to link courses.",
+    "nrc": "NRC",
+    "searchOptions": "Search the list",
+    "selectedCount": "{count, plural, one {# selected} other {# selected}}",
+    "noMatches": "No matches found.",
+    "emptyOptions": "No records available.",
+    "loading": "Loading options…",
+    "saving": "Saving…",
+    "saveTeacher": "Save teacher",
+    "saveLinks": "Save links",
+    "cancel": "Cancel",
+    "close": "Close",
+    "retry": "Retry",
+    "teacherCreated": "Teacher created.",
+    "teacherUpdated": "Teacher and courses updated.",
+    "linksSaved": "Teacher links updated.",
+    "loadError": "Could not load the options. Reload and try again.",
+    "saveError": "Could not save the changes.",
+    "manageTeachers": "Manage teachers"
   }
 }

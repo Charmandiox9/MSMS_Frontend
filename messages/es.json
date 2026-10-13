@@ -498,6 +498,16 @@
       "duplicate": "No puedes repetir el mismo día y bloque.",
       "cancel": "Cancelar",
       "retry": "Reintentar"
+    },
+    "create": "Crear asignatura",
+    "manageTeachers": "Profesores",
+    "createForm": {
+      "title": "Crear asignatura",
+      "description": "Registra un NRC y sus horarios en el semestre activo. Luego puedes vincular profesores desde la lista.",
+      "save": "Crear asignatura",
+      "saved": "Asignatura creada.",
+      "noSemester": "Activa un semestre antes de crear una asignatura.",
+      "catalogHint": "El NRC y los horarios identifican esta asignatura en el semestre activo."
     }
   },
   "TeachersPage": {
@@ -526,7 +536,10 @@
       "load": "No se pudieron cargar los profesores.",
       "import": "No se pudo importar el padrón de profesores.",
       "access": "No tienes acceso a esta página."
-    }
+    },
+    "create": "Crear profesor",
+    "editTeacher": "Editar {name} y sus asignaturas",
+    "editAndCourses": "Editar y asignaturas"
   },
   "SemesterSettingsPage": {
     "eyebrow": "Configuración académica",
@@ -1046,5 +1059,36 @@
     "description": "Este módulo estará disponible próximamente.",
     "privacyNotice": "Solo los usuarios autorizados podrán acceder a la información de este módulo.",
     "backToDashboard": "Volver al dashboard"
+  },
+  "AcademicManagement": {
+    "createTeacher": "Crear profesor",
+    "editTeacher": "Editar profesor",
+    "teacherDescription": "Gestiona los datos del profesor y sus asignaturas del semestre en curso.",
+    "name": "Nombre del profesor",
+    "email": "Correo electrónico",
+    "employeeCode": "Código de funcionario (opcional)",
+    "linkedCourses": "Asignaturas vinculadas",
+    "courseSelectionHint": "Marca para vincular y desmarca para desvincular. Los cambios se aplican al guardar.",
+    "teacherSelectionHint": "Selecciona los profesores de esta asignatura. Desmarca para desvincularlos.",
+    "semester": "Semestre activo: {name}",
+    "noSemester": "No hay un semestre activo. Puedes guardar los datos del profesor; activa un semestre para vincular asignaturas.",
+    "nrc": "NRC",
+    "searchOptions": "Buscar en la lista",
+    "selectedCount": "{count, plural, one {# seleccionado} other {# seleccionados}}",
+    "noMatches": "No hay coincidencias.",
+    "emptyOptions": "No hay registros disponibles.",
+    "loading": "Cargando opciones…",
+    "saving": "Guardando…",
+    "saveTeacher": "Guardar profesor",
+    "saveLinks": "Guardar vínculos",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "retry": "Reintentar",
+    "teacherCreated": "Profesor creado.",
+    "teacherUpdated": "Profesor y asignaturas actualizados.",
+    "linksSaved": "Vínculos docentes actualizados.",
+    "loadError": "No fue posible cargar las opciones. Recarga e intenta nuevamente.",
+    "saveError": "No fue posible guardar los cambios.",
+    "manageTeachers": "Gestionar profesores"
   }
 }

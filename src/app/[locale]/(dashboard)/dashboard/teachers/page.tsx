@@ -11,6 +11,8 @@ import {
   Mail,
   Search,
   UserRound,
+  Plus,
+  Pencil,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -20,6 +22,7 @@ import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
 import type { Teacher } from "@/types/justifications";
 import type { PaginatedResponse } from "@/types/pagination";
+import TeacherDialog from "@/components/dashboard/academic/TeacherDialog";
 
 const PAGE_SIZE = 10;
 
@@ -37,6 +40,9 @@ export default function TeachersPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const [editingTeacher, setEditingTeacher] = useState<
+    Teacher | null | undefined
+  >(undefined);
 
   const downloadExample = () => {
     const content =
@@ -150,6 +156,16 @@ export default function TeachersPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {canManage && (
+            <button
+              type="button"
+              onClick={() => setEditingTeacher(null)}
+              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <Plus className="h-4 w-4" />
+              {t("create")}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setShowHelp(true)}
@@ -175,7 +191,7 @@ export default function TeachersPage() {
               type="button"
               disabled={importing}
               onClick={() => inputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground hover:bg-muted disabled:opacity-60"
             >
               {importing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -271,6 +287,17 @@ export default function TeachersPage() {
                   ) : (
                     <span className="text-xs text-muted-foreground">—</span>
                   )}
+                  {canManage && (
+                    <button
+                      type="button"
+                      onClick={() => setEditingTeacher(teacher)}
+                      aria-label={t("editTeacher", { name: teacher.name })}
+                      className="ml-auto inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      {t("editAndCourses")}
+                    </button>
+                  )}
                 </div>
               </li>
             ))}
@@ -310,6 +337,18 @@ export default function TeachersPage() {
             </div>
           </footer>
         </section>
+      )}
+      {editingTeacher !== undefined && canManage && (
+        <TeacherDialog
+          teacher={editingTeacher}
+          onClose={() => setEditingTeacher(undefined)}
+          onSaved={() => {
+            setEditingTeacher(undefined);
+            setPage(1);
+            setLoading(true);
+            setReloadKey((key) => key + 1);
+          }}
+        />
       )}
       {showHelp && (
         <HelpDialog

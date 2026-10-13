@@ -33,6 +33,47 @@ const subject = {
   ],
 };
 describe("Editor de asignaturas", () => {
+  it("crea una asignatura con su NRC y horario en el semestre activo", async () => {
+    const api = installFakeApi({
+      "GET /academic/courses/options": ok(options),
+      "GET /academic/courses/current": ok({
+        semester: { id: "semester", name: "2026-2" },
+        courses: [],
+      }),
+      "POST /academic/courses": ok({ nrc: "20001" }),
+    });
+    const saved = vi.fn();
+    renderAs(<EditSubjectDialog onSaved={saved} onClose={vi.fn()} />);
+    await screen.findByLabelText("Sala");
+    fireEvent.change(screen.getByLabelText("Nombre de la asignatura"), {
+      target: { value: "Oceanografía" },
+    });
+    fireEvent.change(screen.getByLabelText("NRC"), {
+      target: { value: "20001" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Crear asignatura" }));
+    await waitFor(() => expect(saved).toHaveBeenCalledWith("20001"));
+    expect(api.calls("POST /academic/courses")[0].body).toEqual({
+      name: "Oceanografía",
+      code: null,
+      nrc: "20001",
+      semesterId: "semester",
+      schedules: [{ day: "Lunes", block: "A", location: null }],
+    });
+  });
+  it("impide crear asignaturas cuando no existe un semestre activo", async () => {
+    installFakeApi({
+      "GET /academic/courses/options": ok(options),
+      "GET /academic/courses/current": ok({ semester: null, courses: [] }),
+    });
+    renderAs(<EditSubjectDialog onSaved={vi.fn()} onClose={vi.fn()} />);
+    await screen.findByText(
+      "Activa un semestre antes de crear una asignatura.",
+    );
+    expect(
+      screen.getByRole("button", { name: "Crear asignatura" }),
+    ).toHaveProperty("disabled", true);
+  });
   it("guarda sin código y no lo rellena con el NRC", async () => {
     const api = installFakeApi({
       "GET /academic/courses/options": ok(options),
