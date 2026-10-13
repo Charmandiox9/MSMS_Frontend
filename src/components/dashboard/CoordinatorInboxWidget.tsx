@@ -6,14 +6,9 @@ import { ClipboardCheck } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { apiFetch } from "@/lib/api";
 import { CardsSkeleton } from "@/components/ui/LoadingSkeletons";
+import type { JustificationInboxEntry } from "@/types/justifications";
 
-type InboxEntry = {
-  id: string;
-  studentEmail: string;
-  subjectName: string;
-  absenceDate: string;
-  createdAt: string;
-};
+type InboxEntry = JustificationInboxEntry;
 
 export default function CoordinatorInboxWidget() {
   const t = useTranslations("DashboardViews.teachingSupportCoordinator");
@@ -57,6 +52,9 @@ export default function CoordinatorInboxWidget() {
             className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3"
           >
             <p className="font-bold text-foreground">{entry.subjectName}</p>
+            {entry.student && (
+              <p className="mt-1 font-semibold text-foreground">{entry.student.name}</p>
+            )}
             <p className="mt-1 text-muted-foreground">{entry.studentEmail}</p>
             <p className="mt-1 text-muted-foreground">
               {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(

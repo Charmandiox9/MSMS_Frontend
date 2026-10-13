@@ -29,6 +29,15 @@ function historyRow() {
 }
 
 describe("JustificationsPage (coordinación de apoyo docente)", () => {
+  it("muestra los nombres de estudiantes vinculados en bandeja e historial", async () => {
+    installFakeApi({
+      "GET /justifications/inbox": ok([inboxEntry({ student: { id: "s-1", name: "Ana Soto", email: "ana@example.test" } })]),
+      "GET /justifications": ok([justification({ student: { id: "s-2", name: "Beto Díaz", email: "beto@example.test" } })]),
+    });
+    renderAs(<JustificationsPage />, [...COORDINATOR]);
+    expect(await screen.findByText("Ana Soto")).toBeDefined();
+    expect(await screen.findByText("Beto Díaz")).toBeDefined();
+  });
   beforeEach(() => {
     localStorage.clear();
     Object.values(toast).forEach((mock) => mock.mockClear());

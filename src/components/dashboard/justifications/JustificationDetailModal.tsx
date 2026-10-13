@@ -178,6 +178,13 @@ export default function JustificationDetailModal({
     >
       <div className="space-y-6">
         <section className="grid gap-4 sm:grid-cols-2">
+          {item.student && (
+            <DetailItem
+              icon={User}
+              label={t("detail.registeredStudent")}
+              value={item.student.name}
+            />
+          )}
           <DetailItem
             icon={User}
             label={t("detail.student")}

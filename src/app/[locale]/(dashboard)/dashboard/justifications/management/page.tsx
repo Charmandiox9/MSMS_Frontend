@@ -161,7 +161,7 @@ export default function JustificationsManagementPage() {
       const matchesReason = reason === "ALL" || item.reasonCategory === reason;
       const matchesSearch =
         !search ||
-        `${item.studentEmail} ${item.subjectName} ${item.subjectCode ?? ""} ${item.nrc ?? ""}`
+        `${item.student?.name ?? ""} ${item.studentEmail} ${item.subjectName} ${item.subjectCode ?? ""} ${item.nrc ?? ""}`
           .toLowerCase()
           .includes(search.toLowerCase().trim());
       const matchesFrom = !from || day >= from;
@@ -443,6 +443,9 @@ export default function JustificationsManagementPage() {
                         {item.nrc ?? "—"}
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">
+                        {item.student && (
+                          <span className="block font-semibold">{item.student.name}</span>
+                        )}
                         {item.studentEmail}
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">

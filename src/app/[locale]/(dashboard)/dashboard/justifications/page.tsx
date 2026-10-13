@@ -268,6 +268,12 @@ export default function JustificationsPage() {
                 {entry.nrc ? ` · NRC ${entry.nrc}` : ""}
               </p>
               <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                {entry.student && (
+                  <>
+                    <span className="font-semibold text-foreground">{entry.student.name}</span>
+                    <span>·</span>
+                  </>
+                )}
                 <span>{entry.studentEmail}</span>
                 <span>·</span>
                 <span>{formatDate(entry.absenceDate)}</span>
@@ -341,6 +347,12 @@ export default function JustificationsPage() {
                     {item.nrc ? ` · NRC ${item.nrc}` : ""}
                   </p>
                   <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                    {item.student && (
+                      <>
+                        <span className="font-semibold text-foreground">{item.student.name}</span>
+                        <span>·</span>
+                      </>
+                    )}
                     <span>{item.studentEmail}</span>
                     <span>·</span>
                     <span>{formatDate(item.absenceDate)}</span>

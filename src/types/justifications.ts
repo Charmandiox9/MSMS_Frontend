@@ -6,6 +6,8 @@ export interface JustificationInboxEntry {
   id: string;
   externalResponseId: string;
   studentEmail: string;
+  studentId?: string | null;
+  student?: { id: string; name: string; email: string } | null;
   absenceDate: string;
   subjectName: string;
   subjectCode?: string | null;
