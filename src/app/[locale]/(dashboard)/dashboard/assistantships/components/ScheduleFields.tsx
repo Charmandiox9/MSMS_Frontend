@@ -26,15 +26,17 @@ export default function ScheduleFields({
       value.map((item) => (item.id === id ? { ...item, ...patch } : item)),
     );
   return (
-    <fieldset className="space-y-3">
-      <legend className="mb-1 text-sm font-bold text-foreground">
-        {t("form.schedule")}
-      </legend>
-      <p className="text-xs text-muted-foreground">{t("form.scheduleHint")}</p>
+    <div className="space-y-3" role="group" aria-labelledby="schedule-fields-legend">
+      <div>
+        <h3 id="schedule-fields-legend" className="text-sm font-bold text-foreground">
+          {t("form.schedule")}
+        </h3>
+        <p className="mt-0.5 text-xs text-muted-foreground">{t("form.scheduleHint")}</p>
+      </div>
       {value.map((item, index) => (
         <div
           key={item.id}
-          className="grid gap-3 rounded-2xl border border-border bg-background/50 p-3 sm:grid-cols-2"
+          className="grid gap-3.5 rounded-2xl border border-secondary/30 bg-secondary/[0.04] dark:bg-secondary/[0.08] p-4 sm:grid-cols-2 transition-all shadow-2xs hover:border-secondary/50"
         >
           <Field label={t("form.day")} htmlFor={`day-${item.id}`}>
             <select
@@ -82,20 +84,20 @@ export default function ScheduleFields({
           </Field>
           <button
             type="button"
-            className={`${buttonClass} self-end sm:justify-self-end`}
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-coral-red/30 bg-coral-red/10 px-3.5 py-2 text-xs font-bold text-coral-red transition-all hover:bg-coral-red/20 hover:border-coral-red/50 active:scale-95 self-end sm:justify-self-end cursor-pointer shadow-2xs"
             onClick={() =>
               onChange(value.filter((schedule) => schedule.id !== item.id))
             }
             aria-label={t("form.removeSchedule", { number: index + 1 })}
           >
-            <Trash2 className="h-4 w-4" />
-            {t("form.remove")}
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>{t("form.remove")}</span>
           </button>
         </div>
       ))}
       <button
         type="button"
-        className={buttonClass}
+        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-bold text-primary transition-all hover:bg-primary/20 hover:border-primary/50 active:scale-95 disabled:opacity-50 cursor-pointer shadow-2xs"
         disabled={value.length >= 14 || blocks.length === 0}
         onClick={() =>
           onChange([
@@ -110,8 +112,8 @@ export default function ScheduleFields({
         }
       >
         <Plus className="h-4 w-4" />
-        {t("form.addSchedule")}
+        <span>{t("form.addSchedule")}</span>
       </button>
-    </fieldset>
+    </div>
   );
 }

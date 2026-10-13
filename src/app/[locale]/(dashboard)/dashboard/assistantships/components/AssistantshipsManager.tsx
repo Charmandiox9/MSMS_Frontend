@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import {
   MetricsSkeleton,
@@ -10,11 +11,13 @@ import { ApolloProvider, useQuery } from "@apollo/client/react";
 import {
   CalendarDays,
   ClipboardList,
+  Download,
   Plus,
   Search,
   UsersRound,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { resolveApiBaseUrl } from "@/lib/runtime-config";
 import {
@@ -26,6 +29,7 @@ import {
 } from "../graphql";
 import { buttonClass, Field, inputClass, primaryClass } from "./controls";
 import AssistantshipsTable from "./AssistantshipsTable";
+import AssistantshipDetailModal from "./AssistantshipDetailModal";
 import RegisterAssistantshipDialog from "./RegisterAssistantshipDialog";
 
 function createClient() {
@@ -42,10 +46,12 @@ function createClient() {
     }),
   });
 }
+
 export default function AssistantshipsManager() {
   const t = useTranslations("AssistantshipsPage");
   const { activeRole } = useActiveRole();
   const [client] = useState(createClient);
+
   if (!activeRole) return <PageSkeleton label={t("loading")} />;
   if (
     activeRole !== "TEACHING_SUPPORT_COORDINATOR" &&
@@ -58,6 +64,7 @@ export default function AssistantshipsManager() {
         {t("errors.ACCESS_DENIED")}
       </p>
     );
+
   return (
     <ApolloProvider client={client}>
       <AssistantshipsWorkspace
@@ -66,6 +73,7 @@ export default function AssistantshipsManager() {
     </ApolloProvider>
   );
 }
+
 export function AssistantshipsWorkspace({
   readOnly = false,
 }: {
@@ -80,12 +88,16 @@ export function AssistantshipsWorkspace({
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Assistantship | null>(null);
+  const [detailItem, setDetailItem] = useState<Assistantship | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+
   const options = useQuery(OPTIONS, { fetchPolicy: "network-only" });
   const history = useQuery(HISTORY, {
     variables: { filters },
     fetchPolicy: "network-only",
     notifyOnNetworkStatusChange: true,
   });
+
   useEffect(() => {
     const timeout = setTimeout(
       () =>
@@ -98,8 +110,10 @@ export function AssistantshipsWorkspace({
     );
     return () => clearTimeout(timeout);
   }, [search]);
+
   const update = (patch: Partial<Filters>) =>
     setFilters((current) => ({ ...current, ...patch, page: 1 }));
+
   const page = history.data?.assistantships;
   const failed = Boolean(history.error || options.error);
   const busy = history.loading || options.loading;
@@ -108,9 +122,82 @@ export function AssistantshipsWorkspace({
     { key: "assistants", value: page?.assistants, icon: UsersRound },
     { key: "semesters", value: page?.semesters, icon: CalendarDays },
   ];
+
   const retry = () => {
     void Promise.allSettled([history.refetch(), options.refetch()]);
   };
+
+  const exportHistoryCsv = () => {
+    if (!page?.items?.length) return;
+    const headers = [
+      t("table.assistant"),
+      t("form.email"),
+      t("form.studentCode"),
+      t("table.course"),
+      "Código Asignatura",
+      "NRC Asignatura",
+      t("form.assistantshipNrc"),
+      t("filters.teacher"),
+      t("filters.semester"),
+      t("form.approvedOn"),
+      t("form.startsOn"),
+      t("form.endsOn"),
+      t("form.hours"),
+      t("filters.state"),
+      t("table.schedule"),
+    ];
+
+    const formatSchedule = (item: Assistantship) => {
+      if (!item.schedules.length) return t("table.noSchedule");
+      return item.schedules
+        .map((s) => {
+          const dayName = t(`days.${s.weekday}`);
+          const block = options.data?.assistantshipOptions.blocks.find(
+            (b) =>
+              b.startsAtMinute === s.startsAtMinute &&
+              b.endsAtMinute === s.endsAtMinute,
+          )?.code;
+          const blockStr = block ? `${block} · ` : "";
+          const start = `${String(Math.floor(s.startsAtMinute / 60)).padStart(2, "0")}:${String(s.startsAtMinute % 60).padStart(2, "0")}`;
+          const end = `${String(Math.floor(s.endsAtMinute / 60)).padStart(2, "0")}:${String(s.endsAtMinute % 60).padStart(2, "0")}`;
+          const loc = s.location ? ` (${s.location})` : "";
+          return `${dayName} ${blockStr}${start}-${end}${loc}`;
+        })
+        .join(" | ");
+    };
+
+    const rows = page.items.map((item) => [
+      `"${(item.assistantName || "").replace(/"/g, '""')}"`,
+      `"${(item.assistantEmail || "").replace(/"/g, '""')}"`,
+      `"${(item.studentCode || "").replace(/"/g, '""')}"`,
+      `"${(item.courseName || "").replace(/"/g, '""')}"`,
+      `"${(item.courseCode || "").replace(/"/g, '""')}"`,
+      `"${item.nrc}"`,
+      `"${item.assistantshipNrc || ""}"`,
+      `"${(item.teacherName || "").replace(/"/g, '""')}"`,
+      `"${(item.semesterName || "").replace(/"/g, '""')}"`,
+      `"${item.approvedOn || ""}"`,
+      `"${item.startsOn || ""}"`,
+      `"${item.endsOn || ""}"`,
+      item.weeklyHours !== null ? `${item.weeklyHours}` : "",
+      `"${t(`states.${item.state}`)}"`,
+      `"${formatSchedule(item).replace(/"/g, '""')}"`,
+    ]);
+
+    const csvContent =
+      "\uFEFF" +
+      [headers.join(";"), ...rows.map((row) => row.join(";"))].join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const dateStr = new Date().toISOString().split("T")[0];
+    link.download = `historial_ayudantias_fcm_${dateStr}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success(t("history.exportSuccess"));
+  };
+
   return (
     <section className="space-y-6">
       <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
@@ -125,21 +212,34 @@ export function AssistantshipsWorkspace({
             {t("subtitle")}
           </p>
         </div>
-        {!readOnly && (
+        <div className="flex flex-wrap items-center gap-2.5">
+          {!readOnly && (
+            <button
+              type="button"
+              className={primaryClass}
+              disabled={!options.data || failed}
+              onClick={() => {
+                setEditing(null);
+                setDialogOpen(true);
+              }}
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              {t("register")}
+            </button>
+          )}
           <button
             type="button"
-            className={primaryClass}
-            disabled={!options.data || failed}
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
+            className="btn-cta-secondary"
+            disabled={!page?.items?.length}
+            onClick={exportHistoryCsv}
+            title={t("history.export")}
           >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            {t("register")}
+            <Download className="h-4 w-4" aria-hidden="true" />
+            {t("history.export")}
           </button>
-        )}
+        </div>
       </header>
+
       {busy ? (
         <MetricsSkeleton
           count={3}
@@ -169,6 +269,7 @@ export function AssistantshipsWorkspace({
           ))}
         </div>
       )}
+
       <section className="overflow-hidden rounded-3xl border border-border bg-card">
         <div className="space-y-5 border-b border-border p-5">
           <div>
@@ -259,6 +360,7 @@ export function AssistantshipsWorkspace({
             </Field>
           </div>
         </div>
+
         {failed ? (
           <div role="alert" className="space-y-3 p-10 text-center">
             <p className="text-sm text-coral-red">{t("errors.load")}</p>
@@ -277,6 +379,10 @@ export function AssistantshipsWorkspace({
             <AssistantshipsTable
               items={page.items}
               blocks={options.data?.assistantshipOptions.blocks ?? []}
+              onView={(item) => {
+                setDetailItem(item);
+                setDetailOpen(true);
+              }}
               onEdit={
                 readOnly
                   ? undefined
@@ -349,7 +455,32 @@ export function AssistantshipsWorkspace({
           </div>
         )}
       </section>
-      <p className="text-xs text-muted-foreground">{t("stats.scope")}</p>
+
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <p className="text-xs text-muted-foreground">{t("stats.scope")}</p>
+      </div>
+
+      {detailOpen && detailItem && (
+        <AssistantshipDetailModal
+          isOpen={detailOpen}
+          item={detailItem}
+          blocks={options.data?.assistantshipOptions.blocks ?? []}
+          onClose={() => {
+            setDetailOpen(false);
+            setDetailItem(null);
+          }}
+          onEdit={
+            readOnly
+              ? undefined
+              : (item) => {
+                  setDetailOpen(false);
+                  setEditing(item);
+                  setDialogOpen(true);
+                }
+          }
+        />
+      )}
+
       {dialogOpen && options.data && (
         <RegisterAssistantshipDialog
           key={editing?.id ?? "new"}
