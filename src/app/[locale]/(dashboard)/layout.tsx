@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import { ActiveRoleProvider, useActiveRole } from '@/context/ActiveRoleContext';
-import { getActiveSession, logout, type ActiveSession } from '@/lib/auth';
+import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { ActiveRoleProvider, useActiveRole } from "@/context/ActiveRoleContext";
+import { getActiveSession, logout, type ActiveSession } from "@/lib/auth";
+import { DashboardShellSkeleton } from "@/components/ui/LoadingSkeletons";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -25,7 +26,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       />
       <div
         className={`flex min-h-screen flex-col transition-[margin] duration-300 ${
-          collapsed ? 'md:ml-20' : 'md:ml-72'
+          collapsed ? "md:ml-20" : "md:ml-72"
         }`}
       >
         <DashboardHeader onMenuToggle={() => setMobileOpen(true)} />
@@ -43,7 +44,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const locale = useLocale();
-  const t = useTranslations('Dashboard');
+  const t = useTranslations("Dashboard");
   const router = useRouter();
   const [session, setSession] = useState<ActiveSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,11 +73,7 @@ export default function DashboardLayout({
   }, [locale, router]);
 
   if (isLoading || !session) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
-        {t('sessionChecking')}
-      </div>
-    );
+    return <DashboardShellSkeleton label={t("sessionChecking")} />;
   }
 
   return (

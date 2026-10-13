@@ -55,3 +55,24 @@ El detalle de qué cubren las pruebas y los problemas que detectaron está en [d
 - `src/lib`: clientes y utilidades compartidas, incluido Apollo Client.
 
 Mantén los textos visibles traducidos en español e inglés, conserva los Server Components por defecto y añade componentes cliente solo cuando la interacción lo requiera.
+
+## Ayudantías
+
+La ruta `/dashboard/assistantships` permite consultar registros por semestre,
+buscar y filtrar por profesor/estado, y registrar ayudantías mediante un modal.
+La ruta previa `/dashboard/assistantship-history` redirige a esta vista. El backend
+debe exponer las consultas y la mutación del módulo GraphQL `assistantships`;
+todas requieren el permiso `TEACHING_ASSISTANTS_MANAGE`.
+
+Los tipos del contrato se generan desde `backend/src/schema.gql`, que NestJS
+produce automáticamente al iniciar el backend:
+
+```bash
+npm run generate:assistantship-types
+# También admite la ruta a un esquema exportado:
+npm run generate:assistantship-types -- /ruta/al/schema.gql
+```
+
+Las pruebas del formulario y filtros usan Apollo MockedProvider. Ejecuta la suite
+con Node 24 LTS para que jsdom gestione `localStorage`, sin interferencia de la
+implementación experimental global de Node 25.
