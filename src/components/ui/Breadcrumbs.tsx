@@ -18,6 +18,7 @@ const ROUTE_NAME_MAP: Record<string, string> = {
   'academic-information': 'academicInformation',
   subjects: 'subjects',
   teachers: 'teachers',
+  students: 'students',
   'academic-workload': 'academicWorkload',
   'assistantship-history': 'assistantships',
   assistantships: 'assistantships',

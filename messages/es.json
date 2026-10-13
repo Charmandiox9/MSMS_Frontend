@@ -256,7 +256,8 @@
     },
     "switchRole": "Cambiar rol activo",
     "switchRoleTitle": "Roles asignados",
-    "assistantships": "Ayudantías"
+    "assistantships": "Ayudantías",
+    "students": "Estudiantes"
   },
   "JustificationsPage": {
     "eyebrow": "Apoyo docente",
@@ -508,7 +509,8 @@
       "saved": "Asignatura creada.",
       "noSemester": "Activa un semestre antes de crear una asignatura.",
       "catalogHint": "El NRC y los horarios identifican esta asignatura en el semestre activo."
-    }
+    },
+    "viewStudents": "Estudiantes"
   },
   "TeachersPage": {
     "eyebrow": "Carga académica",
@@ -1098,5 +1100,56 @@
     "description": "Tu sesión está activa. Selecciona el rol con el que quieres ingresar.",
     "roleLabel": "Roles disponibles",
     "continue": "Entrar al dashboard"
+  },
+  "StudentsPage": {
+    "eyebrow": "Información académica",
+    "title": "Estudiantes",
+    "subtitle": "Registro de estudiantes y asignaturas que cursan en el semestre activo.",
+    "create": "Crear estudiante",
+    "import": "Importar CSV",
+    "createTitle": "Crear estudiante",
+    "editTitle": "Editar estudiante",
+    "formDescription": "El estudiante se conserva entre semestres. Los vínculos se gestionan para el semestre activo.",
+    "name": "Nombre completo",
+    "email": "Correo electrónico",
+    "courses": "Asignaturas del semestre activo",
+    "nrc": "NRC",
+    "save": "Guardar estudiante",
+    "saving": "Guardando…",
+    "created": "Estudiante creado.",
+    "updated": "Estudiante y asignaturas actualizados.",
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "retry": "Reintentar",
+    "loading": "Cargando estudiantes…",
+    "semester": "Semestre activo: {name}",
+    "noSemesterProfile": "No hay semestre activo. Puedes guardar los datos del estudiante sin vincular asignaturas.",
+    "selectionHint": "Marca para vincular y desmarca para desvincular. Los cambios se aplican al guardar.",
+    "search": "Buscar por nombre o correo",
+    "filterCourse": "Filtrar por asignatura",
+    "allStudents": "Todos los estudiantes",
+    "noSemesterList": "Sin semestre activo. Los estudiantes permanecen registrados.",
+    "empty": "No hay estudiantes registrados.",
+    "noMatches": "No hay estudiantes que coincidan con los filtros.",
+    "noCourses": "Sin asignaturas en el semestre activo",
+    "edit": "Editar y asignaturas",
+    "editStudent": "Editar {name} y sus asignaturas",
+    "total": "{count, plural, one {# estudiante} other {# estudiantes}}",
+    "importTitle": "Importar estudiantes",
+    "importDescription": "Carga estudiantes y vincúlalos a NRC existentes en el semestre activo.",
+    "importing": "Importando…",
+    "imported": "{students} estudiantes procesados; {created} nuevos y {enrollments} vínculos añadidos.",
+    "noSemesterImport": "Activa un semestre antes de importar matrículas.",
+    "csvFormat": "Archivo CSV UTF-8 separado por punto y coma o coma. Incluye nombre, correo y una o más columnas de NRC.",
+    "importRules": "Los correos deben ser únicos dentro del archivo. Todos los NRC deben existir en el semestre activo. Se rechaza el archivo completo si una fila es inválida. Reimportar añade vínculos faltantes y conserva los demás. Máximo 5000 estudiantes y 2 MB.",
+    "file": "Archivo CSV",
+    "downloadExample": "Descargar ejemplo CSV",
+    "exampleDownloaded": "Ejemplo CSV descargado.",
+    "errors": {
+      "load": "No fue posible cargar los estudiantes o las asignaturas.",
+      "save": "No fue posible guardar el estudiante.",
+      "import": "No fue posible importar los estudiantes.",
+      "fileSize": "El archivo supera el máximo de 2 MB."
+    }
   }
 }

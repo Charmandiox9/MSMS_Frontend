@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import SubjectsPage from "./page";
 import { renderAs } from "@/test/render";
@@ -6,6 +7,11 @@ import { fail, installFakeApi, ok } from "@/test/fake-api";
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn(), promise: vi.fn() },
+}));
+vi.mock("@/i18n/routing", () => ({
+  Link: ({ children, ...props }: ComponentProps<"a">) => (
+    <a {...props}>{children}</a>
+  ),
 }));
 
 const COURSES = [
@@ -64,7 +70,13 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   it("permite al analista consultar horarios sin importar datos", async () => {
     installFakeApi({
       "GET /academic/courses": ok(COURSES),
-      "GET /academic/teachers": ok({ items: TEACHERS, total: TEACHERS.length, page: 1, pageSize: 100, totalPages: 1 }),
+      "GET /academic/teachers": ok({
+        items: TEACHERS,
+        total: TEACHERS.length,
+        page: 1,
+        pageSize: 100,
+        totalPages: 1,
+      }),
     });
     renderAs(<SubjectsPage />, ["ACADEMIC_PROCESS_ANALYST"]);
     expect(await screen.findByText("Estructura de Datos")).toBeDefined();
@@ -77,7 +89,13 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   it("agrupa los horarios por NRC y asocia el profesor", async () => {
     installFakeApi({
       "GET /academic/courses": ok(COURSES),
-      "GET /academic/teachers": ok({ items: TEACHERS, total: TEACHERS.length, page: 1, pageSize: 100, totalPages: 1 }),
+      "GET /academic/teachers": ok({
+        items: TEACHERS,
+        total: TEACHERS.length,
+        page: 1,
+        pageSize: 100,
+        totalPages: 1,
+      }),
     });
     renderAs(<SubjectsPage />, ["ACADEMIC_SECRETARY"]);
 
@@ -104,7 +122,13 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
       );
       const api = installFakeApi({
         "GET /academic/courses": ok(COURSES),
-        "GET /academic/teachers": ok({ items: TEACHERS, total: TEACHERS.length, page: 1, pageSize: 100, totalPages: 1 }),
+        "GET /academic/teachers": ok({
+          items: TEACHERS,
+          total: TEACHERS.length,
+          page: 1,
+          pageSize: 100,
+          totalPages: 1,
+        }),
         "GET /academic/courses/options": ok({
           days: ["Lunes", "Miércoles"],
           blocks: [{ code: "A", startsAtMinute: 490, endsAtMinute: 580 }],
@@ -145,7 +169,13 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   it("filtra por día y búsqueda", async () => {
     installFakeApi({
       "GET /academic/courses": ok(COURSES),
-      "GET /academic/teachers": ok({ items: TEACHERS, total: TEACHERS.length, page: 1, pageSize: 100, totalPages: 1 }),
+      "GET /academic/teachers": ok({
+        items: TEACHERS,
+        total: TEACHERS.length,
+        page: 1,
+        pageSize: 100,
+        totalPages: 1,
+      }),
     });
     renderAs(<SubjectsPage />, ["ACADEMIC_SECRETARY"]);
     await screen.findByText("Estructura de Datos");
@@ -170,7 +200,13 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   it("importa el CSV de horarios y recarga", async () => {
     const api = installFakeApi({
       "GET /academic/courses": ok([]),
-      "GET /academic/teachers": ok({ items: [], total: 0, page: 1, pageSize: 100, totalPages: 0 }),
+      "GET /academic/teachers": ok({
+        items: [],
+        total: 0,
+        page: 1,
+        pageSize: 100,
+        totalPages: 0,
+      }),
       "POST /academic/courses/import-csv": ok({ importedRows: 3 }),
     });
     renderAs(<SubjectsPage />, ["SYSTEM_ADMIN"]);
@@ -212,7 +248,13 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
             endsOn: "2026-12-18",
           },
         ]),
-        "GET /academic/teachers": ok({ items: TEACHERS, total: TEACHERS.length, page: 1, pageSize: 100, totalPages: 1 }),
+        "GET /academic/teachers": ok({
+          items: TEACHERS,
+          total: TEACHERS.length,
+          page: 1,
+          pageSize: 100,
+          totalPages: 1,
+        }),
       });
       renderAs(<SubjectsPage />, [role]);
       await screen.findByText("Estructura de Datos");
@@ -238,7 +280,13 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
   it("muestra el error del backend al importar", async () => {
     installFakeApi({
       "GET /academic/courses": ok([]),
-      "GET /academic/teachers": ok({ items: [], total: 0, page: 1, pageSize: 100, totalPages: 0 }),
+      "GET /academic/teachers": ok({
+        items: [],
+        total: 0,
+        page: 1,
+        pageSize: 100,
+        totalPages: 0,
+      }),
       "POST /academic/courses/import-csv": fail(400, "Fila 3: bloque inválido"),
     });
     renderAs(<SubjectsPage />, ["SYSTEM_ADMIN"]);

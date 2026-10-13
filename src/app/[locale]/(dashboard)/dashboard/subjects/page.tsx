@@ -24,6 +24,7 @@ import { fetchAllTeachers } from "@/lib/teachers";
 
 import EditSubjectDialog from "./EditSubjectDialog";
 import CourseTeachersDialog from "./CourseTeachersDialog";
+import { Link } from "@/i18n/routing";
 
 type Instructor = { id: string; name: string; email: string };
 type ScheduleRow = {
@@ -426,6 +427,12 @@ export default function SubjectsPage() {
                       ))}
                     </div>
                     <div className="flex flex-wrap gap-2">
+                      <Link
+                        href={`/dashboard/students?nrc=${encodeURIComponent(subject.nrc)}`}
+                        className="inline-flex min-h-10 items-center justify-center rounded-xl border border-border px-3 py-2 text-xs font-bold text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        {t("viewStudents")}
+                      </Link>
                       {canManage && (
                         <>
                           <button

@@ -20,6 +20,7 @@ export type NavigationKey =
   | "academicInformation"
   | "subjects"
   | "teachers"
+  | "students"
   | "academicWorkload"
   | "assistantships"
   | "titulation"
@@ -99,6 +100,17 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         icon: Users,
         allowedRoles: [
           "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
+      },
+      {
+        key: "students",
+        href: "/dashboard/students",
+        icon: Users,
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "TEACHING_SUPPORT_COORDINATOR",
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],

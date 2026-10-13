@@ -10,7 +10,13 @@ export default function AcademicQuickLinks() {
   const links = getFilteredNavigation(DASHBOARD_SECTIONS, activeRole)
     .flatMap((section) => section.items)
     .filter((item) =>
-      ["assistantships", "subjects", "teachers", "reports"].includes(item.key),
+      [
+        "assistantships",
+        "subjects",
+        "teachers",
+        "students",
+        "reports",
+      ].includes(item.key),
     );
   return (
     <nav

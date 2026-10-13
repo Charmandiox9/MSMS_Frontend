@@ -256,7 +256,8 @@
     },
     "switchRole": "Switch active role",
     "switchRoleTitle": "Assigned roles",
-    "assistantships": "Assistantships"
+    "assistantships": "Assistantships",
+    "students": "Students"
   },
   "JustificationsPage": {
     "eyebrow": "Teaching support",
@@ -508,7 +509,8 @@
       "saved": "Course created.",
       "noSemester": "Activate a semester before creating a course.",
       "catalogHint": "The NRC and schedules identify this course in the active semester."
-    }
+    },
+    "viewStudents": "Students"
   },
   "TeachersPage": {
     "eyebrow": "Academic workload",
@@ -1098,5 +1100,56 @@
     "description": "Your session is active. Select the role you want to use.",
     "roleLabel": "Available roles",
     "continue": "Open dashboard"
+  },
+  "StudentsPage": {
+    "eyebrow": "Academic information",
+    "title": "Students",
+    "subtitle": "Student records and courses attended in the active semester.",
+    "create": "Create student",
+    "import": "Import CSV",
+    "createTitle": "Create student",
+    "editTitle": "Edit student",
+    "formDescription": "Students remain registered across semesters. Course links apply to the active semester.",
+    "name": "Full name",
+    "email": "Email address",
+    "courses": "Active semester courses",
+    "nrc": "NRC",
+    "save": "Save student",
+    "saving": "Saving…",
+    "created": "Student created.",
+    "updated": "Student and courses updated.",
+    "close": "Close",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "loading": "Loading students…",
+    "semester": "Active semester: {name}",
+    "noSemesterProfile": "There is no active semester. You can save student details without linking courses.",
+    "selectionHint": "Check to link and uncheck to unlink. Changes apply when you save.",
+    "search": "Search by name or email",
+    "filterCourse": "Filter by course",
+    "allStudents": "All students",
+    "noSemesterList": "No active semester. Students remain registered.",
+    "empty": "No students registered.",
+    "noMatches": "No students match the filters.",
+    "noCourses": "No courses in the active semester",
+    "edit": "Edit and courses",
+    "editStudent": "Edit {name} and their courses",
+    "total": "{count, plural, one {# student} other {# students}}",
+    "importTitle": "Import students",
+    "importDescription": "Upload students and link them to existing NRCs in the active semester.",
+    "importing": "Importing…",
+    "imported": "{students} students processed; {created} new students and {enrollments} added links.",
+    "noSemesterImport": "Activate a semester before importing enrollments.",
+    "csvFormat": "UTF-8 CSV separated by semicolons or commas. Include name, email and one or more NRC columns.",
+    "importRules": "Emails must be unique within the file. Every NRC must exist in the active semester. An invalid row rejects the entire file. Reimporting adds missing links and keeps existing ones. Maximum 5000 students and 2 MB.",
+    "file": "CSV file",
+    "downloadExample": "Download CSV example",
+    "exampleDownloaded": "CSV example downloaded.",
+    "errors": {
+      "load": "Could not load students or courses.",
+      "save": "Could not save the student.",
+      "import": "Could not import students.",
+      "fileSize": "The file exceeds the 2 MB limit."
+    }
   }
 }
