@@ -134,4 +134,106 @@ describe("TeachersPage (padrón de profesores)", () => {
 
     expect(await screen.findByText("Fila 2: correo inválido")).toBeDefined();
   });
+
+  it("permite abrir el modal de registro de nuevo docente a la secretaria", async () => {
+    installFakeApi({ "GET /academic/teachers": ok([]) });
+    renderAs(<TeachersPage />, ["ACADEMIC_SECRETARY"]);
+    await screen.findByText(
+      "No hay profesores cargados para el semestre activo.",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Registrar docente" }));
+    expect(screen.getByText("Registrar nuevo docente")).toBeDefined();
+  });
+
+  it("permite filtrar por estado y alternar la desactivación", async () => {
+    const activeT = teacher(1);
+    const inactiveT = { ...teacher(2), isActive: false };
+
+    const api = installFakeApi({
+      "GET /academic/teachers": ok([activeT, inactiveT]),
+      "PATCH /academic/teachers/t-1/status": ok({
+        ...activeT,
+        isActive: false,
+      }),
+    });
+
+    renderAs(<TeachersPage />, ["ACADEMIC_SECRETARY"]);
+    expect(await screen.findByText("Profesor 01")).toBeDefined();
+    expect(screen.getByText("Profesor 02")).toBeDefined();
+
+    // Filtro Activos
+    fireEvent.click(screen.getByRole("button", { name: "Activos" }));
+    expect(screen.getByText("Profesor 01")).toBeDefined();
+    expect(screen.queryByText("Profesor 02")).toBeNull();
+
+    // Filtro Inactivos
+    fireEvent.click(screen.getByRole("button", { name: "Inactivos" }));
+    expect(screen.queryByText("Profesor 01")).toBeNull();
+    expect(screen.getByText("Profesor 02")).toBeDefined();
+
+    // Volver a Todos
+    fireEvent.click(screen.getByRole("button", { name: "Todos" }));
+    expect(screen.getByText("Profesor 01")).toBeDefined();
+
+    // Abrir modal de desactivación para Profesor 01
+    const deactivateBtns = screen.getAllByRole("button", { name: "Desactivar" });
+    fireEvent.click(deactivateBtns[0]);
+    expect(screen.getByText("¿Desactivar docente?")).toBeDefined();
+
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar desactivación" }));
+    await waitFor(() =>
+      expect(api.calls("PATCH /academic/teachers/t-1/status")).toHaveLength(1),
+    );
+  });
+
+  it("permite exportar la nómina de profesores a CSV", async () => {
+    installFakeApi({
+      "GET /academic/teachers": ok([teacher(1)]),
+    });
+    const createObjectURLMock = vi.fn().mockReturnValue("blob:test");
+    const revokeObjectURLMock = vi.fn();
+    window.URL.createObjectURL = createObjectURLMock;
+    window.URL.revokeObjectURL = revokeObjectURLMock;
+
+    renderAs(<TeachersPage />, ["ACADEMIC_SECRETARY"]);
+    expect(await screen.findByText("Profesor 01")).toBeDefined();
+
+    const exportBtn = screen.getByRole("button", { name: "Exportar nómina" });
+    fireEvent.click(exportBtn);
+
+    expect(createObjectURLMock).toHaveBeenCalled();
+    expect(revokeObjectURLMock).toHaveBeenCalled();
+  });
+
+  it("muestra antecedentes de acreditación y permite editar docente", async () => {
+    const accreditedTeacher: Teacher = {
+      id: "t-accred",
+      name: "Dra. María Morales",
+      email: "maria.morales@ucn.cl",
+      academicDegree: "Doctora en Ciencias de la Computación",
+      professionalTitle: "Ingeniera Civil en Informática",
+      institution: "Universidad Católica del Norte",
+      assignments: [],
+    };
+
+    installFakeApi({
+      "GET /academic/teachers": ok([accreditedTeacher]),
+    });
+
+    renderAs(<TeachersPage />, ["ACADEMIC_SECRETARY"]);
+    expect(await screen.findByText("Dra. María Morales")).toBeDefined();
+    expect(
+      screen.getByText("Doctora en Ciencias de la Computación"),
+    ).toBeDefined();
+    expect(
+      screen.getByText("Ingeniera Civil en Informática"),
+    ).toBeDefined();
+    expect(
+      screen.getByText("(Universidad Católica del Norte)"),
+    ).toBeDefined();
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    expect(screen.getByText("Editar información del docente")).toBeDefined();
+  });
 });

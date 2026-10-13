@@ -53,13 +53,16 @@ type Subject = {
 
 /** Horarios del semestre activo con los profesores asignados a cada NRC. */
 async function fetchSchedules(): Promise<ScheduleRow[]> {
-  const [schedules, teachers] = await Promise.all([
+  const [schedules, teachersResponse] = await Promise.all([
     apiFetch<Omit<ScheduleRow, "teachers">[]>("/academic/courses"),
-    apiFetch<TeacherResponse[]>("/academic/teachers"),
+    apiFetch<TeacherResponse[] | { items: TeacherResponse[] }>("/academic/teachers?pageSize=100"),
   ]);
+  const teachers = Array.isArray(teachersResponse)
+    ? teachersResponse
+    : teachersResponse?.items ?? [];
   const instructorsByNrc = new Map<string, Instructor[]>();
   for (const teacher of teachers) {
-    for (const assignment of teacher.assignments) {
+    for (const assignment of teacher.assignments ?? []) {
       const instructors = instructorsByNrc.get(assignment.nrc) ?? [];
       if (!instructors.some((instructor) => instructor.id === teacher.id)) {
         instructors.push({
