@@ -42,5 +42,11 @@ export interface Teacher {
   name: string;
   email: string;
   employeeCode?: string | null;
+  rut?: string | null;
+  academicUnit?: string | null;
+  academicDegree?: import("./hourly-payments").AcademicDegree | null;
+  certification?: import("./hourly-payments").TeacherCertification | null;
+  joinedOn?: string | null;
+  leftOn?: string | null;
   assignments: TeacherAssignment[];
 }

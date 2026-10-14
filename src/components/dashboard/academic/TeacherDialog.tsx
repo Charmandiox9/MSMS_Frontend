@@ -9,6 +9,11 @@ import { apiFetch } from "@/lib/api";
 import type { Teacher } from "@/types/justifications";
 import type { CurrentCourseCatalog } from "@/types/academic";
 import AcademicSelectionList from "./AcademicSelectionList";
+import TeacherProfileFields, {
+  type TeacherAcademicProfile,
+} from "./TeacherProfileFields";
+import HourlyContractsEditor from "./HourlyContractsEditor";
+import type { HourlyContractInput } from "@/types/hourly-payments";
 
 const fieldClass =
   "mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30";
@@ -23,6 +28,20 @@ export default function TeacherDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("AcademicManagement");
+  const pay = useTranslations("HourlyPayments");
+  const [profile, setProfile] = useState<TeacherAcademicProfile>({
+    rut: teacher?.rut ?? "",
+    academicUnit: teacher?.academicUnit ?? "",
+    academicDegree: teacher?.academicDegree ?? "",
+    certification: teacher?.certification ?? "",
+    joinedOn: teacher?.joinedOn?.slice(0, 10) ?? "",
+    leftOn: teacher?.leftOn?.slice(0, 10) ?? "",
+  });
+  const [hourlyEnabled, setHourlyEnabled] = useState(false);
+  const [hourlyReady, setHourlyReady] = useState(false);
+  const [hourlyContracts, setHourlyContracts] = useState<HourlyContractInput[]>(
+    [],
+  );
   const [name, setName] = useState(teacher?.name ?? "");
   const [email, setEmail] = useState(teacher?.email ?? "");
   const [employeeCode, setEmployeeCode] = useState(teacher?.employeeCode ?? "");
@@ -59,7 +78,12 @@ export default function TeacherDialog({
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (saving || !catalog) return;
+    if (
+      saving ||
+      !catalog ||
+      (hourlyEnabled && (!hourlyReady || !profile.rut.trim()))
+    )
+      return;
     setSaving(true);
     setError(null);
     const operation = apiFetch<Teacher>(
@@ -70,6 +94,13 @@ export default function TeacherDialog({
           name: name.trim(),
           email: email.trim(),
           employeeCode: employeeCode.trim() || null,
+          rut: profile.rut.trim() || null,
+          academicUnit: profile.academicUnit.trim() || null,
+          academicDegree: profile.academicDegree || null,
+          certification: profile.certification || null,
+          joinedOn: profile.joinedOn || null,
+          leftOn: profile.leftOn || null,
+          ...(hourlyEnabled ? { hourlyContracts } : {}),
           ...(catalog.semester
             ? { semesterId: catalog.semester.id, nrcs: selected }
             : {}),
@@ -116,7 +147,11 @@ export default function TeacherDialog({
           <button
             type="submit"
             form="teacher-editor"
-            disabled={saving || !catalog}
+            disabled={
+              saving ||
+              !catalog ||
+              (hourlyEnabled && (!hourlyReady || !profile.rut.trim()))
+            }
             className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
           >
             {t(saving ? "saving" : "saveTeacher")}
@@ -160,6 +195,11 @@ export default function TeacherDialog({
               className={fieldClass}
             />
           </label>
+          <TeacherProfileFields
+            value={profile}
+            onChange={setProfile}
+            fieldClass={fieldClass}
+          />
         </fieldset>
         {error && (
           <p
@@ -209,6 +249,43 @@ export default function TeacherDialog({
               </>
             )}
           </fieldset>
+        )}
+        {catalog?.semester && (
+          <>
+            <label className="flex items-center gap-2 text-sm font-bold">
+              <input
+                type="checkbox"
+                checked={hourlyEnabled}
+                disabled={saving}
+                onChange={(event) => {
+                  setHourlyEnabled(event.target.checked);
+                  setHourlyReady(false);
+                }}
+                className="h-4 w-4 accent-primary"
+              />
+              {pay("manageContracts")}
+            </label>
+            {hourlyEnabled && (
+              <>
+                {!profile.rut.trim() && (
+                  <p className="text-sm text-destructive">
+                    {pay("rutRequired")}
+                  </p>
+                )}
+                <HourlyContractsEditor
+                  semesterId={catalog.semester.id}
+                  teacherId={teacher?.id}
+                  courses={catalog.courses.filter((course) =>
+                    selected.includes(course.nrc),
+                  )}
+                  value={hourlyContracts}
+                  onChange={setHourlyContracts}
+                  onReady={setHourlyReady}
+                  disabled={saving}
+                />
+              </>
+            )}
+          </>
         )}
       </form>
     </Modal>

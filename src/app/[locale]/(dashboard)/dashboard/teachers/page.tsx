@@ -23,11 +23,14 @@ import { apiFetch } from "@/lib/api";
 import type { Teacher } from "@/types/justifications";
 import type { PaginatedResponse } from "@/types/pagination";
 import TeacherDialog from "@/components/dashboard/academic/TeacherDialog";
+import HourlyPayRatesDialog from "@/components/dashboard/academic/HourlyPayRatesDialog";
 
 const PAGE_SIZE = 10;
 
 export default function TeachersPage() {
   const t = useTranslations("TeachersPage");
+  const pay = useTranslations("HourlyPayments");
+  const [showPayRates, setShowPayRates] = useState(false);
   const { activeRole } = useActiveRole();
   const inputRef = useRef<HTMLInputElement>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -159,6 +162,15 @@ export default function TeachersPage() {
           {canManage && (
             <button
               type="button"
+              onClick={() => setShowPayRates(true)}
+              className="rounded-2xl border border-primary/30 px-4 py-2.5 text-sm font-bold text-primary"
+            >
+              {pay("ratesTitle")}
+            </button>
+          )}
+          {canManage && (
+            <button
+              type="button"
               onClick={() => setEditingTeacher(null)}
               className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
@@ -269,7 +281,27 @@ export default function TeachersPage() {
                 <p className="flex min-w-0 items-center gap-1.5 pl-11 text-xs text-muted-foreground md:pl-0">
                   <span className="md:hidden">{t("emailColumn")}:</span>
                   <Mail className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{teacher.email}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate">{teacher.email}</span>
+                    {teacher.rut && (
+                      <span className="block text-xs">
+                        {pay("rut")}: {teacher.rut}
+                      </span>
+                    )}
+                    {teacher.academicDegree && (
+                      <span className="block text-xs">
+                        {pay(`degrees.${teacher.academicDegree}`)}
+                        {teacher.certification
+                          ? ` · ${pay(`certifications.${teacher.certification}`)}`
+                          : ""}
+                      </span>
+                    )}
+                    {teacher.academicUnit && (
+                      <span className="block text-xs">
+                        {teacher.academicUnit}
+                      </span>
+                    )}
+                  </span>
                 </p>
                 <div className="flex min-w-0 flex-wrap items-center gap-1.5 pl-11 md:pl-0">
                   <span className="text-[10px] font-bold uppercase text-muted-foreground md:hidden">
@@ -349,6 +381,9 @@ export default function TeachersPage() {
             setReloadKey((key) => key + 1);
           }}
         />
+      )}
+      {showPayRates && canManage && (
+        <HourlyPayRatesDialog onClose={() => setShowPayRates(false)} />
       )}
       {showHelp && (
         <HelpDialog

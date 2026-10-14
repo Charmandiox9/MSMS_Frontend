@@ -57,6 +57,12 @@ describe("TeacherDialog", () => {
       name: "Ana Soto",
       email: "ana@example.com",
       employeeCode: null,
+      rut: null,
+      academicUnit: null,
+      academicDegree: null,
+      certification: null,
+      joinedOn: null,
+      leftOn: null,
       semesterId: "semester",
       nrcs: ["10002"],
     });
@@ -128,6 +134,12 @@ describe("TeacherDialog", () => {
       name: teacher.name,
       email: teacher.email,
       employeeCode: teacher.employeeCode,
+      rut: null,
+      academicUnit: null,
+      academicDegree: null,
+      certification: null,
+      joinedOn: null,
+      leftOn: null,
     });
   });
   it("permite reintentar la carga de opciones sin perder los datos del perfil", async () => {

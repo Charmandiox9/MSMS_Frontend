@@ -1152,5 +1152,75 @@
       "import": "Could not import students.",
       "fileSize": "The file exceeds the 2 MB limit."
     }
+  },
+  "HourlyPayments": {
+    "rut": "RUT",
+    "academicUnit": "Academic unit",
+    "degree": "Academic degree",
+    "certification": "Certification",
+    "joinedOn": "Joining date",
+    "leftOn": "Leaving date",
+    "notRecorded": "Not recorded",
+    "manageContracts": "Manage hourly teaching contracts and payments",
+    "rutRequired": "Enter the RUT to save hourly teaching contracts.",
+    "contracts": "Hourly teaching contracts",
+    "calculationHint": "30-day months, inclusive dates and payments rounded to whole pesos. Saving applies the contracts shown here; historical contracts are retained.",
+    "loading": "Loading contracts and rates…",
+    "loadError": "Could not load payments.",
+    "semesterChanged": "The active semester changed. Close and reopen the form.",
+    "retry": "Retry",
+    "noRates": "No rates are configured. Open Hourly rates from the teacher list to register them.",
+    "empty": "This teacher has no hourly contracts in the active semester.",
+    "contractNumber": "Contract {number}",
+    "remove": "Remove contract",
+    "course": "Course (NRC)",
+    "rate": "Applicable rate",
+    "select": "Select",
+    "component": "Component",
+    "parallel": "Parallel",
+    "hours": "Direct teaching hours",
+    "startsOn": "Contract start",
+    "endsOn": "Contract end",
+    "monthlyAmount": "Monthly amount",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "addContract": "Add hourly contract",
+    "calculating": "Calculating payments…",
+    "semesterTotal": "Semester total",
+    "ratesTitle": "Hourly rates",
+    "ratesDescription": "Configure the monthly payment per direct teaching hour for the active semester. Existing contracts retain the rate applied when they were registered.",
+    "category": "Category",
+    "hourlyRate": "Monthly payment per direct hour (CLP)",
+    "savingRate": "Saving rate…",
+    "rateSaved": "Rate saved.",
+    "saveError": "Could not save the rate.",
+    "saveRate": "Save rate",
+    "editRate": "Edit rate",
+    "close": "Close",
+    "noSemester": "Activate a semester to configure its rates.",
+    "categories": {
+      "NEW": "New",
+      "EXISTING": "Existing",
+      "DIVING_PRINCIPAL": "Principal diving instructor",
+      "DIVING_SECONDARY": "Secondary diving instructor"
+    },
+    "degrees": {
+      "PROFESSIONAL": "Professional",
+      "MASTER": "Master's",
+      "DOCTOR": "Doctor",
+      "NOT_APPLICABLE": "Not applicable"
+    },
+    "certifications": {
+      "NONE": "No certification",
+      "LEVEL_1": "Level 1",
+      "LEVEL_2": "Level 2",
+      "LEVEL_3": "Level 3"
+    },
+    "components": {
+      "LECTURE": "Lecture",
+      "WORKSHOP": "Workshop",
+      "LABORATORY": "Laboratory",
+      "FIELDWORK": "Fieldwork",
+      "ASSISTANTSHIP": "Assistantship"
+    }
   }
 }

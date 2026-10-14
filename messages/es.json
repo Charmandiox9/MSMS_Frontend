@@ -1152,5 +1152,75 @@
       "import": "No fue posible importar los estudiantes.",
       "fileSize": "El archivo supera el máximo de 2 MB."
     }
+  },
+  "HourlyPayments": {
+    "rut": "RUT",
+    "academicUnit": "Unidad académica",
+    "degree": "Grado académico",
+    "certification": "Certificación",
+    "joinedOn": "Fecha de ingreso",
+    "leftOn": "Fecha de salida",
+    "notRecorded": "Sin registrar",
+    "manageContracts": "Gestionar contratos y pagos de profesor hora",
+    "rutRequired": "Registra el RUT para guardar los contratos PH.",
+    "contracts": "Contratos de profesor hora",
+    "calculationHint": "Meses de 30 días, fechas inclusivas y pagos redondeados a pesos. Al guardar se aplican los contratos que aparecen en esta sección; los contratos históricos se conservan.",
+    "loading": "Cargando contratos y tarifas…",
+    "loadError": "No fue posible cargar los pagos.",
+    "semesterChanged": "El semestre activo cambió. Cierra y vuelve a abrir el formulario.",
+    "retry": "Reintentar",
+    "noRates": "No hay tarifas configuradas. Abre Tarifas PH desde la lista de profesores para registrarlas.",
+    "empty": "Este profesor no tiene contratos PH en el semestre activo.",
+    "contractNumber": "Contrato {number}",
+    "remove": "Quitar contrato",
+    "course": "Asignatura (NRC)",
+    "rate": "Tarifa aplicable",
+    "select": "Seleccionar",
+    "component": "Componente",
+    "parallel": "Paralelo",
+    "hours": "Horas directas",
+    "startsOn": "Inicio del contrato",
+    "endsOn": "Cierre del contrato",
+    "monthlyAmount": "Valor mensual",
+    "days": "{count, plural, one {# día} other {# días}}",
+    "addContract": "Añadir contrato PH",
+    "calculating": "Calculando pagos…",
+    "semesterTotal": "Total del semestre",
+    "ratesTitle": "Tarifas PH",
+    "ratesDescription": "Configura el valor mensual por hora directa del semestre activo. Los contratos existentes conservan la tarifa aplicada al registrarlos.",
+    "category": "Categoría",
+    "hourlyRate": "Valor mensual por hora directa (CLP)",
+    "savingRate": "Guardando tarifa…",
+    "rateSaved": "Tarifa guardada.",
+    "saveError": "No fue posible guardar la tarifa.",
+    "saveRate": "Guardar tarifa",
+    "editRate": "Editar tarifa",
+    "close": "Cerrar",
+    "noSemester": "Activa un semestre para configurar sus tarifas.",
+    "categories": {
+      "NEW": "Nuevo",
+      "EXISTING": "Antiguo",
+      "DIVING_PRINCIPAL": "Buceo principal",
+      "DIVING_SECONDARY": "Buceo secundario"
+    },
+    "degrees": {
+      "PROFESSIONAL": "Profesional",
+      "MASTER": "Magíster",
+      "DOCTOR": "Doctor/a",
+      "NOT_APPLICABLE": "No aplica"
+    },
+    "certifications": {
+      "NONE": "Sin certificación",
+      "LEVEL_1": "Nivel 1",
+      "LEVEL_2": "Nivel 2",
+      "LEVEL_3": "Nivel 3"
+    },
+    "components": {
+      "LECTURE": "Cátedra",
+      "WORKSHOP": "Taller",
+      "LABORATORY": "Laboratorio",
+      "FIELDWORK": "Terreno",
+      "ASSISTANTSHIP": "Ayudantía"
+    }
   }
 }
