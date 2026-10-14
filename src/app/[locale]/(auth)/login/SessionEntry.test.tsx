@@ -37,6 +37,12 @@ describe("SessionEntry", () => {
     expect(await screen.findByText("Continuar con Google")).toBeDefined();
     expect(router.replace).not.toHaveBeenCalled();
   });
+  it("muestra el login sin excepciones cuando el servidor devuelve solo sub", async () => {
+    installFakeApi({ "GET /auth/session": ok({ sub: "user-1", iat: 1 }) });
+    renderEntry();
+    expect(await screen.findByText("Continuar con Google")).toBeDefined();
+    expect(router.replace).not.toHaveBeenCalled();
+  });
   it("entra con el único rol autorizado y reemplaza un rol antiguo guardado", async () => {
     localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, "SYSTEM_ADMIN");
     const api = installFakeApi({

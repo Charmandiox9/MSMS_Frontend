@@ -1,12 +1,13 @@
-import type { ActiveSession, UserRoleCode } from "@/types/auth";
+import type { UserRoleCode } from "@/types/auth";
 import { USER_ROLE_CODES } from "@/types/auth";
 
 export const ACTIVE_ROLE_STORAGE_KEY = "marsys_active_role";
 
-export function getSessionRoles(session: ActiveSession): UserRoleCode[] {
+export function getSessionRoles(session: { roles?: unknown }): UserRoleCode[] {
+  const roles: unknown[] = Array.isArray(session.roles) ? session.roles : [];
   return [
     ...new Set(
-      session.roles.filter((role): role is UserRoleCode =>
+      roles.filter((role): role is UserRoleCode =>
         USER_ROLE_CODES.some((code) => code === role),
       ),
     ),
