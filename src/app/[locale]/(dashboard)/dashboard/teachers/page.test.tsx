@@ -5,7 +5,13 @@ import { renderAs } from "@/test/render";
 import { fail, installFakeApi, ok } from "@/test/fake-api";
 import type { Teacher } from "@/types/justifications";
 
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+    promise: (operation: Promise<unknown>) => operation,
+  },
+}));
 
 function teacher(
   index: number,
@@ -33,10 +39,13 @@ function teacherList(items: Teacher[]) {
     const page = Number(request.query.get("page") ?? 1);
     const pageSize = Number(request.query.get("pageSize") ?? 10);
     const search = request.query.get("search")?.toLowerCase() ?? "";
-    const filtered = items.filter((item) =>
-      `${item.name} ${item.email} ${item.assignments.map(({ nrc }) => nrc).join(" ")}`
-        .toLowerCase()
-        .includes(search),
+    const active = request.query.get("isActive");
+    const filtered = items.filter(
+      (item) =>
+        (active === null || String(item.isActive !== false) === active) &&
+        `${item.name} ${item.email} ${item.assignments.map(({ nrc }) => nrc).join(" ")}`
+          .toLowerCase()
+          .includes(search),
     );
     return {
       body: {
@@ -120,6 +129,46 @@ describe("TeachersPage (padrón de profesores)", () => {
         "No hay profesores que coincidan con la búsqueda.",
       ),
     ).toBeDefined();
+  });
+
+  it("filtra profesores por estado y permite reactivarlos sin borrar sus datos", async () => {
+    const inactive = { ...teacher(1), isActive: false };
+    const active = { ...inactive, isActive: true };
+    const api = installFakeApi({
+      "GET /academic/teachers": teacherList([inactive]),
+      "PATCH /academic/teachers/t-1/status": ok(active),
+    });
+    renderAs(<TeachersPage />, ["ACADEMIC_SECRETARY"]);
+
+    expect(await screen.findByText("Profesor 01")).toBeDefined();
+    fireEvent.change(screen.getByLabelText("Estado"), {
+      target: { value: "INACTIVE" },
+    });
+    await waitFor(() =>
+      expect(
+        api.calls("GET /academic/teachers").at(-1)?.query.get("isActive"),
+      ).toBe("false"),
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Activar al profesor Profesor 01" }),
+    );
+    expect(
+      await screen.findByText(
+        "Sus asignaciones, contratos y registros históricos se conservarán.",
+      ),
+    ).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Activar" }));
+
+    await waitFor(() =>
+      expect(api.calls("PATCH /academic/teachers/t-1/status")).toHaveLength(1),
+    );
+    expect(api.calls("PATCH /academic/teachers/t-1/status")[0].body).toEqual({
+      isActive: true,
+    });
+    expect(
+      api.calls("GET /academic/teachers").at(-1)?.query.get("isActive"),
+    ).toBe("false");
   });
 
   it("importa el CSV enviando su contenido y recarga", async () => {

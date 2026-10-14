@@ -544,7 +544,30 @@
     },
     "create": "Create teacher",
     "editTeacher": "Edit {name} and their courses",
-    "editAndCourses": "Edit and courses"
+    "editAndCourses": "Edit and courses",
+    "statusFilter": "Status",
+    "allStatuses": "All",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "activateTeacher": "Activate teacher {name}",
+    "deactivateTeacher": "Deactivate teacher {name}",
+    "activateTitle": "Activate teacher",
+    "deactivateTitle": "Deactivate teacher",
+    "activateDescription": "Do you want to reactivate {name}?",
+    "deactivateDescription": "Do you want to deactivate {name}?",
+    "statusPreservesLinks": "Their assignments, contracts, and history will be preserved.",
+    "cancelStatus": "Cancel",
+    "statusSaving": "Updating status…",
+    "statusActivated": "{name} was activated.",
+    "statusDeactivated": "{name} was deactivated.",
+    "errors": {
+      "load": "Teachers could not be loaded.",
+      "import": "The teacher roster could not be imported.",
+      "access": "You do not have access to this page.",
+      "status": "Teacher status could not be updated."
+    }
   },
   "SemesterSettingsPage": {
     "eyebrow": "Academic settings",
@@ -909,7 +932,18 @@
       "title": "Semester records",
       "subtitle": "Each record keeps the student, supervising teacher, and assistantship period.",
       "empty": "No assistantships match this search",
-      "emptyDescription": "Try different filters or register the first assistantship using the button above."
+      "emptyDescription": "Try different filters or register the first assistantship using the button above.",
+      "export": "Export history",
+      "exportSuccess": "History exported successfully."
+    },
+    "detail": {
+      "eyebrow": "Assistantship details",
+      "viewDetail": "View details",
+      "registeredNrc": "Assistantship NRC",
+      "studentSection": "Assistant student details",
+      "academicSection": "Academic assignment and supervision",
+      "periodSection": "Period and workload",
+      "scheduleSection": "Assigned schedule and rooms"
     },
     "filters": {
       "search": "Search",
@@ -1160,6 +1194,8 @@
     "academicUnit": "Academic unit",
     "degree": "Academic degree",
     "certification": "Certification",
+    "professionalTitle": "Professional title",
+    "institution": "Institution",
     "joinedOn": "Joining date",
     "leftOn": "Leaving date",
     "notRecorded": "Not recorded",

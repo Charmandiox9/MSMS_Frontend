@@ -166,7 +166,6 @@ export default function RegisterAssistantshipDialog({
       title={t(initialRecord ? "form.editTitle" : "form.title")}
       description={t("form.description")}
       closeLabel={t("form.close")}
-      onSubmit={submit}
       footer={
         <div className="flex w-full items-center justify-end gap-3">
           <button
@@ -179,6 +178,7 @@ export default function RegisterAssistantshipDialog({
           </button>
           <button
             type="submit"
+            form="assistantship-form"
             className="btn-cta-primary"
             disabled={
               busy ||
@@ -201,7 +201,11 @@ export default function RegisterAssistantshipDialog({
         </div>
       }
     >
-      <div className={`space-y-6 ${busy ? "pointer-events-none opacity-60" : ""}`}>
+      <form
+        id="assistantship-form"
+        onSubmit={(event) => void submit(event)}
+        className={`space-y-6 ${busy ? "pointer-events-none opacity-60" : ""}`}
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t("form.semester")} htmlFor="register-semester">
             <select
@@ -257,9 +261,7 @@ export default function RegisterAssistantshipDialog({
             <button
               type="button"
               className="inline-flex items-center gap-1.5 rounded-xl border border-coral-red/30 bg-coral-red/10 px-3 py-1.5 text-xs font-bold text-coral-red hover:bg-coral-red/20 transition-all cursor-pointer"
-              onClick={() =>
-                void assignments.refetch().catch(() => undefined)
-              }
+              onClick={() => void assignments.refetch().catch(() => undefined)}
             >
               {t("retry")}
             </button>
@@ -382,7 +384,7 @@ export default function RegisterAssistantshipDialog({
           onChange={setSchedules}
           blocks={effectiveBlocks}
         />
-      </div>
+      </form>
     </Modal>
   );
 }

@@ -544,7 +544,30 @@
     },
     "create": "Crear profesor",
     "editTeacher": "Editar {name} y sus asignaturas",
-    "editAndCourses": "Editar y asignaturas"
+    "editAndCourses": "Editar y asignaturas",
+    "statusFilter": "Estado",
+    "allStatuses": "Todos",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "activateTeacher": "Activar al profesor {name}",
+    "deactivateTeacher": "Desactivar al profesor {name}",
+    "activateTitle": "Activar profesor",
+    "deactivateTitle": "Desactivar profesor",
+    "activateDescription": "¿Quieres volver a habilitar a {name}?",
+    "deactivateDescription": "¿Quieres deshabilitar a {name}?",
+    "statusPreservesLinks": "Sus asignaciones, contratos y registros históricos se conservarán.",
+    "cancelStatus": "Cancelar",
+    "statusSaving": "Actualizando estado…",
+    "statusActivated": "Se activó a {name}.",
+    "statusDeactivated": "Se desactivó a {name}.",
+    "errors": {
+      "load": "No se pudieron cargar los profesores.",
+      "import": "No se pudo importar el padrón de profesores.",
+      "access": "No tienes acceso a esta página.",
+      "status": "No se pudo actualizar el estado del profesor."
+    }
   },
   "SemesterSettingsPage": {
     "eyebrow": "Configuración académica",
@@ -909,7 +932,18 @@
       "title": "Registro por semestre",
       "subtitle": "Cada registro conserva el estudiante, el profesor responsable y el período de la ayudantía.",
       "empty": "No hay ayudantías para esta consulta",
-      "emptyDescription": "Prueba con otros filtros o registra la primera ayudantía desde el botón superior."
+      "emptyDescription": "Prueba con otros filtros o registra la primera ayudantía desde el botón superior.",
+      "export": "Exportar historial",
+      "exportSuccess": "Historial exportado correctamente."
+    },
+    "detail": {
+      "eyebrow": "Consulta de ayudantía",
+      "viewDetail": "Ver detalle",
+      "registeredNrc": "NRC de ayudantía",
+      "studentSection": "Datos del estudiante ayudante",
+      "academicSection": "Carga académica y supervisión",
+      "periodSection": "Vigencia y carga horaria",
+      "scheduleSection": "Horarios y salas asignadas"
     },
     "filters": {
       "search": "Buscar",
@@ -1160,6 +1194,8 @@
     "academicUnit": "Unidad académica",
     "degree": "Grado académico",
     "certification": "Certificación",
+    "professionalTitle": "Título profesional",
+    "institution": "Institución de egreso",
     "joinedOn": "Fecha de ingreso",
     "leftOn": "Fecha de salida",
     "notRecorded": "Sin registrar",

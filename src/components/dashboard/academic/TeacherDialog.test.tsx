@@ -50,6 +50,12 @@ describe("TeacherDialog", () => {
     fireEvent.change(screen.getByLabelText("Correo electrónico"), {
       target: { value: "ana@example.com" },
     });
+    fireEvent.change(screen.getByLabelText("Título profesional"), {
+      target: { value: "Bióloga Marina" },
+    });
+    fireEvent.change(screen.getByLabelText("Institución de egreso"), {
+      target: { value: "Universidad Católica del Norte" },
+    });
     fireEvent.click(screen.getByLabelText(/Oceanografía/));
     fireEvent.click(screen.getByRole("button", { name: "Guardar profesor" }));
     await waitFor(() => expect(saved).toHaveBeenCalledOnce());
@@ -61,6 +67,8 @@ describe("TeacherDialog", () => {
       academicUnit: null,
       academicDegree: null,
       certification: null,
+      professionalTitle: "Bióloga Marina",
+      institution: "Universidad Católica del Norte",
       joinedOn: null,
       leftOn: null,
       semesterId: "semester",
@@ -138,6 +146,8 @@ describe("TeacherDialog", () => {
       academicUnit: null,
       academicDegree: null,
       certification: null,
+      professionalTitle: null,
+      institution: null,
       joinedOn: null,
       leftOn: null,
     });

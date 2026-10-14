@@ -34,6 +34,8 @@ export default function TeacherDialog({
     academicUnit: teacher?.academicUnit ?? "",
     academicDegree: teacher?.academicDegree ?? "",
     certification: teacher?.certification ?? "",
+    professionalTitle: teacher?.professionalTitle ?? "",
+    institution: teacher?.institution ?? "",
     joinedOn: teacher?.joinedOn?.slice(0, 10) ?? "",
     leftOn: teacher?.leftOn?.slice(0, 10) ?? "",
   });
@@ -98,6 +100,8 @@ export default function TeacherDialog({
           academicUnit: profile.academicUnit.trim() || null,
           academicDegree: profile.academicDegree || null,
           certification: profile.certification || null,
+          professionalTitle: profile.professionalTitle.trim() || null,
+          institution: profile.institution.trim() || null,
           joinedOn: profile.joinedOn || null,
           leftOn: profile.leftOn || null,
           ...(hourlyEnabled ? { hourlyContracts } : {}),

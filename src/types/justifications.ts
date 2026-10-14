@@ -46,6 +46,9 @@ export interface Teacher {
   academicUnit?: string | null;
   academicDegree?: import("./hourly-payments").AcademicDegree | null;
   certification?: import("./hourly-payments").TeacherCertification | null;
+  professionalTitle?: string | null;
+  institution?: string | null;
+  isActive?: boolean;
   joinedOn?: string | null;
   leftOn?: string | null;
   assignments: TeacherAssignment[];

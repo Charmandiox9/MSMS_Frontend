@@ -13,6 +13,7 @@ import {
   UserRound,
   Plus,
   Pencil,
+  Power,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -26,6 +27,7 @@ import TeacherDialog from "@/components/dashboard/academic/TeacherDialog";
 import HourlyPayRatesDialog from "@/components/dashboard/academic/HourlyPayRatesDialog";
 
 const PAGE_SIZE = 10;
+type TeacherStatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
 
 export default function TeachersPage() {
   const t = useTranslations("TeachersPage");
@@ -37,6 +39,7 @@ export default function TeachersPage() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<TeacherStatusFilter>("ALL");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
@@ -46,6 +49,8 @@ export default function TeachersPage() {
   const [editingTeacher, setEditingTeacher] = useState<
     Teacher | null | undefined
   >(undefined);
+  const [teacherToToggle, setTeacherToToggle] = useState<Teacher | null>(null);
+  const [changingStatus, setChangingStatus] = useState(false);
 
   const downloadExample = () => {
     const content =
@@ -77,6 +82,8 @@ export default function TeachersPage() {
       pageSize: String(PAGE_SIZE),
       search: search.trim(),
     });
+    if (statusFilter !== "ALL")
+      query.set("isActive", String(statusFilter === "ACTIVE"));
     apiFetch<PaginatedResponse<Teacher>>(`/academic/teachers?${query}`)
       .then((data) => {
         if (active) {
@@ -99,7 +106,36 @@ export default function TeachersPage() {
     return () => {
       active = false;
     };
-  }, [canRead, loadErrorMessage, reloadKey, page, search]);
+  }, [canRead, loadErrorMessage, reloadKey, page, search, statusFilter]);
+
+  const toggleTeacherStatus = async () => {
+    if (!teacherToToggle || changingStatus) return;
+    const teacher = teacherToToggle;
+    const isActive = teacher.isActive === false;
+    setChangingStatus(true);
+    const operation = apiFetch<Teacher>(
+      `/academic/teachers/${teacher.id}/status`,
+      { method: "PATCH", body: JSON.stringify({ isActive }) },
+    );
+    toast.promise(operation, {
+      loading: t("statusSaving"),
+      success: t(isActive ? "statusActivated" : "statusDeactivated", {
+        name: teacher.name,
+      }),
+      error: (cause: unknown) =>
+        cause instanceof Error ? cause.message : t("errors.status"),
+    });
+    try {
+      await operation;
+      setTeacherToToggle(null);
+      setLoading(true);
+      setReloadKey((key) => key + 1);
+    } catch {
+      // toast.promise presents the translated result and leaves the dialog open.
+    } finally {
+      setChangingStatus(false);
+    }
+  };
 
   const importRoster = async (file: File) => {
     setImporting(true);
@@ -236,21 +272,39 @@ export default function TeachersPage() {
               </p>
             )}
           </div>
-          <label className="relative block md:w-80">
-            <span className="sr-only">{t("search")}</span>
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => {
-                setLoading(true);
-                setSearch(event.target.value);
-                setPage(1);
-              }}
-              placeholder={t("search")}
-              className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary"
-            />
-          </label>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <label className="text-xs font-semibold text-muted-foreground">
+              {t("statusFilter")}
+              <select
+                value={statusFilter}
+                onChange={(event) => {
+                  setLoading(true);
+                  setStatusFilter(event.target.value as TeacherStatusFilter);
+                  setPage(1);
+                }}
+                className="mt-1 block h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+              >
+                <option value="ALL">{t("allStatuses")}</option>
+                <option value="ACTIVE">{t("active")}</option>
+                <option value="INACTIVE">{t("inactive")}</option>
+              </select>
+            </label>
+            <label className="relative block md:w-80">
+              <span className="sr-only">{t("search")}</span>
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => {
+                  setLoading(true);
+                  setSearch(event.target.value);
+                  setPage(1);
+                }}
+                placeholder={t("search")}
+                className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary"
+              />
+            </label>
+          </div>
         </div>
       </section>
       {loading ? (
@@ -303,6 +357,21 @@ export default function TeachersPage() {
                         {teacher.academicUnit}
                       </span>
                     )}
+                    {teacher.professionalTitle && (
+                      <span className="block text-xs">
+                        {teacher.professionalTitle}
+                      </span>
+                    )}
+                    {teacher.institution && (
+                      <span className="block text-xs">
+                        {teacher.institution}
+                      </span>
+                    )}
+                    <span
+                      className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${teacher.isActive === false ? "bg-muted text-muted-foreground" : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"}`}
+                    >
+                      {t(teacher.isActive === false ? "inactive" : "active")}
+                    </span>
                   </span>
                 </p>
                 <div className="flex min-w-0 flex-wrap items-center gap-1.5 pl-11 md:pl-0">
@@ -322,15 +391,35 @@ export default function TeachersPage() {
                     <span className="text-xs text-muted-foreground">—</span>
                   )}
                   {canManage && (
-                    <button
-                      type="button"
-                      onClick={() => setEditingTeacher(teacher)}
-                      aria-label={t("editTeacher", { name: teacher.name })}
-                      className="ml-auto inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                      {t("editAndCourses")}
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setEditingTeacher(teacher)}
+                        aria-label={t("editTeacher", { name: teacher.name })}
+                        className="ml-auto inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        {t("editAndCourses")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTeacherToToggle(teacher)}
+                        aria-label={t(
+                          teacher.isActive === false
+                            ? "activateTeacher"
+                            : "deactivateTeacher",
+                          { name: teacher.name },
+                        )}
+                        className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-3 py-2 text-xs font-bold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        <Power className="h-3.5 w-3.5" />
+                        {t(
+                          teacher.isActive === false
+                            ? "activate"
+                            : "deactivate",
+                        )}
+                      </button>
+                    </>
                   )}
                 </div>
               </li>
@@ -396,6 +485,54 @@ export default function TeachersPage() {
           onDownload={downloadExample}
           onClose={() => setShowHelp(false)}
         />
+      )}
+      {teacherToToggle && (
+        <Modal
+          isOpen
+          onClose={() => {
+            if (!changingStatus) setTeacherToToggle(null);
+          }}
+          title={t(
+            teacherToToggle.isActive === false
+              ? "activateTitle"
+              : "deactivateTitle",
+          )}
+          description={t(
+            teacherToToggle.isActive === false
+              ? "activateDescription"
+              : "deactivateDescription",
+            { name: teacherToToggle.name },
+          )}
+          closeLabel={t("cancelStatus")}
+          footer={
+            <>
+              <button
+                type="button"
+                disabled={changingStatus}
+                onClick={() => setTeacherToToggle(null)}
+                className="btn-cta-secondary"
+              >
+                {t("cancelStatus")}
+              </button>
+              <button
+                type="button"
+                disabled={changingStatus}
+                onClick={() => void toggleTeacherStatus()}
+                className="btn-cta-primary"
+              >
+                {t(
+                  teacherToToggle.isActive === false
+                    ? "activate"
+                    : "deactivate",
+                )}
+              </button>
+            </>
+          }
+        >
+          <p className="text-sm text-muted-foreground">
+            {t("statusPreservesLinks")}
+          </p>
+        </Modal>
       )}
     </div>
   );

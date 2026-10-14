@@ -11,6 +11,8 @@ export interface TeacherAcademicProfile {
   academicUnit: string;
   academicDegree: AcademicDegree | "";
   certification: TeacherCertification | "";
+  professionalTitle: string;
+  institution: string;
   joinedOn: string;
   leftOn: string;
 }
@@ -85,6 +87,24 @@ export default function TeacherProfileFields({
             </option>
           ))}
         </select>
+      </label>
+      <label className="text-sm font-semibold">
+        {t("professionalTitle")}
+        <input
+          maxLength={120}
+          value={value.professionalTitle}
+          onChange={(event) => update("professionalTitle", event.target.value)}
+          className={fieldClass}
+        />
+      </label>
+      <label className="text-sm font-semibold">
+        {t("institution")}
+        <input
+          maxLength={150}
+          value={value.institution}
+          onChange={(event) => update("institution", event.target.value)}
+          className={fieldClass}
+        />
       </label>
       <label className="text-sm font-semibold">
         {t("joinedOn")}
