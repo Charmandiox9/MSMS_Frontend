@@ -129,7 +129,10 @@ function TrendChart({ title, researchValues, outputValues, researchLabel, output
   </ChartPanel>;
 }
 
-function BudgetCharts({ rows, title, empty }: { rows: Row[]; title: string; empty: string }) {
+const budgetFields = ["totalAmount", "vraContribution", "vridtContribution", "recoveryAmount", "facultyContribution", "depreciationAmount", "profitabilityAmount"] as const;
+type FundingTranslationKey = `funding.${typeof budgetFields[number]}` | "funding.title" | "funding.fundingSource";
+
+function BudgetCharts({ rows, title, empty, t }: { rows: Row[]; title: string; empty: string; t: (key: FundingTranslationKey) => string }) {
   const trends = new Map<string, Map<string, number>>();
   for (const row of rows) {
     const currency = typeof row.currency === "string" ? row.currency : "";
@@ -144,24 +147,39 @@ function BudgetCharts({ rows, title, empty }: { rows: Row[]; title: string; empt
     const data = [...points].map(([year, amount]) => ({ year, amount })).sort((a, b) => a.year.localeCompare(b.year));
     return { currency, data, total: data.reduce((sum, point) => sum + point.amount, 0) };
   });
-  if (!entries.length) return <ChartPanel title={title} empty={empty} />;
-  return <section className="rounded-2xl border border-border bg-card p-5 lg:col-span-2">
+  if (!rows.length || !entries.length) return <ChartPanel title={title} empty={empty} />;
+  const money = (value: Row[string], currency: string) => currencyFormat(currency).format(Number(value ?? 0));
+  return <section className="space-y-4 rounded-2xl border border-border bg-card p-5 lg:col-span-2">
     <h2 className="text-base font-bold">{title}</h2>
-    <div className="mt-4 grid gap-5 xl:grid-cols-2">
-      {entries.map(({ currency, data, total }) => <div key={currency}>
-        <div className="mb-1 flex items-baseline justify-between gap-3"><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{currency}</p><strong className="text-sm tabular-nums">{currencyFormat(currency).format(total)}</strong></div>
-        <div className="h-64" role="img" aria-label={`${title} · ${currency}`}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} accessibilityLayer margin={{ top: 10, right: 12, bottom: 4, left: 0 }}>
-              <CartesianGrid stroke={chartGridColor} strokeDasharray="3 3" />
-              <XAxis dataKey="year" tick={{ fill: chartTextColor, fontSize: 12 }} />
-              <YAxis width={72} tick={{ fill: chartTextColor, fontSize: 11 }} tickFormatter={(value) => currencyFormat(currency).format(Number(value))} />
-              <Tooltip content={<ChartTooltip formatValue={(value) => currencyFormat(currency).format(value)} />} />
-              <Area type="monotone" dataKey="amount" name={currency} stroke={chartColors[0]} fill={chartColors[0]} fillOpacity={0.18} strokeWidth={2.5} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>)}
+    <div className="grid gap-5 xl:grid-cols-2">
+      {entries.map(({ currency, data, total }) => {
+        const allocation = budgetFields.map((field) => ({ label: t(`funding.${field}`), value: rows.filter((row) => row.currency === currency).reduce((sum, row) => sum + Number(row[field] ?? 0), 0) })).filter(({ value }) => value > 0);
+        return <div key={currency} className="min-w-0 rounded-xl border border-border/70 p-4">
+          <div className="mb-1 flex items-baseline justify-between gap-3"><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{currency}</p><strong className="text-sm tabular-nums">{currencyFormat(currency).format(total)}</strong></div>
+          <div className="h-56" role="img" aria-label={`${title} · ${currency}`}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data} accessibilityLayer margin={{ top: 10, right: 12, bottom: 4, left: 0 }}>
+                <CartesianGrid stroke={chartGridColor} strokeDasharray="3 3" />
+                <XAxis dataKey="year" tick={{ fill: chartTextColor, fontSize: 12 }} />
+                <YAxis width={72} tick={{ fill: chartTextColor, fontSize: 11 }} tickFormatter={(value) => currencyFormat(currency).format(Number(value))} />
+                <Tooltip content={<ChartTooltip formatValue={(value) => currencyFormat(currency).format(value)} />} />
+                <Area type="monotone" dataKey="amount" name={currency} stroke={chartColors[0]} fill={chartColors[0]} fillOpacity={0.18} strokeWidth={2.5} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <h3 className="mt-3 text-sm font-semibold">{t("funding.totalAmount")}</h3>
+          {allocation.length ? <div className="mt-1 h-56" role="img" aria-label={`${t("funding.totalAmount")} · ${currency}`}>
+            <ResponsiveContainer width="100%" height="100%"><BarChart data={allocation} layout="vertical" accessibilityLayer margin={{ top: 4, right: 12, bottom: 4, left: 8 }}>
+              <CartesianGrid stroke={chartGridColor} strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tick={{ fill: chartTextColor, fontSize: 10 }} tickFormatter={(value) => currencyFormat(currency).format(Number(value))} /><YAxis type="category" dataKey="label" width={112} tick={{ fill: chartTextColor, fontSize: 10 }} /><Tooltip content={<ChartTooltip formatValue={(value) => currencyFormat(currency).format(value)} />} /><Bar dataKey="value" name={currency} fill={chartColors[1]} radius={[0, 5, 5, 0]} />
+            </BarChart></ResponsiveContainer>
+          </div> : <p className="py-8 text-sm text-muted-foreground">{empty}</p>}
+        </div>;
+      })}
+    </div>
+    <div className="overflow-x-auto rounded-xl border border-border/70">
+      <table className="min-w-[1050px] w-full text-left text-xs"><thead className="bg-muted/40 text-muted-foreground"><tr>{["title", "fundingSource", ...budgetFields].map((field) => <th key={field} className="px-3 py-2 font-semibold">{t(`funding.${field}` as FundingTranslationKey)}</th>)}</tr></thead>
+        <tbody>{rows.map((row, index) => <tr key={`${String(row.code ?? row.title)}-${index}`} className="border-t border-border/70"><td className="max-w-64 px-3 py-2 font-medium">{String(row.title ?? "—")}</td><td className="px-3 py-2">{String(row.fundingSource ?? "—")}</td>{budgetFields.map((field) => <td key={field} className="whitespace-nowrap px-3 py-2 tabular-nums">{money(row[field], String(row.currency ?? "CLP"))}</td>)}</tr>)}</tbody>
+      </table>
     </div>
   </section>;
 }
@@ -193,6 +211,8 @@ export default function AcademicCharts() {
   const { activeRole } = useActiveRole();
   const allowed = activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY" || activeRole === "ACADEMIC_PROCESS_ANALYST";
   const [year, setYear] = useState("");
+  const [startsOn, setStartsOn] = useState("");
+  const [endsOn, setEndsOn] = useState("");
   const [semesterId, setSemesterId] = useState("");
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [data, setData] = useState<ChartData | null>(null);
@@ -205,7 +225,9 @@ export default function AcademicCharts() {
     const controller = new AbortController();
     const request = (dataset: keyof ChartData) => {
       const query = new URLSearchParams({ dataset });
-      if (year) query.set("reportingYear", year);
+      if (year && !(dataset === "projects" && (startsOn || endsOn))) query.set("reportingYear", year);
+      if (dataset === "projects" && startsOn) query.set("startsOn", startsOn);
+      if (dataset === "projects" && endsOn) query.set("endsOn", endsOn);
       if (dataset === "hourlyContracts" && semesterId) query.set("semesterId", semesterId);
       return apiFetch<Dataset>(`/academic/reports?${query}`, { signal: controller.signal });
     };
@@ -222,7 +244,7 @@ export default function AcademicCharts() {
       if (!controller.signal.aborted) { setData(null); setError(true); }
     }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [allowed, year, semesterId, retry]);
+  }, [allowed, year, startsOn, endsOn, semesterId, retry]);
 
   const charts = useMemo(() => {
     if (!data) return null;
@@ -245,9 +267,11 @@ export default function AcademicCharts() {
   if (!allowed) return <p role="alert" className="py-12 text-muted-foreground">{t("access")}</p>;
   return <section className="space-y-6">
     <header><p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{t("eyebrow")}</p><h1 className="mt-2 flex items-center gap-3 text-3xl font-black"><BarChart3 className="h-7 w-7 text-primary" />{t("title")}</h1><p className="mt-2 max-w-3xl text-sm text-muted-foreground">{t("subtitle")}</p></header>
-    <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2">
+    <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
       <label className="grid gap-2 text-xs font-semibold text-muted-foreground">{t("year")}<input className={filterClass} type="number" min={1900} max={2200} value={year} onChange={(event) => setYear(event.target.value)} /></label>
       <label className="grid gap-2 text-xs font-semibold text-muted-foreground">{t("semester")}<select className={filterClass} value={semesterId} onChange={(event) => setSemesterId(event.target.value)}><option value="">{t("allSemesters")}</option>{semesters.map((semester) => <option key={semester.id} value={semester.id}>{semester.name}</option>)}</select></label>
+      <label className="grid gap-2 text-xs font-semibold text-muted-foreground">{t("budgetFrom")}<input className={filterClass} type="date" max={endsOn || undefined} value={startsOn} onChange={(event) => setStartsOn(event.target.value)} /></label>
+      <label className="grid gap-2 text-xs font-semibold text-muted-foreground">{t("budgetTo")}<input className={filterClass} type="date" min={startsOn || undefined} value={endsOn} onChange={(event) => setEndsOn(event.target.value)} /></label>
     </div>
     {error ? <div role="alert" className="rounded-2xl border border-destructive/30 p-5 text-destructive">{t("error")} <button type="button" className="ml-2 underline" onClick={() => setRetry((value) => value + 1)}>{t("retry")}</button></div> : loading || !data || !charts ? <div role="status" className="rounded-2xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">{t("loading")}</div> : <>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -255,7 +279,7 @@ export default function AcademicCharts() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <DistributionChart title={t("projectStatuses")} values={charts.projectStatuses} empty={t("empty")} formatLabel={(label) => t(`statuses.${label}`)} />
-        <BudgetCharts rows={data.projects.rows} title={t("budgets")} empty={t("empty")} />
+        <BudgetCharts rows={data.projects.rows} title={t("budgets")} empty={t("empty")} t={(key) => t(key)} />
         <DistributionChart title={t("outputKinds")} values={charts.outputKinds} empty={t("empty")} formatLabel={(label) => t(`kinds.${label}`)} />
         <TrendChart title={t("researchAndOutputsTrend")} researchValues={charts.researchByYear} outputValues={charts.outputsByYear} researchLabel={t("research")} outputLabel={t("outputs")} empty={t("empty")} />
         <PaymentChart title={t("hourlyByComponent")} values={charts.hourlyByComponent} empty={t("empty")} formatLabel={(label) => t(`components.${label}`)} />
