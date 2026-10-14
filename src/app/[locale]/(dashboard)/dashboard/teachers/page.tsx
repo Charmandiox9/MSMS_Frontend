@@ -62,8 +62,10 @@ export default function TeachersPage() {
 
   const [reloadKey, setReloadKey] = useState(0);
   const canManage =
-    activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY";
-  const canRead = canManage || activeRole === "ACADEMIC_PROCESS_ANALYST";
+    activeRole === "SYSTEM_ADMIN" ||
+    activeRole === "ACADEMIC_SECRETARY" ||
+    activeRole === "ACADEMIC_PROCESS_ANALYST";
+  const canRead = canManage;
   const loadErrorMessage = t("errors.load");
 
   // Carga al entrar y cada vez que `reloadKey` cambia (tras importar el padrón).

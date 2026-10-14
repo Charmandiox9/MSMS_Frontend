@@ -67,11 +67,17 @@ describe("TeachersPage (padrón de profesores)", () => {
     },
   );
 
-  it("permite consultar profesores al analista y oculta la importación", async () => {
+  it("permite al analista consultar, crear, editar e importar profesores", async () => {
     installFakeApi({ "GET /academic/teachers": teacherList([teacher(1)]) });
     renderAs(<TeachersPage />, ["ACADEMIC_PROCESS_ANALYST"]);
     expect(await screen.findByText("Profesor 01")).toBeDefined();
-    expect(screen.queryByRole("button", { name: /Importar/ })).toBeNull();
+    expect(screen.getByRole("button", { name: /Importar/ })).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: "Crear profesor" }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: /Editar Profesor 01/ }),
+    ).toBeDefined();
   });
 
   it("busca por nombre, correo o NRC y pagina de a 10", async () => {
@@ -88,15 +94,21 @@ describe("TeachersPage (padrón de profesores)", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Página siguiente" }));
     expect(await screen.findByText("Profesor 11")).toBeDefined();
-    expect(api.calls("GET /academic/teachers").at(-1)?.query.get("page")).toBe("2");
+    expect(api.calls("GET /academic/teachers").at(-1)?.query.get("page")).toBe(
+      "2",
+    );
 
     fireEvent.change(
       screen.getByPlaceholderText("Buscar por nombre, correo o NRC…"),
       { target: { value: "10005" } },
     );
     expect(await screen.findByText("Profesor 05")).toBeDefined();
-    expect(api.calls("GET /academic/teachers").at(-1)?.query.get("search")).toBe("10005");
-    expect(api.calls("GET /academic/teachers").at(-1)?.query.get("page")).toBe("1");
+    expect(
+      api.calls("GET /academic/teachers").at(-1)?.query.get("search"),
+    ).toBe("10005");
+    expect(api.calls("GET /academic/teachers").at(-1)?.query.get("page")).toBe(
+      "1",
+    );
     expect(screen.getByText("Página 1 de 1 · 1 profesores")).toBeDefined();
 
     fireEvent.change(
@@ -104,7 +116,9 @@ describe("TeachersPage (padrón de profesores)", () => {
       { target: { value: "nadie" } },
     );
     expect(
-      await screen.findByText("No hay profesores que coincidan con la búsqueda."),
+      await screen.findByText(
+        "No hay profesores que coincidan con la búsqueda.",
+      ),
     ).toBeDefined();
   });
 

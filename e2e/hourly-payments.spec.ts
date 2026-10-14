@@ -112,7 +112,7 @@ for (const mobile of [false, true]) {
         );
       await route.fulfill({ json: body });
     });
-    await loginAs(context, "secretary");
+    await loginAs(context, mobile ? 'analyst' : 'secretary');
     await page.goto("/dashboard/teachers");
     await page.getByRole("button", { name: "Tarifas PH", exact: true }).click();
     let dialog = page.getByRole("dialog");

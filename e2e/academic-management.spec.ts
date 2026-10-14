@@ -133,11 +133,9 @@ test("crea y edita profesores; crea asignaturas y gestiona sus vínculos", async
   await dialog
     .getByRole("button", { name: "Crear asignatura", exact: true })
     .click();
-  const row = page
-    .getByRole("listitem")
-    .filter({
-      has: page.getByRole("heading", { name: "Oceanografía", exact: true }),
-    });
+  const row = page.getByRole("listitem").filter({
+    has: page.getByRole("heading", { name: "Oceanografía", exact: true }),
+  });
   await row.getByRole("button", { name: "Profesores", exact: true }).click();
   await page
     .getByRole("dialog")
@@ -204,7 +202,7 @@ test("formularios en móvil y modo oscuro sin desbordamiento", async ({
   ).toBe(true);
 });
 
-test("analistas consultan sin acciones de mantenimiento", async ({
+test("analistas gestionan profesores y consultan asignaturas", async ({
   page,
   context,
 }) => {
@@ -213,10 +211,10 @@ test("analistas consultan sin acciones de mantenimiento", async ({
   await expect(page.getByText("Ana Soto", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Crear profesor", exact: true }),
-  ).toHaveCount(0);
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: /Editar Ana Soto/ }),
-  ).toHaveCount(0);
+  ).toBeVisible();
   await page.goto("/dashboard/subjects");
   await expect(
     page.getByRole("heading", { name: "Biología marina", exact: true }),
