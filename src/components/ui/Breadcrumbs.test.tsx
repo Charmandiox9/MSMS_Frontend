@@ -23,6 +23,7 @@ vi.mock('next-intl', () => ({
       justifications: 'Justificaciones',
       justificationsManagement: 'Gestión de justificaciones',
       audit: 'Auditoría',
+      researchOutputs: 'Resultados de investigación',
     };
     return translations[key] ?? key;
   },
@@ -72,6 +73,14 @@ describe('Breadcrumbs component', () => {
     render(<Breadcrumbs />);
 
     const current = screen.getByText('Justificaciones');
+    expect(current.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('resolves the research outputs route label instead of displaying its slug', () => {
+    mockPathname = '/dashboard/research-outputs';
+    renderWithRole('ACADEMIC_SECRETARY');
+
+    const current = screen.getByText('Resultados de investigación');
     expect(current.getAttribute('aria-current')).toBe('page');
   });
 
