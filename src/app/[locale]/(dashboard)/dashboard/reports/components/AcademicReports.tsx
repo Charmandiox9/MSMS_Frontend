@@ -15,6 +15,10 @@ const datasets = [
   "courses",
   "assignments",
   "semesters",
+  "projects",
+  "research",
+  "researchOutputs",
+  "hourlyContracts",
 ] as const;
 type Report = {
   columns: string[];
@@ -27,10 +31,11 @@ export default function AcademicReports() {
   const t = useTranslations("ReportsPage");
   const { activeRole } = useActiveRole();
   const allowed =
-    activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_PROCESS_ANALYST";
+    activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY" || activeRole === "ACADEMIC_PROCESS_ANALYST";
   const [dataset, setDataset] =
     useState<(typeof datasets)[number]>("assistantships");
   const [semesterId, setSemesterId] = useState("");
+  const [reportingYear, setReportingYear] = useState("");
   const [semesters, setSemesters] = useState<{ id: string; name: string }[]>(
     [],
   );
@@ -45,6 +50,7 @@ export default function AcademicReports() {
     dataset,
     ...(semesterId ? { semesterId } : {}),
     ...(search.trim() ? { search: search.trim() } : {}),
+    ...(reportingYear ? { reportingYear } : {}),
   }).toString();
   useEffect(() => {
     if (!allowed) return;
@@ -84,6 +90,12 @@ export default function AcademicReports() {
   }, [allowed, query, retry]);
   const value = (row: Report["rows"][number], column: string) => {
     const raw = row[column];
+    if (raw === null || raw === undefined) return "—";
+    if (["totalAmount", "vraContribution", "vridtContribution", "recoveryAmount", "facultyContribution", "depreciationAmount", "profitabilityAmount", "hourlyRateClp", "monthlyAmountClp", "estimatedPaymentClp"].includes(column)) {
+      const currency = column.endsWith("Clp") ? "CLP" : String(row.currency ?? "CLP");
+      const amount = Number(raw);
+      if (Number.isFinite(amount)) return new Intl.NumberFormat("es-CL", { style: "currency", currency, maximumFractionDigits: currency === "CLP" ? 0 : 2 }).format(amount);
+    }
     return column === "status" && (raw === "ACTIVE" || raw === "INACTIVE")
       ? t(`statuses.${raw}`)
       : String(raw ?? "—");
@@ -132,6 +144,7 @@ export default function AcademicReports() {
       </p>
     );
   const pages = Math.max(1, Math.ceil((report?.rows.length ?? 0) / 20));
+  const supportsYear = ["projects", "research", "researchOutputs", "hourlyContracts"].includes(dataset);
   return (
     <section className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -153,7 +166,7 @@ export default function AcademicReports() {
           {t("export")}
         </button>
       </header>
-      <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-3">
+      <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-4">
         <label className="grid gap-2 text-xs font-semibold text-muted-foreground">
           {t("dataset")}
           <select
@@ -194,6 +207,10 @@ export default function AcademicReports() {
             onChange={(event) => setSearch(event.target.value)}
           />
         </label>
+        {supportsYear && <label className="grid gap-2 text-xs font-semibold text-muted-foreground">
+          {t("year")}
+          <input className={control} type="number" min={1900} max={2200} value={reportingYear} onChange={(event) => setReportingYear(event.target.value)} />
+        </label>}
       </div>
       {error ? (
         <div

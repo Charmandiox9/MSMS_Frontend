@@ -69,10 +69,13 @@ describe("Academic reports", () => {
     expect(await screen.findByRole("alert")).toBeDefined();
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeDefined();
   });
-  it("blocks other roles without issuing a report request", async () => {
-    const api = installFakeApi();
+  it("allows the academic secretary to view reports", async () => {
+    const api = installFakeApi({
+      "GET /academic/semesters": ok([]),
+      "GET /academic/reports": ok({ columns: ["name"], rows: [{ name: "Ana" }] }),
+    });
     renderAs(<AcademicReports />, ["ACADEMIC_SECRETARY"]);
-    expect(await screen.findByRole("alert")).toBeDefined();
-    expect(api.requests).toHaveLength(0);
+    expect(await screen.findByText("Ana")).toBeDefined();
+    expect(api.requests.some((request) => request.path === "/academic/reports")).toBe(true);
   });
 });

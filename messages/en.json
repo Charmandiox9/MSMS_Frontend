@@ -260,7 +260,8 @@
     "students": "Students",
     "projects": "Projects",
     "research": "Research",
-    "researchOutputs": "Research outputs"
+    "researchOutputs": "Research outputs",
+    "charts": "Charts"
   },
   "JustificationsPage": {
     "eyebrow": "Teaching support",
@@ -1077,7 +1078,11 @@
       "assignments": "Teaching assignments",
       "assistants": "Student assistants",
       "assistantships": "Assistantships",
-      "semesters": "Semesters"
+      "semesters": "Semesters",
+      "projects": "Projects",
+      "research": "Research",
+      "researchOutputs": "Research outputs",
+      "hourlyContracts": "Hourly teacher contracts (PH)"
     },
     "columns": {
       "name": "Name",
@@ -1093,12 +1098,53 @@
       "startsOn": "Start",
       "endsOn": "End",
       "weeklyHours": "Weekly hours",
-      "schedules": "Schedules (ISO weekday)"
+      "schedules": "Schedules (ISO weekday)",
+      "reportingYear": "Reporting year",
+      "title": "Title",
+      "academicUnit": "Academic unit",
+      "classification": "Classification",
+      "fundingSource": "Funding source",
+      "program": "Program",
+      "currency": "Currency",
+      "totalAmount": "Total amount",
+      "vraContribution": "VRA contribution",
+      "vridtContribution": "VRIDT contribution",
+      "recoveryAmount": "Recovery",
+      "facultyContribution": "Faculty contribution",
+      "depreciationAmount": "Depreciation",
+      "profitabilityAmount": "Profitability",
+      "closedOn": "Closing date",
+      "researchArea": "Research area",
+      "project": "Project",
+      "outputCount": "Output count",
+      "kind": "Type",
+      "research": "Research",
+      "journal": "Journal",
+      "publisher": "Publisher",
+      "quartile": "Quartile",
+      "indexation": "Indexing",
+      "publicationDate": "Publication date",
+      "authorCount": "Authors",
+      "projectCount": "Projects",
+      "nrc": "NRC",
+      "component": "Component",
+      "parallel": "Section",
+      "directHours": "Direct hours",
+      "hourlyRateClp": "Hourly rate (CLP)",
+      "monthlyAmountClp": "Monthly amount (CLP)",
+      "estimatedPaymentClp": "Estimated payment (CLP)"
     },
     "statuses": {
       "ACTIVE": "Active",
-      "INACTIVE": "Inactive"
-    }
+      "INACTIVE": "Inactive",
+      "REGISTERED": "Registered",
+      "AWARDED": "Awarded",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "CLOSED": "Closed",
+      "CANCELLED": "Cancelled"
+    },
+    "year": "Reporting year"
   },
   "AcademicManagement": {
     "createTeacher": "Create teacher",
@@ -1477,6 +1523,42 @@
       "role": "Participant role",
       "contactEmail": "Contact email",
       "gender": "Gender (optional)"
+    }
+  },
+  "ChartsPage": {
+    "eyebrow": "Academic analysis",
+    "title": "Charts and indicators",
+    "subtitle": "Explore trends in projects, budgets, research, academic outputs, and hourly teacher payments.",
+    "loading": "Loading chart data…",
+    "error": "Chart data could not be loaded.",
+    "retry": "Retry",
+    "access": "You do not have access to charts.",
+    "year": "Year",
+    "semester": "Semester for hourly contracts",
+    "allSemesters": "All semesters",
+    "projects": "Projects",
+    "research": "Research",
+    "outputs": "Academic outputs",
+    "hourlyContracts": "PH contracts",
+    "projectStatuses": "Projects by status",
+    "budgets": "Registered budget by currency",
+    "outputKinds": "Outputs by type",
+    "outputsByYear": "Academic output by year",
+    "researchByYear": "Research by start year",
+    "hourlyByComponent": "Estimated PH payments by component",
+    "empty": "No records match the selected filters.",
+    "kinds": {
+      "ARTICLE": "Article",
+      "BOOK": "Book",
+      "BOOK_CHAPTER": "Book chapter",
+      "INTELLECTUAL_PROPERTY": "Intellectual property"
+    },
+    "components": {
+      "LECTURE": "Lecture",
+      "WORKSHOP": "Workshop",
+      "LABORATORY": "Laboratory",
+      "FIELDWORK": "Fieldwork",
+      "ASSISTANTSHIP": "Assistantship"
     }
   }
 }

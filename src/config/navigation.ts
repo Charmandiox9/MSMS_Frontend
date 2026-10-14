@@ -12,6 +12,7 @@ import {
   FolderKanban,
   FlaskConical,
   FileText,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRoleCode } from "@/types/auth";
@@ -31,6 +32,7 @@ export type NavigationKey =
   | "assistantships"
   | "titulation"
   | "reports"
+  | "charts"
   | "users"
   | "audit"
   | "settings";
@@ -177,7 +179,13 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: "reports",
         href: "/dashboard/reports",
         icon: FileBarChart,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_PROCESS_ANALYST"],
+        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+      },
+      {
+        key: "charts",
+        href: "/dashboard/charts",
+        icon: BarChart3,
+        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
       },
     ],
   },

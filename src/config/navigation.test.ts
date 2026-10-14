@@ -29,7 +29,7 @@ describe("Navigation configuration and filtering", () => {
     expect(academicItemKeys).not.toContain("justifications");
   });
 
-  it("should expose academic settings but omit system administration for ACADEMIC_SECRETARY", () => {
+  it("should expose academic analysis and omit system administration for ACADEMIC_SECRETARY", () => {
     const filtered = getFilteredNavigation(
       DASHBOARD_SECTIONS,
       "ACADEMIC_SECRETARY",
@@ -37,7 +37,7 @@ describe("Navigation configuration and filtering", () => {
     const sectionKeys = filtered.map((section) => section.key);
 
     expect(sectionKeys).toContain("system");
-    expect(sectionKeys).not.toContain("analysis");
+    expect(sectionKeys).toContain("analysis");
     expect(sectionKeys).toContain("main");
     expect(sectionKeys).toContain("academic");
 
@@ -49,6 +49,8 @@ describe("Navigation configuration and filtering", () => {
     expect(itemKeys).toContain("justificationsManagement");
     expect(itemKeys).toContain("subjects");
     expect(itemKeys).toContain("teachers");
+    const analysisSection = filtered.find((section) => section.key === "analysis");
+    expect(analysisSection?.items.map((item) => item.key)).toEqual(["reports", "charts"]);
     const systemSection = filtered.find((section) => section.key === "system");
     expect(systemSection?.items.map((item) => item.key)).toEqual(["settings"]);
     expect(systemSection?.items.map((item) => item.key)).toContain("settings");
@@ -119,6 +121,20 @@ describe("Navigation configuration and filtering", () => {
         "/dashboard/reports",
         DASHBOARD_SECTIONS,
         "ACADEMIC_PROCESS_ANALYST",
+      ),
+    ).toBe(true);
+    expect(
+      isRouteAllowed(
+        "/dashboard/reports",
+        DASHBOARD_SECTIONS,
+        "ACADEMIC_SECRETARY",
+      ),
+    ).toBe(true);
+    expect(
+      isRouteAllowed(
+        "/dashboard/charts",
+        DASHBOARD_SECTIONS,
+        "ACADEMIC_SECRETARY",
       ),
     ).toBe(true);
     expect(

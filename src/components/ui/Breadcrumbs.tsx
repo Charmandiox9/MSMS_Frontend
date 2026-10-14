@@ -27,6 +27,7 @@ const ROUTE_NAME_MAP: Record<string, string> = {
   assistantships: 'assistantships',
   titulation: 'titulation',
   reports: 'reports',
+  charts: 'charts',
   users: 'users',
   audit: 'audit',
   settings: 'settings',
