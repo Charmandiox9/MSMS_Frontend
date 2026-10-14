@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Eye,
   FlaskConical,
@@ -47,6 +47,10 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [year, setYear] = useState("");
+  const [sortBy, setSortBy] = useState(
+    kind === "projects" ? "reportingYear" : "createdAt",
+  );
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -55,15 +59,38 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
   const [reload, setReload] = useState(0);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [busy, setBusy] = useState(false);
+  const lastInvalidYearToast = useRef("");
   const loadLabel = t("loadError");
   useEffect(() => {
     if (!allowed) return;
     let active = true;
     const timeout = setTimeout(() => {
+      const parsedYear = Number(year);
+      const invalidYear =
+        kind === "projects" &&
+        year !== "" &&
+        (!/^\d{4}$/.test(year) || parsedYear < 1900 || parsedYear > 2200);
+      if (invalidYear) {
+        if (active) {
+          setRows([]);
+          setTotal(0);
+          setTotalPages(1);
+          setError(null);
+          setLoading(false);
+          if (lastInvalidYearToast.current !== year) {
+            toast.error(t("invalidYearToast"));
+            lastInvalidYearToast.current = year;
+          }
+        }
+        return;
+      }
+      lastInvalidYearToast.current = "";
       const query = new URLSearchParams({
         page: String(page),
         pageSize: "10",
         search: search.trim(),
+        sortBy,
+        sortOrder,
       });
       if (kind === "projects" && status) query.set("status", status);
       if (kind === "projects" && year) query.set("reportingYear", year);
@@ -84,8 +111,20 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
           }
         })
         .catch((cause: unknown) => {
-          if (active)
-            setError(cause instanceof Error ? cause.message : loadLabel);
+          if (!active) return;
+          const message = cause instanceof Error ? cause.message : loadLabel;
+          if (
+            kind === "projects" &&
+            /reportingYear.*(1900|2200)|year.*1900/i.test(message)
+          ) {
+            setRows([]);
+            setTotal(0);
+            setTotalPages(1);
+            setError(null);
+            toast.error(t("invalidYearToast"));
+          } else {
+            setError(message);
+          }
         })
         .finally(() => {
           if (active) setLoading(false);
@@ -95,7 +134,7 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
       active = false;
       clearTimeout(timeout);
     };
-  }, [allowed, kind, page, search, status, year, reload, loadLabel]);
+  }, [allowed, kind, page, search, status, year, sortBy, sortOrder, reload, loadLabel, t]);
   const refresh = () => {
     setLoading(true);
     setReload((value) => value + 1);
@@ -178,7 +217,7 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
           </button>
         </div>
       </header>
-      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-end">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
         <label className="flex-1 text-xs font-medium text-muted-foreground">
           {t("search")}
           <div className="relative">
@@ -235,6 +274,40 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
             </label>
           </>
         )}
+        <label className="text-xs font-medium text-muted-foreground">
+          {t("sortBy")}
+          <select
+            className={fieldClass}
+            value={sortBy}
+            onChange={(event) => {
+              setSortBy(event.target.value);
+              setPage(1);
+              setLoading(true);
+            }}
+          >
+            {(kind === "projects"
+              ? ["reportingYear", "title", "startsOn", "totalAmount", "status", "createdAt"]
+              : ["createdAt", "title", "startsOn"]
+            ).map((value) => (
+              <option key={value} value={value}>{t(`sortFields.${value}`)}</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs font-medium text-muted-foreground">
+          {t("sortOrder")}
+          <select
+            className={fieldClass}
+            value={sortOrder}
+            onChange={(event) => {
+              setSortOrder(event.target.value as "asc" | "desc");
+              setPage(1);
+              setLoading(true);
+            }}
+          >
+            <option value="desc">{t("descending")}</option>
+            <option value="asc">{t("ascending")}</option>
+          </select>
+        </label>
       </div>
       {error ? (
         <div
@@ -256,10 +329,14 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
         <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
           <Icon className="mx-auto h-9 w-9 text-primary/60" />
           <h2 className="mt-4 text-lg font-bold">
-            {t(search || status || year ? "noMatches" : `${kind}.empty`)}
+            {kind === "projects" && year && (!/^\d{4}$/.test(year) || Number(year) < 1900 || Number(year) > 2200)
+              ? t("invalidYearEmpty")
+              : t(search || status || year ? "noMatches" : `${kind}.empty`)}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            {t(search || status || year ? "searchHint" : "emptyHint")}
+            {kind === "projects" && year && (!/^\d{4}$/.test(year) || Number(year) < 1900 || Number(year) > 2200)
+              ? t("invalidYearHint")
+              : t(search || status || year ? "searchHint" : "emptyHint")}
           </p>
         </div>
       ) : (

@@ -54,6 +54,12 @@ export default function RepositoryDetails({
                               dateStyle: "medium",
                               timeZone: "UTC",
                             })
+                          : field.type === "money"
+                            ? format.number(Number(raw), {
+                                style: "currency",
+                                currency: record.currency ?? "CLP",
+                                maximumFractionDigits: 2,
+                              })
                           : String(raw);
                 return (
                   <div

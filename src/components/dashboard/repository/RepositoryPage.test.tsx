@@ -6,6 +6,8 @@ import { DASHBOARD_SECTIONS, isRouteAllowed } from "@/config/navigation";
 import type { RepositoryRecord } from "@/types/academic-repository";
 import RepositoryPage from "./RepositoryPage";
 import RepositoryEditor from "./RepositoryEditor";
+import RepositoryDetails from "./RepositoryDetails";
+import { toast } from "sonner";
 
 vi.mock("sonner", () => ({
   toast: { error: vi.fn(), promise: vi.fn(), success: vi.fn() },
@@ -182,6 +184,47 @@ describe("Páginas del repositorio académico", () => {
     );
     expect(await screen.findByRole("dialog")).toBeDefined();
     expect(api.calls("GET /academic/projects/project-1")).toHaveLength(1);
+  });
+  it("formatea los montos del detalle según la moneda del proyecto", () => {
+    renderAs(
+      <RepositoryDetails
+        kind="projects"
+        record={{ ...record, currency: "CLP", totalAmount: "227700000" }}
+        onClose={vi.fn()}
+        onEdit={vi.fn()}
+      />,
+      ["ACADEMIC_PROCESS_ANALYST"],
+    );
+    expect(screen.getByText(/227\.700\.000/)).toBeDefined();
+  });
+  it("muestra estado vacío y avisa cuando el año informado está incompleto", async () => {
+    const api = installFakeApi({ "GET /academic/projects": ok(page([record])) });
+    renderAs(<RepositoryPage kind="projects" />, ["ACADEMIC_SECRETARY"]);
+    await screen.findByText(record.title);
+    fireEvent.change(screen.getByLabelText("Año informado"), {
+      target: { value: "202" },
+    });
+    expect(await screen.findByText("Sin registros para ese año")).toBeDefined();
+    expect(toast.error).toHaveBeenCalledWith(
+      "El año debe estar entre 1900 y 2200. Modifica el año informado.",
+    );
+    expect(api.calls("GET /academic/projects")).toHaveLength(1);
+  });
+  it("envía los criterios de orden elegidos al backend", async () => {
+    const api = installFakeApi({ "GET /academic/projects": ok(page([record])) });
+    renderAs(<RepositoryPage kind="projects" />, ["ACADEMIC_PROCESS_ANALYST"]);
+    await screen.findByText(record.title);
+    fireEvent.change(screen.getByLabelText("Ordenar por"), {
+      target: { value: "totalAmount" },
+    });
+    fireEvent.change(screen.getByLabelText("Dirección"), {
+      target: { value: "asc" },
+    });
+    await waitFor(() => {
+      const call = api.calls("GET /academic/projects").at(-1);
+      expect(call?.query.get("sortBy")).toBe("totalAmount");
+      expect(call?.query.get("sortOrder")).toBe("asc");
+    });
   });
   it("muestra error con reintento y mantiene el formulario al fallar el guardado", async () => {
     const api = installFakeApi({
