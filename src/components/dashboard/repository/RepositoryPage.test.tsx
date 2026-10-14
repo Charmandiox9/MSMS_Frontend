@@ -7,7 +7,9 @@ import type { RepositoryRecord } from "@/types/academic-repository";
 import RepositoryPage from "./RepositoryPage";
 import RepositoryEditor from "./RepositoryEditor";
 
-vi.mock("sonner", () => ({ toast: { error: vi.fn(), promise: vi.fn() } }));
+vi.mock("sonner", () => ({
+  toast: { error: vi.fn(), promise: vi.fn(), success: vi.fn() },
+}));
 const record: RepositoryRecord = {
   id: "project-1",
   title: "Ecosistemas costeros",
@@ -83,10 +85,15 @@ describe("Páginas del repositorio académico", () => {
         ],
       }),
       "POST /academic/imports/projects/commit": ok({
-        imported: 1,
-        skipped: 0,
-        errors: [],
-        duplicates: [],
+        id: "import-job-1",
+        status: "QUEUED",
+      }),
+      "GET /academic/imports/jobs/import-job-1": ok({
+        id: "import-job-1",
+        type: "PROJECTS",
+        status: "COMPLETED",
+        result: { imported: 1, skipped: 0, errors: [], duplicates: [] },
+        error: null,
       }),
     });
     renderAs(<RepositoryPage kind="projects" />, ["ACADEMIC_PROCESS_ANALYST"]);
@@ -116,6 +123,11 @@ describe("Páginas del repositorio académico", () => {
     );
     await waitFor(() =>
       expect(api.calls("POST /academic/imports/projects/commit")).toHaveLength(
+        1,
+      ),
+    );
+    await waitFor(() =>
+      expect(api.calls("GET /academic/imports/jobs/import-job-1")).toHaveLength(
         1,
       ),
     );

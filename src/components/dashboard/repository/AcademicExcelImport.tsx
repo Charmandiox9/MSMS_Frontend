@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileSpreadsheet } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -27,6 +27,12 @@ type Preview = {
 
 type ImportKind = "projects" | "research" | "hourly";
 type TeacherEmail = { rut: string; email: string };
+type ImportJob = {
+  id: string;
+  status: "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+  result?: { imported: number } | null;
+  error?: string | null;
+};
 
 const readBase64 = (file: File) =>
   new Promise<string>((resolve, reject) => {
@@ -60,14 +66,62 @@ export default function AcademicExcelImport({
   );
   const [emailsDirty, setEmailsDirty] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [job, setJob] = useState<ImportJob | null>(null);
   const [error, setError] = useState<string | null>(null);
   const teacherEmailPayload = (): TeacherEmail[] =>
     Object.entries(teacherEmails)
       .map(([rut, email]) => ({ rut, email: email.trim().toLowerCase() }))
       .filter(({ email }) => email.length > 0);
   const hasMissingEmail = (preview?.unmatchedTeachers?.length ?? 0) > 0;
+  const jobInProgress = job?.status === "QUEUED" || job?.status === "PROCESSING";
   const canConfirm =
-    Boolean(preview?.importable) && !busy && !emailsDirty && !hasMissingEmail;
+    Boolean(preview?.importable) &&
+    Boolean(fileBase64) &&
+    !busy &&
+    !jobInProgress &&
+    !emailsDirty &&
+    !hasMissingEmail;
+
+  useEffect(() => {
+    if (!job || job.status === "COMPLETED" || job.status === "FAILED") return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      try {
+        const status = await apiFetch<ImportJob>(
+          `/academic/imports/jobs/${job.id}`,
+        );
+        if (cancelled) return;
+        setJob(status);
+        if (status.status === "COMPLETED") {
+          const count = status.result?.imported ?? 0;
+          toast.success(
+            isProjects
+              ? t("imported", { count })
+              : isResearch
+                ? t("researchImported", { count })
+                : t("hourlyImported", { count }),
+          );
+          onImported();
+          setFileBase64(null);
+          setPreview(null);
+          setJob(null);
+          setOpen(false);
+        } else if (status.status === "FAILED") {
+          toast.error(status.error || t("importError"));
+        } else {
+          timer = setTimeout(() => void poll(), 1_500);
+        }
+      } catch {
+        if (!cancelled) timer = setTimeout(() => void poll(), 3_000);
+      }
+    };
+    timer = setTimeout(() => void poll(), 500);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [job?.id, job?.status, isProjects, isResearch, onImported, t]);
 
   const requestPreview = async (
     encoded: string,
@@ -97,6 +151,7 @@ export default function AcademicExcelImport({
     setBusy(true);
     setError(null);
     setPreview(null);
+    setJob(null);
     setTeacherEmails({});
     setFileBase64(null);
     try {
@@ -135,35 +190,27 @@ export default function AcademicExcelImport({
     if (!fileBase64 || !canConfirm || !preview) return;
     setBusy(true);
     const emails = teacherEmailPayload();
-    const operation = apiFetch<{ imported: number }>(`${endpoint}/commit`, {
+    setJob(null);
+    const operation = apiFetch<Pick<ImportJob, "id" | "status">>(
+      `${endpoint}/commit`,
+      {
       method: "POST",
       body: JSON.stringify({
         fileBase64,
         ...(emails.length ? { teacherEmails: emails } : {}),
       }),
-    });
+      },
+    );
     toast.promise(operation, {
-      loading: isProjects
-        ? t("importing")
-        : isResearch
-          ? t("researchImporting")
-          : t("hourlyImporting"),
-      success: (result) =>
-        isProjects
-          ? t("imported", { count: result.imported })
-          : isResearch
-            ? t("researchImported", { count: result.imported })
-            : t("hourlyImported", { count: result.imported }),
+      loading: t("queueSubmitting"),
+      success: () => t("queued"),
       error: (cause: unknown) =>
         cause instanceof Error ? cause.message : t("importError"),
     });
     try {
-      await operation;
-      setOpen(false);
-      setPreview(null);
-      setFileBase64(null);
+      const queuedJob = await operation;
+      setJob(queuedJob as ImportJob);
       setTeacherEmails({});
-      onImported();
     } catch {
       // Keep the preview visible so the user can correct the source file.
     } finally {
@@ -235,6 +282,20 @@ export default function AcademicExcelImport({
                 className="text-sm text-red-600 dark:text-red-400"
               >
                 {error}
+              </p>
+            )}
+            {job && (
+              <p
+                role="status"
+                className="rounded-xl border border-border bg-muted/40 p-3 text-sm"
+              >
+                {job.status === "QUEUED"
+                  ? t("jobQueued")
+                  : job.status === "PROCESSING"
+                    ? t("jobProcessing")
+                    : job.status === "FAILED"
+                      ? job.error || t("importError")
+                      : t("jobCompleted")}
               </p>
             )}
             {preview && (
