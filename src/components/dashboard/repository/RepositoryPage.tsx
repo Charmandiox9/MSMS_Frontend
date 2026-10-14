@@ -24,7 +24,7 @@ import {
 } from "@/types/academic-repository";
 import RepositoryEditor from "./RepositoryEditor";
 import RepositoryDetails from "./RepositoryDetails";
-import ProjectExcelImport from "./ProjectExcelImport";
+import AcademicExcelImport from "./AcademicExcelImport";
 import {
   fieldClass,
   primaryButton,
@@ -167,7 +167,7 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {kind === "projects" && <ProjectExcelImport onImported={refresh} />}
+          <AcademicExcelImport kind={kind} onImported={refresh} />
           <button
             type="button"
             className={primaryButton}

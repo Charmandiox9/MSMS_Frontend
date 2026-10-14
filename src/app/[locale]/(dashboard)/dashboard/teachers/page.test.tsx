@@ -80,7 +80,12 @@ describe("TeachersPage (padrón de profesores)", () => {
     installFakeApi({ "GET /academic/teachers": teacherList([teacher(1)]) });
     renderAs(<TeachersPage />, ["ACADEMIC_PROCESS_ANALYST"]);
     expect(await screen.findByText("Profesor 01")).toBeDefined();
-    expect(screen.getByRole("button", { name: /Importar/ })).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: "Importar profesores" }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: "Importar pagos PH desde Excel" }),
+    ).toBeDefined();
     expect(
       screen.getByRole("button", { name: "Crear profesor" }),
     ).toBeDefined();

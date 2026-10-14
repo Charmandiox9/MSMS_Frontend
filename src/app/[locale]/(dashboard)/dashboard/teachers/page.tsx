@@ -25,6 +25,7 @@ import type { Teacher } from "@/types/justifications";
 import type { PaginatedResponse } from "@/types/pagination";
 import TeacherDialog from "@/components/dashboard/academic/TeacherDialog";
 import HourlyPayRatesDialog from "@/components/dashboard/academic/HourlyPayRatesDialog";
+import AcademicExcelImport from "@/components/dashboard/repository/AcademicExcelImport";
 
 const PAGE_SIZE = 10;
 type TeacherStatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
@@ -197,6 +198,16 @@ export default function TeachersPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {canManage && (
+            <AcademicExcelImport
+              kind="hourly"
+              onImported={() => {
+                setLoading(true);
+                setPage(1);
+                setReloadKey((key) => key + 1);
+              }}
+            />
+          )}
           {canManage && (
             <button
               type="button"
