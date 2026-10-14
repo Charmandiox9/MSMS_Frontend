@@ -5,6 +5,7 @@ import {
   type AcademicDegree,
   type TeacherCertification,
 } from "@/types/hourly-payments";
+import { formatChileanRut } from "@/lib/chilean-rut";
 
 export interface TeacherAcademicProfile {
   rut: string;
@@ -37,8 +38,11 @@ export default function TeacherProfileFields({
         {t("rut")}
         <input
           maxLength={12}
-          value={value.rut}
-          onChange={(event) => update("rut", event.target.value)}
+          inputMode="text"
+          autoComplete="off"
+          placeholder={t("rutPlaceholder")}
+          value={formatChileanRut(value.rut)}
+          onChange={(event) => update("rut", formatChileanRut(event.target.value))}
           className={fieldClass}
         />
       </label>

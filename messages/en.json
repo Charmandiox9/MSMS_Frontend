@@ -1192,6 +1192,7 @@
   },
   "HourlyPayments": {
     "rut": "RUT",
+    "rutPlaceholder": "12.345.678-9",
     "academicUnit": "Academic unit",
     "degree": "Academic degree",
     "certification": "Certification",

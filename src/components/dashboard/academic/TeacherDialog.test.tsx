@@ -90,6 +90,13 @@ describe("TeacherDialog", () => {
     fireEvent.change(screen.getByLabelText("Nombre del profesor"), {
       target: { value: "Ana Pérez" },
     });
+    fireEvent.change(screen.getByLabelText("RUT"), {
+      target: { value: "214933985" },
+    });
+    expect(screen.getByLabelText("RUT")).toHaveProperty(
+      "value",
+      "21.493.398-5",
+    );
     fireEvent.click(screen.getByRole("button", { name: "Guardar profesor" }));
     await waitFor(() =>
       expect(api.calls("PATCH /academic/teachers/teacher-1")).toHaveLength(1),
@@ -98,6 +105,7 @@ describe("TeacherDialog", () => {
       api.calls("PATCH /academic/teachers/teacher-1")[0].body,
     ).toMatchObject({
       name: "Ana Pérez",
+      rut: "21493398-5",
       nrcs: ["10002"],
       semesterId: "semester",
     });
