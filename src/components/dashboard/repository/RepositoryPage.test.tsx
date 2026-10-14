@@ -155,6 +155,12 @@ describe("Páginas del repositorio académico", () => {
     expect(
       isRouteAllowed("/dashboard/research", DASHBOARD_SECTIONS, role),
     ).toBe(true);
+    expect(
+      isRouteAllowed("/dashboard/research-outputs", DASHBOARD_SECTIONS, role),
+    ).toBe(true);
+  });
+  it("reserva la navegación de resultados a los tres roles del repositorio", () => {
+    expect(isRouteAllowed("/dashboard/research-outputs", DASHBOARD_SECTIONS, "TEACHING_SUPPORT_COORDINATOR")).toBe(false);
   });
   it("filtra por búsqueda y estado y consulta el detalle antes de editar", async () => {
     const api = installFakeApi({

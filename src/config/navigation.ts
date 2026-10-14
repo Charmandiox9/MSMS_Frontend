@@ -11,6 +11,7 @@ import {
   Users,
   FolderKanban,
   FlaskConical,
+  FileText,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRoleCode } from "@/types/auth";
@@ -24,6 +25,7 @@ export type NavigationKey =
   | "teachers"
   | "projects"
   | "research"
+  | "researchOutputs"
   | "students"
   | "academicWorkload"
   | "assistantships"
@@ -138,6 +140,12 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+      },
+      {
+        key: "researchOutputs",
+        href: "/dashboard/research-outputs",
+        icon: FileText,
+        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
       },
       {
         key: "assistantships",
