@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, type ReactNode } from 'react';
-import { X } from 'lucide-react';
+import { useEffect, useRef, type ReactNode } from "react";
+import { X } from "lucide-react";
 
-export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '6xl' | 'full';
+export type ModalSize =
+  "sm" | "md" | "lg" | "xl" | "2xl" | "4xl" | "6xl" | "full";
 
 export interface ModalProps {
   isOpen: boolean;
@@ -25,14 +26,14 @@ export interface ModalProps {
 }
 
 const SIZE_CLASSES: Record<ModalSize, string> = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
-  '2xl': 'max-w-2xl',
-  '4xl': 'max-w-4xl',
-  '6xl': 'max-w-6xl',
-  full: 'max-w-[95vw]',
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-xl",
+  "2xl": "max-w-2xl",
+  "4xl": "max-w-4xl",
+  "6xl": "max-w-6xl",
+  full: "max-w-[95vw]",
 };
 
 export default function Modal({
@@ -44,31 +45,81 @@ export default function Modal({
   headerActions,
   children,
   footer,
-  size = 'lg',
+  size = "lg",
   showCloseButton = true,
   closeOnBackdropClick = true,
   closeOnEscape = true,
-  closeLabel = 'Cerrar ventana',
+  closeLabel = "Cerrar ventana",
   ariaLabel,
-  className = '',
-  contentClassName = '',
+  className = "",
+  contentClassName = "",
 }: ModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousFocus = document.activeElement;
+    const dialog = dialogRef.current;
+    const focusable = () =>
+      Array.from(
+        dialog?.querySelectorAll<HTMLElement>(
+          "button, a[href], input, select, textarea, [tabindex]",
+        ) ?? [],
+      ).filter(
+        (element) =>
+          !element.matches(":disabled") &&
+          element.tabIndex >= 0 &&
+          !element.closest("[hidden]"),
+      );
+    (focusable()[0] ?? dialog)?.focus();
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const elements = focusable();
+      const first = elements[0];
+      const last = elements.at(-1);
+      if (!first) {
+        event.preventDefault();
+        dialog?.focus();
+        return;
+      }
+      if (
+        event.shiftKey &&
+        (document.activeElement === first ||
+          !dialog?.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        last?.focus();
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === last ||
+          !dialog?.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    dialog?.addEventListener("keydown", trapFocus);
+    return () => {
+      dialog?.removeEventListener("keydown", trapFocus);
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected)
+        previousFocus.focus();
+    };
+  }, [isOpen]);
   useEffect(() => {
     if (!isOpen) return;
 
     const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (closeOnEscape && event.key === 'Escape') {
+      if (closeOnEscape && event.key === "Escape") {
         onClose();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.body.style.overflow = originalOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose, closeOnEscape]);
 
@@ -76,7 +127,9 @@ export default function Modal({
     return null;
   }
 
-  const hasHeader = Boolean(title || eyebrow || headerActions || showCloseButton);
+  const hasHeader = Boolean(
+    title || eyebrow || headerActions || showCloseButton,
+  );
 
   return (
     <div
@@ -88,10 +141,12 @@ export default function Modal({
       }}
       className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 p-3 sm:p-4 backdrop-blur-sm"
       role="dialog"
+      ref={dialogRef}
+      tabIndex={-1}
       aria-modal="true"
       aria-label={ariaLabel}
-      aria-labelledby={title ? 'modal-dialog-title' : undefined}
-      aria-describedby={description ? 'modal-dialog-description' : undefined}
+      aria-labelledby={title ? "modal-dialog-title" : undefined}
+      aria-describedby={description ? "modal-dialog-description" : undefined}
     >
       <div
         data-lenis-prevent

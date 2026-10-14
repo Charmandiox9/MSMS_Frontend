@@ -14,6 +14,8 @@ export default function AcademicQuickLinks() {
         "assistantships",
         "subjects",
         "teachers",
+        "projects",
+        "research",
         "students",
         "reports",
       ].includes(item.key),
