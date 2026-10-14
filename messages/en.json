@@ -1262,6 +1262,26 @@
     }
   },
   "AcademicRepository": {
+    "import": {
+      "button": "Import Excel",
+      "title": "Import projects from Excel",
+      "description": "Upload the 2025-2026 projects workbook. Review valid rows, errors, and duplicates before confirming.",
+      "fileLabel": ".xlsx file",
+      "xlsxOnly": "Select an .xlsx file.",
+      "tooLarge": "The file exceeds the 12 MB limit.",
+      "previewError": "Could not prepare the preview.",
+      "importError": "Could not import the projects.",
+      "loading": "Reading and validating the Excel file…",
+      "importing": "Importing projects…",
+      "imported": "Imported {count} projects.",
+      "counts": "{importable} of {total} rows can be imported.",
+      "sampleRow": "Row {row}: {title} ({year})",
+      "rowIssue": "Row {row}: {message}",
+      "rowWarning": "Row {row}: {message}",
+      "cancel": "Cancel",
+      "confirm": "Import {count} projects",
+      "close": "Close"
+    },
     "eyebrow": "Academic repository",
     "loading": "Loading records…",
     "search": "Search",

@@ -24,6 +24,7 @@ import {
 } from "@/types/academic-repository";
 import RepositoryEditor from "./RepositoryEditor";
 import RepositoryDetails from "./RepositoryDetails";
+import ProjectExcelImport from "./ProjectExcelImport";
 import {
   fieldClass,
   primaryButton,
@@ -165,14 +166,17 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
             {t(`${kind}.subtitle`)}
           </p>
         </div>
-        <button
-          type="button"
-          className={primaryButton}
-          onClick={() => setDialog({ mode: "create" })}
-        >
-          <Plus className="h-4 w-4" />
-          {t(`${kind}.create`)}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {kind === "projects" && <ProjectExcelImport onImported={refresh} />}
+          <button
+            type="button"
+            className={primaryButton}
+            onClick={() => setDialog({ mode: "create" })}
+          >
+            <Plus className="h-4 w-4" />
+            {t(`${kind}.create`)}
+          </button>
+        </div>
       </header>
       <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-end">
         <label className="flex-1 text-xs font-medium text-muted-foreground">

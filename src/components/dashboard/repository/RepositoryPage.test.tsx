@@ -55,6 +55,35 @@ describe("Páginas del repositorio académico", () => {
       ).toBe(false);
     },
   );
+  it("previsualiza la planilla y confirma solo las filas válidas", async () => {
+    const readAsDataUrl = vi.spyOn(FileReader.prototype, "readAsDataURL").mockImplementation(function (this: FileReader) {
+      Object.defineProperty(this, "result", { value: "data:application/octet-stream;base64,eA==" });
+      queueMicrotask(() => this.dispatchEvent(new ProgressEvent("load")));
+    });
+    const api = installFakeApi({
+      "GET /academic/projects": ok(page([])),
+      "POST /academic/imports/projects/preview": ok({
+        totalRows: 1,
+        importable: 1,
+        errors: [],
+        duplicates: [],
+        warnings: [],
+        sample: [{ row: 3, title: "Proyecto importado", code: "PR-25", reportingYear: 2025, academicUnit: "FCM" }],
+      }),
+      "POST /academic/imports/projects/commit": ok({ imported: 1, skipped: 0, errors: [], duplicates: [] }),
+    });
+    renderAs(<RepositoryPage kind="projects" />, ["ACADEMIC_PROCESS_ANALYST"]);
+    await screen.findByText("Aún no hay proyectos registrados");
+    fireEvent.click(screen.getByRole("button", { name: "Importar Excel" }));
+    const input = screen.getByLabelText("Archivo .xlsx");
+    fireEvent.change(input, { target: { files: [new File(["xlsx"], "proyectos.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })] } });
+    await waitFor(() => expect(api.calls("POST /academic/imports/projects/preview")).toHaveLength(1));
+    expect(await screen.findByText(/Proyecto importado/)).toBeDefined();
+    expect(api.calls("POST /academic/imports/projects/preview")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Importar 1 proyectos" }));
+    await waitFor(() => expect(api.calls("POST /academic/imports/projects/commit")).toHaveLength(1));
+    readAsDataUrl.mockRestore();
+  });
   it.each([
     "SYSTEM_ADMIN",
     "ACADEMIC_SECRETARY",

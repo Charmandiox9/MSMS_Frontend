@@ -1262,6 +1262,26 @@
     }
   },
   "AcademicRepository": {
+    "import": {
+      "button": "Importar Excel",
+      "title": "Importar proyectos desde Excel",
+      "description": "Carga la planilla de proyectos 2025-2026. Revisa las filas válidas, errores y duplicados antes de confirmar.",
+      "fileLabel": "Archivo .xlsx",
+      "xlsxOnly": "Selecciona un archivo .xlsx.",
+      "tooLarge": "El archivo supera el límite de 12 MB.",
+      "previewError": "No se pudo preparar la vista previa.",
+      "importError": "No se pudieron importar los proyectos.",
+      "loading": "Leyendo y validando el Excel…",
+      "importing": "Importando proyectos…",
+      "imported": "Se importaron {count} proyectos.",
+      "counts": "{importable} de {total} filas se pueden importar.",
+      "sampleRow": "Fila {row}: {title} ({year})",
+      "rowIssue": "Fila {row}: {message}",
+      "rowWarning": "Fila {row}: {message}",
+      "cancel": "Cancelar",
+      "confirm": "Importar {count} proyectos",
+      "close": "Cerrar"
+    },
     "eyebrow": "Repositorio académico",
     "loading": "Cargando registros…",
     "search": "Buscar",
