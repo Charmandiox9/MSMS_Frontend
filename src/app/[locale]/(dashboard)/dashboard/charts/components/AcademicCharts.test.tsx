@@ -11,7 +11,7 @@ describe("Academic charts", () => {
     installFakeApi({
       "GET /academic/reports": ({ query }) => ({ body: {
         columns: [],
-        rows: query.get("dataset") === "projects" ? [{ status: "IN_PROGRESS", currency: "CLP", totalAmount: "227700000" }]
+        rows: query.get("dataset") === "projects" ? [{ reportingYear: 2026, status: "IN_PROGRESS", currency: "CLP", totalAmount: "227700000" }]
           : query.get("dataset") === "research" ? [{ startsOn: "2026-01-01" }]
           : query.get("dataset") === "researchOutputs" ? [{ kind: "ARTICLE", reportingYear: 2026 }]
           : [{ component: "LECTURE", estimatedPaymentClp: 30000 }],
@@ -24,6 +24,6 @@ describe("Academic charts", () => {
     expect(screen.getByText("Proyectos por estado")).toBeDefined();
     expect(screen.getByText("Presupuesto registrado por moneda")).toBeDefined();
     expect(screen.getByText("Pagos PH estimados por componente")).toBeDefined();
-    expect(screen.getByText("$227.700.000")).toBeDefined();
+    expect(screen.getByText(/227\.700\.000/)).toBeDefined();
   });
 });

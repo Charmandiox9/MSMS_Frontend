@@ -1545,8 +1545,10 @@
     "outputKinds": "Outputs by type",
     "outputsByYear": "Academic output by year",
     "researchByYear": "Research by start year",
+    "researchAndOutputsTrend": "Annual research and output trends",
     "hourlyByComponent": "Estimated PH payments by component",
     "empty": "No records match the selected filters.",
+    "statuses": { "REGISTERED": "Registered", "AWARDED": "Awarded", "IN_PROGRESS": "In progress", "COMPLETED": "Completed", "CLOSED": "Closed", "CANCELLED": "Cancelled", "Sin informar": "Not reported" },
     "kinds": {
       "ARTICLE": "Article",
       "BOOK": "Book",
