@@ -33,6 +33,66 @@ export function installFakeApi(routes: Record<string, Route> = {}) {
     }
 
     const method = (init?.method ?? 'GET').toUpperCase();
+    if (url.pathname.endsWith('/graphql') && method === 'POST') {
+      const payload = typeof init?.body === 'string' ? JSON.parse(init.body) as {
+        operationName?: string;
+        variables?: { filters?: Record<string, string | number | undefined> };
+      } : {};
+      const routePath = payload.operationName === 'RepositoryProjects'
+        ? '/academic/projects'
+        : payload.operationName === 'RepositoryResearch'
+          ? '/academic/research'
+          : payload.operationName === 'RepositoryResearchOutputs'
+            ? '/academic/research-outputs'
+          : null;
+      if (routePath) {
+        const query = new URLSearchParams();
+        for (const [key, value] of Object.entries(payload.variables?.filters ?? {})) {
+          if (value !== undefined) query.set(key, String(value));
+        }
+        const request: FakeRequest = {
+          method: 'GET', path: routePath, query, body: undefined,
+          credentials: init?.credentials,
+        };
+        requests.push(request);
+        const route = table[`GET ${routePath}`];
+        if (!route) return Response.json({ errors: [{ message: `Ruta no simulada: ${routePath}` }] });
+        const { status = 200, body } = await route(request);
+        if (status >= 400) {
+          const message = typeof body === 'object' && body !== null && 'message' in body
+            ? String((body as { message: unknown }).message)
+            : 'GraphQL request failed';
+          return Response.json({ errors: [{ message }] }, { status });
+        }
+        const resultKey = payload.operationName === 'RepositoryProjects'
+          ? 'repositoryProjects'
+          : payload.operationName === 'RepositoryResearch'
+            ? 'repositoryResearch'
+            : 'repositoryResearchOutputs';
+        const pageBody = body as { items?: Record<string, unknown>[] };
+        const isOutput = payload.operationName === 'RepositoryResearchOutputs';
+        const items = pageBody.items?.map((item) => ({
+          __typename: isOutput ? 'ResearchOutputListRecord' : 'RepositoryListRecord',
+          ...item,
+          ...(!isOutput && item._count && typeof item._count === 'object'
+            ? { outputCount: (item._count as { outputs?: number }).outputs ?? 0 }
+            : {}),
+          ...(Array.isArray(item.participants)
+            ? { participants: item.participants.map((participant) => ({ __typename: 'RepositoryParticipantView', ...participant as object })) }
+            : {}),
+          ...(item.research && typeof item.research === 'object'
+            ? { research: { __typename: 'ResearchOutputResearchView', ...item.research as object } }
+            : {}),
+          ...(Array.isArray(item.authors)
+            ? { authors: item.authors.map((author) => ({ __typename: 'ResearchOutputAuthorView', ...author as object })) }
+            : {}),
+          ...(Array.isArray(item.projects)
+            ? { projects: item.projects.map((project) => ({ __typename: 'ResearchOutputProjectLinkView', ...project as object })) }
+            : {}),
+        }));
+        return Response.json({ data: { [resultKey]: { ...body as object, __typename: isOutput ? 'ResearchOutputListPage' : 'RepositoryListPage', items } } });
+      }
+    }
     const path = url.pathname.replace(/^\/api/, '');
     const request: FakeRequest = {
       method,

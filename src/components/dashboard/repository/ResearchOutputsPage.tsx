@@ -1,27 +1,48 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { FileText, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
+import { resolveApiBaseUrl } from "@/lib/runtime-config";
 import Modal from "@/components/ui/Modal";
 import PaginationControls from "@/components/ui/PaginationControls";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
-import type { PaginatedResponse } from "@/types/pagination";
 import type { ResearchOption, ResearchOutputKind, ResearchOutputRecord } from "@/types/research-output";
 import { fieldClass, primaryButton, secondaryButton } from "./repository-fields";
+import { RESEARCH_OUTPUTS, REPOSITORY_RESEARCH } from "./repository-queries";
 
 type Dialog = { mode: "create" } | { mode: "edit" | "details" | "delete"; row: ResearchOutputRecord } | null;
 const kinds: ResearchOutputKind[] = ["ARTICLE", "BOOK", "BOOK_CHAPTER", "INTELLECTUAL_PROPERTY"];
 
-async function loadResearchOptions() {
-  const first = await apiFetch<PaginatedResponse<ResearchOption>>("/academic/research?page=1&pageSize=100&sortBy=title&sortOrder=asc");
-  const rows = [...first.items];
-  for (let current = 2; current <= first.totalPages; current++) {
-    const page = await apiFetch<PaginatedResponse<ResearchOption>>(`/academic/research?page=${current}&pageSize=100&sortBy=title&sortOrder=asc`);
-    rows.push(...page.items);
+function createRepositoryClient() {
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: new HttpLink({
+      uri: "/api/graphql",
+      credentials: "include",
+      fetch: async (_uri, options) => {
+        const base = await resolveApiBaseUrl();
+        if (!base) throw new Error("API_NOT_CONFIGURED");
+        return fetch(`${base}/graphql`, options);
+      },
+    }),
+  });
+}
+
+async function loadResearchOptions(client: ApolloClient, errorMessage: string) {
+  const filters = { page: 1, pageSize: 100, search: "", sortBy: "title", sortOrder: "asc" as const };
+  const first = await client.query({ query: REPOSITORY_RESEARCH, variables: { filters }, fetchPolicy: "cache-first" });
+  if (!first.data) throw new Error(errorMessage);
+  const firstPage = first.data.repositoryResearch;
+  const rows: ResearchOption[] = firstPage.items.map(({ id, title, code }) => ({ id, title, code }));
+  for (let current = 2; current <= firstPage.totalPages; current++) {
+    const page = await client.query({ query: REPOSITORY_RESEARCH, variables: { filters: { ...filters, page: current } }, fetchPolicy: "cache-first" });
+    if (!page.data) throw new Error(errorMessage);
+    rows.push(...page.data.repositoryResearch.items.map(({ id, title, code }) => ({ id, title, code })));
   }
   return rows;
 }
@@ -31,6 +52,7 @@ export default function ResearchOutputsPage() {
   const common = useTranslations("AcademicRepository");
   const format = useFormatter();
   const { activeRole } = useActiveRole();
+  const [graphqlClient] = useState(createRepositoryClient);
   const allowed = ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"].includes(activeRole ?? "");
   const [rows, setRows] = useState<ResearchOutputRecord[]>([]);
   const [researches, setResearches] = useState<ResearchOption[]>([]);
@@ -48,20 +70,40 @@ export default function ResearchOutputsPage() {
   const [reload, setReload] = useState(0);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [busy, setBusy] = useState(false);
+  const lastInvalidYearToast = useRef("");
   const refresh = useCallback(() => { setLoading(true); setReload((n) => n + 1); }, []);
 
   useEffect(() => {
     if (!allowed) return;
     let active = true;
-    const query = new URLSearchParams({ page: String(page), pageSize: "10", sortBy, sortOrder, search: search.trim() });
-    if (researchId) query.set("researchId", researchId);
-    if (kind) query.set("kind", kind);
-    if (year) query.set("reportingYear", year);
+    const numericYear = Number(year);
+    const invalidYear = year !== "" && (!/^\d{4}$/.test(year) || numericYear < 1900 || numericYear > 2200);
+    if (invalidYear) {
+      setRows([]); setTotal(0); setTotalPages(1); setError(null); setLoading(false);
+      if (lastInvalidYearToast.current !== year) {
+        toast.error(common("invalidYearToast"));
+        lastInvalidYearToast.current = year;
+      }
+      return () => { active = false; };
+    }
+    lastInvalidYearToast.current = "";
+    const filters = {
+      page,
+      pageSize: 10,
+      search: search.trim(),
+      sortBy,
+      sortOrder,
+      ...(researchId ? { researchId } : {}),
+      ...(kind ? { kind: kind as ResearchOutputKind } : {}),
+      ...(year ? { reportingYear: numericYear } : {}),
+    };
     void Promise.all([
-      apiFetch<PaginatedResponse<ResearchOutputRecord>>(`/academic/research-outputs?${query}`),
-      loadResearchOptions(),
-    ]).then(([data, researchData]) => {
+      graphqlClient.query({ query: RESEARCH_OUTPUTS, variables: { filters }, fetchPolicy: "network-only" }),
+      loadResearchOptions(graphqlClient, common("loadError")),
+    ]).then(([result, researchData]) => {
       if (!active) return;
+      if (!result.data) throw new Error(common("loadError"));
+      const data = result.data.repositoryResearchOutputs;
       const pages = Math.max(1, data.totalPages);
       if (page > pages) { setPage(pages); return; }
       setRows(data.items); setTotal(data.total); setTotalPages(pages);
@@ -70,7 +112,7 @@ export default function ResearchOutputsPage() {
       if (active) setError(cause instanceof Error ? cause.message : common("loadError"));
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [allowed, page, researchId, search, kind, year, sortBy, sortOrder, reload, common]);
+  }, [allowed, graphqlClient, page, researchId, search, kind, year, sortBy, sortOrder, reload, common]);
 
   const remove = async () => {
     if (dialog?.mode !== "delete" || busy) return;
