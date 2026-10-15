@@ -19,7 +19,6 @@ import { resolveApiBaseUrl } from "@/lib/runtime-config";
 import Modal from "@/components/ui/Modal";
 import PaginationControls from "@/components/ui/PaginationControls";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
-import type { PaginatedResponse } from "@/types/pagination";
 import {
   PROJECT_STATUSES,
   type RepositoryKind,
@@ -36,9 +35,12 @@ import {
 import {
   REPOSITORY_PROJECTS,
   REPOSITORY_RESEARCH,
+  REPOSITORY_PROJECT_DETAIL,
+  REPOSITORY_RESEARCH_DETAIL,
+  type RepositoryProjectDetailData,
+  type RepositoryResearchDetailData,
   type RepositoryProjectsData,
   type RepositoryResearchData,
-  type RepositoryListRecordData,
   type RepositoryFilters,
 } from "./repository-queries";
 
@@ -184,9 +186,14 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
     if (busy) return;
     setBusy(true);
     try {
-      const record = await apiFetch<RepositoryRecord>(
-        `/academic/${kind}/${row.id}`,
-      );
+      const result = await graphqlClient.query<RepositoryProjectDetailData | RepositoryResearchDetailData, { id: string }>({
+        query: (kind === 'projects' ? REPOSITORY_PROJECT_DETAIL : REPOSITORY_RESEARCH_DETAIL) as DocumentNode,
+        variables: { id: row.id },
+        fetchPolicy: 'no-cache',
+      });
+      if (!result.data) throw new Error(loadLabel);
+      const detail = 'repositoryProject' in result.data ? result.data.repositoryProject : result.data.repositoryResearchDetail;
+      const record: RepositoryRecord = { ...detail, _count: { outputs: detail.outputCount } };
       setDialog({ mode, record });
     } catch (cause: unknown) {
       toast.error(cause instanceof Error ? cause.message : loadLabel);
@@ -490,7 +497,7 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
           kind={kind}
           record={dialog.record}
           onClose={() => setDialog(null)}
-          onEdit={() => setDialog({ mode: "edit", record: dialog.record })}
+          onEdit={() => void open("edit", dialog.record)}
         />
       )}
       {dialog?.mode === "delete" && (

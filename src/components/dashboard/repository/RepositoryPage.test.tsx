@@ -190,6 +190,9 @@ describe("Páginas del repositorio académico", () => {
     );
     expect(await screen.findByRole("dialog")).toBeDefined();
     expect(api.calls("GET /academic/projects/project-1")).toHaveLength(1);
+    expect(api.calls("GET /academic/projects/project-1")[0]).toMatchObject({
+      operationName: 'RepositoryProjectDetail', credentials: 'include',
+    });
   });
   it("formatea los montos del detalle según la moneda del proyecto", () => {
     renderAs(
@@ -202,6 +205,23 @@ describe("Páginas del repositorio académico", () => {
       ["ACADEMIC_PROCESS_ANALYST"],
     );
     expect(screen.getByText(/227\.700\.000/)).toBeDefined();
+  });
+  it('abre por GraphQL el detalle científico completo antes de editar una investigación', async () => {
+    const investigation = { ...record, id: 'research-1', description: 'Descripción vigente', researchArea: 'Ecología',
+      projectId: record.id, project: { id: record.id, title: 'Proyecto asociado', code: record.code } };
+    const api = installFakeApi({
+      'GET /academic/research': ok(page([investigation])),
+      'GET /academic/research/research-1': ok(investigation),
+      'GET /academic/projects': ok(page([record])),
+      ...teachers(),
+    });
+    renderAs(<RepositoryPage kind='research' />, ['ACADEMIC_SECRETARY']);
+    await screen.findByText(record.title);
+    fireEvent.click(screen.getByRole('button', { name: `Editar ${record.title}` }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByDisplayValue(investigation.description)).toBeDefined();
+    expect(within(dialog).getByDisplayValue(investigation.researchArea)).toBeDefined();
+    expect(api.calls('GET /academic/research/research-1')[0]).toMatchObject({ operationName: 'RepositoryResearchDetail' });
   });
   it("muestra estado vacío y avisa cuando el año informado está incompleto", async () => {
     const api = installFakeApi({ "GET /academic/projects": ok(page([record])) });

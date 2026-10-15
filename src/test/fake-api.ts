@@ -8,6 +8,7 @@ export interface FakeRequest {
   query: URLSearchParams;
   body: unknown;
   credentials?: RequestCredentials;
+  operationName?: string;
 }
 
 export interface FakeResponse {
@@ -36,8 +37,29 @@ export function installFakeApi(routes: Record<string, Route> = {}) {
     if (url.pathname.endsWith('/graphql') && method === 'POST') {
       const payload = typeof init?.body === 'string' ? JSON.parse(init.body) as {
         operationName?: string;
-        variables?: { filters?: Record<string, string | number | undefined> };
+        variables?: { id?: string; filters?: Record<string, string | number | undefined> };
       } : {};
+      const detailOperations = {
+        RepositoryProjectDetail: { path: '/academic/projects', field: 'repositoryProject' },
+        RepositoryResearchDetail: { path: '/academic/research', field: 'repositoryResearchDetail' },
+        RepositoryResearchOutputDetail: { path: '/academic/research-outputs', field: 'repositoryResearchOutput' },
+      } as const;
+      const detail = detailOperations[payload.operationName as keyof typeof detailOperations];
+      if (detail && payload.variables?.id) {
+        const request: FakeRequest = { method: 'GET', path: `${detail.path}/${payload.variables.id}`,
+          query: new URLSearchParams(), body: undefined, credentials: init?.credentials, operationName: payload.operationName };
+        requests.push(request);
+        const route = table[`GET ${request.path}`];
+        if (!route) return Response.json({ errors: [{ message: `Ruta no simulada: ${request.path}` }] });
+        const { status = 200, body } = await route(request);
+        if (status >= 400) {
+          const message = typeof body === 'object' && body !== null && 'message' in body ? String(body.message) : 'GraphQL request failed';
+          return Response.json({ errors: [{ message }] });
+        }
+        const record = body as Record<string, unknown>;
+        return Response.json({ data: { [detail.field]: { ...record,
+          ...('_count' in record ? { outputCount: (record._count as { outputs: number }).outputs } : {}) } } });
+      }
       const routePath = payload.operationName === 'RepositoryProjects'
         ? '/academic/projects'
         : payload.operationName === 'RepositoryResearch'
@@ -53,6 +75,7 @@ export function installFakeApi(routes: Record<string, Route> = {}) {
         const request: FakeRequest = {
           method: 'GET', path: routePath, query, body: undefined,
           credentials: init?.credentials,
+          operationName: payload.operationName,
         };
         requests.push(request);
         const route = table[`GET ${routePath}`];
