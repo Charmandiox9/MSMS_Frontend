@@ -4,6 +4,8 @@ import { Download, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
+import { createApiGraphqlClient } from '@/lib/graphql-client';
+import { ACADEMIC_REPORT, REPORT_SEMESTERS, unpackReport, type ReportFilters } from '@/lib/academic-analytics';
 import { createCsv, downloadCsv } from "@/lib/csv";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
@@ -23,6 +25,7 @@ const datasets = [
 type Report = {
   columns: string[];
   rows: Record<string, string | number | null>[];
+  totalRows?: number;
 };
 const control =
   "h-11 rounded-xl border border-border bg-background px-3 text-sm text-foreground focus:border-primary";
@@ -30,8 +33,11 @@ const control =
 export default function AcademicReports() {
   const t = useTranslations("ReportsPage");
   const { activeRole } = useActiveRole();
+  const [graphqlClient] = useState(createApiGraphqlClient);
   const allowed =
-    activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY" || activeRole === "ACADEMIC_PROCESS_ANALYST";
+    activeRole === "SYSTEM_ADMIN" ||
+    activeRole === "ACADEMIC_SECRETARY" ||
+    activeRole === "ACADEMIC_PROCESS_ANALYST";
   const [dataset, setDataset] =
     useState<(typeof datasets)[number]>("assistantships");
   const [semesterId, setSemesterId] = useState("");
@@ -46,31 +52,46 @@ export default function AcademicReports() {
   const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(1);
   const [retry, setRetry] = useState(0);
-  const query = new URLSearchParams({
+  const baseQuery = new URLSearchParams({
     dataset,
     ...(semesterId ? { semesterId } : {}),
     ...(search.trim() ? { search: search.trim() } : {}),
     ...(reportingYear ? { reportingYear } : {}),
   }).toString();
+  const isDatabasePaged = ["projects", "research", "researchOutputs"].includes(
+    dataset,
+  );
+  const query = new URLSearchParams(baseQuery);
+  if (isDatabasePaged) {
+    query.set("page", String(page));
+    query.set("pageSize", "20");
+  }
+  const queryString = query.toString();
   useEffect(() => {
     if (!allowed) return;
     const controller = new AbortController();
+    const params = new URLSearchParams(queryString);
+    const filters: ReportFilters = { dataset: params.get('dataset') ?? 'assistantships' };
+    for (const key of ['semesterId', 'search'] as const) {
+      const value = params.get(key);
+      if (value) filters[key] = value;
+    }
+    for (const key of ['reportingYear', 'page', 'pageSize'] as const) {
+      const value = params.get(key);
+      if (value) filters[key] = Number(value);
+    }
     const timer = setTimeout(() => {
       setLoading(true);
       setError(false);
       void Promise.all([
-        apiFetch<Report>(`/academic/reports?${query}`, {
-          signal: controller.signal,
-        }),
-        apiFetch<{ id: string; name: string }[]>("/academic/semesters", {
-          signal: controller.signal,
-        }),
+        graphqlClient.query({ query: ACADEMIC_REPORT, variables: { filters }, fetchPolicy: 'no-cache', context: { fetchOptions: { signal: controller.signal } } }),
+        graphqlClient.query({ query: REPORT_SEMESTERS, fetchPolicy: 'cache-first', context: { fetchOptions: { signal: controller.signal } } }),
       ])
         .then(([data, options]) => {
           if (!controller.signal.aborted) {
-            setReport(data);
-            setSemesters(options);
-            setPage(1);
+            if (!data.data || !options.data) throw new Error('EMPTY_RESPONSE');
+            setReport(unpackReport(data.data.academicReport));
+            setSemesters(options.data.academicReportSemesters);
           }
         })
         .catch(() => {
@@ -87,14 +108,34 @@ export default function AcademicReports() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [allowed, query, retry]);
+  }, [allowed, graphqlClient, queryString, retry]);
   const value = (row: Report["rows"][number], column: string) => {
     const raw = row[column];
     if (raw === null || raw === undefined) return "—";
-    if (["totalAmount", "vraContribution", "vridtContribution", "recoveryAmount", "facultyContribution", "depreciationAmount", "profitabilityAmount", "hourlyRateClp", "monthlyAmountClp", "estimatedPaymentClp"].includes(column)) {
-      const currency = column.endsWith("Clp") ? "CLP" : String(row.currency ?? "CLP");
+    if (
+      [
+        "totalAmount",
+        "vraContribution",
+        "vridtContribution",
+        "recoveryAmount",
+        "facultyContribution",
+        "depreciationAmount",
+        "profitabilityAmount",
+        "hourlyRateClp",
+        "monthlyAmountClp",
+        "estimatedPaymentClp",
+      ].includes(column)
+    ) {
+      const currency = column.endsWith("Clp")
+        ? "CLP"
+        : String(row.currency ?? "CLP");
       const amount = Number(raw);
-      if (Number.isFinite(amount)) return new Intl.NumberFormat("es-CL", { style: "currency", currency, maximumFractionDigits: currency === "CLP" ? 0 : 2 }).format(amount);
+      if (Number.isFinite(amount))
+        return new Intl.NumberFormat("es-CL", {
+          style: "currency",
+          currency,
+          maximumFractionDigits: currency === "CLP" ? 0 : 2,
+        }).format(amount);
     }
     return column === "status" && (raw === "ACTIVE" || raw === "INACTIVE")
       ? t(`statuses.${raw}`)
@@ -105,7 +146,7 @@ export default function AcademicReports() {
     setExporting(true);
     try {
       const operation = apiFetch<Report>(
-        `/academic/reports/export?${query}`,
+        `/academic/reports/export?${baseQuery}`,
       ).then((data) => {
         const translated = data.rows.map((row) =>
           Object.fromEntries(
@@ -143,8 +184,17 @@ export default function AcademicReports() {
         {t("access")}
       </p>
     );
-  const pages = Math.max(1, Math.ceil((report?.rows.length ?? 0) / 20));
-  const supportsYear = ["projects", "research", "researchOutputs", "hourlyContracts"].includes(dataset);
+  const rowCount = report?.totalRows ?? report?.rows.length ?? 0;
+  const pages = Math.max(1, Math.ceil(rowCount / 20));
+  const visibleRows = isDatabasePaged
+    ? (report?.rows ?? [])
+    : (report?.rows.slice((page - 1) * 20, page * 20) ?? []);
+  const supportsYear = [
+    "projects",
+    "research",
+    "researchOutputs",
+    "hourlyContracts",
+  ].includes(dataset);
   return (
     <section className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -172,9 +222,10 @@ export default function AcademicReports() {
           <select
             className={control}
             value={dataset}
-            onChange={(event) =>
-              setDataset(event.target.value as typeof dataset)
-            }
+            onChange={(event) => {
+              setPage(1);
+              setDataset(event.target.value as typeof dataset);
+            }}
           >
             {datasets.map((item) => (
               <option key={item} value={item}>
@@ -188,7 +239,10 @@ export default function AcademicReports() {
           <select
             className={control}
             value={semesterId}
-            onChange={(event) => setSemesterId(event.target.value)}
+            onChange={(event) => {
+              setPage(1);
+              setSemesterId(event.target.value);
+            }}
           >
             <option value="">{t("allSemesters")}</option>
             {semesters.map((item) => (
@@ -204,13 +258,28 @@ export default function AcademicReports() {
             type="search"
             className={control}
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setPage(1);
+              setSearch(event.target.value);
+            }}
           />
         </label>
-        {supportsYear && <label className="grid gap-2 text-xs font-semibold text-muted-foreground">
-          {t("year")}
-          <input className={control} type="number" min={1900} max={2200} value={reportingYear} onChange={(event) => setReportingYear(event.target.value)} />
-        </label>}
+        {supportsYear && (
+          <label className="grid gap-2 text-xs font-semibold text-muted-foreground">
+            {t("year")}
+            <input
+              className={control}
+              type="number"
+              min={1900}
+              max={2200}
+              value={reportingYear}
+              onChange={(event) => {
+                setPage(1);
+                setReportingYear(event.target.value);
+              }}
+            />
+          </label>
+        )}
       </div>
       {error ? (
         <div
@@ -251,25 +320,23 @@ export default function AcademicReports() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {report.rows
-                  .slice((page - 1) * 20, page * 20)
-                  .map((row, index) => (
-                    <tr key={index}>
-                      {report.columns.map((column) => (
-                        <td
-                          key={column}
-                          className="min-w-32 px-4 py-3 text-foreground"
-                        >
-                          {value(row, column)}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
+                {visibleRows.map((row, index) => (
+                  <tr key={index}>
+                    {report.columns.map((column) => (
+                      <td
+                        key={column}
+                        className="min-w-32 px-4 py-3 text-foreground"
+                      >
+                        {value(row, column)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
           <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border p-4 text-sm text-muted-foreground">
-            <p>{t("rows", { count: report.rows.length })}</p>
+            <p>{t("rows", { count: rowCount })}</p>
             <div className="flex items-center gap-3">
               <button
                 type="button"

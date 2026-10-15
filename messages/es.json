@@ -1176,6 +1176,7 @@
     "outputsByYear": "Producción académica por año",
     "researchByYear": "Investigaciones por año de inicio",
     "researchAndOutputsTrend": "Tendencia anual de investigación y resultados",
+    "unknownDate": "Sin fecha registrada",
     "hourlyByComponent": "Pagos PH estimados por componente",
     "empty": "Sin registros para los filtros seleccionados.",
     "statuses": { "REGISTERED": "Registrado", "AWARDED": "Adjudicado", "IN_PROGRESS": "En curso", "COMPLETED": "Completado", "CLOSED": "Cerrado", "CANCELLED": "Cancelado", "Sin informar": "Sin informar" },

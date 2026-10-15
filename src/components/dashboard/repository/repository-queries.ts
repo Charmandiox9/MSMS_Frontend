@@ -17,6 +17,22 @@ export interface RepositoryFilters {
   reportingYear?: number;
 }
 
+export interface ProjectOption {
+  id: string;
+  title: string;
+  code: string | null;
+  researchId: string | null;
+}
+
+export const PROJECT_OPTIONS: TypedDocumentNode<{ repositoryProjectOptions: PaginatedResponse<ProjectOption> }, { filters: { page: number; pageSize: number } }> = gql`
+  query RepositoryProjectOptions($filters: RepositoryProjectOptionFilters!) {
+    repositoryProjectOptions(filters: $filters) {
+      items { id title code researchId }
+      total page pageSize totalPages
+    }
+  }
+`;
+
 export interface RepositoryProjectsData {
   repositoryProjects: PaginatedResponse<RepositoryListRecordData>;
 }

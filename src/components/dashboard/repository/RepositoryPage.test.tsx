@@ -361,4 +361,18 @@ describe("Páginas del repositorio académico", () => {
       expectedUpdatedAt: record.updatedAt,
     });
   });
+  it('consulta por GraphQL las opciones y bloquea proyectos ocupados por otra investigación', async () => {
+    const investigation = { ...record, id: 'research-1', projectId: 'current' };
+    const api = installFakeApi({ ...teachers(), 'GET /academic/projects': ok(page([
+      { ...record, id: 'occupied', title: 'Proyecto ocupado', code: null, research: { id: 'research-2', title: 'Otra investigación' } },
+      { ...record, id: 'current', title: 'Proyecto actual', code: null, research: { id: 'research-1', title: 'Investigación actual' } },
+      { ...record, id: 'free', title: 'Proyecto disponible', code: null, research: null },
+    ])) });
+    renderAs(<RepositoryEditor kind='research' record={investigation} onClose={vi.fn()} onSaved={vi.fn()} />, ['ACADEMIC_PROCESS_ANALYST']);
+    const occupied = await screen.findByRole('option', { name: 'Proyecto ocupado' });
+    expect(occupied.hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('option', { name: 'Proyecto actual' }).hasAttribute('disabled')).toBe(false);
+    expect(screen.getByRole('option', { name: 'Proyecto disponible' }).hasAttribute('disabled')).toBe(false);
+    expect(api.calls('GET /academic/projects')[0]).toMatchObject({ operationName: 'RepositoryProjectOptions', credentials: 'include' });
+  });
 });

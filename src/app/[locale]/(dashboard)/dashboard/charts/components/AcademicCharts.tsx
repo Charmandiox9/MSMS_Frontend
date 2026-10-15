@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { BarChart3, BookOpen, FlaskConical, FolderKanban, Wallet } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { apiFetch } from "@/lib/api";
+import { createApiGraphqlClient } from '@/lib/graphql-client';
+import { ACADEMIC_CHARTS, unpackReport } from '@/lib/academic-analytics';
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton } from "@/components/ui/LoadingSkeletons";
 import {
@@ -236,6 +237,7 @@ export default function AcademicCharts() {
   const t = useTranslations("ChartsPage");
   const locale = useLocale() === "es" ? "es-CL" : "en-US";
   const { activeRole } = useActiveRole();
+  const [graphqlClient] = useState(createApiGraphqlClient);
   const allowed = activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY" || activeRole === "ACADEMIC_PROCESS_ANALYST";
   const [year, setYear] = useState("");
   const [startsOn, setStartsOn] = useState("");
@@ -251,33 +253,34 @@ export default function AcademicCharts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [retry, setRetry] = useState(0);
-  const selectYear = (value: string) => { setYear((current) => current === value ? "" : value); setBudgetMonthFilter(""); };
+  const selectYear = (value: string) => {
+    if (!/^\d{4}$/.test(value) || Number(value) < 1900 || Number(value) > 2200) return;
+    setYear((current) => current === value ? '' : value); setBudgetMonthFilter('');
+  };
 
   useEffect(() => {
     if (!allowed) return;
     const controller = new AbortController();
-    const request = (dataset: keyof ChartData) => {
-      const query = new URLSearchParams({ dataset });
-      if (year) query.set("reportingYear", year);
-      if (dataset === "projects" && startsOn) query.set("startsOn", startsOn);
-      if (dataset === "projects" && endsOn) query.set("endsOn", endsOn);
-      if (dataset === "hourlyContracts" && semesterId) query.set("semesterId", semesterId);
-      return apiFetch<Dataset>(`/academic/reports?${query}`, { signal: controller.signal });
-    };
     setLoading(true);
     setError(false);
-    void Promise.all([
-      request("projects"), request("research"), request("researchOutputs"), request("hourlyContracts"),
-      apiFetch<Semester[]>("/academic/semesters", { signal: controller.signal }),
-    ]).then(([projects, research, researchOutputs, hourlyContracts, options]) => {
+    void graphqlClient.query({ query: ACADEMIC_CHARTS, variables: { filters: {
+      ...(year ? { reportingYear: Number(year) } : {}), ...(startsOn ? { startsOn } : {}),
+      ...(endsOn ? { endsOn } : {}), ...(semesterId ? { semesterId } : {}),
+    } }, fetchPolicy: 'no-cache', context: { fetchOptions: { signal: controller.signal } } }).then((result) => {
       if (controller.signal.aborted) return;
-      setData({ projects, research, researchOutputs, hourlyContracts });
-      setSemesters(options);
+      if (!result.data) throw new Error('EMPTY_RESPONSE');
+      const summary = result.data.academicCharts;
+      setData({ projects: unpackReport(summary.projects),
+        research: { columns: [], rows: summary.researchByYear.map(({ label, value }) => ({ year: label || t('unknownDate'), count: Number(value) })) },
+        researchOutputs: { columns: [], rows: summary.outputs },
+        hourlyContracts: { columns: [], rows: summary.hourlyByComponent.map(({ label, value, count }) => ({ component: label, estimatedPaymentClp: value, count })) },
+      });
+      setSemesters(summary.semesters);
     }).catch(() => {
       if (!controller.signal.aborted) { setData(null); setError(true); }
     }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [allowed, year, startsOn, endsOn, semesterId, retry]);
+  }, [allowed, graphqlClient, year, startsOn, endsOn, semesterId, retry, t]);
 
   const visibleProjectRows = useMemo(() => (data?.projects.rows ?? []).filter((row) =>
     (!projectStatusFilter || row.status === projectStatusFilter) &&
@@ -293,9 +296,9 @@ export default function AcademicCharts() {
     if (!data) return null;
     return {
       projectStatuses: aggregate(data.projects.rows, "status"),
-      outputKinds: aggregate(data.researchOutputs.rows, "kind"),
-      outputsByYear: aggregate(visibleOutputRows, "reportingYear"),
-      researchByYear: aggregate(data.research.rows.map((row) => ({ ...row, year: typeof row.startsOn === "string" ? row.startsOn.slice(0, 4) : "Sin fecha" })), "year"),
+      outputKinds: aggregate(data.researchOutputs.rows, "kind", 'count'),
+      outputsByYear: aggregate(visibleOutputRows, "reportingYear", 'count'),
+      researchByYear: aggregate(data.research.rows, 'year', 'count'),
       hourlyByComponent: aggregate(visibleHourlyRows, "component", "estimatedPaymentClp"),
     };
   }, [data, visibleOutputRows, visibleHourlyRows]);
@@ -305,9 +308,9 @@ export default function AcademicCharts() {
     : budgetMonthFilter;
   const metrics: { Icon: LucideIcon; label: string; value: number }[] = data ? [
     { Icon: FolderKanban, label: t("projects"), value: visibleProjectRows.length },
-    { Icon: FlaskConical, label: t("research"), value: data.research.rows.length },
-    { Icon: BookOpen, label: t("outputs"), value: visibleOutputRows.length },
-    { Icon: Wallet, label: t("hourlyContracts"), value: visibleHourlyRows.length },
+    { Icon: FlaskConical, label: t("research"), value: data.research.rows.reduce((sum, row) => sum + Number(row.count ?? 0), 0) },
+    { Icon: BookOpen, label: t("outputs"), value: visibleOutputRows.reduce((sum, row) => sum + Number(row.count ?? 0), 0) },
+    { Icon: Wallet, label: t("hourlyContracts"), value: visibleHourlyRows.reduce((sum, row) => sum + Number(row.count ?? 0), 0) },
   ] : [];
 
   if (!activeRole) return <PageSkeleton label={t("loading")} />;
