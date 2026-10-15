@@ -1407,6 +1407,7 @@
     "projectHint": "Each project can link to one research activity. Projects linked to another activity are unavailable.",
     "openFolder": "Open folder",
     "linkedResearch": "Linked research: {title}",
+    "outputCount": "{count, plural, =0 {No associated academic outputs} one {# associated academic output} other {# associated academic outputs}}",
     "outputs": {
       "title": "Research outputs",
       "subtitle": "Review and manage publications, books, and intellectual property, and link each output to its research activity.",

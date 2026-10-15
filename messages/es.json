@@ -1466,6 +1466,7 @@
     "projectHint": "Un proyecto puede vincularse a una sola investigación. Los proyectos ya vinculados a otra investigación no están disponibles.",
     "openFolder": "Abrir carpeta",
     "linkedResearch": "Investigación vinculada: {title}",
+    "outputCount": "{count, plural, =0 {Sin resultados académicos asociados} one {# resultado académico asociado} other {# resultados académicos asociados}}",
     "outputs": {
       "title": "Resultados de investigación",
       "subtitle": "Consulta y administra publicaciones, libros y propiedad intelectual; vincula cada resultado a su investigación.",
