@@ -542,7 +542,8 @@
     "errors": {
       "load": "Teachers could not be loaded.",
       "import": "The teacher roster could not be imported.",
-      "access": "You do not have access to this page."
+      "access": "You do not have access to this page.",
+      "status": "Teacher status could not be updated."
     },
     "create": "Create teacher",
     "editTeacher": "Edit {name} and their courses",
@@ -563,13 +564,7 @@
     "cancelStatus": "Cancel",
     "statusSaving": "Updating status…",
     "statusActivated": "{name} was activated.",
-    "statusDeactivated": "{name} was deactivated.",
-    "errors": {
-      "load": "Teachers could not be loaded.",
-      "import": "The teacher roster could not be imported.",
-      "access": "You do not have access to this page.",
-      "status": "Teacher status could not be updated."
-    }
+    "statusDeactivated": "{name} was deactivated."
   },
   "SemesterSettingsPage": {
     "eyebrow": "Academic settings",
@@ -1333,9 +1328,9 @@
       "rowWarning": "Row {row}: {message}",
       "cancel": "Cancel",
       "confirm": "Import {count} projects",
-      "researchButton": "Import EPRYMA workbook",
-      "researchTitle": "Import EPRYMA academic outputs",
-      "researchDescription": "Upload the EPRYMA 2026 workbook to register publications, books, and intellectual property. Review duplicate DOIs and invalid rows before confirming.",
+      "researchButton": "Import workbook",
+      "researchTitle": "Import academic outputs",
+      "researchDescription": "Upload the 2026 workbook to register publications, books, and intellectual property. Review duplicate DOIs and invalid rows before confirming.",
       "researchImporting": "Importing academic outputs…",
       "researchImported": "Imported {count} academic outputs.",
       "researchConfirm": "Import {count} results",
@@ -1412,23 +1407,6 @@
     "projectHint": "Each project can link to one research activity. Projects linked to another activity are unavailable.",
     "openFolder": "Open folder",
     "linkedResearch": "Linked research: {title}",
-    "outputs": "{count, plural, one {# linked academic output} other {# linked academic outputs}}",
-    "projects": {
-      "title": "Projects",
-      "subtitle": "Projects, funding, dates and teams at the Faculty of Marine Sciences.",
-      "create": "Create project",
-      "edit": "Edit project",
-      "delete": "Delete project",
-      "empty": "No projects registered yet"
-    },
-    "research": {
-      "title": "Research",
-      "subtitle": "Scientific activities, teams and project links in the academic repository.",
-      "create": "Create research",
-      "edit": "Edit research",
-      "delete": "Delete research",
-      "empty": "No research registered yet"
-    },
     "outputs": {
       "title": "Research outputs",
       "subtitle": "Review and manage publications, books, and intellectual property, and link each output to its research activity.",
@@ -1444,8 +1422,19 @@
       "kind": "Type",
       "allKinds": "All types",
       "year": "Reporting year",
-      "sort": { "reportingYear": "Reporting year", "title": "Title", "publicationDate": "Publication date", "createdAt": "Date added", "kind": "Type" },
-      "kinds": { "ARTICLE": "Article", "BOOK": "Book", "BOOK_CHAPTER": "Book chapter", "INTELLECTUAL_PROPERTY": "Intellectual property" },
+      "sort": {
+        "reportingYear": "Reporting year",
+        "title": "Title",
+        "publicationDate": "Publication date",
+        "createdAt": "Date added",
+        "kind": "Type"
+      },
+      "kinds": {
+        "ARTICLE": "Article",
+        "BOOK": "Book",
+        "BOOK_CHAPTER": "Book chapter",
+        "INTELLECTUAL_PROPERTY": "Intellectual property"
+      },
       "empty": "No academic outputs registered yet",
       "emptyHint": "Create an academic output or review the selected filters.",
       "noMatches": "No outputs match these filters",
@@ -1456,7 +1445,28 @@
       "projects": "Associated projects",
       "noProjects": "No associated projects.",
       "authorsPreserved": "The existing {count, plural, one {# linked author} other {# linked authors}} will be preserved.",
-      "fields": { "researchId": "Associated research", "kind": "Output type", "title": "Title", "reportingYear": "Reporting year", "doi": "DOI", "journal": "Journal", "issn": "ISSN", "isbn": "ISBN", "quartile": "Quartile", "fiveYearImpactFactor": "Five-year impact factor", "publicationDate": "Publication date", "publisher": "Publisher", "publicationPlace": "Publication place", "indexation": "Indexing", "studentParticipation": "Student participation", "internationalParticipation": "International participation", "intellectualPropertyType": "Intellectual property type", "phase": "Phase", "phaseDate": "Phase date", "notes": "Notes" },
+      "fields": {
+        "researchId": "Associated research",
+        "kind": "Output type",
+        "title": "Title",
+        "reportingYear": "Reporting year",
+        "doi": "DOI",
+        "journal": "Journal",
+        "issn": "ISSN",
+        "isbn": "ISBN",
+        "quartile": "Quartile",
+        "fiveYearImpactFactor": "Five-year impact factor",
+        "publicationDate": "Publication date",
+        "publisher": "Publisher",
+        "publicationPlace": "Publication place",
+        "indexation": "Indexing",
+        "studentParticipation": "Student participation",
+        "internationalParticipation": "International participation",
+        "intellectualPropertyType": "Intellectual property type",
+        "phase": "Phase",
+        "phaseDate": "Phase date",
+        "notes": "Notes"
+      },
       "saving": "Saving output…",
       "created": "Academic output created.",
       "updated": "Academic output updated.",
@@ -1467,6 +1477,22 @@
       "confirmDelete": "Confirm deletion",
       "deleteRecord": "Delete {title}",
       "editRecord": "Edit {title}"
+    },
+    "projects": {
+      "title": "Projects",
+      "subtitle": "Projects, funding, dates and teams at the Faculty of Marine Sciences.",
+      "create": "Create project",
+      "edit": "Edit project",
+      "delete": "Delete project",
+      "empty": "No projects registered yet"
+    },
+    "research": {
+      "title": "Research",
+      "subtitle": "Scientific activities, teams and project links in the academic repository.",
+      "create": "Create research",
+      "edit": "Edit research",
+      "delete": "Delete research",
+      "empty": "No research registered yet"
     },
     "groups": {
       "identity": "Identification",

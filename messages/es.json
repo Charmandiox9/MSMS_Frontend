@@ -542,7 +542,8 @@
     "errors": {
       "load": "No se pudieron cargar los profesores.",
       "import": "No se pudo importar el padrón de profesores.",
-      "access": "No tienes acceso a esta página."
+      "access": "No tienes acceso a esta página.",
+      "status": "No se pudo actualizar el estado del profesor."
     },
     "create": "Crear profesor",
     "editTeacher": "Editar {name} y sus asignaturas",
@@ -563,13 +564,7 @@
     "cancelStatus": "Cancelar",
     "statusSaving": "Actualizando estado…",
     "statusActivated": "Se activó a {name}.",
-    "statusDeactivated": "Se desactivó a {name}.",
-    "errors": {
-      "load": "No se pudieron cargar los profesores.",
-      "import": "No se pudo importar el padrón de profesores.",
-      "access": "No tienes acceso a esta página.",
-      "status": "No se pudo actualizar el estado del profesor."
-    }
+    "statusDeactivated": "Se desactivó a {name}."
   },
   "SemesterSettingsPage": {
     "eyebrow": "Configuración académica",
@@ -1392,9 +1387,9 @@
       "rowWarning": "Fila {row}: {message}",
       "cancel": "Cancelar",
       "confirm": "Importar {count} proyectos",
-      "researchButton": "Importar Excel EPRYMA",
-      "researchTitle": "Importar resultados académicos EPRYMA",
-      "researchDescription": "Carga el libro EPRYMA 2026 para registrar publicaciones, libros y propiedad intelectual. Revisa los DOI duplicados y las filas inválidas antes de confirmar.",
+      "researchButton": "Importar Excel",
+      "researchTitle": "Importar resultados académicos",
+      "researchDescription": "Carga el libro 2026 para registrar publicaciones, libros y propiedad intelectual. Revisa los DOI duplicados y las filas inválidas antes de confirmar.",
       "researchImporting": "Importando resultados académicos…",
       "researchImported": "Se importaron {count} resultados académicos.",
       "researchConfirm": "Importar {count} resultados",
@@ -1471,23 +1466,6 @@
     "projectHint": "Un proyecto puede vincularse a una sola investigación. Los proyectos ya vinculados a otra investigación no están disponibles.",
     "openFolder": "Abrir carpeta",
     "linkedResearch": "Investigación vinculada: {title}",
-    "outputs": "{count, plural, one {# resultado académico vinculado} other {# resultados académicos vinculados}}",
-    "projects": {
-      "title": "Proyectos",
-      "subtitle": "Registro de proyectos, financiamiento, fechas y equipos de la Facultad de Ciencias del Mar.",
-      "create": "Crear proyecto",
-      "edit": "Editar proyecto",
-      "delete": "Eliminar proyecto",
-      "empty": "Aún no hay proyectos registrados"
-    },
-    "research": {
-      "title": "Investigaciones",
-      "subtitle": "Actividades científicas, equipos y vínculos con proyectos del repositorio académico.",
-      "create": "Crear investigación",
-      "edit": "Editar investigación",
-      "delete": "Eliminar investigación",
-      "empty": "Aún no hay investigaciones registradas"
-    },
     "outputs": {
       "title": "Resultados de investigación",
       "subtitle": "Consulta y administra publicaciones, libros y propiedad intelectual; vincula cada resultado a su investigación.",
@@ -1503,8 +1481,19 @@
       "kind": "Tipo",
       "allKinds": "Todos los tipos",
       "year": "Año informado",
-      "sort": { "reportingYear": "Año informado", "title": "Título", "publicationDate": "Fecha de publicación", "createdAt": "Fecha de registro", "kind": "Tipo" },
-      "kinds": { "ARTICLE": "Artículo", "BOOK": "Libro", "BOOK_CHAPTER": "Capítulo de libro", "INTELLECTUAL_PROPERTY": "Propiedad intelectual" },
+      "sort": {
+        "reportingYear": "Año informado",
+        "title": "Título",
+        "publicationDate": "Fecha de publicación",
+        "createdAt": "Fecha de registro",
+        "kind": "Tipo"
+      },
+      "kinds": {
+        "ARTICLE": "Artículo",
+        "BOOK": "Libro",
+        "BOOK_CHAPTER": "Capítulo de libro",
+        "INTELLECTUAL_PROPERTY": "Propiedad intelectual"
+      },
       "empty": "Aún no hay resultados académicos registrados",
       "emptyHint": "Crea un resultado académico o revisa los filtros seleccionados.",
       "noMatches": "No encontramos resultados con estos filtros",
@@ -1515,7 +1504,28 @@
       "projects": "Proyectos asociados",
       "noProjects": "Sin proyectos asociados.",
       "authorsPreserved": "Se conservarán las {count, plural, one {# autoría vinculada} other {# autorías vinculadas}} existentes.",
-      "fields": { "researchId": "Investigación asociada", "kind": "Tipo de resultado", "title": "Título", "reportingYear": "Año informado", "doi": "DOI", "journal": "Revista", "issn": "ISSN", "isbn": "ISBN", "quartile": "Cuartil", "fiveYearImpactFactor": "Factor de impacto a cinco años", "publicationDate": "Fecha de publicación", "publisher": "Editorial", "publicationPlace": "Lugar de publicación", "indexation": "Indexación", "studentParticipation": "Participación de estudiantes", "internationalParticipation": "Participación internacional", "intellectualPropertyType": "Tipo de propiedad intelectual", "phase": "Fase", "phaseDate": "Fecha de fase", "notes": "Notas" },
+      "fields": {
+        "researchId": "Investigación asociada",
+        "kind": "Tipo de resultado",
+        "title": "Título",
+        "reportingYear": "Año informado",
+        "doi": "DOI",
+        "journal": "Revista",
+        "issn": "ISSN",
+        "isbn": "ISBN",
+        "quartile": "Cuartil",
+        "fiveYearImpactFactor": "Factor de impacto a cinco años",
+        "publicationDate": "Fecha de publicación",
+        "publisher": "Editorial",
+        "publicationPlace": "Lugar de publicación",
+        "indexation": "Indexación",
+        "studentParticipation": "Participación de estudiantes",
+        "internationalParticipation": "Participación internacional",
+        "intellectualPropertyType": "Tipo de propiedad intelectual",
+        "phase": "Fase",
+        "phaseDate": "Fecha de fase",
+        "notes": "Notas"
+      },
       "saving": "Guardando resultado…",
       "created": "Resultado académico creado.",
       "updated": "Resultado académico actualizado.",
@@ -1526,6 +1536,22 @@
       "confirmDelete": "Confirmar eliminación",
       "deleteRecord": "Eliminar {title}",
       "editRecord": "Editar {title}"
+    },
+    "projects": {
+      "title": "Proyectos",
+      "subtitle": "Registro de proyectos, financiamiento, fechas y equipos de la Facultad de Ciencias del Mar.",
+      "create": "Crear proyecto",
+      "edit": "Editar proyecto",
+      "delete": "Eliminar proyecto",
+      "empty": "Aún no hay proyectos registrados"
+    },
+    "research": {
+      "title": "Investigaciones",
+      "subtitle": "Actividades científicas, equipos y vínculos con proyectos del repositorio académico.",
+      "create": "Crear investigación",
+      "edit": "Editar investigación",
+      "delete": "Eliminar investigación",
+      "empty": "Aún no hay investigaciones registradas"
     },
     "groups": {
       "identity": "Identificación",
