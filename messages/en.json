@@ -1407,6 +1407,7 @@
     "projectHint": "Each project can link to one research activity. Projects linked to another activity are unavailable.",
     "openFolder": "Open folder",
     "linkedResearch": "Linked research: {title}",
+    "outputCount": "{count, plural, =0 {No associated academic outputs} one {# associated academic output} other {# associated academic outputs}}",
     "outputs": {
       "title": "Research outputs",
       "subtitle": "Review and manage publications, books, and intellectual property, and link each output to its research activity.",
@@ -1593,6 +1594,7 @@
     "outputsByYear": "Academic output by year",
     "researchByYear": "Research by start year",
     "researchAndOutputsTrend": "Annual research and output trends",
+    "unknownDate": "No recorded date",
     "hourlyByComponent": "Estimated PH payments by component",
     "empty": "No records match the selected filters.",
     "statuses": { "REGISTERED": "Registered", "AWARDED": "Awarded", "IN_PROGRESS": "In progress", "COMPLETED": "Completed", "CLOSED": "Closed", "CANCELLED": "Cancelled", "Sin informar": "Not reported" },

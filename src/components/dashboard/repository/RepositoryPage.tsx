@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
+import type { DocumentNode } from "graphql";
 import {
   Eye,
   FlaskConical,
@@ -13,10 +15,10 @@ import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
+import { resolveApiBaseUrl } from "@/lib/runtime-config";
 import Modal from "@/components/ui/Modal";
 import PaginationControls from "@/components/ui/PaginationControls";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
-import type { PaginatedResponse } from "@/types/pagination";
 import {
   PROJECT_STATUSES,
   type RepositoryKind,
@@ -30,6 +32,32 @@ import {
   primaryButton,
   secondaryButton,
 } from "./repository-fields";
+import {
+  REPOSITORY_PROJECTS,
+  REPOSITORY_RESEARCH,
+  REPOSITORY_PROJECT_DETAIL,
+  REPOSITORY_RESEARCH_DETAIL,
+  type RepositoryProjectDetailData,
+  type RepositoryResearchDetailData,
+  type RepositoryProjectsData,
+  type RepositoryResearchData,
+  type RepositoryFilters,
+} from "./repository-queries";
+
+function createRepositoryClient() {
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: new HttpLink({
+      uri: "/api/graphql",
+      credentials: "include",
+      fetch: async (_uri, options) => {
+        const base = await resolveApiBaseUrl();
+        if (!base) throw new Error("API_NOT_CONFIGURED");
+        return fetch(`${base}/graphql`, options);
+      },
+    }),
+  });
+}
 
 type Dialog =
   | { mode: "create" }
@@ -39,6 +67,7 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
   const t = useTranslations("AcademicRepository");
   const format = useFormatter();
   const { activeRole } = useActiveRole();
+  const [graphqlClient] = useState(createRepositoryClient);
   const allowed =
     activeRole === "SYSTEM_ADMIN" ||
     activeRole === "ACADEMIC_SECRETARY" ||
@@ -85,26 +114,37 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
         return;
       }
       lastInvalidYearToast.current = "";
-      const query = new URLSearchParams({
-        page: String(page),
-        pageSize: "10",
+      const filters: RepositoryFilters = {
+        page,
+        pageSize: 10,
         search: search.trim(),
         sortBy,
         sortOrder,
-      });
-      if (kind === "projects" && status) query.set("status", status);
-      if (kind === "projects" && year) query.set("reportingYear", year);
-      apiFetch<PaginatedResponse<RepositoryRecord>>(
-        `/academic/${kind}?${query}`,
-      )
-        .then((data) => {
+        ...(kind === "projects" && status ? { status } : {}),
+        ...(kind === "projects" && year ? { reportingYear: parsedYear } : {}),
+      };
+      void graphqlClient
+        .query<RepositoryProjectsData | RepositoryResearchData, { filters: RepositoryFilters }>({
+          query: (kind === "projects" ? REPOSITORY_PROJECTS : REPOSITORY_RESEARCH) as DocumentNode,
+          variables: { filters },
+          fetchPolicy: "network-only",
+        })
+        .then((result) => {
           if (active) {
+            if (!result.data) throw new Error(loadLabel);
+            const data = "repositoryProjects" in result.data
+              ? result.data.repositoryProjects
+              : result.data.repositoryResearch;
             const pages = Math.max(1, data.totalPages);
             if (page > pages) {
               setPage(pages);
               return;
             }
-            setRows(data.items);
+            setRows(data.items.map((item) => ({
+              ...item,
+              participants: item.participants ?? [],
+              _count: { outputs: item.outputCount },
+            })));
             setTotal(data.total);
             setTotalPages(pages);
             setError(null);
@@ -134,7 +174,7 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
       active = false;
       clearTimeout(timeout);
     };
-  }, [allowed, kind, page, search, status, year, sortBy, sortOrder, reload, loadLabel, t]);
+  }, [allowed, graphqlClient, kind, page, search, status, year, sortBy, sortOrder, reload, loadLabel, t]);
   const refresh = () => {
     setLoading(true);
     setReload((value) => value + 1);
@@ -146,9 +186,14 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
     if (busy) return;
     setBusy(true);
     try {
-      const record = await apiFetch<RepositoryRecord>(
-        `/academic/${kind}/${row.id}`,
-      );
+      const result = await graphqlClient.query<RepositoryProjectDetailData | RepositoryResearchDetailData, { id: string }>({
+        query: (kind === 'projects' ? REPOSITORY_PROJECT_DETAIL : REPOSITORY_RESEARCH_DETAIL) as DocumentNode,
+        variables: { id: row.id },
+        fetchPolicy: 'no-cache',
+      });
+      if (!result.data) throw new Error(loadLabel);
+      const detail = 'repositoryProject' in result.data ? result.data.repositoryProject : result.data.repositoryResearchDetail;
+      const record: RepositoryRecord = { ...detail, _count: { outputs: detail.outputCount } };
       setDialog({ mode, record });
     } catch (cause: unknown) {
       toast.error(cause instanceof Error ? cause.message : loadLabel);
@@ -452,7 +497,7 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
           kind={kind}
           record={dialog.record}
           onClose={() => setDialog(null)}
-          onEdit={() => setDialog({ mode: "edit", record: dialog.record })}
+          onEdit={() => void open("edit", dialog.record)}
         />
       )}
       {dialog?.mode === "delete" && (

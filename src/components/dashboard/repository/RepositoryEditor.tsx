@@ -5,9 +5,11 @@ import { toast } from "sonner";
 import Modal from "@/components/ui/Modal";
 import { FormSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
+import { createApiGraphqlClient } from '@/lib/graphql-client';
+import { PROJECT_OPTIONS, type ProjectOption } from './repository-queries';
+import type { ApolloClient } from '@apollo/client';
 import { fetchAllTeachers } from "@/lib/teachers";
 import type { Teacher } from "@/types/justifications";
-import type { PaginatedResponse } from "@/types/pagination";
 import type {
   RepositoryKind,
   RepositoryParticipant,
@@ -23,19 +25,15 @@ import {
   secondaryButton,
 } from "./repository-fields";
 
-async function projectOptions() {
-  const first = await apiFetch<PaginatedResponse<RepositoryRecord>>(
-    "/academic/projects?page=1&pageSize=100",
-  );
-  const items = [...first.items];
-  for (let page = 2; page <= first.totalPages; page++)
-    items.push(
-      ...(
-        await apiFetch<PaginatedResponse<RepositoryRecord>>(
-          `/academic/projects?page=${page}&pageSize=100`,
-        )
-      ).items,
-    );
+async function projectOptions(client: ApolloClient, errorMessage: string) {
+  const first = await client.query({ query: PROJECT_OPTIONS, variables: { filters: { page: 1, pageSize: 100 } }, fetchPolicy: 'no-cache' });
+  if (!first.data) throw new Error(errorMessage);
+  const items = [...first.data.repositoryProjectOptions.items];
+  for (let page = 2; page <= first.data.repositoryProjectOptions.totalPages; page++) {
+    const result = await client.query({ query: PROJECT_OPTIONS, variables: { filters: { page, pageSize: 100 } }, fetchPolicy: 'no-cache' });
+    if (!result.data) throw new Error(errorMessage);
+    items.push(...result.data.repositoryProjectOptions.items);
+  }
   return items;
 }
 
@@ -51,13 +49,14 @@ export default function RepositoryEditor({
   onSaved: () => void;
 }) {
   const t = useTranslations("AcademicRepository");
+  const [graphqlClient] = useState(createApiGraphqlClient);
   const [values, setValues] = useState(() => initialValues(kind, record));
   const [participants, setParticipants] = useState<RepositoryParticipant[]>(
     record?.participants ?? [],
   );
   const [projectId, setProjectId] = useState(record?.projectId ?? "");
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [projects, setProjects] = useState<RepositoryRecord[]>([]);
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -67,7 +66,7 @@ export default function RepositoryEditor({
     let active = true;
     Promise.all([
       fetchAllTeachers(),
-      kind === "research" ? projectOptions() : Promise.resolve([]),
+      kind === "research" ? projectOptions(graphqlClient, errorLabel) : Promise.resolve([]),
     ])
       .then(([teacherRows, projectRows]) => {
         if (active) {
@@ -86,7 +85,7 @@ export default function RepositoryEditor({
     return () => {
       active = false;
     };
-  }, [kind, retry, errorLabel]);
+  }, [kind, graphqlClient, retry, errorLabel]);
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (saving || loading || loadError) return;
@@ -191,7 +190,7 @@ export default function RepositoryEditor({
                     key={project.id}
                     value={project.id}
                     disabled={
-                      !!project.research && project.research.id !== record?.id
+                      !!project.researchId && project.researchId !== record?.id
                     }
                   >
                     {project.code ? `${project.code} · ` : ""}

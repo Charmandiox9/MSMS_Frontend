@@ -1,4 +1,7 @@
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import es from "../../../../messages/es.json";
+import en from "../../../../messages/en.json";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderAs } from "@/test/render";
 import { fail, installFakeApi, ok } from "@/test/fake-api";
@@ -39,6 +42,24 @@ const teachers = () => ({ "GET /academic/teachers": ok(page([])) });
 describe("Páginas del repositorio académico", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.unstubAllGlobals());
+  it.each([
+    { locale: "es", messages: es, count: 0, label: "Sin resultados académicos asociados" },
+    { locale: "es", messages: es, count: 1, label: "1 resultado académico asociado" },
+    { locale: "es", messages: es, count: 3, label: "3 resultados académicos asociados" },
+    { locale: "en", messages: en, count: 0, label: "No associated academic outputs" },
+    { locale: "en", messages: en, count: 1, label: "1 associated academic output" },
+    { locale: "en", messages: en, count: 3, label: "3 associated academic outputs" },
+  ])("traduce los resultados asociados en $locale con cantidad $count", ({ locale, messages, count, label }) => {
+    const onError = vi.fn();
+    render(
+      <NextIntlClientProvider locale={locale} messages={messages} timeZone="America/Santiago" onError={onError}>
+        <RepositoryDetails kind="projects" record={{ ...record, _count: { outputs: count } }} onClose={vi.fn()} onEdit={vi.fn()} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByText(label)).toBeDefined();
+    expect(screen.queryByText("AcademicRepository.outputs")).toBeNull();
+    expect(onError).not.toHaveBeenCalled();
+  });
   it.each(["projects", "research"] as const)(
     "bloquea coordinación en %s sin consultar datos",
     async (kind) => {
@@ -190,6 +211,9 @@ describe("Páginas del repositorio académico", () => {
     );
     expect(await screen.findByRole("dialog")).toBeDefined();
     expect(api.calls("GET /academic/projects/project-1")).toHaveLength(1);
+    expect(api.calls("GET /academic/projects/project-1")[0]).toMatchObject({
+      operationName: 'RepositoryProjectDetail', credentials: 'include',
+    });
   });
   it("formatea los montos del detalle según la moneda del proyecto", () => {
     renderAs(
@@ -202,6 +226,23 @@ describe("Páginas del repositorio académico", () => {
       ["ACADEMIC_PROCESS_ANALYST"],
     );
     expect(screen.getByText(/227\.700\.000/)).toBeDefined();
+  });
+  it('abre por GraphQL el detalle científico completo antes de editar una investigación', async () => {
+    const investigation = { ...record, id: 'research-1', description: 'Descripción vigente', researchArea: 'Ecología',
+      projectId: record.id, project: { id: record.id, title: 'Proyecto asociado', code: record.code } };
+    const api = installFakeApi({
+      'GET /academic/research': ok(page([investigation])),
+      'GET /academic/research/research-1': ok(investigation),
+      'GET /academic/projects': ok(page([record])),
+      ...teachers(),
+    });
+    renderAs(<RepositoryPage kind='research' />, ['ACADEMIC_SECRETARY']);
+    await screen.findByText(record.title);
+    fireEvent.click(screen.getByRole('button', { name: `Editar ${record.title}` }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByDisplayValue(investigation.description)).toBeDefined();
+    expect(within(dialog).getByDisplayValue(investigation.researchArea)).toBeDefined();
+    expect(api.calls('GET /academic/research/research-1')[0]).toMatchObject({ operationName: 'RepositoryResearchDetail' });
   });
   it("muestra estado vacío y avisa cuando el año informado está incompleto", async () => {
     const api = installFakeApi({ "GET /academic/projects": ok(page([record])) });
@@ -340,5 +381,19 @@ describe("Páginas del repositorio académico", () => {
       projectId: record.id,
       expectedUpdatedAt: record.updatedAt,
     });
+  });
+  it('consulta por GraphQL las opciones y bloquea proyectos ocupados por otra investigación', async () => {
+    const investigation = { ...record, id: 'research-1', projectId: 'current' };
+    const api = installFakeApi({ ...teachers(), 'GET /academic/projects': ok(page([
+      { ...record, id: 'occupied', title: 'Proyecto ocupado', code: null, research: { id: 'research-2', title: 'Otra investigación' } },
+      { ...record, id: 'current', title: 'Proyecto actual', code: null, research: { id: 'research-1', title: 'Investigación actual' } },
+      { ...record, id: 'free', title: 'Proyecto disponible', code: null, research: null },
+    ])) });
+    renderAs(<RepositoryEditor kind='research' record={investigation} onClose={vi.fn()} onSaved={vi.fn()} />, ['ACADEMIC_PROCESS_ANALYST']);
+    const occupied = await screen.findByRole('option', { name: 'Proyecto ocupado' });
+    expect(occupied.hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('option', { name: 'Proyecto actual' }).hasAttribute('disabled')).toBe(false);
+    expect(screen.getByRole('option', { name: 'Proyecto disponible' }).hasAttribute('disabled')).toBe(false);
+    expect(api.calls('GET /academic/projects')[0]).toMatchObject({ operationName: 'RepositoryProjectOptions', credentials: 'include' });
   });
 });

@@ -1,27 +1,48 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { FileText, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
+import { resolveApiBaseUrl } from "@/lib/runtime-config";
 import Modal from "@/components/ui/Modal";
 import PaginationControls from "@/components/ui/PaginationControls";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
-import type { PaginatedResponse } from "@/types/pagination";
 import type { ResearchOption, ResearchOutputKind, ResearchOutputRecord } from "@/types/research-output";
 import { fieldClass, primaryButton, secondaryButton } from "./repository-fields";
+import { RESEARCH_OUTPUTS, REPOSITORY_RESEARCH, RESEARCH_OUTPUT_DETAIL } from "./repository-queries";
 
 type Dialog = { mode: "create" } | { mode: "edit" | "details" | "delete"; row: ResearchOutputRecord } | null;
 const kinds: ResearchOutputKind[] = ["ARTICLE", "BOOK", "BOOK_CHAPTER", "INTELLECTUAL_PROPERTY"];
 
-async function loadResearchOptions() {
-  const first = await apiFetch<PaginatedResponse<ResearchOption>>("/academic/research?page=1&pageSize=100&sortBy=title&sortOrder=asc");
-  const rows = [...first.items];
-  for (let current = 2; current <= first.totalPages; current++) {
-    const page = await apiFetch<PaginatedResponse<ResearchOption>>(`/academic/research?page=${current}&pageSize=100&sortBy=title&sortOrder=asc`);
-    rows.push(...page.items);
+function createRepositoryClient() {
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: new HttpLink({
+      uri: "/api/graphql",
+      credentials: "include",
+      fetch: async (_uri, options) => {
+        const base = await resolveApiBaseUrl();
+        if (!base) throw new Error("API_NOT_CONFIGURED");
+        return fetch(`${base}/graphql`, options);
+      },
+    }),
+  });
+}
+
+async function loadResearchOptions(client: ApolloClient, errorMessage: string) {
+  const filters = { page: 1, pageSize: 100, search: "", sortBy: "title", sortOrder: "asc" as const };
+  const first = await client.query({ query: REPOSITORY_RESEARCH, variables: { filters }, fetchPolicy: "cache-first" });
+  if (!first.data) throw new Error(errorMessage);
+  const firstPage = first.data.repositoryResearch;
+  const rows: ResearchOption[] = firstPage.items.map(({ id, title, code }) => ({ id, title, code }));
+  for (let current = 2; current <= firstPage.totalPages; current++) {
+    const page = await client.query({ query: REPOSITORY_RESEARCH, variables: { filters: { ...filters, page: current } }, fetchPolicy: "cache-first" });
+    if (!page.data) throw new Error(errorMessage);
+    rows.push(...page.data.repositoryResearch.items.map(({ id, title, code }) => ({ id, title, code })));
   }
   return rows;
 }
@@ -31,6 +52,7 @@ export default function ResearchOutputsPage() {
   const common = useTranslations("AcademicRepository");
   const format = useFormatter();
   const { activeRole } = useActiveRole();
+  const [graphqlClient] = useState(createRepositoryClient);
   const allowed = ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"].includes(activeRole ?? "");
   const [rows, setRows] = useState<ResearchOutputRecord[]>([]);
   const [researches, setResearches] = useState<ResearchOption[]>([]);
@@ -48,20 +70,40 @@ export default function ResearchOutputsPage() {
   const [reload, setReload] = useState(0);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [busy, setBusy] = useState(false);
+  const lastInvalidYearToast = useRef("");
   const refresh = useCallback(() => { setLoading(true); setReload((n) => n + 1); }, []);
 
   useEffect(() => {
     if (!allowed) return;
     let active = true;
-    const query = new URLSearchParams({ page: String(page), pageSize: "10", sortBy, sortOrder, search: search.trim() });
-    if (researchId) query.set("researchId", researchId);
-    if (kind) query.set("kind", kind);
-    if (year) query.set("reportingYear", year);
+    const numericYear = Number(year);
+    const invalidYear = year !== "" && (!/^\d{4}$/.test(year) || numericYear < 1900 || numericYear > 2200);
+    if (invalidYear) {
+      setRows([]); setTotal(0); setTotalPages(1); setError(null); setLoading(false);
+      if (lastInvalidYearToast.current !== year) {
+        toast.error(common("invalidYearToast"));
+        lastInvalidYearToast.current = year;
+      }
+      return () => { active = false; };
+    }
+    lastInvalidYearToast.current = "";
+    const filters = {
+      page,
+      pageSize: 10,
+      search: search.trim(),
+      sortBy,
+      sortOrder,
+      ...(researchId ? { researchId } : {}),
+      ...(kind ? { kind: kind as ResearchOutputKind } : {}),
+      ...(year ? { reportingYear: numericYear } : {}),
+    };
     void Promise.all([
-      apiFetch<PaginatedResponse<ResearchOutputRecord>>(`/academic/research-outputs?${query}`),
-      loadResearchOptions(),
-    ]).then(([data, researchData]) => {
+      graphqlClient.query({ query: RESEARCH_OUTPUTS, variables: { filters }, fetchPolicy: "network-only" }),
+      loadResearchOptions(graphqlClient, common("loadError")),
+    ]).then(([result, researchData]) => {
       if (!active) return;
+      if (!result.data) throw new Error(common("loadError"));
+      const data = result.data.repositoryResearchOutputs;
       const pages = Math.max(1, data.totalPages);
       if (page > pages) { setPage(pages); return; }
       setRows(data.items); setTotal(data.total); setTotalPages(pages);
@@ -70,7 +112,21 @@ export default function ResearchOutputsPage() {
       if (active) setError(cause instanceof Error ? cause.message : common("loadError"));
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [allowed, page, researchId, search, kind, year, sortBy, sortOrder, reload, common]);
+  }, [allowed, graphqlClient, page, researchId, search, kind, year, sortBy, sortOrder, reload, common]);
+
+  const open = async (mode: 'details' | 'edit' | 'delete', row: ResearchOutputRecord) => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const result = await graphqlClient.query({ query: RESEARCH_OUTPUT_DETAIL, variables: { id: row.id }, fetchPolicy: 'no-cache' });
+      if (!result.data) throw new Error(common('loadError'));
+      setDialog({ mode, row: result.data.repositoryResearchOutput });
+    } catch (cause: unknown) {
+      toast.error(cause instanceof Error ? cause.message : common('loadError'));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const remove = async () => {
     if (dialog?.mode !== "delete" || busy) return;
@@ -96,10 +152,10 @@ export default function ResearchOutputsPage() {
       <label className="text-xs font-medium text-muted-foreground">{common("sortBy")}<select className={fieldClass} value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); setLoading(true); }}>{["reportingYear", "title", "publicationDate", "createdAt", "kind"].map((value) => <option key={value} value={value}>{t(`sort.${value}`)}</option>)}</select></label>
       <label className="text-xs font-medium text-muted-foreground">{common("sortOrder")}<select className={fieldClass} value={sortOrder} onChange={(e) => { setSortOrder(e.target.value as "asc" | "desc"); setPage(1); setLoading(true); }}><option value="desc">{common("descending")}</option><option value="asc">{common("ascending")}</option></select></label>
     </div>
-    {error ? <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/5 p-5"><p className="text-sm">{error}</p><button type="button" className={`${secondaryButton} mt-3`} onClick={refresh}>{common("retry")}</button></div> : loading ? <TableSkeleton label={common("loading")} /> : rows.length === 0 ? <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center"><FileText className="mx-auto h-9 w-9 text-primary/60" /><h2 className="mt-4 text-lg font-bold">{t(search || researchId || kind || year ? "noMatches" : "empty")}</h2><p className="mt-2 text-sm text-muted-foreground">{t("emptyHint")}</p></div> : <div className="overflow-hidden rounded-2xl border border-border bg-card"><p className="border-b border-border px-5 py-3 text-xs font-semibold text-muted-foreground">{common("total", { count: total })}</p><ul className="divide-y divide-border">{rows.map((row) => <li key={row.id} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><span className="rounded-full bg-primary/10 px-2 py-1 font-medium text-primary">{t(`kinds.${row.kind}`)}</span><span>{row.reportingYear}</span></div><button type="button" className="text-left text-base font-bold hover:text-primary" onClick={() => setDialog({ mode: "details", row })}>{row.title}</button><p className="mt-1 text-sm text-muted-foreground">{row.research?.title ?? t("unlinkedResearch")}</p><p className="mt-1 text-xs text-muted-foreground">{t("authorCount", { count: row.authors.length })}{row.publicationDate ? ` · ${format.dateTime(new Date(row.publicationDate), { dateStyle: "medium", timeZone: "UTC" })}` : ""}</p></div><div className="flex gap-2"><button type="button" className={secondaryButton} aria-label={t("editRecord", { title: row.title })} onClick={() => setDialog({ mode: "edit", row })}><Pencil className="h-4 w-4" /><span className="sr-only lg:not-sr-only">{common("edit")}</span></button><button type="button" className={`${secondaryButton} text-red-600 dark:text-red-400`} aria-label={t("deleteRecord", { title: row.title })} onClick={() => setDialog({ mode: "delete", row })}><Trash2 className="h-4 w-4" /><span className="sr-only lg:not-sr-only">{common("delete")}</span></button></div></li>)}</ul></div>}
+    {error ? <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/5 p-5"><p className="text-sm">{error}</p><button type="button" className={`${secondaryButton} mt-3`} onClick={refresh}>{common("retry")}</button></div> : loading ? <TableSkeleton label={common("loading")} /> : rows.length === 0 ? <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center"><FileText className="mx-auto h-9 w-9 text-primary/60" /><h2 className="mt-4 text-lg font-bold">{t(search || researchId || kind || year ? "noMatches" : "empty")}</h2><p className="mt-2 text-sm text-muted-foreground">{t("emptyHint")}</p></div> : <div className="overflow-hidden rounded-2xl border border-border bg-card"><p className="border-b border-border px-5 py-3 text-xs font-semibold text-muted-foreground">{common("total", { count: total })}</p><ul className="divide-y divide-border">{rows.map((row) => <li key={row.id} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><span className="rounded-full bg-primary/10 px-2 py-1 font-medium text-primary">{t(`kinds.${row.kind}`)}</span><span>{row.reportingYear}</span></div><button type="button" className="text-left text-base font-bold hover:text-primary" disabled={busy} onClick={() => void open("details", row)}>{row.title}</button><p className="mt-1 text-sm text-muted-foreground">{row.research?.title ?? t("unlinkedResearch")}</p><p className="mt-1 text-xs text-muted-foreground">{t("authorCount", { count: row.authors.length })}{row.publicationDate ? ` · ${format.dateTime(new Date(row.publicationDate), { dateStyle: "medium", timeZone: "UTC" })}` : ""}</p></div><div className="flex gap-2"><button type="button" className={secondaryButton} aria-label={t("editRecord", { title: row.title })} disabled={busy} onClick={() => void open("edit", row)}><Pencil className="h-4 w-4" /><span className="sr-only lg:not-sr-only">{common("edit")}</span></button><button type="button" className={`${secondaryButton} text-red-600 dark:text-red-400`} aria-label={t("deleteRecord", { title: row.title })} disabled={busy} onClick={() => void open("delete", row)}><Trash2 className="h-4 w-4" /><span className="sr-only lg:not-sr-only">{common("delete")}</span></button></div></li>)}</ul></div>}
     {!error && !loading && <PaginationControls page={page} totalPages={totalPages} totalItems={total} onPageChange={(next) => { setPage(next); setLoading(true); }} />}
     {(dialog?.mode === "create" || dialog?.mode === "edit") && <OutputEditor record={dialog.mode === "edit" ? dialog.row : null} researches={researches} onClose={() => setDialog(null)} onSaved={() => { setDialog(null); refresh(); }} />}
-    {dialog?.mode === "details" && <OutputDetails row={dialog.row} onClose={() => setDialog(null)} onEdit={() => setDialog({ mode: "edit", row: dialog.row })} />}
+    {dialog?.mode === "details" && <OutputDetails row={dialog.row} onClose={() => setDialog(null)} onEdit={() => void open("edit", dialog.row)} />}
     {dialog?.mode === "delete" && <Modal isOpen title={t("deleteTitle")} description={t("deleteHint", { title: dialog.row.title })} size="md" onClose={() => !busy && setDialog(null)} closeLabel={common("close")}><div className="flex justify-end gap-3"><button type="button" className={secondaryButton} disabled={busy} onClick={() => setDialog(null)}>{common("cancel")}</button><button type="button" className={`${primaryButton} bg-red-600 text-white`} disabled={busy} onClick={() => void remove()}>{t(busy ? "deleting" : "confirmDelete")}</button></div></Modal>}
   </section>;
 }

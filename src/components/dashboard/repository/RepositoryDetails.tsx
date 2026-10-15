@@ -135,7 +135,7 @@ export default function RepositoryDetails({
           )}
         </section>
         <p className="text-xs text-muted-foreground">
-          {t("outputs", { count: record._count.outputs })}
+          {t("outputCount", { count: record._count.outputs })}
         </p>
       </div>
     </Modal>

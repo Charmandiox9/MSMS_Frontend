@@ -69,13 +69,50 @@ describe("Academic reports", () => {
     expect(await screen.findByRole("alert")).toBeDefined();
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeDefined();
   });
+  it("requests repository report pages from the backend", async () => {
+    const api = installFakeApi({
+      "GET /academic/semesters": ok([]),
+      "GET /academic/reports": ({ query }) => ({
+        body: {
+          columns: ["title"],
+          rows: [{ title: `Proyecto página ${query.get("page")}` }],
+          totalRows: 45,
+          page: Number(query.get("page")),
+          pageSize: 20,
+        },
+      }),
+    });
+    renderAs(<AcademicReports />, ["ACADEMIC_PROCESS_ANALYST"]);
+    fireEvent.change(screen.getByLabelText("Datos"), {
+      target: { value: "projects" },
+    });
+    expect(await screen.findByText("Proyecto página 1")).toBeDefined();
+    expect(screen.getByText("45 registros")).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
+    expect(await screen.findByText("Proyecto página 2")).toBeDefined();
+    expect(
+      api.requests.some(
+        (request) =>
+          request.path === "/academic/reports" &&
+          request.query.get("dataset") === "projects" &&
+          request.query.get("page") === "2" &&
+          request.query.get("pageSize") === "20",
+      ),
+    ).toBe(true);
+  });
   it("allows the academic secretary to view reports", async () => {
     const api = installFakeApi({
       "GET /academic/semesters": ok([]),
-      "GET /academic/reports": ok({ columns: ["name"], rows: [{ name: "Ana" }] }),
+      "GET /academic/reports": ok({
+        columns: ["name"],
+        rows: [{ name: "Ana" }],
+      }),
     });
     renderAs(<AcademicReports />, ["ACADEMIC_SECRETARY"]);
     expect(await screen.findByText("Ana")).toBeDefined();
-    expect(api.requests.some((request) => request.path === "/academic/reports")).toBe(true);
+    expect(api.calls('GET /academic/reports')[0].operationName).toBe('AcademicReport');
+    expect(
+      api.requests.some((request) => request.path === "/academic/reports"),
+    ).toBe(true);
   });
 });
