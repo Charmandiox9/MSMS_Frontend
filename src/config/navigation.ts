@@ -5,29 +5,37 @@ import {
   ClipboardList,
   FileBarChart,
   GraduationCap,
-  History,
   LayoutDashboard,
   Settings,
   ShieldCheck,
   Users,
+  FolderKanban,
+  FlaskConical,
+  FileText,
+  BarChart3,
   type LucideIcon,
-} from 'lucide-react';
-import type { UserRoleCode } from '@/types/auth';
+} from "lucide-react";
+import type { UserRoleCode } from "@/types/auth";
 
 export type NavigationKey =
-  | 'dashboard'
-  | 'justifications'
-  | 'justificationsManagement'
-  | 'academicInformation'
-  | 'subjects'
-  | 'teachers'
-  | 'academicWorkload'
-  | 'assistantshipHistory'
-  | 'titulation'
-  | 'reports'
-  | 'users'
-  | 'audit'
-  | 'settings';
+  | "dashboard"
+  | "justifications"
+  | "justificationsManagement"
+  | "academicInformation"
+  | "subjects"
+  | "teachers"
+  | "projects"
+  | "research"
+  | "researchOutputs"
+  | "students"
+  | "academicWorkload"
+  | "assistantships"
+  | "titulation"
+  | "reports"
+  | "charts"
+  | "users"
+  | "audit"
+  | "settings";
 
 export interface NavigationItem {
   key: NavigationKey;
@@ -43,108 +51,164 @@ export interface NavigationSection {
 
 export const DASHBOARD_SECTIONS: NavigationSection[] = [
   {
-    key: 'main',
+    key: "main",
     items: [
       {
-        key: 'dashboard',
-        href: '/dashboard',
+        key: "dashboard",
+        href: "/dashboard",
         icon: LayoutDashboard,
       },
     ],
   },
   {
-    key: 'academic',
+    key: "academic",
     items: [
       {
-        key: 'justifications',
-        href: '/dashboard/justifications',
+        key: "justifications",
+        href: "/dashboard/justifications",
         icon: ClipboardCheck,
-        allowedRoles: ['TEACHING_SUPPORT_COORDINATOR'],
+        allowedRoles: ["TEACHING_SUPPORT_COORDINATOR"],
       },
       {
-        key: 'justificationsManagement',
-        href: '/dashboard/justifications/management',
+        key: "justificationsManagement",
+        href: "/dashboard/justifications/management",
         icon: ClipboardList,
-        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
+        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"],
       },
       {
-        key: 'academicInformation',
-        href: '/dashboard/academic-information',
+        key: "academicInformation",
+        href: "/dashboard/academic-information",
         icon: BookOpenCheck,
         allowedRoles: [
-          'SYSTEM_ADMIN',
-          'ACADEMIC_SECRETARY',
-          'ACADEMIC_PROCESS_ANALYST',
-          'TEACHING_SUPPORT_COORDINATOR',
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+          "TEACHING_SUPPORT_COORDINATOR",
         ],
       },
       {
-        key: 'academicWorkload',
-        href: '/dashboard/academic-workload',
+        key: "academicWorkload",
+        href: "/dashboard/academic-workload",
         icon: CalendarDays,
-        allowedRoles: ['SYSTEM_ADMIN', 'TEACHING_SUPPORT_COORDINATOR'],
+        allowedRoles: ["SYSTEM_ADMIN", "TEACHING_SUPPORT_COORDINATOR"],
       },
       {
-        key: 'subjects',
-        href: '/dashboard/subjects',
+        key: "subjects",
+        href: "/dashboard/subjects",
         icon: BookOpenCheck,
-        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
       },
       {
-        key: 'teachers',
-        href: '/dashboard/teachers',
+        key: "teachers",
+        href: "/dashboard/teachers",
         icon: Users,
-        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
       },
       {
-        key: 'assistantshipHistory',
-        href: '/dashboard/assistantship-history',
-        icon: History,
-        allowedRoles: ['TEACHING_SUPPORT_COORDINATOR'],
+        key: "students",
+        href: "/dashboard/students",
+        icon: Users,
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "TEACHING_SUPPORT_COORDINATOR",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
       },
       {
-        key: 'titulation',
-        href: '/dashboard/titulation',
+        key: "projects",
+        href: "/dashboard/projects",
+        icon: FolderKanban,
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
+      },
+      {
+        key: "research",
+        href: "/dashboard/research",
+        icon: FlaskConical,
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
+      },
+      {
+        key: "researchOutputs",
+        href: "/dashboard/research-outputs",
+        icon: FileText,
+        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+      },
+      {
+        key: "assistantships",
+        href: "/dashboard/assistantships",
+        icon: ClipboardList,
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "TEACHING_SUPPORT_COORDINATOR",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
+      },
+      {
+        key: "titulation",
+        href: "/dashboard/titulation",
         icon: GraduationCap,
         allowedRoles: [
-          'SYSTEM_ADMIN',
-          'TEACHING_SUPPORT_COORDINATOR',
-          'ACADEMIC_PROCESS_ANALYST',
+          "SYSTEM_ADMIN",
+          "TEACHING_SUPPORT_COORDINATOR",
+          "ACADEMIC_PROCESS_ANALYST",
         ],
       },
     ],
   },
   {
-    key: 'analysis',
+    key: "analysis",
     items: [
       {
-        key: 'reports',
-        href: '/dashboard/reports',
+        key: "reports",
+        href: "/dashboard/reports",
         icon: FileBarChart,
-        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_PROCESS_ANALYST'],
+        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+      },
+      {
+        key: "charts",
+        href: "/dashboard/charts",
+        icon: BarChart3,
+        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
       },
     ],
   },
   {
-    key: 'system',
+    key: "system",
     items: [
       {
-        key: 'users',
-        href: '/dashboard/users',
+        key: "users",
+        href: "/dashboard/users",
         icon: Users,
-        allowedRoles: ['SYSTEM_ADMIN'],
+        allowedRoles: ["SYSTEM_ADMIN"],
       },
       {
-        key: 'audit',
-        href: '/dashboard/audit',
+        key: "audit",
+        href: "/dashboard/audit",
         icon: ShieldCheck,
-        allowedRoles: ['SYSTEM_ADMIN'],
+        allowedRoles: ["SYSTEM_ADMIN"],
       },
       {
-        key: 'settings',
-        href: '/dashboard/settings',
+        key: "settings",
+        href: "/dashboard/settings",
         icon: Settings,
-        allowedRoles: ['SYSTEM_ADMIN', 'ACADEMIC_SECRETARY'],
+        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"],
       },
     ],
   },
@@ -152,7 +216,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
 
 export function getFilteredNavigation(
   sections: NavigationSection[],
-  activeRole?: string | null
+  activeRole?: string | null,
 ): NavigationSection[] {
   return sections
     .map((section) => {
@@ -177,7 +241,7 @@ export function getFilteredNavigation(
 export function isRouteAllowed(
   pathname: string,
   sections: NavigationSection[],
-  activeRole?: string | null
+  activeRole?: string | null,
 ): boolean {
   for (const section of sections) {
     for (const item of section.items) {

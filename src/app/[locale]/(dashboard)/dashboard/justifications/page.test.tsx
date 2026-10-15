@@ -1,265 +1,663 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import JustificationsPage from './page';
-import { renderAs } from '@/test/render';
-import { fail, installFakeApi, ok } from '@/test/fake-api';
-import { inboxEntry, justification } from '@/test/fixtures';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import JustificationsPage from "./page";
+import { renderAs } from "@/test/render";
+import { fail, installFakeApi, ok } from "@/test/fake-api";
+import { inboxEntry, justification } from "@/test/fixtures";
 
-const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn(), info: vi.fn() }));
-vi.mock('sonner', () => ({ toast }));
+const toast = vi.hoisted(() => ({
+  success: vi.fn(),
+  error: vi.fn(),
+  info: vi.fn(),
+}));
+vi.mock("sonner", () => ({ toast }));
 
-const COORDINATOR = ['TEACHING_SUPPORT_COORDINATOR'] as const;
+const COORDINATOR = ["TEACHING_SUPPORT_COORDINATOR"] as const;
 
 function dialog() {
-  return screen.getByRole('dialog');
+  return screen.getByRole("dialog");
 }
 
 function historyRow() {
-  return screen.getByRole('button', { name: /Cálculo I · NRC 1234/ });
+  return screen.getByRole("button", { name: /Cálculo I · NRC 1234/ });
 }
 
-describe('JustificationsPage (coordinación de apoyo docente)', () => {
+describe("JustificationsPage (coordinación de apoyo docente)", () => {
+  it("muestra los nombres de estudiantes vinculados en bandeja e historial", async () => {
+    installFakeApi({
+      "GET /justifications/inbox": ok([inboxEntry({ student: { id: "s-1", name: "Ana Soto", email: "ana@example.test" } })]),
+      "GET /justifications": ok([justification({ student: { id: "s-2", name: "Beto Díaz", email: "beto@example.test" } })]),
+    });
+    renderAs(<JustificationsPage />, [...COORDINATOR]);
+    expect(await screen.findByText("Ana Soto")).toBeDefined();
+    expect(await screen.findByText("Beto Díaz")).toBeDefined();
+  });
   beforeEach(() => {
     localStorage.clear();
     Object.values(toast).forEach((mock) => mock.mockClear());
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
-  it.each([['SYSTEM_ADMIN'], ['ACADEMIC_SECRETARY'], ['ACADEMIC_PROCESS_ANALYST']] as const)(
-    'bloquea la vista y no consulta la API para %s',
-    async (role) => {
-      const api = installFakeApi();
-      renderAs(<JustificationsPage />, [role]);
+  it.each([
+    ["SYSTEM_ADMIN"],
+    ["ACADEMIC_SECRETARY"],
+    ["ACADEMIC_PROCESS_ANALYST"],
+  ] as const)("bloquea la vista y no consulta la API para %s", async (role) => {
+    const api = installFakeApi();
+    renderAs(<JustificationsPage />, [role]);
 
-      expect(await screen.findByText('No tienes acceso a esta página.')).toBeDefined();
-      expect(api.requests).toHaveLength(0);
-    },
-  );
+    expect(
+      await screen.findByText("No tienes acceso a esta página."),
+    ).toBeDefined();
+    expect(api.requests).toHaveLength(0);
+  });
 
-  it('carga entrantes e historial con cookies y muestra los contadores', async () => {
+  it("carga entrantes e historial con cookies y muestra los contadores", async () => {
     const api = installFakeApi({
-      'GET /justifications/inbox': ok([inboxEntry()]),
-      'GET /justifications': ok([
-        justification({ id: 'j-1', subjectName: 'Álgebra' }),
-        justification({ id: 'j-2', status: 'ACCEPTED', subjectName: 'Física' }),
+      "GET /justifications/inbox": ok([inboxEntry()]),
+      "GET /justifications": ok([
+        justification({ id: "j-1", subjectName: "Álgebra" }),
+        justification({ id: "j-2", status: "ACCEPTED", subjectName: "Física" }),
       ]),
     });
 
     renderAs(<JustificationsPage />, [...COORDINATOR]);
 
-    expect(await screen.findByText('Cálculo I · NRC 1234')).toBeDefined();
-    expect(screen.getByText('Álgebra · NRC 1234')).toBeDefined();
-    expect(screen.getAllByText('Bloque A, C2').length).toBeGreaterThan(0);
+    expect(await screen.findByText("Cálculo I · NRC 1234")).toBeDefined();
+    expect(screen.getByText("Álgebra · NRC 1234")).toBeDefined();
+    expect(screen.getAllByText("Bloque A, C2").length).toBeGreaterThan(0);
     // La fecha se muestra en el día real de la inasistencia, no corrida por la zona horaria.
     expect(screen.getAllByText(/15 sept 2026/).length).toBeGreaterThan(0);
 
-    const counters = screen.getAllByText(/^[0-9]+$/).map((node) => node.textContent);
-    expect(counters).toEqual(['1', '1', '1']);
-    expect(api.requests.every((request) => request.credentials === 'include')).toBe(true);
+    const counters = screen
+      .getAllByText(/^[0-9]+$/)
+      .map((node) => node.textContent);
+    expect(counters).toEqual(["1", "1", "1"]);
+    expect(
+      api.requests.every((request) => request.credentials === "include"),
+    ).toBe(true);
   });
 
-  it('abrir una entrante la registra como pendiente y abre el detalle', async () => {
-    const opened = justification({ id: 'j-new', subjectName: 'Cálculo I' });
+  it("abrir una entrante la registra como pendiente y abre el detalle", async () => {
+    const opened = justification({ id: "j-new", subjectName: "Cálculo I" });
     const api = installFakeApi({
-      'GET /justifications/inbox': ok([inboxEntry()]),
-      'GET /justifications': ok([]),
-      'POST /justifications/inbox/inbox-1/open': ok(opened),
+      "GET /justifications/inbox": ok([inboxEntry()]),
+      "GET /justifications": ok([]),
+      "POST /justifications/inbox/inbox-1/open": ok(opened),
     });
 
     renderAs(<JustificationsPage />, [...COORDINATOR]);
-    fireEvent.click(await screen.findByRole('button', { name: /Cálculo I · NRC 1234/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }),
+    );
 
-    const modal = await screen.findByRole('dialog');
-    expect(within(modal).getByText('alumno@alumnos.ucn.cl')).toBeDefined();
-    expect(within(modal).getByText('Martes, 15 de septiembre de 2026')).toBeDefined();
-    expect(within(modal).getByText('Bloque A (08:10 - 09:40), Bloque C2 (13:10 - 14:30)')).toBeDefined();
-    expect(within(modal).getByText('Ana Profesora')).toBeDefined();
-    expect(api.calls('POST /justifications/inbox/inbox-1/open')).toHaveLength(1);
-    expect(toast.info).toHaveBeenCalledWith('Justificación ingresada como pendiente.');
-    expect(screen.getByText('No hay nuevas justificaciones entrantes.')).toBeDefined();
+    const modal = await screen.findByRole("dialog");
+    expect(within(modal).getByText("alumno@alumnos.ucn.cl")).toBeDefined();
+    expect(
+      within(modal).getByText("Martes, 15 de septiembre de 2026"),
+    ).toBeDefined();
+    expect(
+      within(modal).getByText(
+        "Bloque A (08:10 - 09:40), Bloque C2 (13:10 - 14:30)",
+      ),
+    ).toBeDefined();
+    expect(within(modal).getByText("Ana Profesora")).toBeDefined();
+    expect(api.calls("POST /justifications/inbox/inbox-1/open")).toHaveLength(
+      1,
+    );
+    expect(toast.info).toHaveBeenCalledWith(
+      "Justificación ingresada como pendiente.",
+    );
+    expect(
+      screen.getByText("No hay nuevas justificaciones entrantes."),
+    ).toBeDefined();
   });
 
-  it('muestra el error del backend si no se puede abrir la entrante', async () => {
+  it("muestra el error del backend si no se puede abrir la entrante", async () => {
     installFakeApi({
-      'GET /justifications/inbox': ok([inboxEntry()]),
-      'GET /justifications': ok([]),
-      'POST /justifications/inbox/inbox-1/open': fail(404, 'Entrada de formulario no encontrada'),
+      "GET /justifications/inbox": ok([inboxEntry()]),
+      "GET /justifications": ok([]),
+      "POST /justifications/inbox/inbox-1/open": fail(
+        404,
+        "Entrada de formulario no encontrada",
+      ),
     });
 
     renderAs(<JustificationsPage />, [...COORDINATOR]);
-    fireEvent.click(await screen.findByRole('button', { name: /Cálculo I · NRC 1234/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }),
+    );
 
-    expect(await screen.findByText('Entrada de formulario no encontrada')).toBeDefined();
-    expect(toast.error).toHaveBeenCalledWith('Entrada de formulario no encontrada');
-    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(
+      await screen.findByText("Entrada de formulario no encontrada"),
+    ).toBeDefined();
+    expect(toast.error).toHaveBeenCalledWith(
+      "Entrada de formulario no encontrada",
+    );
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it('aceptar envía la decisión con la categoría y actualiza el historial', async () => {
+  it("aceptar envía la decisión con la categoría y actualiza el historial", async () => {
     const pending = justification();
     const api = installFakeApi({
-      'GET /justifications/inbox': ok([]),
-      'GET /justifications': ok([pending]),
-      'PATCH /justifications/j-1/decision': ({ body }) => ({
-        body: { ...pending, ...(body as object), decidedAt: '2026-09-17T12:00:00.000Z' },
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok([pending]),
+      "PATCH /justifications/j-1/decision": ({ body }) => ({
+        body: {
+          ...pending,
+          ...(body as object),
+          decidedAt: "2026-09-17T12:00:00.000Z",
+        },
       }),
     });
 
     renderAs(<JustificationsPage />, [...COORDINATOR]);
-    fireEvent.click(await screen.findByRole('button', { name: /Cálculo I · NRC 1234/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }),
+    );
 
-    const accept = within(dialog()).getByRole('button', { name: 'Aceptar' }) as HTMLButtonElement;
+    const accept = within(dialog()).getByRole("button", {
+      name: "Aceptar",
+    }) as HTMLButtonElement;
     expect(accept.disabled).toBe(true);
-    fireEvent.change(within(dialog()).getByLabelText('Motivo de la inasistencia'), {
-      target: { value: 'MEDICAL' },
-    });
+    fireEvent.change(
+      within(dialog()).getByLabelText("Motivo de la inasistencia"),
+      {
+        target: { value: "MEDICAL" },
+      },
+    );
     expect(accept.disabled).toBe(false);
     fireEvent.click(accept);
 
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(api.calls('PATCH /justifications/j-1/decision')[0].body).toEqual({
-      status: 'ACCEPTED',
-      reasonCategory: 'MEDICAL',
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(api.calls("PATCH /justifications/j-1/decision")[0].body).toEqual({
+      status: "ACCEPTED",
+      reasonCategory: "MEDICAL",
     });
-    expect(toast.success).toHaveBeenCalledWith('Justificación aprobada y notificada.');
-    expect(within(historyRow()).getByText('Aceptada')).toBeDefined();
+    expect(toast.success).toHaveBeenCalledWith(
+      "Justificación aprobada y notificada.",
+    );
+    expect(within(historyRow()).getByText("Aceptada")).toBeDefined();
   });
 
-  it('rechazar exige motivo y lo envía recortado', async () => {
+  it("rechazar exige motivo y lo envía recortado", async () => {
     const pending = justification();
     const api = installFakeApi({
-      'GET /justifications/inbox': ok([]),
-      'GET /justifications': ok([pending]),
-      'PATCH /justifications/j-1/decision': ({ body }) => ({ body: { ...pending, ...(body as object) } }),
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok([pending]),
+      "PATCH /justifications/j-1/decision": ({ body }) => ({
+        body: { ...pending, ...(body as object) },
+      }),
     });
 
     renderAs(<JustificationsPage />, [...COORDINATOR]);
-    fireEvent.click(await screen.findByRole('button', { name: /Cálculo I · NRC 1234/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }),
+    );
 
-    fireEvent.change(within(dialog()).getByLabelText('Motivo de la inasistencia'), {
-      target: { value: 'PERSONAL' },
-    });
-    const reject = within(dialog()).getByRole('button', { name: 'Rechazar' }) as HTMLButtonElement;
+    fireEvent.change(
+      within(dialog()).getByLabelText("Motivo de la inasistencia"),
+      {
+        target: { value: "PERSONAL" },
+      },
+    );
+    const reject = within(dialog()).getByRole("button", {
+      name: "Rechazar",
+    }) as HTMLButtonElement;
     expect(reject.disabled).toBe(true);
 
     fireEvent.change(within(dialog()).getByLabelText(/Motivo del rechazo/), {
-      target: { value: '   ' },
+      target: { value: "   " },
     });
     expect(reject.disabled).toBe(true);
 
     fireEvent.change(within(dialog()).getByLabelText(/Motivo del rechazo/), {
-      target: { value: '  Documento ilegible  ' },
+      target: { value: "  Documento ilegible  " },
     });
     fireEvent.click(reject);
 
-    await waitFor(() => expect(api.calls('PATCH /justifications/j-1/decision')).toHaveLength(1));
-    expect(api.calls('PATCH /justifications/j-1/decision')[0].body).toEqual({
-      status: 'REJECTED',
-      reasonCategory: 'PERSONAL',
-      rejectionReason: 'Documento ilegible',
-    });
-    await waitFor(() => expect(within(historyRow()).getByText('Rechazada')).toBeDefined());
-    expect(toast.success).toHaveBeenCalledWith('Justificación rechazada y notificada.');
-  });
-
-  it('si otra persona ya resolvió la justificación, mantiene el modal y muestra el aviso', async () => {
-    installFakeApi({
-      'GET /justifications/inbox': ok([]),
-      'GET /justifications': ok([justification()]),
-      'PATCH /justifications/j-1/decision': fail(400, 'La justificación ya fue resuelta'),
-    });
-
-    renderAs(<JustificationsPage />, [...COORDINATOR]);
-    fireEvent.click(await screen.findByRole('button', { name: /Cálculo I · NRC 1234/ }));
-    fireEvent.change(within(dialog()).getByLabelText('Motivo de la inasistencia'), {
-      target: { value: 'MEDICAL' },
-    });
-    fireEvent.click(within(dialog()).getByRole('button', { name: 'Aceptar' }));
-
-    expect(await screen.findByText('La justificación ya fue resuelta')).toBeDefined();
-    expect(toast.error).toHaveBeenCalledWith('La justificación ya fue resuelta');
-    expect(screen.getByRole('dialog')).toBeDefined();
-  });
-
-  it('las resueltas se muestran sin controles de decisión', async () => {
-    installFakeApi({
-      'GET /justifications/inbox': ok([]),
-      'GET /justifications': ok([
-        justification({ status: 'REJECTED', reasonCategory: 'OTHER', rejectionReason: 'Fuera de plazo' }),
-      ]),
-    });
-
-    renderAs(<JustificationsPage />, [...COORDINATOR]);
-    fireEvent.click(await screen.findByRole('button', { name: /Cálculo I · NRC 1234/ }));
-
-    expect(within(dialog()).getByText('Fuera de plazo')).toBeDefined();
-    expect(within(dialog()).queryByRole('button', { name: 'Aceptar' })).toBeNull();
-    expect(within(dialog()).queryByRole('button', { name: 'Rechazar' })).toBeNull();
-  });
-
-  it('abre la evidencia en una pestaña nueva sin acceso a la ventana de origen', async () => {
-    const open = vi.spyOn(window, 'open').mockReturnValue(null);
-    installFakeApi({
-      'GET /justifications/inbox': ok([]),
-      'GET /justifications': ok([justification()]),
-      'GET /justifications/j-1/evidence-url': ok({ downloadUrl: 'https://r2.test/evidencia.pdf?sig=1' }),
-    });
-
-    renderAs(<JustificationsPage />, [...COORDINATOR]);
-    fireEvent.click(await screen.findByRole('button', { name: /Cálculo I · NRC 1234/ }));
-    fireEvent.click(within(dialog()).getByRole('button', { name: 'Abrir evidencia' }));
-
     await waitFor(() =>
-      expect(open).toHaveBeenCalledWith('https://r2.test/evidencia.pdf?sig=1', '_blank', 'noopener,noreferrer'),
+      expect(api.calls("PATCH /justifications/j-1/decision")).toHaveLength(1),
+    );
+    expect(api.calls("PATCH /justifications/j-1/decision")[0].body).toEqual({
+      status: "REJECTED",
+      reasonCategory: "PERSONAL",
+      rejectionReason: "Documento ilegible",
+    });
+    await waitFor(() =>
+      expect(within(historyRow()).getByText("Rechazada")).toBeDefined(),
+    );
+    expect(toast.success).toHaveBeenCalledWith(
+      "Justificación rechazada y notificada.",
     );
   });
 
-  it('informa si la evidencia no está disponible', async () => {
+  it("si otra persona ya resolvió la justificación, mantiene el modal y muestra el aviso", async () => {
     installFakeApi({
-      'GET /justifications/inbox': ok([]),
-      'GET /justifications': ok([justification()]),
-      'GET /justifications/j-1/evidence-url': fail(503, 'Almacenamiento no configurado'),
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok([justification()]),
+      "PATCH /justifications/j-1/decision": fail(
+        400,
+        "La justificación ya fue resuelta",
+      ),
     });
 
     renderAs(<JustificationsPage />, [...COORDINATOR]);
-    fireEvent.click(await screen.findByRole('button', { name: /Cálculo I · NRC 1234/ }));
-    fireEvent.click(within(dialog()).getByRole('button', { name: 'Abrir evidencia' }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }),
+    );
+    fireEvent.change(
+      within(dialog()).getByLabelText("Motivo de la inasistencia"),
+      {
+        target: { value: "MEDICAL" },
+      },
+    );
+    fireEvent.click(within(dialog()).getByRole("button", { name: "Aceptar" }));
 
-    expect(await screen.findByText('Almacenamiento no configurado')).toBeDefined();
+    expect(
+      await screen.findByText("La justificación ya fue resuelta"),
+    ).toBeDefined();
+    expect(toast.error).toHaveBeenCalledWith(
+      "La justificación ya fue resuelta",
+    );
+    expect(screen.getByRole("dialog")).toBeDefined();
   });
 
-  it('filtra el historial por estado', async () => {
+  it("las resueltas se muestran sin controles de decisión", async () => {
     installFakeApi({
-      'GET /justifications/inbox': ok([]),
-      'GET /justifications': ok([
-        justification({ id: 'j-1', subjectName: 'Álgebra' }),
-        justification({ id: 'j-2', subjectName: 'Física', status: 'ACCEPTED' }),
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok([
+        justification({
+          status: "REJECTED",
+          reasonCategory: "OTHER",
+          rejectionReason: "Fuera de plazo",
+        }),
       ]),
     });
 
     renderAs(<JustificationsPage />, [...COORDINATOR]);
-    await screen.findByText('Álgebra · NRC 1234');
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }),
+    );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Aceptada' }));
-    expect(screen.queryByText('Álgebra · NRC 1234')).toBeNull();
-    expect(screen.getByText('Física · NRC 1234')).toBeDefined();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Rechazada' }));
-    expect(screen.getByText('No hay justificaciones para este filtro.')).toBeDefined();
+    expect(within(dialog()).getByText("Fuera de plazo")).toBeDefined();
+    expect(
+      within(dialog()).queryByRole("button", { name: "Aceptar" }),
+    ).toBeNull();
+    expect(
+      within(dialog()).queryByRole("button", { name: "Rechazar" }),
+    ).toBeNull();
   });
 
-  it('muestra el error de carga si el backend niega el acceso', async () => {
+  it("abre la evidencia en una pestaña nueva sin acceso a la ventana de origen", async () => {
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
     installFakeApi({
-      'GET /justifications/inbox': fail(403, 'Forbidden resource'),
-      'GET /justifications': ok([]),
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok([justification()]),
+      "GET /justifications/j-1/evidence-url": ok({
+        downloadUrl: "https://r2.test/evidencia.pdf?sig=1",
+      }),
+    });
+
+    renderAs(<JustificationsPage />, [...COORDINATOR]);
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }),
+    );
+    fireEvent.click(
+      within(dialog()).getByRole("button", { name: "Abrir evidencia" }),
+    );
+
+    await waitFor(() =>
+      expect(open).toHaveBeenCalledWith(
+        "https://r2.test/evidencia.pdf?sig=1",
+        "_blank",
+        "noopener,noreferrer",
+      ),
+    );
+  });
+
+  it("informa si la evidencia no está disponible", async () => {
+    installFakeApi({
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok([justification()]),
+      "GET /justifications/j-1/evidence-url": fail(
+        503,
+        "Almacenamiento no configurado",
+      ),
+    });
+
+    renderAs(<JustificationsPage />, [...COORDINATOR]);
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }),
+    );
+    fireEvent.click(
+      within(dialog()).getByRole("button", { name: "Abrir evidencia" }),
+    );
+
+    expect(
+      await screen.findByText("Almacenamiento no configurado"),
+    ).toBeDefined();
+  });
+
+  it("filtra el historial por estado", async () => {
+    installFakeApi({
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok([
+        justification({ id: "j-1", subjectName: "Álgebra" }),
+        justification({ id: "j-2", subjectName: "Física", status: "ACCEPTED" }),
+      ]),
+    });
+
+    renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await screen.findByText("Álgebra · NRC 1234");
+
+    fireEvent.click(screen.getByRole("button", { name: "Aceptada" }));
+    expect(screen.queryByText("Álgebra · NRC 1234")).toBeNull();
+    expect(screen.getByText("Física · NRC 1234")).toBeDefined();
+
+    fireEvent.click(screen.getByRole("button", { name: "Rechazada" }));
+    expect(
+      screen.getByText("No hay justificaciones para este filtro."),
+    ).toBeDefined();
+  });
+
+  it("pagina las ingresadas, mantiene la página al expandir y vuelve al inicio al filtrar", async () => {
+    installFakeApi({
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok(
+        Array.from({ length: 11 }, (_, index) =>
+          justification({
+            id: `j-${index}`,
+            subjectName: `Asignatura ${index + 1}`,
+            status: index === 0 ? "ACCEPTED" : "PENDING",
+          }),
+        ),
+      ),
+    });
+    renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await screen.findByText("Asignatura 1 · NRC 1234");
+    const panel = screen
+      .getByRole("heading", { name: "Justificaciones ingresadas" })
+      .closest("section")!;
+    expect(within(panel).queryByText("Asignatura 6 · NRC 1234")).toBeNull();
+    fireEvent.click(within(panel).getByRole("button", { name: /siguiente/i }));
+    expect(within(panel).getByText("Asignatura 6 · NRC 1234")).toBeDefined();
+    expect(within(panel).queryByText("Asignatura 1 · NRC 1234")).toBeNull();
+    fireEvent.click(
+      within(panel).getByRole("button", { name: "Expandir panel" }),
+    );
+    expect(within(dialog()).getByText("Asignatura 6 · NRC 1234")).toBeDefined();
+    fireEvent.click(within(dialog()).getByRole("button", { name: "Aceptada" }));
+    expect(within(dialog()).getByText("Asignatura 1 · NRC 1234")).toBeDefined();
+    expect(
+      within(dialog()).queryByRole("button", { name: /siguiente/i }),
+    ).toBeNull();
+  });
+
+  it("retrocede al ingresar la última entrante de la última página y conserva el total global", async () => {
+    const opened = justification({ id: "j-opened", subjectName: "Entrante 6" });
+    installFakeApi({
+      "GET /justifications/inbox": ok(
+        Array.from({ length: 6 }, (_, index) =>
+          inboxEntry({
+            id: `inbox-${index + 1}`,
+            subjectName: `Entrante ${index + 1}`,
+          }),
+        ),
+      ),
+      "GET /justifications": ok([]),
+      "POST /justifications/inbox/inbox-6/open": ok(opened),
+    });
+    renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await screen.findByText("Entrante 1 · NRC 1234");
+    const panel = screen
+      .getByRole("heading", { name: "Justificaciones entrantes" })
+      .closest("section")!;
+    fireEvent.click(within(panel).getByRole("button", { name: /siguiente/i }));
+    fireEvent.click(
+      within(panel).getByRole("button", { name: /Entrante 6 · NRC 1234/ }),
+    );
+    await screen.findByRole("dialog");
+    expect(within(panel).getByText("Entrante 1 · NRC 1234")).toBeDefined();
+    expect(within(panel).queryByText("Entrante 6 · NRC 1234")).toBeNull();
+    expect(
+      within(panel).queryByRole("button", { name: /siguiente/i }),
+    ).toBeNull();
+    expect(screen.getAllByText("5").length).toBeGreaterThan(0);
+  });
+
+  it("retrocede cuando resolver la última pendiente elimina la última página del filtro", async () => {
+    const pending = Array.from({ length: 6 }, (_, index) =>
+      justification({
+        id: `j-${index + 1}`,
+        subjectName: `Pendiente ${index + 1}`,
+      }),
+    );
+    installFakeApi({
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok(pending),
+      "PATCH /justifications/j-6/decision": ok({
+        ...pending[5],
+        status: "ACCEPTED",
+        reasonCategory: "MEDICAL",
+      }),
+    });
+    renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await screen.findByText("Pendiente 1 · NRC 1234");
+    const panel = screen
+      .getByRole("heading", { name: "Justificaciones ingresadas" })
+      .closest("section")!;
+    fireEvent.click(within(panel).getByRole("button", { name: "Pendiente" }));
+    fireEvent.click(within(panel).getByRole("button", { name: /siguiente/i }));
+    fireEvent.click(
+      within(panel).getByRole("button", { name: /Pendiente 6 · NRC 1234/ }),
+    );
+    fireEvent.change(
+      within(dialog()).getByLabelText("Motivo de la inasistencia"),
+      { target: { value: "MEDICAL" } },
+    );
+    fireEvent.click(within(dialog()).getByRole("button", { name: "Aceptar" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(within(panel).getByText("Pendiente 1 · NRC 1234")).toBeDefined();
+    expect(within(panel).queryByText("Pendiente 6 · NRC 1234")).toBeNull();
+    expect(
+      within(panel).queryByRole("button", { name: /siguiente/i }),
+    ).toBeNull();
+  });
+
+  it("actualiza las entrantes cada 30 segundos sin recargar el historial ni cambiar la página", async () => {
+    vi.useFakeTimers();
+    const incoming = Array.from({ length: 6 }, (_, index) =>
+      inboxEntry({ id: `inbox-${index}`, subjectName: `Entrante ${index}` }),
+    );
+    const api = installFakeApi({
+      "GET /justifications/inbox": ok(incoming),
+      "GET /justifications": ok([]),
+    });
+    const view = renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    const panel = screen
+      .getByRole("heading", { name: "Justificaciones entrantes" })
+      .closest("section")!;
+    fireEvent.click(within(panel).getByRole("button", { name: /siguiente/i }));
+    api.on(
+      "GET /justifications/inbox",
+      ok([
+        ...incoming,
+        inboxEntry({ id: "new", subjectName: "Nueva entrante" }),
+      ]),
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(29_999);
+    });
+    expect(screen.queryByText("Nueva entrante · NRC 1234")).toBeNull();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+    expect(within(panel).getByText("Nueva entrante · NRC 1234")).toBeDefined();
+    expect(
+      within(panel).getByText("Página 2 de 2 · 7 registros"),
+    ).toBeDefined();
+    expect(api.calls("GET /justifications/inbox")).toHaveLength(2);
+    expect(api.calls("GET /justifications")).toHaveLength(1);
+    expect(toast.success).not.toHaveBeenCalled();
+    view.unmount();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(api.calls("GET /justifications/inbox")).toHaveLength(2);
+  });
+
+  it("pausa las consultas con la pestaña oculta y actualiza al volver sin solicitudes solapadas", async () => {
+    vi.useFakeTimers();
+    const visibility = vi
+      .spyOn(document, "visibilityState", "get")
+      .mockReturnValue("visible");
+    const api = installFakeApi({
+      "GET /justifications/inbox": ok([]),
+      "GET /justifications": ok([]),
+    });
+    const view = renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    visibility.mockReturnValue("hidden");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    expect(api.calls("GET /justifications/inbox")).toHaveLength(1);
+    let finish: (response: {
+      body: ReturnType<typeof inboxEntry>[];
+    }) => void = () => undefined;
+    api.on(
+      "GET /justifications/inbox",
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    visibility.mockReturnValue("visible");
+    await act(async () => {
+      fireEvent(document, new Event("visibilitychange"));
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      fireEvent(window, new Event("focus"));
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(api.calls("GET /justifications/inbox")).toHaveLength(2);
+    await act(async () => {
+      finish({ body: [inboxEntry({ subjectName: "Nueva solicitud" })] });
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(screen.getByText("Nueva solicitud · NRC 1234")).toBeDefined();
+    view.unmount();
+  });
+
+  it("conserva los datos ante un error de actualización y se recupera al reintentar", async () => {
+    vi.useFakeTimers();
+    const api = installFakeApi({
+      "GET /justifications/inbox": ok([inboxEntry()]),
+      "GET /justifications": ok([]),
+    });
+    const view = renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    api.on(
+      "GET /justifications/inbox",
+      fail(503, "Temporalmente no disponible"),
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(screen.getByText("Cálculo I · NRC 1234")).toBeDefined();
+    expect(screen.getByRole("status").textContent).toContain(
+      "Se muestran los últimos datos disponibles",
+    );
+    expect(toast.error).not.toHaveBeenCalled();
+    api.on(
+      "GET /justifications/inbox",
+      ok([
+        inboxEntry(),
+        inboxEntry({ id: "new", subjectName: "Nueva solicitud" }),
+      ]),
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(screen.getByText("Nueva solicitud · NRC 1234")).toBeDefined();
+    expect(screen.queryByRole("status")).toBeNull();
+    view.unmount();
+  });
+
+  it("no restaura una entrante ingresada aunque una actualización anterior termine después", async () => {
+    vi.useFakeTimers();
+    const api = installFakeApi({
+      "GET /justifications/inbox": ok([inboxEntry()]),
+      "GET /justifications": ok([]),
+      "POST /justifications/inbox/inbox-1/open": ok(justification()),
+    });
+    const view = renderAs(<JustificationsPage />, [...COORDINATOR]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    let finish: (response: {
+      body: ReturnType<typeof inboxEntry>[];
+    }) => void = () => undefined;
+    api.on(
+      "GET /justifications/inbox",
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole("button", { name: /Cálculo I · NRC 1234/ }),
+      );
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      finish({ body: [inboxEntry()] });
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    const panel = screen
+      .getByRole("heading", { name: "Justificaciones entrantes" })
+      .closest("section")!;
+    expect(
+      within(panel).getByText("No hay nuevas justificaciones entrantes."),
+    ).toBeDefined();
+    expect(screen.getByRole("dialog")).toBeDefined();
+    expect(within(dialog()).getByText("alumno@alumnos.ucn.cl")).toBeDefined();
+    view.unmount();
+  });
+
+  it("muestra el error de carga si el backend niega el acceso", async () => {
+    installFakeApi({
+      "GET /justifications/inbox": fail(403, "Forbidden resource"),
+      "GET /justifications": ok([]),
     });
 
     renderAs(<JustificationsPage />, [...COORDINATOR]);
 
-    expect(await screen.findByText('Forbidden resource')).toBeDefined();
-    expect(toast.error).toHaveBeenCalledWith('Forbidden resource');
+    expect(await screen.findByText("Forbidden resource")).toBeDefined();
+    expect(toast.error).toHaveBeenCalledWith("Forbidden resource");
   });
 });

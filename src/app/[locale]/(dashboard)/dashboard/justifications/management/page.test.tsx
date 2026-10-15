@@ -51,6 +51,17 @@ function metric(label: string) {
 }
 
 describe('JustificationsManagementPage (histórico para secretaría)', () => {
+  it('permite buscar por el nombre del estudiante vinculado', async () => {
+    installFakeApi({ 'GET /justifications': ok([
+      justification({ student: { id: 's-1', name: 'Ana Soto', email: 'ana@example.test' } }),
+      justification({ id: 'j-other', student: null }),
+    ]) });
+    renderAs(<JustificationsManagementPage />, [...SECRETARY]);
+    await waitFor(() => expect(tableRows()).toHaveLength(2));
+    fireEvent.change(screen.getByPlaceholderText('Buscar por alumno, asignatura o NRC…'), { target: { value: '  ANA SOTO ' } });
+    expect(tableRows()).toHaveLength(1);
+    expect(within(tableRows()[0]).getByText('Ana Soto')).toBeDefined();
+  });
   beforeEach(() => {
     localStorage.clear();
     Object.values(toast).forEach((mock) => mock.mockClear());

@@ -8,9 +8,9 @@ export default async function AuthCallbackPage({
   const params = await searchParams;
   const route = params.route || '/dashboard';
   const target =
-    route.startsWith('/dashboard') || route === '/no-access'
+    route.startsWith('/dashboard/') || route === '/no-access'
       ? route
-      : '/dashboard';
+      : '/';
 
   redirect(target);
 }

@@ -1,4 +1,9 @@
 {
+  "Loading": {
+    "content": "Loading content…",
+    "metrics": "Loading metrics…",
+    "table": "Loading records…"
+  },
   "Landing": {
     "badge": "MARSYS · Welcome",
     "title_part1": "Centralized academic",
@@ -15,10 +20,22 @@
     "features": {
       "title": "What does MARSYS offer?",
       "subtitle": "Tools designed for the needs of the Faculty of Marine Sciences",
-      "lab": { "title": "Laboratory Management", "desc": "Centralize and optimize the use of labs and equipment." },
-      "vehicles": { "title": "Vehicle Reservation", "desc": "Manage field trips and fleet availability." },
-      "tracking": { "title": "Academic Tracking", "desc": "Monitor student progress and graduation processes." },
-      "roles": { "title": "Flexible Roles", "desc": "Multiple profiles with permissions adapted to each user." }
+      "lab": {
+        "title": "Laboratory Management",
+        "desc": "Centralize and optimize the use of labs and equipment."
+      },
+      "vehicles": {
+        "title": "Vehicle Reservation",
+        "desc": "Manage field trips and fleet availability."
+      },
+      "tracking": {
+        "title": "Academic Tracking",
+        "desc": "Monitor student progress and graduation processes."
+      },
+      "roles": {
+        "title": "Flexible Roles",
+        "desc": "Multiple profiles with permissions adapted to each user."
+      }
     },
     "recent": {
       "title": "A+S Projects & Research",
@@ -55,23 +72,65 @@
     "whatIsDesc": "MARSYS is an academic and administrative management platform developed for the Faculty of Marine Sciences of the Universidad Católica del Norte. Its main objective is to centralize and optimize the administration of laboratories, vehicles, and student tracking, connecting the entire community in a single collaborative environment.",
     "proposal": "Our proposal",
     "proposalCards": {
-      "transparency": { "title": "Traceability", "desc": "Detailed historical record of all academic activities and resource reservations." },
-      "efficiency": { "title": "Efficiency", "desc": "Optimization in requesting laboratories and vehicles for field trips." },
-      "collaboration": { "title": "Collaboration", "desc": "Unified tools for teachers, students, and researchers of the FCM." }
+      "transparency": {
+        "title": "Traceability",
+        "desc": "Detailed historical record of all academic activities and resource reservations."
+      },
+      "efficiency": {
+        "title": "Efficiency",
+        "desc": "Optimization in requesting laboratories and vehicles for field trips."
+      },
+      "collaboration": {
+        "title": "Collaboration",
+        "desc": "Unified tools for teachers, students, and researchers of the FCM."
+      }
     },
     "tech": "Technology",
     "techItems": {
-      "nextjs": { "name": "Next.js", "desc": "React Framework" },
-      "nestjs": { "name": "NestJS", "desc": "Node Framework" },
-      "postgresql": { "name": "PostgreSQL", "desc": "Database" },
-      "prisma": { "name": "Prisma", "desc": "ORM" },
-      "oauth": { "name": "Google OAuth", "desc": "Authentication" },
-      "nginx": { "name": "Nginx", "desc": "Reverse Proxy" },
-      "redis": { "name": "Redis", "desc": "In-Memory Cache" },
-      "podman": { "name": "Podman", "desc": "Containers" },
-      "graphql": { "name": "GraphQL", "desc": "Query Language" },
-      "rest": { "name": "REST API", "desc": "Integration" },
-      "jenkins": { "name": "Jenkins", "desc": "CI/CD" }
+      "nextjs": {
+        "name": "Next.js",
+        "desc": "React Framework"
+      },
+      "nestjs": {
+        "name": "NestJS",
+        "desc": "Node Framework"
+      },
+      "postgresql": {
+        "name": "PostgreSQL",
+        "desc": "Database"
+      },
+      "prisma": {
+        "name": "Prisma",
+        "desc": "ORM"
+      },
+      "oauth": {
+        "name": "Google OAuth",
+        "desc": "Authentication"
+      },
+      "nginx": {
+        "name": "Nginx",
+        "desc": "Reverse Proxy"
+      },
+      "redis": {
+        "name": "Redis",
+        "desc": "In-Memory Cache"
+      },
+      "podman": {
+        "name": "Podman",
+        "desc": "Containers"
+      },
+      "graphql": {
+        "name": "GraphQL",
+        "desc": "Query Language"
+      },
+      "rest": {
+        "name": "REST API",
+        "desc": "Integration"
+      },
+      "jenkins": {
+        "name": "Jenkins",
+        "desc": "CI/CD"
+      }
     },
     "devs": "Developers",
     "eyebrows": {
@@ -109,15 +168,33 @@
     "whoAreWeDesc": "The Faculty of Marine Sciences of UCN, Coquimbo campus, is a pioneering academic unit dedicated to the study, research, and conservation of marine resources and ecosystems. We train professionals of excellence, contributing to sustainable development through science, teaching, and community outreach.",
     "links": "Official links",
     "linksCards": {
-      "ucn": { "title": "UCN Official Site", "desc": "Visit platform" },
-      "fcm": { "title": "Marine Sciences", "desc": "Visit platform" },
-      "campus": { "title": "Virtual Campus", "desc": "Visit platform" }
+      "ucn": {
+        "title": "UCN Official Site",
+        "desc": "Visit platform"
+      },
+      "fcm": {
+        "title": "Marine Sciences",
+        "desc": "Visit platform"
+      },
+      "campus": {
+        "title": "Virtual Campus",
+        "desc": "Visit platform"
+      }
     },
     "careers": "Our programs",
     "careersCards": {
-      "biologia": { "title": "Marine Biology", "desc": "View program" },
-      "acuicultura": { "title": "Aquaculture Engineering", "desc": "View program" },
-      "prevencion": { "title": "Risk Prevention and Environmental Engineering", "desc": "View program" }
+      "biologia": {
+        "title": "Marine Biology",
+        "desc": "View program"
+      },
+      "acuicultura": {
+        "title": "Aquaculture Engineering",
+        "desc": "View program"
+      },
+      "prevencion": {
+        "title": "Risk Prevention and Environmental Engineering",
+        "desc": "View program"
+      }
     }
   },
   "Login": {
@@ -150,7 +227,6 @@
     "subjects": "Subjects",
     "teachers": "Teachers",
     "academicWorkload": "Academic workload",
-    "assistantshipHistory": "Assistantship history",
     "titulation": "Graduation",
     "reports": "Reports and indicators",
     "users": "Users",
@@ -179,7 +255,13 @@
       "TEACHING_SUPPORT_COORDINATOR": "Teaching support coordinator"
     },
     "switchRole": "Switch active role",
-    "switchRoleTitle": "Assigned roles"
+    "switchRoleTitle": "Assigned roles",
+    "assistantships": "Assistantships",
+    "students": "Students",
+    "projects": "Projects",
+    "research": "Research",
+    "researchOutputs": "Research outputs",
+    "charts": "Charts"
   },
   "JustificationsPage": {
     "eyebrow": "Teaching support",
@@ -187,38 +269,152 @@
     "subtitle": "Review incoming requests, inspect their evidence, and record a traceable decision.",
     "loading": "Loading justifications…",
     "expand": "Expand panel",
-    "notifications": { "entered": "Justification entered as pending.", "accepted": "Justification approved and notifications sent.", "rejected": "Justification rejected and notification sent." },
-    "stats": { "incoming": "Unread incoming", "pending": "Pending decision", "resolved": "Resolved" },
-    "incoming": { "title": "Incoming justifications", "subtitle": "Submitted through the Google Form and not yet entered into the system.", "empty": "There are no new incoming justifications.", "openHint": "Open to read and enter as pending" },
-    "history": { "title": "Entered justifications", "subtitle": "Review every request that has already been read and registered.", "empty": "There are no justifications for this filter." },
-    "filters": { "all": "All" },
-    "statuses": { "unread": "Unread", "pending": "Pending", "accepted": "Accepted", "rejected": "Rejected" },
-    "detail": { "eyebrow": "Justification detail", "close": "Close", "student": "Student email", "date": "Absence date", "course": "Course", "nrc": "NRC", "scheduleBlock": "Lecture block", "scheduleBlockEmpty": "No lecture registered for this day", "teacher": "Teacher associated with the NRC", "noTeacher": "No teacher is associated with this NRC in the active semester.", "notAvailable": "Not provided", "reason": "Form note", "reasonCategory": "Absence reason", "reasonCategoryPlaceholder": "Select a reason", "evidence": "Open evidence", "evidenceAttached": "Attached document available", "rejectionReason": "Rejection reason (required when rejecting)", "rejectionPlaceholder": "Describe the reason that will be sent to the student…", "reject": "Reject", "accept": "Accept" },
-    "reasonCategories": { "MEDICAL": "Medical reason", "FAMILY_DEATH": "Death of a close family member", "PERSONAL": "Personal situation", "ACADEMIC": "Academic activity", "OTHER": "Other reason" },
-    "errors": { "load": "Justifications could not be loaded.", "open": "The justification could not be entered.", "decision": "The decision could not be recorded.", "evidence": "The evidence could not be opened.", "access": "You do not have access to this page." }
-  },
-  "AssistantshipHistoryPage": {
-    "eyebrow": "Teaching support",
-    "title": "Assistantship history",
-    "subtitle": "Review the historical record of assistants, courses, and academic periods.",
-    "stats": { "assistants": "Registered assistants", "semesters": "Semesters with records", "records": "Historical assignments" },
-    "history": { "title": "Assistantship records", "subtitle": "Filter the history by assistant or semester.", "empty": "There are no assistantship records yet.", "emptyDescription": "Once assistantships are loaded, you will be able to review their courses, periods, schedules, and status here." },
-    "filters": { "search": "Search assistant…", "semester": "Semester", "allSemesters": "All semesters" }
+    "notifications": {
+      "entered": "Justification entered as pending.",
+      "accepted": "Justification approved and notifications sent.",
+      "rejected": "Justification rejected and notification sent."
+    },
+    "stats": {
+      "incoming": "Unread incoming",
+      "pending": "Pending decision",
+      "resolved": "Resolved"
+    },
+    "incoming": {
+      "title": "Incoming justifications",
+      "autoRefresh": "Automatically refreshed every 30 seconds.",
+      "refreshError": "Incoming justifications could not be refreshed. The last available data is shown and another attempt will be made automatically.",
+      "subtitle": "Submitted through the Google Form and not yet entered into the system.",
+      "empty": "There are no new incoming justifications.",
+      "openHint": "Open to read and enter as pending"
+    },
+    "history": {
+      "title": "Entered justifications",
+      "subtitle": "Review every request that has already been read and registered.",
+      "empty": "There are no justifications for this filter."
+    },
+    "filters": {
+      "all": "All"
+    },
+    "statuses": {
+      "unread": "Unread",
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "detail": {
+      "eyebrow": "Justification detail",
+      "close": "Close",
+      "student": "Student email",
+      "registeredStudent": "Registered student",
+      "date": "Absence date",
+      "course": "Course",
+      "nrc": "NRC",
+      "teacher": "Teacher associated with the NRC",
+      "noTeacher": "No teacher is associated with this NRC in the active semester.",
+      "notAvailable": "Not provided",
+      "reason": "Form note",
+      "reasonCategory": "Absence reason",
+      "reasonCategoryPlaceholder": "Select a reason",
+      "evidence": "Open evidence",
+      "rejectionReason": "Rejection reason (required when rejecting)",
+      "rejectionPlaceholder": "Describe the reason that will be sent to the student…",
+      "reject": "Reject",
+      "accept": "Accept",
+      "assistants": "Assistants receiving the approval",
+      "scheduleBlock": "Time block",
+      "scheduleBlockEmpty": "No class registered for this day",
+      "evidenceAttached": "Evidence attached"
+    },
+    "reasonCategories": {
+      "MEDICAL": "Medical reason",
+      "FAMILY_DEATH": "Death of a close family member",
+      "PERSONAL": "Personal situation",
+      "ACADEMIC": "Academic activity",
+      "OTHER": "Other reason"
+    },
+    "errors": {
+      "load": "Justifications could not be loaded.",
+      "open": "The justification could not be entered.",
+      "decision": "The decision could not be recorded.",
+      "evidence": "The evidence could not be opened.",
+      "access": "You do not have access to this page."
+    }
   },
   "JustificationsManagementPage": {
     "eyebrow": "Academic secretary",
     "title": "Justification management",
     "subtitle": "Manage the faculty roster and the courses they teach during the active semester.",
     "loading": "Loading information…",
-    "stats": { "teachers": "Registered faculty", "assignments": "Active assignments", "activeSemester": "Active semester", "available": "Available", "pending": "Not loaded" },
-    "teachers": { "title": "Faculty and courses", "subtitle": "Select a faculty member to review their courses and NRCs.", "import": "Import CSV", "format": "Columns: teacherEmail, teacherName, courseCode, courseName, nrc, semesterName, startsOn, endsOn, employeeCode.", "courses": "View active-semester courses", "empty": "No faculty have been loaded yet." },
-    "detail": { "eyebrow": "Active-semester assignments", "close": "Close", "nrc": "NRC", "student": "Student", "empty": "This faculty member has no active assignments." },
-    "import": { "success": "{count} rows were imported successfully." },
-    "errors": { "load": "The information could not be loaded.", "import": "The CSV file could not be imported.", "history": "The justification history could not be loaded.", "access": "You do not have access to this page." },
-    "history": { "title": "Justification history", "subtitle": "Analyze statuses, periods, and reasons for received requests.", "empty": "There are no justifications for the selected filters.", "allStatuses": "All statuses", "allReasons": "All reasons", "from": "From", "to": "To", "search": "Search by student, course, or NRC…", "period": "Period", "subject": "Course", "action": "Action", "view": "View", "clearFilters": "Clear filters", "month": "Month", "week": "Week", "topMonths": "Months with most requests", "topWeeks": "Weeks with most requests", "topReasons": "Most received reasons", "noData": "No data" },
-    "historyStats": { "total": "Total received", "pending": "Pending", "accepted": "Accepted", "rejected": "Rejected" },
-    "statuses": { "pending": "Pending", "accepted": "Accepted", "rejected": "Rejected" },
-    "reasonCategories": { "MEDICAL": "Medical reason", "FAMILY_DEATH": "Death of a close family member", "PERSONAL": "Personal situation", "ACADEMIC": "Academic activity", "OTHER": "Other reason" }
+    "stats": {
+      "teachers": "Registered faculty",
+      "assignments": "Active assignments",
+      "activeSemester": "Active semester",
+      "available": "Available",
+      "pending": "Not loaded"
+    },
+    "teachers": {
+      "title": "Faculty and courses",
+      "subtitle": "Select a faculty member to review their courses and NRCs.",
+      "import": "Import CSV",
+      "format": "Columns: teacherEmail, teacherName, courseCode, courseName, nrc, semesterName, startsOn, endsOn, employeeCode.",
+      "courses": "View active-semester courses",
+      "empty": "No faculty have been loaded yet."
+    },
+    "detail": {
+      "eyebrow": "Active-semester assignments",
+      "close": "Close",
+      "nrc": "NRC",
+      "student": "Student",
+      "empty": "This faculty member has no active assignments."
+    },
+    "import": {
+      "success": "{count} rows were imported successfully."
+    },
+    "errors": {
+      "load": "The information could not be loaded.",
+      "import": "The CSV file could not be imported.",
+      "history": "The justification history could not be loaded.",
+      "access": "You do not have access to this page."
+    },
+    "history": {
+      "title": "Justification history",
+      "subtitle": "Analyze statuses, periods, and reasons for received requests.",
+      "empty": "There are no justifications for the selected filters.",
+      "allStatuses": "All statuses",
+      "allReasons": "All reasons",
+      "from": "From",
+      "to": "To",
+      "search": "Search by student, course, or NRC…",
+      "period": "Period",
+      "month": "Month",
+      "week": "Week",
+      "topMonths": "Months with most requests",
+      "topWeeks": "Weeks with most requests",
+      "topReasons": "Most received reasons",
+      "noData": "No data",
+      "clearFilters": "Clear filters",
+      "subject": "Course",
+      "action": "Action",
+      "view": "View details"
+    },
+    "historyStats": {
+      "total": "Total received",
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "reasonCategories": {
+      "MEDICAL": "Medical reason",
+      "FAMILY_DEATH": "Death of a close family member",
+      "PERSONAL": "Personal situation",
+      "ACADEMIC": "Academic activity",
+      "OTHER": "Other reason"
+    }
   },
   "Pagination": {
     "summary": "Page {page} of {totalPages} · {total} records",
@@ -234,8 +430,8 @@
     "help": "Format help",
     "downloadExample": "Download example",
     "helpTitle": "Subject upload format",
-    "helpDescription": "Use one row for each day and block of a subject. Repeat the NRC when it has more than one schedule.",
-    "format": "Format: nrc;subject;day;block. Repeat the NRC for each day and block.",
+    "helpDescription": "Import one row per course day and block. The room (sala) column is optional; omitting it preserves existing rooms.",
+    "format": "nrc;asignatura;dia;bloque;sala",
     "importSuccess": "{count} schedule rows were imported successfully.",
     "search": "Search by NRC or subject…",
     "filterDay": "Filter by schedule day",
@@ -260,9 +456,66 @@
     "close": "Close",
     "day": "Day",
     "block": "Block",
-    "days": { "Lunes": "Monday", "Martes": "Tuesday", "Miércoles": "Wednesday", "Jueves": "Thursday", "Viernes": "Friday", "Sábado": "Saturday" },
-    "blocks": { "A": "A · 08:10 - 09:40", "B": "B · 09:55 - 11:25", "C": "C · 11:40 - 13:10", "C2": "C2 · 13:10 - 14:30", "D": "D · 14:30 - 16:00", "E": "E · 16:15 - 17:45", "F": "F · 18:00 - 19:30", "G": "G · 19:45 - 21:15", "H": "H · 21:30 - 23:00" },
-    "errors": { "load": "Subjects could not be loaded.", "import": "The CSV could not be imported.", "access": "You do not have access to this page." }
+    "days": {
+      "Lunes": "Monday",
+      "Martes": "Tuesday",
+      "Miércoles": "Wednesday",
+      "Jueves": "Thursday",
+      "Viernes": "Friday",
+      "Sábado": "Saturday",
+      "Domingo": "Sunday"
+    },
+    "blocks": {
+      "A": "A · 08:10 - 09:40",
+      "B": "B · 09:55 - 11:25",
+      "C": "C · 11:40 - 13:10",
+      "C2": "C2 · 13:10 - 14:30",
+      "D": "D · 14:30 - 16:00",
+      "E": "E · 16:15 - 17:45",
+      "F": "F · 18:00 - 19:30",
+      "G": "G · 19:45 - 21:15",
+      "H": "H · 21:30 - 23:00"
+    },
+    "errors": {
+      "load": "Subjects could not be loaded.",
+      "import": "The CSV could not be imported.",
+      "access": "You do not have access to this page."
+    },
+    "assistantship": "Assistantship",
+    "assistantshipMarker": "A",
+    "otherSchedules": "Historical schedules outside academic blocks",
+    "customSchedule": "Historical schedule",
+    "edit": "Edit",
+    "room": "Room",
+    "editForm": {
+      "title": "Edit course and schedules",
+      "description": "Update the course and assign a separate room to each lecture session.",
+      "name": "Course name",
+      "code": "Course code (optional)",
+      "catalogHint": "The name and code belong to the catalog: changes apply to every NRC and semester for this course. Schedules and NRC are updated only in the active semester.",
+      "day": "Day",
+      "add": "Add schedule",
+      "remove": "Remove schedule {index}",
+      "removeShort": "Remove",
+      "save": "Save changes",
+      "saving": "Saving changes…",
+      "saved": "Course and schedules updated.",
+      "error": "Unable to save changes.",
+      "duplicate": "A day and block cannot be repeated.",
+      "cancel": "Cancel",
+      "retry": "Retry"
+    },
+    "create": "Create course",
+    "manageTeachers": "Teachers",
+    "createForm": {
+      "title": "Create course",
+      "description": "Register an NRC and its schedules in the active semester. You can then link teachers from the list.",
+      "save": "Create course",
+      "saved": "Course created.",
+      "noSemester": "Activate a semester before creating a course.",
+      "catalogHint": "The NRC and schedules identify this course in the active semester."
+    },
+    "viewStudents": "Students"
   },
   "TeachersPage": {
     "eyebrow": "Academic workload",
@@ -286,7 +539,32 @@
     "pagination": "Page {page} of {totalPages} · {total} teachers",
     "previous": "Previous page",
     "next": "Next page",
-    "errors": { "load": "Teachers could not be loaded.", "import": "The teacher roster could not be imported.", "access": "You do not have access to this page." }
+    "errors": {
+      "load": "Teachers could not be loaded.",
+      "import": "The teacher roster could not be imported.",
+      "access": "You do not have access to this page.",
+      "status": "Teacher status could not be updated."
+    },
+    "create": "Create teacher",
+    "editTeacher": "Edit {name} and their courses",
+    "editAndCourses": "Edit and courses",
+    "statusFilter": "Status",
+    "allStatuses": "All",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "activateTeacher": "Activate teacher {name}",
+    "deactivateTeacher": "Deactivate teacher {name}",
+    "activateTitle": "Activate teacher",
+    "deactivateTitle": "Deactivate teacher",
+    "activateDescription": "Do you want to reactivate {name}?",
+    "deactivateDescription": "Do you want to deactivate {name}?",
+    "statusPreservesLinks": "Their assignments, contracts, and history will be preserved.",
+    "cancelStatus": "Cancel",
+    "statusSaving": "Updating status…",
+    "statusActivated": "{name} was activated.",
+    "statusDeactivated": "{name} was deactivated."
   },
   "SemesterSettingsPage": {
     "eyebrow": "Academic settings",
@@ -303,7 +581,11 @@
     "active": "Active",
     "inactive": "Inactive",
     "empty": "No semesters have been registered yet.",
-    "errors": { "load": "Semesters could not be loaded.", "save": "The semester could not be activated.", "access": "You do not have access to this page." }
+    "errors": {
+      "load": "Semesters could not be loaded.",
+      "save": "The semester could not be activated.",
+      "access": "You do not have access to this page."
+    }
   },
   "DashboardViews": {
     "justificationsManagement": {
@@ -342,7 +624,11 @@
         "roles": "RBAC Roles",
         "rolesDesc": "Configured profiles",
         "pending": "Pending Justifications",
-        "pendingDesc": "Requests waiting for review"
+        "pendingDesc": "Requests waiting for review",
+        "assistantships": "Assistantships",
+        "assistantshipsDesc": "Registered in the active semester",
+        "assistants": "Student assistants",
+        "assistantsDesc": "Active assistants in the semester"
       },
       "actions": {
         "manageUsers": "User Management",
@@ -381,7 +667,11 @@
         "pending": "Pending Justifications",
         "pendingDesc": "Requests waiting for review",
         "faculty": "Active Faculty",
-        "facultyDesc": "With assignments in the active term"
+        "facultyDesc": "With assignments in the active term",
+        "assistantships": "Assistantships",
+        "assistantshipsDesc": "Registered in the active semester",
+        "assistants": "Student assistants",
+        "assistantsDesc": "Active assistants in the semester"
       },
       "actions": {
         "academicInfo": "Academic Repository",
@@ -410,7 +700,11 @@
         "assignments": "Teaching Assignments",
         "assignmentsDesc": "Registered in the active term",
         "justifications": "Recorded Justifications",
-        "justificationsDesc": "Total requests recorded"
+        "justificationsDesc": "Total requests recorded",
+        "assistantships": "Assistantships",
+        "assistantshipsDesc": "Registered in the active semester",
+        "assistants": "Student assistants",
+        "assistantsDesc": "Active assistants in the semester"
       },
       "actions": {
         "reports": "Generate Reports",
@@ -444,7 +738,11 @@
         "schedulesDesc": "Coordinated timetables",
         "schedulesTrend": "No conflicts",
         "titulations": "Titulations in Progress",
-        "titulationsDesc": "Scheduled defenses"
+        "titulationsDesc": "Scheduled defenses",
+        "assistantships": "Assistantships",
+        "assistantshipsDesc": "Registered in the active semester",
+        "assistants": "Student assistants",
+        "assistantsDesc": "Active assistants in the semester"
       },
       "actions": {
         "createJustification": "Submit Justification",
@@ -605,13 +903,711 @@
         "cancelError": "Could not cancel the preload."
       }
     },
-    "errors": { "load": "Could not load users.", "update": "Could not update the role.", "updateStatus": "Could not change the account status.", "delete": "Could not delete the account.", "access": "You do not have access to this page." }
+    "errors": {
+      "load": "Could not load users.",
+      "update": "Could not update the role.",
+      "updateStatus": "Could not change the account status.",
+      "delete": "Could not delete the account.",
+      "access": "You do not have access to this page."
+    }
+  },
+  "AssistantshipsPage": {
+    "eyebrow": "Teaching support",
+    "title": "Assistantships",
+    "subtitle": "Register assistantships and review their students, courses, and schedules by semester.",
+    "register": "Register assistantship",
+    "loading": "Loading…",
+    "retry": "Try again",
+    "nrc": "NRC {nrc}",
+    "stats": {
+      "records": "Assistantships",
+      "assistants": "Student assistants",
+      "semesters": "Semesters",
+      "scope": "Totals reflect the selected filters."
+    },
+    "history": {
+      "title": "Semester records",
+      "subtitle": "Each record keeps the student, supervising teacher, and assistantship period.",
+      "empty": "No assistantships match this search",
+      "emptyDescription": "Try different filters or register the first assistantship using the button above.",
+      "export": "Export history",
+      "exportSuccess": "History exported successfully."
+    },
+    "detail": {
+      "eyebrow": "Assistantship details",
+      "viewDetail": "View details",
+      "registeredNrc": "Assistantship NRC",
+      "studentSection": "Assistant student details",
+      "academicSection": "Academic assignment and supervision",
+      "periodSection": "Period and workload",
+      "scheduleSection": "Assigned schedule and rooms"
+    },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Student, course, teacher, or NRC…",
+      "semester": "Semester",
+      "allSemesters": "All semesters",
+      "teacher": "Teacher",
+      "allTeachers": "All teachers",
+      "state": "Status",
+      "allStates": "All statuses",
+      "clear": "Clear filters"
+    },
+    "states": {
+      "ACTIVE": "In progress",
+      "SCHEDULED": "Scheduled",
+      "COMPLETED": "Completed"
+    },
+    "table": {
+      "assistant": "Student assistant",
+      "course": "Course and teacher",
+      "semester": "Semester",
+      "period": "Period",
+      "schedule": "Schedule",
+      "state": "Status",
+      "noEnd": "No end date",
+      "noSchedule": "To be defined",
+      "hours": "{hours} h/week",
+      "actions": "Actions"
+    },
+    "pagination": {
+      "summary": "Page {page} of {pages} · {count, plural, one {# assistantship} other {# assistantships}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "days": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    },
+    "form": {
+      "title": "Register assistantship",
+      "description": "Select a teaching assignment and register a student who has already passed that course.",
+      "semester": "Semester",
+      "course": "Course, NRC, and teacher",
+      "selectCourse": "Select a course…",
+      "student": "Student assistant",
+      "name": "Full name",
+      "email": "Email address",
+      "studentCode": "Student code (optional)",
+      "hours": "Weekly hours (optional)",
+      "approvedOn": "Course completion date",
+      "startsOn": "Start date",
+      "endsOn": "End date",
+      "confirmApproval": "I confirm that the student passed this course before the assistantship starts and that the completion date is correct.",
+      "schedule": "Assistantship schedule",
+      "scheduleHint": "Select the day and academic block; its time is predefined. You may leave the schedule to be defined. Overlapping schedules are not allowed.",
+      "block": "Time block",
+      "selectBlock": "Select a block",
+      "historicalBlock": "Historical schedule",
+      "day": "Day",
+      "from": "From",
+      "to": "To",
+      "location": "Room or location (optional)",
+      "addSchedule": "Add schedule",
+      "remove": "Remove",
+      "removeSchedule": "Remove schedule {number}",
+      "noSemesters": "No semesters exist yet. Ask the Academic Secretary to register a semester and teaching assignments.",
+      "noAssignments": "This semester has no teaching assignments with active teachers and an NRC. Ask for them to be loaded before registering an assistantship.",
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save assistantship",
+      "saving": "Saving assistantship…",
+      "success": "Assistantship registered successfully.",
+      "assistantshipNrc": "Assistantship NRC",
+      "editTitle": "Edit assistantship",
+      "update": "Save changes",
+      "updated": "Assistantship updated successfully."
+    },
+    "errors": {
+      "load": "We could not load assistantships. Please try again.",
+      "generic": "We could not save the assistantship. Check the details and try again.",
+      "ACCESS_DENIED": "You do not have permission to manage assistantships.",
+      "APPROVAL_REQUIRED": "Confirm that the student passed the course.",
+      "APPROVAL_DATE": "The course completion date must be before the assistantship starts.",
+      "INVALID_PERIOD": "Check the dates: the end must be on or after the start.",
+      "SEMESTER_PERIOD": "The assistantship must fall within the selected semester.",
+      "INACTIVE_PROFILE": "The student or teacher is inactive, or the assignment has no NRC.",
+      "ASSISTANT_IDENTITY": "This email belongs to a student with a different name or code. Use the registered details.",
+      "APPROVAL_MISMATCH": "The completion date differs from the one already recorded for this student and course.",
+      "DUPLICATE": "The assistantship or student email/code is already registered.",
+      "SCHEDULE_CONFLICT": "Schedules overlap with each other or another assistantship held by this student.",
+      "INVALID_SCHEDULE": "Check the schedule: the end must be after the start.",
+      "ASSIGNMENT_NOT_FOUND": "The selected teaching assignment no longer exists. Refresh and try again.",
+      "RETRY": "The data changed while saving. Please try again."
+    },
+    "edit": "Edit"
   },
   "UnderDevelopment": {
     "badge": "Module under development",
     "title": "Section planned in roadmap",
     "description": "This functionality is currently under development and integration within the MARSYS platform.",
-    "privacyNotice": "The design of this module inherently adheres to Chilean Law No. 21.719 on personal data protection and role-based access control.",
+    "privacyNotice": "Only authorized users will be able to access this module’s information.",
     "backToDashboard": "Back to dashboard"
+  },
+  "ReportsPage": {
+    "title": "Academic reports",
+    "subtitle": "View and export registered academic information by semester.",
+    "dataset": "Data",
+    "semester": "Semester",
+    "allSemesters": "All semesters",
+    "search": "Search data",
+    "export": "Export CSV",
+    "exporting": "Preparing export…",
+    "exported": "Report exported successfully.",
+    "loading": "Loading data…",
+    "error": "Data could not be loaded.",
+    "retry": "Retry",
+    "empty": "No data for this query.",
+    "rows": "{count} records",
+    "previous": "Previous",
+    "next": "Next",
+    "access": "You do not have access to reports.",
+    "datasets": {
+      "teachers": "Teachers",
+      "courses": "Courses",
+      "assignments": "Teaching assignments",
+      "assistants": "Student assistants",
+      "assistantships": "Assistantships",
+      "semesters": "Semesters",
+      "projects": "Projects",
+      "research": "Research",
+      "researchOutputs": "Research outputs",
+      "hourlyContracts": "Hourly teacher contracts (PH)"
+    },
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "courses": "Courses / NRC",
+      "code": "Code",
+      "semester": "Semester",
+      "course": "Course",
+      "courseNrc": "Course NRC",
+      "teacher": "Teacher",
+      "assistantshipNrc": "Assistantship NRC",
+      "startsOn": "Start",
+      "endsOn": "End",
+      "weeklyHours": "Weekly hours",
+      "schedules": "Schedules (ISO weekday)",
+      "reportingYear": "Reporting year",
+      "title": "Title",
+      "academicUnit": "Academic unit",
+      "classification": "Classification",
+      "fundingSource": "Funding source",
+      "program": "Program",
+      "currency": "Currency",
+      "totalAmount": "Total amount",
+      "vraContribution": "VRA contribution",
+      "vridtContribution": "VRIDT contribution",
+      "recoveryAmount": "Recovery",
+      "facultyContribution": "Faculty contribution",
+      "depreciationAmount": "Depreciation",
+      "profitabilityAmount": "Profitability",
+      "closedOn": "Closing date",
+      "researchArea": "Research area",
+      "project": "Project",
+      "outputCount": "Output count",
+      "kind": "Type",
+      "research": "Research",
+      "journal": "Journal",
+      "publisher": "Publisher",
+      "quartile": "Quartile",
+      "indexation": "Indexing",
+      "publicationDate": "Publication date",
+      "authorCount": "Authors",
+      "projectCount": "Projects",
+      "nrc": "NRC",
+      "component": "Component",
+      "parallel": "Section",
+      "directHours": "Direct hours",
+      "hourlyRateClp": "Hourly rate (CLP)",
+      "monthlyAmountClp": "Monthly amount (CLP)",
+      "estimatedPaymentClp": "Estimated payment (CLP)"
+    },
+    "statuses": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "REGISTERED": "Registered",
+      "AWARDED": "Awarded",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "CLOSED": "Closed",
+      "CANCELLED": "Cancelled"
+    },
+    "year": "Reporting year"
+  },
+  "AcademicManagement": {
+    "createTeacher": "Create teacher",
+    "editTeacher": "Edit teacher",
+    "teacherDescription": "Manage the teacher details and their courses for the current semester.",
+    "name": "Teacher name",
+    "email": "Email address",
+    "employeeCode": "Employee code (optional)",
+    "linkedCourses": "Linked courses",
+    "courseSelectionHint": "Check to link and uncheck to unlink. Changes apply when you save.",
+    "teacherSelectionHint": "Select the teachers for this course. Uncheck to unlink them.",
+    "semester": "Active semester: {name}",
+    "noSemester": "There is no active semester. You can save the teacher details; activate a semester to link courses.",
+    "nrc": "NRC",
+    "searchOptions": "Search the list",
+    "selectedCount": "{count, plural, one {# selected} other {# selected}}",
+    "noMatches": "No matches found.",
+    "emptyOptions": "No records available.",
+    "loading": "Loading options…",
+    "saving": "Saving…",
+    "saveTeacher": "Save teacher",
+    "saveLinks": "Save links",
+    "cancel": "Cancel",
+    "close": "Close",
+    "retry": "Retry",
+    "teacherCreated": "Teacher created.",
+    "teacherUpdated": "Teacher and courses updated.",
+    "linksSaved": "Teacher links updated.",
+    "loadError": "Could not load the options. Reload and try again.",
+    "saveError": "Could not save the changes.",
+    "manageTeachers": "Manage teachers"
+  },
+  "SessionEntry": {
+    "checking": "Checking session…",
+    "entering": "Opening your dashboard…",
+    "title": "Choose your workspace",
+    "description": "Your session is active. Select the role you want to use.",
+    "roleLabel": "Available roles",
+    "continue": "Open dashboard"
+  },
+  "StudentsPage": {
+    "eyebrow": "Academic information",
+    "title": "Students",
+    "subtitle": "Student records and courses attended in the active semester.",
+    "create": "Create student",
+    "import": "Import CSV",
+    "createTitle": "Create student",
+    "editTitle": "Edit student",
+    "formDescription": "Students remain registered across semesters. Course links apply to the active semester.",
+    "name": "Full name",
+    "email": "Email address",
+    "courses": "Active semester courses",
+    "nrc": "NRC",
+    "save": "Save student",
+    "saving": "Saving…",
+    "created": "Student created.",
+    "updated": "Student and courses updated.",
+    "close": "Close",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "loading": "Loading students…",
+    "semester": "Active semester: {name}",
+    "noSemesterProfile": "There is no active semester. You can save student details without linking courses.",
+    "selectionHint": "Check to link and uncheck to unlink. Changes apply when you save.",
+    "search": "Search by name or email",
+    "filterCourse": "Filter by course",
+    "allStudents": "All students",
+    "noSemesterList": "No active semester. Students remain registered.",
+    "empty": "No students registered.",
+    "noMatches": "No students match the filters.",
+    "noCourses": "No courses in the active semester",
+    "edit": "Edit and courses",
+    "editStudent": "Edit {name} and their courses",
+    "total": "{count, plural, one {# student} other {# students}}",
+    "importTitle": "Import students",
+    "importDescription": "Upload students and link them to existing NRCs in the active semester.",
+    "importing": "Importing…",
+    "imported": "{students} students processed; {created} new students and {enrollments} added links.",
+    "noSemesterImport": "Activate a semester before importing enrollments.",
+    "csvFormat": "UTF-8 CSV separated by semicolons or commas. Include name, email and one or more NRC columns.",
+    "importRules": "Emails must be unique within the file. Every NRC must exist in the active semester. An invalid row rejects the entire file. Reimporting adds missing links and keeps existing ones. Maximum 5000 students and 2 MB.",
+    "file": "CSV file",
+    "downloadExample": "Download CSV example",
+    "exampleDownloaded": "CSV example downloaded.",
+    "errors": {
+      "load": "Could not load students or courses.",
+      "save": "Could not save the student.",
+      "import": "Could not import students.",
+      "fileSize": "The file exceeds the 2 MB limit."
+    }
+  },
+  "HourlyPayments": {
+    "rut": "RUT",
+    "rutPlaceholder": "12.345.678-9",
+    "academicUnit": "Academic unit",
+    "degree": "Academic degree",
+    "certification": "Certification",
+    "professionalTitle": "Professional title",
+    "institution": "Institution",
+    "joinedOn": "Joining date",
+    "leftOn": "Leaving date",
+    "notRecorded": "Not recorded",
+    "manageContracts": "Manage hourly teaching contracts and payments",
+    "rutRequired": "Enter the RUT to save hourly teaching contracts.",
+    "contracts": "Hourly teaching contracts",
+    "calculationHint": "30-day months, inclusive dates and payments rounded to whole pesos. Saving applies the contracts shown here; historical contracts are retained.",
+    "loading": "Loading contracts and rates…",
+    "loadError": "Could not load payments.",
+    "semesterChanged": "The active semester changed. Close and reopen the form.",
+    "retry": "Retry",
+    "noRates": "No rates are configured. Open Hourly rates from the teacher list to register them.",
+    "empty": "This teacher has no hourly contracts in the active semester.",
+    "contractNumber": "Contract {number}",
+    "remove": "Remove contract",
+    "course": "Course (NRC)",
+    "rate": "Applicable rate",
+    "select": "Select",
+    "component": "Component",
+    "parallel": "Parallel",
+    "hours": "Direct teaching hours",
+    "startsOn": "Contract start",
+    "endsOn": "Contract end",
+    "monthlyAmount": "Monthly amount",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "addContract": "Add hourly contract",
+    "calculating": "Calculating payments…",
+    "semesterTotal": "Semester total",
+    "ratesTitle": "Hourly rates",
+    "ratesDescription": "Configure the monthly payment per direct teaching hour for the active semester. Existing contracts retain the rate applied when they were registered.",
+    "category": "Category",
+    "hourlyRate": "Monthly payment per direct hour (CLP)",
+    "savingRate": "Saving rate…",
+    "rateSaved": "Rate saved.",
+    "saveError": "Could not save the rate.",
+    "saveRate": "Save rate",
+    "editRate": "Edit rate",
+    "close": "Close",
+    "noSemester": "Activate a semester to configure its rates.",
+    "categories": {
+      "NEW": "New",
+      "EXISTING": "Existing",
+      "DIVING_PRINCIPAL": "Principal diving instructor",
+      "DIVING_SECONDARY": "Secondary diving instructor"
+    },
+    "degrees": {
+      "PROFESSIONAL": "Professional",
+      "MASTER": "Master's",
+      "DOCTOR": "Doctor",
+      "NOT_APPLICABLE": "Not applicable"
+    },
+    "certifications": {
+      "NONE": "No certification",
+      "LEVEL_1": "Level 1",
+      "LEVEL_2": "Level 2",
+      "LEVEL_3": "Level 3"
+    },
+    "components": {
+      "LECTURE": "Lecture",
+      "WORKSHOP": "Workshop",
+      "LABORATORY": "Laboratory",
+      "FIELDWORK": "Fieldwork",
+      "ASSISTANTSHIP": "Assistantship"
+    }
+  },
+  "AcademicRepository": {
+    "import": {
+      "button": "Import Excel",
+      "title": "Import projects from Excel",
+      "description": "Upload the 2025-2026 projects workbook. Review valid rows, errors, and duplicates before confirming.",
+      "fileLabel": ".xlsx file",
+      "xlsxOnly": "Select an .xlsx file.",
+      "tooLarge": "The file exceeds the 12 MB limit.",
+      "previewError": "Could not prepare the preview.",
+      "importError": "Could not import the projects.",
+      "queueSubmitting": "Sending the file to the queue…",
+      "queued": "File received. The import will run in the background.",
+      "jobQueued": "Import queued…",
+      "jobProcessing": "Processing import…",
+      "jobCompleted": "Import completed.",
+      "loading": "Reading and validating the Excel file…",
+      "importing": "Importing projects…",
+      "imported": "Imported {count} projects.",
+      "counts": "{importable} of {total} rows can be imported.",
+      "sampleRow": "Row {row}: {title} ({year})",
+      "rowIssue": "Row {row}: {message}",
+      "rowWarning": "Row {row}: {message}",
+      "cancel": "Cancel",
+      "confirm": "Import {count} projects",
+      "researchButton": "Import workbook",
+      "researchTitle": "Import academic outputs",
+      "researchDescription": "Upload the 2026 workbook to register publications, books, and intellectual property. Review duplicate DOIs and invalid rows before confirming.",
+      "researchImporting": "Importing academic outputs…",
+      "researchImported": "Imported {count} academic outputs.",
+      "researchConfirm": "Import {count} results",
+      "hourlyButton": "Import PH payments from Excel",
+      "hourlyTitle": "Import hourly-teacher contracts",
+      "hourlyDescription": "Upload the payments sheet from Planilla pagos PH 202620. RUT, NRC, rates, and the active semester are validated. Rows without an existing teacher are reported as errors.",
+      "hourlyImporting": "Importing hourly contracts…",
+      "hourlyImported": "Imported {count} hourly contracts.",
+      "hourlyConfirm": "Import {count} contracts",
+      "teacherEmailRequired": "Enter a valid email for each new teacher and review again.",
+      "teacherEmailPrompt": "Teacher {name} · RUT {rut} · rows {rows}",
+      "teacherEmailPlaceholder": "email@ucn.cl",
+      "reviewTeacherEmails": "Validate emails and recalculate",
+      "estimatedTotal": "Total calculated with semester rates: {amount}",
+      "close": "Close"
+    },
+    "eyebrow": "Academic repository",
+    "loading": "Loading records…",
+    "search": "Search",
+    "searchHint": "Title, code or academic unit",
+    "allStatuses": "All statuses",
+    "sortBy": "Sort by",
+    "sortOrder": "Direction",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "sortFields": {
+      "title": "Title",
+      "reportingYear": "Reporting year",
+      "startsOn": "Start date",
+      "totalAmount": "Total amount",
+      "status": "Status",
+      "createdAt": "Date added"
+    },
+    "invalidYearEmpty": "No records for that year",
+    "invalidYearHint": "Change the reporting year and try again.",
+    "invalidYearToast": "The year must be between 1900 and 2200. Change the reporting year.",
+    "noMatches": "No records match these filters",
+    "emptyHint": "Register the information available. You can complete the details later.",
+    "total": "{count, plural, one {# record} other {# records}}",
+    "participantCount": "{count, plural, one {# participant} other {# participants}}",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "viewRecord": "View {title}",
+    "editRecord": "Edit {title}",
+    "deleteRecord": "Delete {title}",
+    "accessError": "You do not have access to this page.",
+    "loadError": "Could not load records.",
+    "saveError": "Could not save the record.",
+    "deleteError": "Could not delete the record.",
+    "retry": "Retry",
+    "close": "Close window",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "deleting": "Deleting…",
+    "created": "Record created.",
+    "updated": "Record updated.",
+    "deleted": "Record deleted.",
+    "confirmDelete": "Confirm deletion",
+    "deleteHint": "Delete “{title}” and its participant list? This action is permanent. Global teacher records are preserved. Links to research activities or outputs will prevent deletion.",
+    "formHint": "Fields marked * are required. Leave unknown information blank.",
+    "amountHint": "Enter a three-letter currency, such as CLP. Use a decimal point. A blank amount means unknown; zero means no contribution has been confirmed.",
+    "participantHint": "Link a registered teacher or record an external participant. Assign roles to your team.",
+    "addParticipant": "Add participant",
+    "removeParticipant": "Remove participant {name}",
+    "remove": "Remove",
+    "externalParticipant": "External participant",
+    "noParticipants": "No participants registered.",
+    "unknown": "Not provided",
+    "yes": "Yes",
+    "no": "No",
+    "noProject": "No linked project",
+    "projectHint": "Each project can link to one research activity. Projects linked to another activity are unavailable.",
+    "openFolder": "Open folder",
+    "linkedResearch": "Linked research: {title}",
+    "outputs": {
+      "title": "Research outputs",
+      "subtitle": "Review and manage publications, books, and intellectual property, and link each output to its research activity.",
+      "create": "Create output",
+      "edit": "Edit academic output",
+      "deleteTitle": "Delete academic output",
+      "deleteHint": "Delete “{title}”? Its author and project links will also be removed.",
+      "formHint": "Link the output to a research activity. Unknown fields can remain blank.",
+      "searchHint": "Title, DOI, or journal",
+      "research": "Research",
+      "allResearch": "All research activities",
+      "chooseResearch": "Select a research activity",
+      "kind": "Type",
+      "allKinds": "All types",
+      "year": "Reporting year",
+      "sort": {
+        "reportingYear": "Reporting year",
+        "title": "Title",
+        "publicationDate": "Publication date",
+        "createdAt": "Date added",
+        "kind": "Type"
+      },
+      "kinds": {
+        "ARTICLE": "Article",
+        "BOOK": "Book",
+        "BOOK_CHAPTER": "Book chapter",
+        "INTELLECTUAL_PROPERTY": "Intellectual property"
+      },
+      "empty": "No academic outputs registered yet",
+      "emptyHint": "Create an academic output or review the selected filters.",
+      "noMatches": "No outputs match these filters",
+      "unlinkedResearch": "No associated research",
+      "authorCount": "{count, plural, one {# author} other {# authors}}",
+      "authors": "Authors",
+      "noAuthors": "No authors registered.",
+      "projects": "Associated projects",
+      "noProjects": "No associated projects.",
+      "authorsPreserved": "The existing {count, plural, one {# linked author} other {# linked authors}} will be preserved.",
+      "fields": {
+        "researchId": "Associated research",
+        "kind": "Output type",
+        "title": "Title",
+        "reportingYear": "Reporting year",
+        "doi": "DOI",
+        "journal": "Journal",
+        "issn": "ISSN",
+        "isbn": "ISBN",
+        "quartile": "Quartile",
+        "fiveYearImpactFactor": "Five-year impact factor",
+        "publicationDate": "Publication date",
+        "publisher": "Publisher",
+        "publicationPlace": "Publication place",
+        "indexation": "Indexing",
+        "studentParticipation": "Student participation",
+        "internationalParticipation": "International participation",
+        "intellectualPropertyType": "Intellectual property type",
+        "phase": "Phase",
+        "phaseDate": "Phase date",
+        "notes": "Notes"
+      },
+      "saving": "Saving output…",
+      "created": "Academic output created.",
+      "updated": "Academic output updated.",
+      "deleted": "Academic output deleted.",
+      "saveError": "Could not save the academic output.",
+      "deleteError": "Could not delete the academic output.",
+      "deleting": "Deleting…",
+      "confirmDelete": "Confirm deletion",
+      "deleteRecord": "Delete {title}",
+      "editRecord": "Edit {title}"
+    },
+    "projects": {
+      "title": "Projects",
+      "subtitle": "Projects, funding, dates and teams at the Faculty of Marine Sciences.",
+      "create": "Create project",
+      "edit": "Edit project",
+      "delete": "Delete project",
+      "empty": "No projects registered yet"
+    },
+    "research": {
+      "title": "Research",
+      "subtitle": "Scientific activities, teams and project links in the academic repository.",
+      "create": "Create research",
+      "edit": "Edit research",
+      "delete": "Delete research",
+      "empty": "No research registered yet"
+    },
+    "groups": {
+      "identity": "Identification",
+      "funding": "Origin and participation",
+      "period": "Dates",
+      "amounts": "Funding",
+      "notes": "Documents and notes",
+      "research": "Scientific activity",
+      "participants": "Team and participants",
+      "project": "Associated project"
+    },
+    "statuses": {
+      "REGISTERED": "Registered",
+      "AWARDED": "Awarded",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "CLOSED": "Closed",
+      "CANCELLED": "Cancelled"
+    },
+    "fields": {
+      "title": "Title",
+      "code": "Code",
+      "academicUnit": "Academic unit",
+      "reportingYear": "Reporting year",
+      "status": "Status",
+      "faculty": "Faculty",
+      "resolution": "Resolution",
+      "classification": "Classification",
+      "officialized": "Officialized",
+      "fundingSource": "Funding source",
+      "program": "Program",
+      "competition": "Competition",
+      "applicationArea": "Application area",
+      "participationScope": "Participation scope",
+      "startsOn": "Start date",
+      "endsOn": "End date",
+      "revisedEndsOn": "Revised end date",
+      "closedOn": "Closing date",
+      "currency": "Currency",
+      "totalAmount": "Total amount",
+      "vraContribution": "VRA contribution",
+      "vridtContribution": "VRIDT contribution",
+      "recoveryAmount": "Recovery amount",
+      "facultyContribution": "Faculty contribution",
+      "depreciationAmount": "Depreciation",
+      "profitabilityAmount": "Profitability",
+      "folderUrl": "Folder URL",
+      "notes": "Notes",
+      "researchArea": "Research area",
+      "description": "Description",
+      "projectId": "Project",
+      "teacherId": "Registered teacher",
+      "name": "Name",
+      "role": "Participant role",
+      "contactEmail": "Contact email",
+      "gender": "Gender (optional)"
+    }
+  },
+  "ChartsPage": {
+    "eyebrow": "Academic analysis",
+    "title": "Charts and indicators",
+    "subtitle": "Explore trends in projects, budgets, research, academic outputs, and hourly teacher payments.",
+    "loading": "Loading chart data…",
+    "error": "Chart data could not be loaded.",
+    "retry": "Retry",
+    "access": "You do not have access to charts.",
+    "year": "Year",
+    "budgetFrom": "Budget from",
+    "budgetTo": "Budget to",
+    "activeChartFilters": "Active chart filters:",
+    "clearChartFilters": "Clear filters",
+    "month": "Month",
+    "monthlyBudgetBreakdown": "Budget grouped by project start month · {year}",
+    "monthlyBudgetBasis": "Groups the total amount by project start date; it does not represent executed payments.",
+    "noMonthlyBudgetData": "No projects have a recorded start date for this year.",
+    "unassignedBudgetDates": "{count} projects have no start date in this year and are not assigned to a month.",
+    "backToYears": "Back to years",
+    "semester": "Semester for hourly contracts",
+    "allSemesters": "All semesters",
+    "projects": "Projects",
+    "research": "Research",
+    "outputs": "Academic outputs",
+    "hourlyContracts": "PH contracts",
+    "projectStatuses": "Projects by status",
+    "budgets": "Registered budget by currency",
+    "funding": {
+      "title": "Project",
+      "fundingSource": "Funding source",
+      "totalAmount": "Total amount",
+      "vraContribution": "VRA contribution",
+      "vridtContribution": "VRIDT contribution",
+      "recoveryAmount": "Recovery",
+      "facultyContribution": "Faculty contribution",
+      "depreciationAmount": "Depreciation",
+      "profitabilityAmount": "Profitability"
+    },
+    "outputKinds": "Outputs by type",
+    "outputsByYear": "Academic output by year",
+    "researchByYear": "Research by start year",
+    "researchAndOutputsTrend": "Annual research and output trends",
+    "hourlyByComponent": "Estimated PH payments by component",
+    "empty": "No records match the selected filters.",
+    "statuses": { "REGISTERED": "Registered", "AWARDED": "Awarded", "IN_PROGRESS": "In progress", "COMPLETED": "Completed", "CLOSED": "Closed", "CANCELLED": "Cancelled", "Sin informar": "Not reported" },
+    "kinds": {
+      "ARTICLE": "Article",
+      "BOOK": "Book",
+      "BOOK_CHAPTER": "Book chapter",
+      "INTELLECTUAL_PROPERTY": "Intellectual property"
+    },
+    "components": {
+      "LECTURE": "Lecture",
+      "WORKSHOP": "Workshop",
+      "LABORATORY": "Laboratory",
+      "FIELDWORK": "Fieldwork",
+      "ASSISTANTSHIP": "Assistantship"
+    }
   }
 }

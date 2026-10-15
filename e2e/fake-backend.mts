@@ -141,11 +141,14 @@ const server = createServer(async (req, res) => {
 
   // Público, como en el backend: limpia la cookie aunque la sesión ya no sea válida.
   if (route === '/auth/logout' && method === 'POST') {
-    res.setHeader('Set-Cookie', 'token=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax');
+    res.setHeader('Set-Cookie', [
+      'token=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax',
+      'session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax',
+    ]);
     return send(res, 204);
   }
 
-  const account = ACCOUNTS[cookie(req, 'token') ?? ''];
+  const account = ACCOUNTS[cookie(req, 'session') ?? cookie(req, 'token') ?? ''];
   if (!account) return error(res, 401, 'Token no encontrado');
 
   const allow = (...roles: Role[]) => account.roles.some((code) => code === 'SYSTEM_ADMIN' || roles.includes(code));

@@ -1,10 +1,13 @@
-export type JustificationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
-export type JustificationReasonCategory = 'MEDICAL' | 'FAMILY_DEATH' | 'PERSONAL' | 'ACADEMIC' | 'OTHER';
+export type JustificationStatus = "PENDING" | "ACCEPTED" | "REJECTED";
+export type JustificationReasonCategory =
+  "MEDICAL" | "FAMILY_DEATH" | "PERSONAL" | "ACADEMIC" | "OTHER";
 
 export interface JustificationInboxEntry {
   id: string;
   externalResponseId: string;
   studentEmail: string;
+  studentId?: string | null;
+  student?: { id: string; name: string; email: string } | null;
   absenceDate: string;
   subjectName: string;
   subjectCode?: string | null;
@@ -23,12 +26,14 @@ export interface Justification extends JustificationInboxEntry {
   openedAt: string;
   decidedAt?: string | null;
   teachers?: { name: string; email: string }[];
+  assistants?: { name: string; email: string }[];
+  absenceBlocks?: string[];
 }
 
 export interface TeacherAssignment {
   id: string;
   nrc: string;
-  course: { code: string; name: string };
+  course: { code: string | null; name: string };
   semester: { name: string; isActive: boolean };
 }
 
@@ -37,5 +42,14 @@ export interface Teacher {
   name: string;
   email: string;
   employeeCode?: string | null;
+  rut?: string | null;
+  academicUnit?: string | null;
+  academicDegree?: import("./hourly-payments").AcademicDegree | null;
+  certification?: import("./hourly-payments").TeacherCertification | null;
+  professionalTitle?: string | null;
+  institution?: string | null;
+  isActive?: boolean;
+  joinedOn?: string | null;
+  leftOn?: string | null;
   assignments: TeacherAssignment[];
 }

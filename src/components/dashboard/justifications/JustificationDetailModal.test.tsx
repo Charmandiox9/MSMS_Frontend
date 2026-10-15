@@ -25,6 +25,17 @@ const category = () => screen.getByLabelText('Motivo de la inasistencia') as HTM
 const rejection = () => screen.getByLabelText(/Motivo del rechazo/) as HTMLTextAreaElement;
 
 describe('JustificationDetailModal', () => {
+  it('muestra el estudiante vinculado y conserva el correo enviado por el formulario', () => {
+    renderModal(justification({ studentEmail: 'form@example.test', student: { id: 'student-1', name: 'Ana Soto', email: 'nuevo@example.test' } }));
+    expect(screen.getByText('Estudiante registrado')).toBeDefined();
+    expect(screen.getByText('Ana Soto')).toBeDefined();
+    expect(screen.getByText('form@example.test')).toBeDefined();
+  });
+
+  it('mantiene el detalle disponible cuando el correo no corresponde a un estudiante registrado', () => {
+    renderModal(justification({ student: null }));
+    expect(screen.queryByText('Estudiante registrado')).toBeNull();
+  });
   it('no renderiza nada cerrado', () => {
     const { container } = render(
       <IntlProvider>

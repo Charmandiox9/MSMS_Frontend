@@ -1,28 +1,21 @@
-import createMiddleware from 'next-intl/middleware';
-import { routing } from './i18n/routing';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import createMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const intlMiddleware = createMiddleware(routing);
 
 export default function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
-  const hasToken = req.cookies.has('token') || req.cookies.has('session');
 
-  if (pathname.includes('/auth/callback')) {
-    const route = req.nextUrl.searchParams.get('route') || '/dashboard';
-    const target = route.startsWith('/dashboard') || route === '/no-access' ? route : '/dashboard';
+  if (pathname.includes("/auth/callback")) {
+    const route = req.nextUrl.searchParams.get("route") || "/dashboard";
+    // The entry page validates the session and asks multi-role users which view to open.
+    const target =
+      route.startsWith("/dashboard/") || route === "/no-access" ? route : "/";
     const url = req.nextUrl.clone();
     url.pathname = target;
-    url.search = '';
-    return NextResponse.redirect(url);
-  }
-
-  if (pathname.includes('/login') && hasToken) {
-    const localeMatch = pathname.match(/^\/(es|en)/);
-    const prefix = localeMatch ? localeMatch[0] : '';
-    const url = req.nextUrl.clone();
-    url.pathname = `${prefix}/dashboard`;
+    url.search = "";
     return NextResponse.redirect(url);
   }
 
@@ -30,9 +23,5 @@ export default function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/',
-    '/(es|en)/:path*',
-    '/((?!api|_next|_vercel|.*\\..*).*)'
-  ]
+  matcher: ["/", "/(es|en)/:path*", "/((?!api|_next|_vercel|.*\\..*).*)"],
 };
