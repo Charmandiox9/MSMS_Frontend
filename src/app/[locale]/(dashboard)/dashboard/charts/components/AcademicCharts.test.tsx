@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { renderAs } from "@/test/render";
 import { installFakeApi, ok } from "@/test/fake-api";
 import AcademicCharts from "./AcademicCharts";
@@ -12,8 +12,8 @@ describe("Academic charts", () => {
       "GET /academic/reports": ({ query }) => ({ body: {
         columns: [],
         rows: query.get("dataset") === "projects" ? [
-          { reportingYear: 2026, title: "Centro costero", fundingSource: "ANID", status: "IN_PROGRESS", currency: "CLP", totalAmount: "227700000", vraContribution: "1200000" },
-          { reportingYear: 2026, title: "Estudio de mareas", fundingSource: "UCN", status: "COMPLETED", currency: "CLP", totalAmount: "500000", vraContribution: "0" },
+          { reportingYear: 2026, startsOn: "2026-03-15", title: "Centro costero", fundingSource: "ANID", status: "IN_PROGRESS", currency: "CLP", totalAmount: "227700000", vraContribution: "1200000" },
+          { reportingYear: 2026, startsOn: "2026-07-02", title: "Estudio de mareas", fundingSource: "UCN", status: "COMPLETED", currency: "CLP", totalAmount: "500000", vraContribution: "0" },
         ]
           : query.get("dataset") === "research" ? [{ startsOn: "2026-01-01" }]
           : query.get("dataset") === "researchOutputs" ? [{ kind: "ARTICLE", reportingYear: 2026 }]
@@ -42,5 +42,10 @@ describe("Academic charts", () => {
     fireEvent.click(screen.getAllByRole("button", { name: /Aporte VRA/ })[0]);
     expect(screen.queryByText("Estudio de mareas")).toBeNull();
     expect(screen.getByRole("button", { name: "Limpiar filtros" })).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Limpiar filtros" }));
+    fireEvent.click(within(screen.getByRole("group", { name: "Presupuesto registrado por moneda · CLP" })).getByRole("button", { name: "2026" }));
+    expect(await screen.findByText("Presupuesto agrupado por mes de inicio · 2026")).toBeDefined();
+    fireEvent.click(within(screen.getByRole("group", { name: "Presupuesto agrupado por mes de inicio · 2026" })).getByRole("button", { name: "marzo" }));
+    expect(screen.queryByText("Estudio de mareas")).toBeNull();
   });
 });

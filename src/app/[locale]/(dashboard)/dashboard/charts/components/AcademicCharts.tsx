@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { BarChart3, BookOpen, FlaskConical, FolderKanban, Wallet } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton } from "@/components/ui/LoadingSkeletons";
@@ -137,10 +137,13 @@ function TrendChart({ title, researchValues, outputValues, researchLabel, output
 const budgetFields = ["totalAmount", "vraContribution", "vridtContribution", "recoveryAmount", "facultyContribution", "depreciationAmount", "profitabilityAmount"] as const;
 type FundingTranslationKey = `funding.${typeof budgetFields[number]}` | "funding.title" | "funding.fundingSource";
 
-function BudgetCharts({ rows, title, empty, t, selectedYear, onYearSelect, selectedFundingField, onFundingSelect }: { rows: Row[]; title: string; empty: string; t: (key: FundingTranslationKey) => string; selectedYear?: string; onYearSelect: (year: string) => void; selectedFundingField?: string; onFundingSelect: (field: string) => void }) {
-  const visibleRows = rows.filter((row) => !selectedYear || String(row.reportingYear ?? "") === selectedYear);
+function BudgetCharts({ rows, title, empty, t, selectedYear, onYearSelect, selectedMonth, onMonthSelect, selectedFundingField, onFundingSelect, monthlyTitle, monthlyBasis, noMonthlyData, unassignedLabel, backToYears, locale }: { rows: Row[]; title: string; empty: string; t: (key: FundingTranslationKey) => string; selectedYear?: string; onYearSelect: (year: string) => void; selectedMonth?: string; onMonthSelect: (month: string) => void; selectedFundingField?: string; onFundingSelect: (field: string) => void; monthlyTitle: string; monthlyBasis: string; noMonthlyData: string; unassignedLabel: (count: number) => string; backToYears: string; locale: string }) {
+  const visibleRows = rows.filter((row) =>
+    (!selectedYear || String(row.reportingYear ?? "") === selectedYear) &&
+    (!selectedMonth || (typeof row.startsOn === "string" && row.startsOn.startsWith(`${selectedYear}-`) && row.startsOn.slice(5, 7) === selectedMonth)),
+  );
   const trends = new Map<string, Map<string, number>>();
-  for (const row of visibleRows) {
+  for (const row of rows) {
     const currency = typeof row.currency === "string" ? row.currency : "";
     const year = String(row.reportingYear ?? "");
     const amount = Number(row.totalAmount ?? 0);
@@ -153,16 +156,28 @@ function BudgetCharts({ rows, title, empty, t, selectedYear, onYearSelect, selec
     const data = [...points].map(([year, amount]) => ({ year, amount })).sort((a, b) => a.year.localeCompare(b.year));
     return { currency, data, total: data.reduce((sum, point) => sum + point.amount, 0) };
   });
-  if (!visibleRows.length || !entries.length) return <ChartPanel title={title} empty={empty} />;
+  if (!rows.length || !entries.length) return <ChartPanel title={title} empty={empty} />;
   const money = (value: Row[string], currency: string) => currencyFormat(currency).format(Number(value ?? 0));
   return <section className="space-y-4 rounded-2xl border border-border bg-card p-5 lg:col-span-2">
     <h2 className="text-base font-bold">{title}</h2>
     <div className="grid gap-5 xl:grid-cols-2">
       {entries.map(({ currency, data, total }) => {
-        const allocation = budgetFields.map((field) => ({ label: t(`funding.${field}`), value: visibleRows.filter((row) => row.currency === currency).reduce((sum, row) => sum + Number(row[field] ?? 0), 0) })).filter(({ value }) => value > 0);
+        const yearRows = rows.filter((row) => row.currency === currency && (!selectedYear || String(row.reportingYear ?? "") === selectedYear));
+        const allocation = budgetFields.map((field) => ({ label: t(`funding.${field}`), value: rows.filter((row) => row.currency === currency).reduce((sum, row) => sum + Number(row[field] ?? 0), 0) })).filter(({ value }) => value > 0);
+        const monthlyTotals = new Map<string, number>();
+        if (selectedYear) for (const row of yearRows) {
+          const month = typeof row.startsOn === "string" && row.startsOn.startsWith(`${selectedYear}-`) ? row.startsOn.slice(5, 7) : null;
+          if (month) monthlyTotals.set(month, (monthlyTotals.get(month) ?? 0) + Number(row.totalAmount ?? 0));
+        }
+        const monthlyData = [...monthlyTotals].sort(([left], [right]) => left.localeCompare(right)).map(([month, amount]) => ({ month, amount }));
+        const unassignedCount = yearRows.filter((row) => typeof row.startsOn !== "string" || !row.startsOn.startsWith(`${selectedYear}-`)).length;
         return <div key={currency} className="min-w-0 rounded-xl border border-border/70 p-4">
-          <div className="mb-1 flex items-baseline justify-between gap-3"><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{currency}</p><strong className="text-sm tabular-nums">{currencyFormat(currency).format(total)}</strong></div>
-          <div className="h-56" role="img" aria-label={`${title} · ${currency}`}>
+          <div className="mb-1 flex items-baseline justify-between gap-3"><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{currency}</p><strong className="text-sm tabular-nums">{currencyFormat(currency).format(selectedYear ? yearRows.reduce((sum, row) => sum + Number(row.totalAmount ?? 0), 0) : total)}</strong></div>
+          {selectedYear ? <><div className="mb-2 flex items-center justify-between gap-2"><h3 className="text-sm font-semibold">{monthlyTitle}</h3><button type="button" className="text-xs text-primary underline underline-offset-4" onClick={() => { onYearSelect(selectedYear); onMonthSelect(""); }}>{backToYears}</button></div><p className="mb-2 text-xs text-muted-foreground">{monthlyBasis}</p>{monthlyData.length ? <div className="h-56" role="img" aria-label={`${monthlyTitle} · ${currency}`}>
+            <ResponsiveContainer width="100%" height="100%"><BarChart data={monthlyData} accessibilityLayer margin={{ top: 8, right: 12, bottom: 4, left: 0 }} onClick={(state) => { if (state?.activeLabel !== undefined) onMonthSelect(String(state.activeLabel)); }}>
+              <CartesianGrid stroke={chartGridColor} strokeDasharray="3 3" /><XAxis dataKey="month" tick={{ fill: chartTextColor, fontSize: 11 }} tickFormatter={(value) => new Intl.DateTimeFormat(locale, { month: "short", timeZone: "UTC" }).format(new Date(Date.UTC(Number(selectedYear), Number(value) - 1, 1)))} /><YAxis width={72} tick={{ fill: chartTextColor, fontSize: 10 }} tickFormatter={(value) => currencyFormat(currency).format(Number(value))} /><Tooltip content={<ChartTooltip formatValue={(value) => currencyFormat(currency).format(value)} />} /><Bar dataKey="amount" name={currency} radius={[5, 5, 0, 0]}>{monthlyData.map((item) => <Cell key={item.month} fill={chartColors[0]} fillOpacity={selectedMonth && selectedMonth !== item.month ? 0.35 : 1} cursor="pointer" onClick={() => onMonthSelect(item.month)} />)}</Bar>
+            </BarChart></ResponsiveContainer>
+          </div> : <p className="rounded-lg bg-muted/40 p-4 text-sm text-muted-foreground">{noMonthlyData}</p>}{unassignedCount > 0 && <p className="mt-2 text-xs text-muted-foreground">{unassignedLabel(unassignedCount)}</p>}{monthlyData.length > 0 && <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label={monthlyTitle}>{monthlyData.map(({ month }) => <button key={month} type="button" aria-pressed={selectedMonth === month} onClick={() => onMonthSelect(month)} className={`rounded-full border px-3 py-1.5 text-xs ${selectedMonth === month ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted"}`}>{new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }).format(new Date(Date.UTC(Number(selectedYear), Number(month) - 1, 1)))}</button>)}</div>}</> : <div className="h-56" role="img" aria-label={`${title} · ${currency}`}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data} accessibilityLayer margin={{ top: 10, right: 12, bottom: 4, left: 0 }} onClick={(state) => { if (state?.activeLabel !== undefined) onYearSelect(String(state.activeLabel)); }}>
                 <CartesianGrid stroke={chartGridColor} strokeDasharray="3 3" />
@@ -172,8 +187,8 @@ function BudgetCharts({ rows, title, empty, t, selectedYear, onYearSelect, selec
                 <Area type="monotone" dataKey="amount" name={currency} stroke={chartColors[0]} fill={chartColors[0]} fillOpacity={0.18} strokeWidth={2.5} />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
-          <div className="mt-1 flex flex-wrap gap-2" role="group" aria-label={`${title} · ${currency}`}>{data.map(({ year }) => <button key={year} type="button" aria-pressed={selectedYear === year} onClick={() => onYearSelect(year)} className={`rounded-full border px-3 py-1 text-xs ${selectedYear === year ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted"}`}>{year}</button>)}</div>
+          </div>}
+          {!selectedYear && <div className="mt-1 flex flex-wrap gap-2" role="group" aria-label={`${title} · ${currency}`}>{data.map(({ year }) => <button key={year} type="button" aria-pressed={selectedYear === year} onClick={() => { onYearSelect(year); onMonthSelect(""); }} className={`rounded-full border px-3 py-1 text-xs ${selectedYear === year ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted"}`}>{year}</button>)}</div>}
           <h3 className="mt-3 text-sm font-semibold">{t("funding.totalAmount")}</h3>
           {allocation.length ? <div className="mt-1 h-56" role="img" aria-label={`${t("funding.totalAmount")} · ${currency}`}>
             <ResponsiveContainer width="100%" height="100%"><BarChart data={allocation} layout="vertical" accessibilityLayer margin={{ top: 4, right: 12, bottom: 4, left: 8 }}>
@@ -219,6 +234,7 @@ function PaymentChart({ title, values, empty, formatLabel, selectedComponent, on
 
 export default function AcademicCharts() {
   const t = useTranslations("ChartsPage");
+  const locale = useLocale() === "es" ? "es-CL" : "en-US";
   const { activeRole } = useActiveRole();
   const allowed = activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY" || activeRole === "ACADEMIC_PROCESS_ANALYST";
   const [year, setYear] = useState("");
@@ -229,12 +245,13 @@ export default function AcademicCharts() {
   const [outputKindFilter, setOutputKindFilter] = useState("");
   const [fundingFieldFilter, setFundingFieldFilter] = useState("");
   const [hourlyComponentFilter, setHourlyComponentFilter] = useState("");
+  const [budgetMonthFilter, setBudgetMonthFilter] = useState("");
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [data, setData] = useState<ChartData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [retry, setRetry] = useState(0);
-  const selectYear = (value: string) => setYear((current) => current === value ? "" : value);
+  const selectYear = (value: string) => { setYear((current) => current === value ? "" : value); setBudgetMonthFilter(""); };
 
   useEffect(() => {
     if (!allowed) return;
@@ -282,7 +299,10 @@ export default function AcademicCharts() {
       hourlyByComponent: aggregate(visibleHourlyRows, "component", "estimatedPaymentClp"),
     };
   }, [data, visibleOutputRows, visibleHourlyRows]);
-  const hasChartFilters = Boolean(year || projectStatusFilter || outputKindFilter || fundingFieldFilter || hourlyComponentFilter);
+  const hasChartFilters = Boolean(year || budgetMonthFilter || projectStatusFilter || outputKindFilter || fundingFieldFilter || hourlyComponentFilter);
+  const activeBudgetMonth = budgetMonthFilter && year
+    ? new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }).format(new Date(Date.UTC(Number(year), Number(budgetMonthFilter) - 1, 1)))
+    : budgetMonthFilter;
   const metrics: { Icon: LucideIcon; label: string; value: number }[] = data ? [
     { Icon: FolderKanban, label: t("projects"), value: visibleProjectRows.length },
     { Icon: FlaskConical, label: t("research"), value: data.research.rows.length },
@@ -300,14 +320,14 @@ export default function AcademicCharts() {
       <label className="grid gap-2 text-xs font-semibold text-muted-foreground">{t("budgetFrom")}<input className={filterClass} type="date" max={endsOn || undefined} value={startsOn} onChange={(event) => setStartsOn(event.target.value)} /></label>
       <label className="grid gap-2 text-xs font-semibold text-muted-foreground">{t("budgetTo")}<input className={filterClass} type="date" min={startsOn || undefined} value={endsOn} onChange={(event) => setEndsOn(event.target.value)} /></label>
     </div>
-    {hasChartFilters && <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm" role="status"><span className="font-semibold">{t("activeChartFilters")}</span>{year && <span className="rounded-full bg-background px-3 py-1">{t("year")}: {year}</span>}{projectStatusFilter && <span className="rounded-full bg-background px-3 py-1">{t("statuses." + projectStatusFilter)} </span>}{outputKindFilter && <span className="rounded-full bg-background px-3 py-1">{t("kinds." + outputKindFilter)}</span>}{fundingFieldFilter && <span className="rounded-full bg-background px-3 py-1">{t(`funding.${fundingFieldFilter}` as FundingTranslationKey)}</span>}{hourlyComponentFilter && <span className="rounded-full bg-background px-3 py-1">{t(`components.${hourlyComponentFilter}`)}</span>}<button type="button" className="ml-auto text-primary underline underline-offset-4" onClick={() => { setYear(""); setProjectStatusFilter(""); setOutputKindFilter(""); setFundingFieldFilter(""); setHourlyComponentFilter(""); }}>{t("clearChartFilters")}</button></div>}
+    {hasChartFilters && <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm" role="status"><span className="font-semibold">{t("activeChartFilters")}</span>{year && <span className="rounded-full bg-background px-3 py-1">{t("year")}: {year}</span>}{budgetMonthFilter && <span className="rounded-full bg-background px-3 py-1">{t("month")}: {activeBudgetMonth}</span>}{projectStatusFilter && <span className="rounded-full bg-background px-3 py-1">{t("statuses." + projectStatusFilter)} </span>}{outputKindFilter && <span className="rounded-full bg-background px-3 py-1">{t("kinds." + outputKindFilter)}</span>}{fundingFieldFilter && <span className="rounded-full bg-background px-3 py-1">{t(`funding.${fundingFieldFilter}` as FundingTranslationKey)}</span>}{hourlyComponentFilter && <span className="rounded-full bg-background px-3 py-1">{t(`components.${hourlyComponentFilter}`)}</span>}<button type="button" className="ml-auto text-primary underline underline-offset-4" onClick={() => { setYear(""); setBudgetMonthFilter(""); setProjectStatusFilter(""); setOutputKindFilter(""); setFundingFieldFilter(""); setHourlyComponentFilter(""); }}>{t("clearChartFilters")}</button></div>}
     {error ? <div role="alert" className="rounded-2xl border border-destructive/30 p-5 text-destructive">{t("error")} <button type="button" className="ml-2 underline" onClick={() => setRetry((value) => value + 1)}>{t("retry")}</button></div> : loading || !data || !charts ? <div role="status" className="rounded-2xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">{t("loading")}</div> : <>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map(({ Icon, label, value }) => <article key={label} className="rounded-2xl border border-border bg-card p-5"><div className="flex items-center gap-3 text-sm text-muted-foreground"><Icon className="h-5 w-5 text-primary" />{label}</div><p className="mt-4 text-3xl font-black tabular-nums">{new Intl.NumberFormat("es-CL").format(value)}</p></article>)}
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <DistributionChart title={t("projectStatuses")} values={charts.projectStatuses} empty={t("empty")} formatLabel={(label) => t(`statuses.${label}`)} selectedLabel={projectStatusFilter} onSelect={(label) => setProjectStatusFilter((current) => current === label ? "" : label)} />
-        <BudgetCharts rows={visibleProjectRows} title={t("budgets")} empty={t("empty")} t={(key) => t(key)} selectedYear={year} onYearSelect={selectYear} selectedFundingField={fundingFieldFilter} onFundingSelect={(field) => setFundingFieldFilter((current) => current === field ? "" : field)} />
+        <BudgetCharts rows={visibleProjectRows} title={t("budgets")} empty={t("empty")} t={(key) => t(key)} selectedYear={year} onYearSelect={selectYear} selectedMonth={budgetMonthFilter} onMonthSelect={(month) => setBudgetMonthFilter((current) => current === month ? "" : month)} selectedFundingField={fundingFieldFilter} onFundingSelect={(field) => setFundingFieldFilter((current) => current === field ? "" : field)} monthlyTitle={t("monthlyBudgetBreakdown", { year })} monthlyBasis={t("monthlyBudgetBasis")} noMonthlyData={t("noMonthlyBudgetData")} unassignedLabel={(count) => t("unassignedBudgetDates", { count })} backToYears={t("backToYears")} locale={locale} />
         <DistributionChart title={t("outputKinds")} values={charts.outputKinds} empty={t("empty")} formatLabel={(label) => t(`kinds.${label}`)} selectedLabel={outputKindFilter} onSelect={(label) => setOutputKindFilter((current) => current === label ? "" : label)} />
         <TrendChart title={t("researchAndOutputsTrend")} researchValues={charts.researchByYear} outputValues={charts.outputsByYear} researchLabel={t("research")} outputLabel={t("outputs")} empty={t("empty")} selectedYear={year} onYearSelect={selectYear} />
         <PaymentChart title={t("hourlyByComponent")} values={charts.hourlyByComponent} empty={t("empty")} formatLabel={(label) => t(`components.${label}`)} selectedComponent={hourlyComponentFilter} onSelect={(label) => setHourlyComponentFilter((current) => current === label ? "" : label)} />
