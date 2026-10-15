@@ -11,7 +11,10 @@ describe("Academic charts", () => {
     const api = installFakeApi({
       "GET /academic/reports": ({ query }) => ({ body: {
         columns: [],
-        rows: query.get("dataset") === "projects" ? [{ reportingYear: 2026, title: "Centro costero", fundingSource: "ANID", status: "IN_PROGRESS", currency: "CLP", totalAmount: "227700000", vraContribution: "1200000" }]
+        rows: query.get("dataset") === "projects" ? [
+          { reportingYear: 2026, title: "Centro costero", fundingSource: "ANID", status: "IN_PROGRESS", currency: "CLP", totalAmount: "227700000", vraContribution: "1200000" },
+          { reportingYear: 2026, title: "Estudio de mareas", fundingSource: "UCN", status: "COMPLETED", currency: "CLP", totalAmount: "500000", vraContribution: "0" },
+        ]
           : query.get("dataset") === "research" ? [{ startsOn: "2026-01-01" }]
           : query.get("dataset") === "researchOutputs" ? [{ kind: "ARTICLE", reportingYear: 2026 }]
           : [{ component: "LECTURE", estimatedPaymentClp: 30000 }],
@@ -24,9 +27,10 @@ describe("Academic charts", () => {
     expect(screen.getByText("Proyectos por estado")).toBeDefined();
     expect(screen.getByText("Presupuesto registrado por moneda")).toBeDefined();
     expect(screen.getByText("Pagos PH estimados por componente")).toBeDefined();
-    expect(screen.getAllByText(/227\.700\.000/)).toHaveLength(2);
+    expect(screen.getByText(/227\.700\.000/)).toBeDefined();
     expect(screen.getByText("Centro costero")).toBeDefined();
     expect(screen.getByText("Aporte VRA")).toBeDefined();
+    expect(screen.getByText("Estudio de mareas")).toBeDefined();
 
     fireEvent.change(screen.getByLabelText("Presupuesto desde"), { target: { value: "2025-03-01" } });
     fireEvent.change(screen.getByLabelText("Presupuesto hasta"), { target: { value: "2025-09-30" } });
@@ -35,5 +39,8 @@ describe("Academic charts", () => {
       expect(projectsRequest?.query.get("startsOn")).toBe("2025-03-01");
       expect(projectsRequest?.query.get("endsOn")).toBe("2025-09-30");
     });
+    fireEvent.click(screen.getAllByRole("button", { name: /Aporte VRA/ })[0]);
+    expect(screen.queryByText("Estudio de mareas")).toBeNull();
+    expect(screen.getByRole("button", { name: "Limpiar filtros" })).toBeDefined();
   });
 });

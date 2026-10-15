@@ -1536,6 +1536,8 @@
     "year": "Year",
     "budgetFrom": "Budget from",
     "budgetTo": "Budget to",
+    "activeChartFilters": "Active chart filters:",
+    "clearChartFilters": "Clear filters",
     "semester": "Semester for hourly contracts",
     "allSemesters": "All semesters",
     "projects": "Projects",

@@ -1150,6 +1150,8 @@
     "year": "Año",
     "budgetFrom": "Presupuesto desde",
     "budgetTo": "Presupuesto hasta",
+    "activeChartFilters": "Filtros activos del gráfico:",
+    "clearChartFilters": "Limpiar filtros",
     "semester": "Semestre para contratos PH",
     "allSemesters": "Todos los semestres",
     "projects": "Proyectos",
