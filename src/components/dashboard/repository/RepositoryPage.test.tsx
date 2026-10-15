@@ -1,4 +1,7 @@
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import es from "../../../../messages/es.json";
+import en from "../../../../messages/en.json";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderAs } from "@/test/render";
 import { fail, installFakeApi, ok } from "@/test/fake-api";
@@ -39,6 +42,24 @@ const teachers = () => ({ "GET /academic/teachers": ok(page([])) });
 describe("Páginas del repositorio académico", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.unstubAllGlobals());
+  it.each([
+    { locale: "es", messages: es, count: 0, label: "Sin resultados académicos asociados" },
+    { locale: "es", messages: es, count: 1, label: "1 resultado académico asociado" },
+    { locale: "es", messages: es, count: 3, label: "3 resultados académicos asociados" },
+    { locale: "en", messages: en, count: 0, label: "No associated academic outputs" },
+    { locale: "en", messages: en, count: 1, label: "1 associated academic output" },
+    { locale: "en", messages: en, count: 3, label: "3 associated academic outputs" },
+  ])("traduce los resultados asociados en $locale con cantidad $count", ({ locale, messages, count, label }) => {
+    const onError = vi.fn();
+    render(
+      <NextIntlClientProvider locale={locale} messages={messages} timeZone="America/Santiago" onError={onError}>
+        <RepositoryDetails kind="projects" record={{ ...record, _count: { outputs: count } }} onClose={vi.fn()} onEdit={vi.fn()} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByText(label)).toBeDefined();
+    expect(screen.queryByText("AcademicRepository.outputs")).toBeNull();
+    expect(onError).not.toHaveBeenCalled();
+  });
   it.each(["projects", "research"] as const)(
     "bloquea coordinación en %s sin consultar datos",
     async (kind) => {
