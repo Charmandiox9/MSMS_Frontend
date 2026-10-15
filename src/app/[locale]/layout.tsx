@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import "../globals.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -9,16 +10,6 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import CookieConsent from "@/components/providers/CookieConsent";
 import SmoothScroll from "@/components/behavior/SmoothScroll";
 import { Toaster } from 'sonner';
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "MARSYS - UCN Facultad de Ciencias del Mar",
@@ -34,8 +25,7 @@ export default async function RootLayout({
 }) {
   const { locale } = await params;
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (!routing.locales.includes(locale as any)) {
+  if (!routing.locales.some((supported) => supported === locale)) {
     notFound();
   }
   
@@ -44,7 +34,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${GeistSans.variable} ${GeistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300">
