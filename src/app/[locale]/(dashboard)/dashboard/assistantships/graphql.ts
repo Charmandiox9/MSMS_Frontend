@@ -137,3 +137,15 @@ export const UPDATE: TypedDocumentNode<
   }
   ${fields}
 `;
+
+export const ASSISTANTSHIP_DETAIL: TypedDocumentNode<
+  { assistantship: Assistantship | null },
+  { id: string }
+> = gql`
+  query AssistantshipDetail($id: ID!) {
+    assistantship(id: $id) {
+      ...AssistantshipFields
+    }
+  }
+  ${fields}
+`;

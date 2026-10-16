@@ -2,20 +2,20 @@
 
 @custom-variant dark (&:is(.dark *));
 :root {
-  /* Fondo claro */
-  --background: #f8fafc;
+  /* Fondo claro: contraste óptimo frente a superficies blancas (cards, modales) */
+  --background: #e6ecf5;
   --foreground: #0f172a;
 
   /* Superficies (Cards, Modals) */
   --card: #ffffff;
   --card-foreground: #0f172a;
 
-  /* Muted / Soft backgrounds */
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  /* Muted / Soft backgrounds (paneles secundarios, chips, cabeceras) */
+  --muted: #d8e2ee;
+  --muted-foreground: #334155;
 
-  /* Bordes */
-  --border: #e2e8f0;
+  /* Bordes: contraste reforzado (slate-400) para alta nitidez en todo tipo de pantallas */
+  --border: #94a3b8;
 
   /* Primario: Océano Profundo (blue-900) */
   --primary: #1e3a8a;
@@ -25,15 +25,15 @@
   --secondary: #0d9488;
   --secondary-foreground: #ffffff;
 
-  /* Acento: Arena (amber-500) */
-  --accent: #f59e0b;
+  /* Acento: Arena ámbar de alto contraste */
+  --accent: #d97706;
   --accent-foreground: #ffffff;
 
   /* Colores Institucionales UCN - FCM (Fijos en ambos modos) */
-  --ucn-navy: #0f172a; /* Azul institucional profundo */
-  --ocean-cyan: #0ea5e9; /* Acento Marino */
-  --ucn-gold: #f59e0b; /* Acento Secundario */
-  --coral-red: #ef4444; /* Acciones destructivas (Cerrar Sesión) */
+  --ucn-navy: #0f172a;
+  --ocean-cyan: #0284c7;
+  --ucn-gold: #d97706;
+  --coral-red: #dc2626;
 }
 
 .dark {
@@ -49,8 +49,8 @@
   --muted: #1e293b;
   --muted-foreground: #94a3b8;
 
-  /* Bordes */
-  --border: #1e293b;
+  /* Bordes en dark: contraste nítido (slate-700) */
+  --border: #334155;
 
   /* Primario en dark: Azul vibrante */
   --primary: #3b82f6;
@@ -232,3 +232,191 @@ select option {
   background-color: var(--card);
   color: var(--card-foreground);
 }
+
+/* ===== Standardized Call-to-Action (CTA) and Controls Design System ===== */
+.btn-cta-primary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--primary);
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 22%, transparent);
+  cursor: pointer;
+}
+
+.btn-cta-primary:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.btn-cta-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-cta-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-cta-secondary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background-color: transparent;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.625rem 1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-cta-secondary:hover:not(:disabled) {
+  background-color: var(--muted);
+  border-color: color-mix(in srgb, var(--border) 80%, var(--primary));
+}
+
+.btn-cta-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-cta-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-cta-success {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--secondary) 60%, var(--primary));
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--secondary) 25%, transparent);
+}
+
+.btn-cta-success:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.btn-cta-success:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-cta-success:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-cta-danger {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--coral-red);
+  background-color: var(--coral-red);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--coral-red) 25%, transparent);
+}
+
+.btn-cta-danger:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.btn-cta-danger:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-cta-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-control-input {
+  min-height: 2.75rem;
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  color: var(--foreground);
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent);
+}
+
+.form-control-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-modal-close {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--coral-red) 35%, transparent);
+  background-color: color-mix(in srgb, var(--coral-red) 8%, transparent);
+  color: var(--coral-red);
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
+}
+
+.btn-modal-close:hover {
+  background-color: var(--coral-red);
+  color: #ffffff;
+  border-color: var(--coral-red);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--coral-red) 35%, transparent);
+  transform: translateY(-1px);
+}
+
+.btn-modal-close:active {
+  transform: scale(0.96);
+}
+
+.btn-modal-close:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--coral-red) 40%, transparent);
+}
+

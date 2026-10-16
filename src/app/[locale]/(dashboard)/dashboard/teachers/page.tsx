@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  BookOpen,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -9,35 +11,46 @@ import {
   HelpCircle,
   Loader2,
   Mail,
+  Pencil,
+  Power,
+  PowerOff,
   Search,
+  UserPlus,
   UserRound,
+  XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import Modal from "@/components/ui/Modal";
+import TeacherFormModal from "@/components/dashboard/teachers/TeacherFormModal";
+import TeacherDeactivateModal from "@/components/dashboard/teachers/TeacherDeactivateModal";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
-import { fetchTeachersPage } from "@/lib/teachers";
 import type { Teacher } from "@/types/justifications";
 
 const PAGE_SIZE = 10;
-const SEARCH_DEBOUNCE_MS = 300;
+type StatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
 
 export default function TeachersPage() {
   const t = useTranslations("TeachersPage");
   const { activeRole } = useActiveRole();
   const inputRef = useRef<HTMLInputElement>(null);
+
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showHelp, setShowHelp] = useState(false);
+
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
   const downloadExample = () => {
     const content =
@@ -52,42 +65,70 @@ export default function TeachersPage() {
     URL.revokeObjectURL(url);
   };
 
+  const exportRosterCsv = () => {
+    if (teachers.length === 0) return;
+    const headers = [
+      "Nombre",
+      "Correo Institucional",
+      "Código Empleado",
+      "Estado",
+      "Grado Académico",
+      "Título Profesional",
+      "Institución de Egreso",
+      "Fecha Incorporación",
+      "Fecha Desvinculación",
+      "Asignaturas y NRCs",
+    ];
+    const targetTeachers = filtered.length > 0 ? filtered : teachers;
+    const rows = targetTeachers.map((teacherItem) => [
+      `"${(teacherItem.name || "").replace(/"/g, '""')}"`,
+      `"${(teacherItem.email || "").replace(/"/g, '""')}"`,
+      `"${(teacherItem.employeeCode || "").replace(/"/g, '""')}"`,
+      teacherItem.isActive === false ? "Inactivo" : "Activo",
+      `"${(teacherItem.academicDegree || "").replace(/"/g, '""')}"`,
+      `"${(teacherItem.professionalTitle || "").replace(/"/g, '""')}"`,
+      `"${(teacherItem.institution || "").replace(/"/g, '""')}"`,
+      teacherItem.joinedOn ? teacherItem.joinedOn.split("T")[0] : "",
+      teacherItem.leftOn ? teacherItem.leftOn.split("T")[0] : "",
+      `"${(teacherItem.assignments || [])
+        .map((a) => `${a.course?.name || "Asignatura"} (NRC ${a.nrc})`)
+        .join("; ")
+        .replace(/"/g, '""')}"`,
+    ]);
+    const csvContent =
+      "\uFEFF" +
+      [headers.join(";"), ...rows.map((row) => row.join(";"))].join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const dateStr = new Date().toISOString().split("T")[0];
+    link.download = `padron_docentes_fcm_${dateStr}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success(t("exportSuccess"));
+  };
+
   const [reloadKey, setReloadKey] = useState(0);
   const canManage =
     activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY";
-  // Consulta abierta a quienes tienen ACADEMIC_RECORDS_VIEW en el backend.
-  const canRead =
-    canManage ||
-    activeRole === "ACADEMIC_PROCESS_ANALYST" ||
-    activeRole === "TEACHING_SUPPORT_COORDINATOR";
+  const canRead = canManage || activeRole === "ACADEMIC_PROCESS_ANALYST";
   const loadErrorMessage = t("errors.load");
 
-  // La búsqueda se envía al backend recién cuando el usuario deja de escribir.
-  useEffect(() => {
-    const timeout = setTimeout(
-      () => setAppliedSearch(search.trim()),
-      SEARCH_DEBOUNCE_MS,
-    );
-    return () => clearTimeout(timeout);
-  }, [search]);
-
-  // El backend filtra y pagina. Se recarga al cambiar de página o búsqueda y
-  // cada vez que `reloadKey` cambia (tras importar el padrón).
   useEffect(() => {
     if (!canRead) return;
     let active = true;
-    fetchTeachersPage({ page, pageSize: PAGE_SIZE, search: appliedSearch })
+    apiFetch<Teacher[] | { items: Teacher[] }>("/academic/teachers?pageSize=100")
       .then((data) => {
-        if (!active) return;
-        // Si la página quedó fuera de rango (p. ej. tras reimportar), se
-        // vuelve a la última; el efecto recarga con la página corregida.
-        if (data.total > 0 && page > data.totalPages) {
-          setPage(data.totalPages);
-          return;
+        if (active) {
+          const list = Array.isArray(data)
+            ? data
+            : Array.isArray(data?.items)
+              ? data.items
+              : [];
+          setTeachers(list);
+          setError(null);
         }
-        setTeachers(data.items);
-        setTotal(data.total);
-        setError(null);
       })
       .catch((cause: unknown) => {
         if (!active) return;
@@ -102,9 +143,30 @@ export default function TeachersPage() {
     return () => {
       active = false;
     };
-  }, [canRead, loadErrorMessage, reloadKey, page, appliedSearch]);
+  }, [canRead, loadErrorMessage, reloadKey]);
 
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const filtered = useMemo(() => {
+    const list = Array.isArray(teachers) ? teachers : [];
+    return list.filter((teacher) => {
+      if (statusFilter === "ACTIVE" && teacher.isActive === false) return false;
+      if (statusFilter === "INACTIVE" && teacher.isActive !== false) return false;
+
+      const term = search.toLowerCase().trim();
+      if (!term) return true;
+
+      return `${teacher.name} ${teacher.email} ${teacher.employeeCode ?? ""} ${(teacher.assignments ?? [])
+        .map((assignment) => assignment.nrc)
+        .join(" ")}`
+        .toLowerCase()
+        .includes(term);
+    });
+  }, [search, statusFilter, teachers]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const visibleTeachers = filtered.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
+  );
 
   const importRoster = async (file: File) => {
     setImporting(true);
@@ -142,6 +204,43 @@ export default function TeachersPage() {
     }
   };
 
+  const handleTeacherSaved = (saved: Teacher) => {
+    setTeachers((current) => {
+      const exists = current.some((item) => item.id === saved.id);
+      if (exists) {
+        return current.map((item) => (item.id === saved.id ? saved : item));
+      }
+      return [saved, ...current];
+    });
+  };
+
+  const handleToggleStatus = async (teacherToToggle: Teacher) => {
+    setIsTogglingStatus(true);
+    const newStatus = teacherToToggle.isActive === false;
+    try {
+      const updated = await apiFetch<Teacher>(
+        `/academic/teachers/${teacherToToggle.id}/status`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ isActive: newStatus }),
+        },
+      );
+      setTeachers((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      toast.success(
+        t("notifications.statusSuccess", { name: updated.name }),
+      );
+      setShowDeactivateModal(false);
+    } catch (cause) {
+      const message =
+        cause instanceof Error ? cause.message : t("errors.status");
+      toast.error(message);
+    } finally {
+      setIsTogglingStatus(false);
+    }
+  };
+
   if (activeRole === null) return <PageSkeleton label={t("loading")} />;
   if (!canRead)
     return (
@@ -164,16 +263,32 @@ export default function TeachersPage() {
             {t("subtitle")}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {canManage && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedTeacher(null);
+                setShowFormModal(true);
+              }}
+              className="btn-cta-primary"
+            >
+              <UserPlus className="h-4 w-4" />
+              {t("newTeacher")}
+            </button>
+          )}
+
           <button
             type="button"
-            onClick={() => setShowHelp(true)}
-            className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2.5 text-sm font-bold text-muted-foreground transition hover:border-primary/50 hover:text-primary"
-            aria-label={t("help")}
-            title={t("help")}
+            onClick={exportRosterCsv}
+            disabled={teachers.length === 0}
+            className="btn-cta-secondary"
+            title={t("exportRoster")}
           >
-            <HelpCircle className="h-4 w-4" />?
+            <Download className="h-4 w-4" />
+            {t("exportRoster")}
           </button>
+
           <input
             ref={inputRef}
             type="file"
@@ -190,7 +305,7 @@ export default function TeachersPage() {
               type="button"
               disabled={importing}
               onClick={() => inputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-60"
+              className="btn-cta-secondary"
             >
               {importing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -200,8 +315,19 @@ export default function TeachersPage() {
               {t("import")}
             </button>
           )}
+
+          <button
+            type="button"
+            onClick={() => setShowHelp(true)}
+            className="btn-cta-secondary px-3"
+            aria-label={t("help")}
+            title={t("help")}
+          >
+            <HelpCircle className="h-4 w-4" />
+          </button>
         </div>
       </header>
+
       {error && (
         <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
           {error}
@@ -212,15 +338,57 @@ export default function TeachersPage() {
           {message}
         </div>
       )}
+
       <section className="rounded-3xl border border-border bg-card p-4 shadow-sm md:p-5">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            {teachers[0]?.assignments[0] && (
-              <p className="text-xs text-muted-foreground">
-                {t("semester")}: {teachers[0].assignments[0].semester.name}
-              </p>
-            )}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mr-1">
+              {t("status")}:
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter("ALL");
+                setPage(1);
+              }}
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                statusFilter === "ALL"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {t("filterAll")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter("ACTIVE");
+                setPage(1);
+              }}
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                statusFilter === "ACTIVE"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {t("filterActive")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter("INACTIVE");
+                setPage(1);
+              }}
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                statusFilter === "INACTIVE"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {t("filterInactive")}
+            </button>
           </div>
+
           <label className="relative block md:w-80">
             <span className="sr-only">{t("search")}</span>
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -237,61 +405,183 @@ export default function TeachersPage() {
           </label>
         </div>
       </section>
+
       {loading ? (
-        <TableSkeleton columns={3} label={t("loading")} />
-      ) : total === 0 ? (
+        <TableSkeleton columns={4} label={t("loading")} />
+      ) : filtered.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">
-          {appliedSearch ? t("noMatches") : t("empty")}
+          {teachers.length === 0 ? t("empty") : t("noMatches")}
         </div>
       ) : (
         <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          <div className="hidden grid-cols-[minmax(200px,1.2fr)_minmax(200px,1fr)_minmax(240px,1.4fr)] gap-4 border-b border-border bg-muted/40 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:grid">
+          <div className="hidden grid-cols-[minmax(180px,1fr)_minmax(160px,0.9fr)_minmax(240px,1.5fr)_minmax(90px,0.5fr)_minmax(160px,1fr)] gap-4 border-b border-border bg-muted/40 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:grid">
             <span>{t("teacherColumn")}</span>
             <span>{t("emailColumn")}</span>
             <span>{t("nrcs")}</span>
+            <span>{t("status")}</span>
+            {canManage && <span className="text-right">{t("actions")}</span>}
           </div>
           <ul className="divide-y divide-border">
-            {teachers.map((teacher) => (
-              <li
-                key={teacher.id}
-                className="grid gap-2.5 px-4 py-3 md:grid-cols-[minmax(200px,1.2fr)_minmax(200px,1fr)_minmax(240px,1.4fr)] md:items-center md:gap-4 md:px-5"
-              >
-                <div className="flex min-w-0 items-center gap-2.5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <UserRound className="h-4 w-4" />
-                  </div>
-                  <span className="truncate text-sm font-semibold text-foreground">
-                    {teacher.name}
-                  </span>
-                </div>
-                <p className="flex min-w-0 items-center gap-1.5 pl-11 text-xs text-muted-foreground md:pl-0">
-                  <span className="md:hidden">{t("emailColumn")}:</span>
-                  <Mail className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{teacher.email}</span>
-                </p>
-                <div className="flex min-w-0 flex-wrap items-center gap-1.5 pl-11 md:pl-0">
-                  <span className="text-[10px] font-bold uppercase text-muted-foreground md:hidden">
-                    {t("nrcs")}:
-                  </span>
-                  {teacher.assignments.length > 0 ? (
-                    teacher.assignments.map((assignment) => (
-                      <span
-                        key={assignment.id}
-                        className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary"
-                      >
-                        {assignment.nrc}
+            {visibleTeachers.map((teacher) => {
+              const isActive = teacher.isActive !== false;
+              return (
+                <li
+                  key={teacher.id}
+                  className="grid gap-2.5 px-4 py-3.5 md:grid-cols-[minmax(180px,1fr)_minmax(160px,0.9fr)_minmax(240px,1.5fr)_minmax(90px,0.5fr)_minmax(160px,1fr)] md:items-center md:gap-4 md:px-5"
+                >
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <UserRound className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-foreground">
+                        {teacher.name}
                       </span>
-                    ))
-                  ) : (
-                    <span className="text-xs text-muted-foreground">—</span>
+                      <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground">
+                        {teacher.employeeCode && (
+                          <span className="font-bold uppercase tracking-wider">
+                            {teacher.employeeCode}
+                          </span>
+                        )}
+                        {teacher.joinedOn && (
+                          <>
+                            {teacher.employeeCode && <span>•</span>}
+                            <span>
+                              {t("joinedDate", {
+                                date: teacher.joinedOn.split("T")[0],
+                              })}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      {(teacher.academicDegree || teacher.professionalTitle || teacher.institution) && (
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px]">
+                          {teacher.academicDegree && (
+                            <span className="inline-flex items-center rounded-md border border-primary/25 bg-primary/10 px-1.5 py-0.5 font-bold text-primary">
+                              {teacher.academicDegree}
+                            </span>
+                          )}
+                          {teacher.professionalTitle && (
+                            <span className="inline-flex items-center rounded-md border border-secondary/25 bg-secondary/10 px-1.5 py-0.5 font-medium text-secondary">
+                              {teacher.professionalTitle}
+                            </span>
+                          )}
+                          {teacher.institution && (
+                            <span
+                              className="max-w-[200px] truncate text-[10px] text-muted-foreground"
+                              title={teacher.institution}
+                            >
+                              ({teacher.institution})
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="flex min-w-0 items-center gap-1.5 pl-11 text-xs text-muted-foreground md:pl-0">
+                    <span className="md:hidden">{t("emailColumn")}:</span>
+                    <Mail className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{teacher.email}</span>
+                  </p>
+
+                  <div className="flex min-w-0 flex-col gap-1 pl-11 md:pl-0">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground md:hidden">
+                      {t("nrcs")}:
+                    </span>
+                    {teacher.assignments && teacher.assignments.length > 0 ? (
+                      teacher.assignments.map((assignment) => (
+                        <div
+                          key={assignment.id}
+                          className="inline-flex max-w-fit items-center gap-1.5 rounded-lg border border-border/80 bg-muted/60 px-2 py-0.5 text-xs text-foreground transition hover:border-primary/40 hover:bg-muted"
+                          title={`${assignment.course?.name || t("unnamedCourse")} (NRC ${assignment.nrc})`}
+                        >
+                          <BookOpen className="h-3 w-3 shrink-0 text-primary" />
+                          <span className="truncate font-semibold max-w-[160px] lg:max-w-[220px]">
+                            {assignment.course?.name || t("unnamedCourse")}
+                          </span>
+                          <span className="shrink-0 rounded bg-primary/15 px-1.5 py-0.2 text-[10px] font-extrabold text-primary">
+                            NRC {assignment.nrc}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </div>
+
+                  <div className="pl-11 md:pl-0">
+                    {isActive ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-secondary/20 bg-secondary/10 px-2.5 py-1 text-[11px] font-bold text-secondary">
+                        <CheckCircle2 className="h-3 w-3" />
+                        {t("statusActive")}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-coral-red/20 bg-coral-red/10 px-2.5 py-1 text-[11px] font-bold text-coral-red">
+                        <XCircle className="h-3 w-3" />
+                        {t("statusInactive")}
+                      </span>
+                    )}
+                  </div>
+
+                  {canManage && (
+                    <div className="flex items-center justify-end gap-2 pl-11 md:pl-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedTeacher(teacher);
+                          setShowFormModal(true);
+                        }}
+                        aria-label={t("editTeacher")}
+                        title={t("editTeacher")}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer shadow-xs active:scale-95"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        <span>{t("editTeacher")}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedTeacher(teacher);
+                          setShowDeactivateModal(true);
+                        }}
+                        aria-label={
+                          isActive
+                            ? t("deactivateTeacher")
+                            : t("activateTeacher")
+                        }
+                        title={
+                          isActive
+                            ? t("deactivateTeacher")
+                            : t("activateTeacher")
+                        }
+                        className={`inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95 ${
+                          isActive
+                            ? "border-coral-red/30 bg-coral-red/10 text-coral-red hover:bg-coral-red/20"
+                            : "border-secondary/30 bg-secondary/10 text-secondary hover:bg-secondary/20"
+                        }`}
+                      >
+                        {isActive ? (
+                          <>
+                            <PowerOff className="h-3.5 w-3.5" />
+                            <span>{t("deactivateTeacher")}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Power className="h-3.5 w-3.5" />
+                            <span>{t("activateTeacher")}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   )}
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
           <footer className="flex flex-col gap-3 border-t border-border bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-muted-foreground">
-              {t("pagination", { page, totalPages, total })}
+              {t("pagination", { page, totalPages, total: filtered.length })}
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -319,6 +609,26 @@ export default function TeachersPage() {
           </footer>
         </section>
       )}
+
+      {showFormModal && (
+        <TeacherFormModal
+          isOpen={showFormModal}
+          teacher={selectedTeacher}
+          onClose={() => setShowFormModal(false)}
+          onSaved={handleTeacherSaved}
+        />
+      )}
+
+      {showDeactivateModal && (
+        <TeacherDeactivateModal
+          isOpen={showDeactivateModal}
+          teacher={selectedTeacher}
+          isProcessing={isTogglingStatus}
+          onClose={() => setShowDeactivateModal(false)}
+          onConfirm={handleToggleStatus}
+        />
+      )}
+
       {showHelp && (
         <HelpDialog
           title={t("helpTitle")}

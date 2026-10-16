@@ -82,11 +82,103 @@ export default function AcademicReports() {
       controller.abort();
     };
   }, [allowed, query, retry]);
+  const columnLabel = (column: string) =>
+    t.has(`columns.${column}`) ? t(`columns.${column}`) : column;
   const value = (row: Report["rows"][number], column: string) => {
     const raw = row[column];
     return column === "status" && (raw === "ACTIVE" || raw === "INACTIVE")
       ? t(`statuses.${raw}`)
-      : String(raw ?? "—");
+      : String(raw ?? "");
+  };
+  const renderCell = (row: Report["rows"][number], column: string) => {
+    const raw = row[column];
+    const isBlank = raw === null || raw === undefined || String(raw).trim() === "";
+
+    if (isBlank) {
+      return <span className="font-mono text-xs text-muted-foreground/40">—</span>;
+    }
+
+    if (column === "status") {
+      const active = raw === "ACTIVE";
+      const inactive = raw === "INACTIVE";
+      if (active || inactive) {
+        return (
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold border ${
+              active
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                : "bg-muted text-muted-foreground border-border"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                active ? "bg-emerald-500" : "bg-muted-foreground"
+              }`}
+            />
+            {t(`statuses.${raw}`)}
+          </span>
+        );
+      }
+    }
+
+    if (column === "courses" || column === "schedules") {
+      const text = String(raw).trim();
+      const items = text.split("; ").filter(Boolean);
+      if (items.length <= 1) {
+        return (
+          <span className="inline-block max-w-sm rounded-lg border border-border/60 bg-muted/30 px-2 py-0.5 text-xs font-medium text-foreground leading-relaxed">
+            {text}
+          </span>
+        );
+      }
+      return (
+        <div className="flex max-w-sm flex-wrap gap-1.5 py-0.5">
+          {items.map((it, idx) => (
+            <span
+              key={idx}
+              className="inline-flex items-center rounded-lg border border-border/70 bg-muted/40 px-2 py-0.5 text-xs font-medium text-foreground leading-tight"
+            >
+              {it}
+            </span>
+          ))}
+        </div>
+      );
+    }
+
+    if (column === "name" || column === "teacher") {
+      return (
+        <span className="whitespace-nowrap font-bold text-foreground">
+          {String(raw)}
+        </span>
+      );
+    }
+
+    if (column === "email") {
+      return (
+        <span className="whitespace-nowrap font-mono text-xs text-muted-foreground">
+          {String(raw)}
+        </span>
+      );
+    }
+
+    if (
+      column === "code" ||
+      column === "courseNrc" ||
+      column === "assistantshipNrc" ||
+      column === "employeeCode"
+    ) {
+      return (
+        <span className="whitespace-nowrap rounded-md bg-muted/40 px-1.5 py-0.5 font-mono text-xs font-bold text-foreground">
+          {String(raw)}
+        </span>
+      );
+    }
+
+    return (
+      <span className="whitespace-nowrap text-xs text-foreground/90">
+        {String(raw)}
+      </span>
+    );
   };
   const exportReport = async () => {
     if (exporting) return;
@@ -108,7 +200,7 @@ export default function AcademicReports() {
           createCsv(
             data.columns,
             translated,
-            data.columns.map((column) => t(`columns.${column}`)),
+            data.columns.map((column) => columnLabel(column)),
           ),
         );
       });
@@ -220,15 +312,19 @@ export default function AcademicReports() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <caption className="sr-only">{t(`datasets.${dataset}`)}</caption>
-              <thead className="bg-muted text-xs text-muted-foreground">
+              <thead className="bg-muted/80 text-xs text-muted-foreground border-b border-border">
                 <tr>
                   {report.columns.map((column) => (
                     <th
                       key={column}
                       scope="col"
-                      className="whitespace-nowrap px-4 py-3"
+                      className={`px-4 py-3 font-bold text-muted-foreground ${
+                        column === "courses" || column === "schedules"
+                          ? "min-w-[240px] max-w-sm"
+                          : "whitespace-nowrap"
+                      }`}
                     >
-                      {t(`columns.${column}`)}
+                      {columnLabel(column)}
                     </th>
                   ))}
                 </tr>
@@ -237,13 +333,20 @@ export default function AcademicReports() {
                 {report.rows
                   .slice((page - 1) * 20, page * 20)
                   .map((row, index) => (
-                    <tr key={index}>
+                    <tr
+                      key={index}
+                      className="transition-colors hover:bg-muted/30"
+                    >
                       {report.columns.map((column) => (
                         <td
                           key={column}
-                          className="min-w-32 px-4 py-3 text-foreground"
+                          className={`px-4 py-3 align-middle text-sm text-foreground ${
+                            column === "courses" || column === "schedules"
+                              ? "max-w-sm"
+                              : "whitespace-nowrap"
+                          }`}
                         >
-                          {value(row, column)}
+                          {renderCell(row, column)}
                         </td>
                       ))}
                     </tr>

@@ -23,3 +23,8 @@ export function renderAs(ui: ReactElement, roles: UserRoleCode[] = []) {
     </IntlProvider>,
   );
 }
+
+/** Renderiza con el proveedor de internacionalización en español. */
+export function renderWithIntl(ui: ReactElement) {
+  return render(<IntlProvider>{ui}</IntlProvider>);
+}

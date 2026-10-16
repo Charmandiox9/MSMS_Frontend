@@ -19,7 +19,6 @@ import Modal from "@/components/ui/Modal";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
-import { fetchAllTeachers } from "@/lib/teachers";
 
 import EditSubjectDialog from "./EditSubjectDialog";
 
@@ -54,13 +53,16 @@ type Subject = {
 
 /** Horarios del semestre activo con los profesores asignados a cada NRC. */
 async function fetchSchedules(): Promise<ScheduleRow[]> {
-  const [schedules, teachers] = await Promise.all([
+  const [schedules, teachersResponse] = await Promise.all([
     apiFetch<Omit<ScheduleRow, "teachers">[]>("/academic/courses"),
-    fetchAllTeachers<TeacherResponse>(),
+    apiFetch<TeacherResponse[] | { items: TeacherResponse[] }>("/academic/teachers?pageSize=100"),
   ]);
+  const teachers = Array.isArray(teachersResponse)
+    ? teachersResponse
+    : teachersResponse?.items ?? [];
   const instructorsByNrc = new Map<string, Instructor[]>();
   for (const teacher of teachers) {
-    for (const assignment of teacher.assignments) {
+    for (const assignment of teacher.assignments ?? []) {
       const instructors = instructorsByNrc.get(assignment.nrc) ?? [];
       if (!instructors.some((instructor) => instructor.id === teacher.id)) {
         instructors.push({
@@ -122,11 +124,7 @@ export default function SubjectsPage() {
   const [reloadKey, setReloadKey] = useState(0);
   const canManage =
     activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY";
-  // Consulta abierta a quienes tienen ACADEMIC_RECORDS_VIEW en el backend.
-  const canRead =
-    canManage ||
-    activeRole === "ACADEMIC_PROCESS_ANALYST" ||
-    activeRole === "TEACHING_SUPPORT_COORDINATOR";
+  const canRead = canManage || activeRole === "ACADEMIC_PROCESS_ANALYST";
   const loadErrorMessage = t("errors.load");
 
   // Carga al entrar y cada vez que `reloadKey` cambia (tras importar horarios).

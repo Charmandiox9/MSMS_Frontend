@@ -40,6 +40,12 @@ export interface Teacher {
   name: string;
   email: string;
   employeeCode?: string | null;
+  isActive?: boolean;
+  joinedOn?: string | null;
+  leftOn?: string | null;
+  academicDegree?: string | null;
+  professionalTitle?: string | null;
+  institution?: string | null;
   assignments: TeacherAssignment[];
 }
 
