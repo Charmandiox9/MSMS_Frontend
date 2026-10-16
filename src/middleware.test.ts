@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const intlMiddleware = vi.hoisted(() => vi.fn(() => new Response("intl")));
 vi.mock("next-intl/middleware", () => ({ default: () => intlMiddleware }));
-vi.mock("./i18n/routing", () => ({ routing: {} }));
+vi.mock("./i18n/routing", () => ({ routing: { defaultLocale: 'es' } }));
 
 import middleware, { config } from "./middleware";
 

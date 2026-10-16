@@ -33,7 +33,7 @@ describe("auth", () => {
     await expect(hasActiveSession()).resolves.toBe(true);
     expect(api.fetchMock).toHaveBeenCalledWith(
       `${TEST_API_BASE_URL}/auth/session`,
-      { credentials: "include" },
+      { credentials: "include", cache: "no-store" },
     );
   });
 

@@ -15,7 +15,7 @@ export async function getActiveSession(): Promise<ActiveSession | null> {
   if (!sessionUrl) return null;
 
   try {
-    const response = await fetch(sessionUrl, { credentials: "include" });
+    const response = await fetch(sessionUrl, { credentials: "include", cache: "no-store" });
     if (!response.ok) return null;
     const payload: unknown = await response.json();
     if (
