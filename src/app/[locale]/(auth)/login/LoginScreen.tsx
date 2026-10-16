@@ -10,6 +10,7 @@ export default function LoginPage() {
   return (
     <div className="relative isolate grid min-h-dvh w-full lg:grid-cols-2 bg-slate-50 dark:bg-[#020b18] overflow-hidden selection:bg-ocean-cyan/30 transition-colors duration-500">
       <LoginPreferences />
+      <LoginSquid />
       <style>{`
         @keyframes sway {
           0%, 100% { transform: translate(0%, 0%) rotate(-25deg) scale(1.2); }
@@ -31,8 +32,6 @@ export default function LoginPage() {
 
       {/* Left Panel: Visual/Brand (Hidden on mobile) */}
       <div className="hidden lg:flex relative flex-col p-12 overflow-visible bg-white dark:bg-[#010a14] transition-colors duration-500">
-        <LoginSquid />
-
         {/* Ocean Wave Background */}
         <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-[#000d1a] dark:to-[#002a4d] overflow-hidden transition-colors duration-500">
 
@@ -72,7 +71,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel: Authentication */}
-      <div className="min-w-0 flex items-center justify-center relative z-[2] px-4 pb-8 pt-24 sm:px-6 sm:pb-12 lg:p-12 bg-slate-50/80 dark:bg-[#020b18]/75 backdrop-blur-sm transition-colors duration-500">
+      <div className="min-w-0 flex items-center justify-center relative z-[2] px-4 pb-8 pt-24 sm:px-6 sm:pb-12 lg:p-12 bg-slate-50/55 dark:bg-[#020b18]/50 lg:bg-slate-50/80 dark:lg:bg-[#020b18]/75 backdrop-blur-sm transition-colors duration-500">
 
         {/* Subtle right panel background with large blurred orbs */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
