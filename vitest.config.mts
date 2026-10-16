@@ -10,6 +10,7 @@ export default defineConfig({
     },
   },
   test: {
+    server: { deps: { inline: ['next-intl'] } },
     environment: "jsdom",
     // Zona horaria de los usuarios, igual en local y en Jenkins: detecta fechas corridas por UTC.
     env: { TZ: "America/Santiago" },
