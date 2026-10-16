@@ -1,10 +1,12 @@
 import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from 'next';
+import { APP_BASE_PATH } from './src/lib/base-path';
 
 const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  basePath: APP_BASE_PATH,
   agentRules: false,
   async headers() {
     return [
