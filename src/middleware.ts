@@ -1,7 +1,7 @@
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -19,7 +19,14 @@ export default function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return intlMiddleware(req);
+  // A new visitor starts in Spanish. Explicit locale routes and the MARSYS
+  // preference cookie still take precedence inside next-intl's middleware.
+  const headers = new Headers(req.headers);
+  headers.set("accept-language", routing.defaultLocale);
+  return intlMiddleware(new NextRequest(req, {
+    headers,
+    nextConfig: { basePath: req.nextUrl.basePath },
+  }));
 }
 
 export const config = {
