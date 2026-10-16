@@ -1,0 +1,53 @@
+import type { Metadata } from "next";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import "../globals.css";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { routing } from "@/i18n/routing";
+import { notFound } from "next/navigation";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import CookieConsent from "@/components/providers/CookieConsent";
+import SmoothScroll from "@/components/behavior/SmoothScroll";
+import { Toaster } from 'sonner';
+
+export const metadata: Metadata = {
+  title: "MARSYS - UCN Facultad de Ciencias del Mar",
+  description: "Plataforma de gestión de la Facultad de Ciencias del Mar",
+};
+
+export default async function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  
+  if (!routing.locales.some((supported) => supported === locale)) {
+    notFound();
+  }
+  
+  const messages = await getMessages();
+
+  return (
+    <html
+      lang={locale}
+      className={`${GeistSans.variable} ${GeistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300">
+        <SmoothScroll />
+        <ThemeProvider>
+          <NextIntlClientProvider messages={messages}>
+            {children}
+            <CookieConsent />
+            <Toaster position="bottom-right" theme="system" richColors closeButton expand visibleToasts={4} />
+          </NextIntlClientProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+

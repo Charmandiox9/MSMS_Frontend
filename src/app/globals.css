@@ -1,26 +1,234 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Fondo claro */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  /* Superficies (Cards, Modals) */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  /* Muted / Soft backgrounds */
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  /* Bordes */
+  --border: #e2e8f0;
+
+  /* Primario: Océano Profundo (blue-900) */
+  --primary: #1e3a8a;
+  --primary-foreground: #ffffff;
+
+  /* Secundario: Agua Marina (teal-600) */
+  --secondary: #0d9488;
+  --secondary-foreground: #ffffff;
+
+  /* Acento: Arena (amber-500) */
+  --accent: #f59e0b;
+  --accent-foreground: #ffffff;
+
+  /* Colores Institucionales UCN - FCM (Fijos en ambos modos) */
+  --ucn-navy: #0f172a; /* Azul institucional profundo */
+  --ocean-cyan: #0ea5e9; /* Acento Marino */
+  --ucn-gold: #f59e0b; /* Acento Secundario */
+  --coral-red: #ef4444; /* Acciones destructivas (Cerrar Sesión) */
+}
+
+.dark {
+  /* Fondo oscuro */
+  --background: #020617;
+  --foreground: #f8fafc;
+
+  /* Superficies (Cards, Modals) */
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+
+  /* Muted / Soft backgrounds */
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+
+  /* Bordes */
+  --border: #1e293b;
+
+  /* Primario en dark: Azul vibrante */
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+
+  /* Secundario en dark: Teal */
+  --secondary: #2dd4bf;
+  --secondary-foreground: #022c22;
+
+  /* Acento en dark: Arena brillante */
+  --accent: #fbbf24;
+  --accent-foreground: #451a03;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-border: var(--border);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-ucn-navy: var(--ucn-navy);
+  --color-ocean-cyan: var(--ocean-cyan);
+  --color-ucn-gold: var(--ucn-gold);
+  --color-coral-red: var(--coral-red);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --ease-premium: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ===== Animaciones de hero (About) ===== */
+
+@keyframes sonar-ring {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.45;
+  }
+  70% {
+    opacity: 0.1;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes hero-line-reveal {
+  from {
+    transform: translateY(112%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-line-mask {
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.hero-line-mask > span {
+  display: block;
+  transform: translateY(112%);
+  animation: hero-line-reveal 1s var(--ease-premium) 0.15s forwards;
+}
+
+.hero-fade-up {
+  opacity: 0;
+  animation: hero-fade-up 0.9s var(--ease-premium) forwards;
+}
+
+.sonar-ring {
+  animation: sonar-ring 5.5s var(--ease-premium) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-line-mask > span {
+    animation: none;
+    transform: none;
+  }
+  .hero-fade-up {
+    animation: none;
+    opacity: 1;
+  }
+  .sonar-ring {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ===== Custom Slim Scrollbars ===== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted-foreground) 30%, transparent) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted-foreground) 30%, transparent);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--muted-foreground) 55%, transparent);
+}
+
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent !important;
+}
+
+/* ===== Custom Styled Form Controls (Removes Windows OS native select box) ===== */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: var(--background);
+  color: var(--foreground);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem 1.25rem;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+.dark select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
+select option {
+  background-color: var(--card);
+  color: var(--card-foreground);
 }

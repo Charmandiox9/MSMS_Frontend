@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+coverage
+.git
+.env*
+*.log
+*.pem
+*.key
+*.backup*
+.audit*
+test-results
+playwright-report

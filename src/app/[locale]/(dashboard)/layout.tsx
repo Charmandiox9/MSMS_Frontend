@@ -1,0 +1,84 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { ActiveRoleProvider, useActiveRole } from "@/context/ActiveRoleContext";
+import { getActiveSession, logout, type ActiveSession } from "@/lib/auth";
+import { DashboardShellSkeleton } from "@/components/ui/LoadingSkeletons";
+
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { activeRole, session } = useActiveRole();
+
+  return (
+    <div className="min-h-screen bg-background">
+      <DashboardSidebar
+        collapsed={collapsed}
+        onCollapsedChange={setCollapsed}
+        mobileOpen={mobileOpen}
+        onMobileOpenChange={setMobileOpen}
+        activeRole={activeRole}
+        session={session}
+      />
+      <div
+        className={`flex min-h-screen flex-col transition-[margin] duration-300 ${
+          collapsed ? "md:ml-20" : "md:ml-72"
+        }`}
+      >
+        <DashboardHeader onMenuToggle={() => setMobileOpen(true)} />
+        <main className="flex-1 p-5 md:p-8">
+          <div className="mx-auto max-w-7xl">{children}</div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const locale = useLocale();
+  const t = useTranslations("Dashboard");
+  const router = useRouter();
+  const [session, setSession] = useState<ActiveSession | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    void getActiveSession().then(async (activeSession) => {
+      if (!mounted) return;
+
+      setSession(activeSession);
+      setIsLoading(false);
+
+      if (!activeSession) {
+        // Una cookie vencida, inválida o de una cuenta desactivada sigue en el navegador:
+        // el middleware la vería y devolvería /login → /dashboard. El logout del backend
+        // es público y la borra aunque la sesión ya no sea válida.
+        await logout().catch(() => undefined);
+        if (mounted) router.replace(`/${locale}/login`);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [locale, router]);
+
+  if (isLoading || !session) {
+    return <DashboardShellSkeleton label={t("sessionChecking")} />;
+  }
+
+  return (
+    <ActiveRoleProvider initialSession={session}>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </ActiveRoleProvider>
+  );
+}
