@@ -8,7 +8,7 @@ export default function LoginPage() {
   const t = useTranslations('Login');
 
   return (
-    <div className="flex-grow w-full flex flex-col lg:flex-row bg-slate-50 dark:bg-[#020b18] min-h-screen overflow-hidden selection:bg-ocean-cyan/30 transition-colors duration-500">
+    <div className="relative isolate grid min-h-dvh w-full lg:grid-cols-2 bg-slate-50 dark:bg-[#020b18] overflow-hidden selection:bg-ocean-cyan/30 transition-colors duration-500">
       <LoginPreferences />
       <style>{`
         @keyframes sway {
@@ -30,7 +30,7 @@ export default function LoginPage() {
       `}</style>
 
       {/* Left Panel: Visual/Brand (Hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col p-12 overflow-visible bg-white dark:bg-[#010a14] transition-colors duration-500">
+      <div className="hidden lg:flex relative flex-col p-12 overflow-visible bg-white dark:bg-[#010a14] transition-colors duration-500">
         <LoginSquid />
 
         {/* Ocean Wave Background */}
@@ -72,7 +72,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel: Authentication */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center relative z-[2] px-6 py-12 lg:p-12 bg-slate-50/80 dark:bg-[#020b18]/75 backdrop-blur-sm transition-colors duration-500">
+      <div className="min-w-0 flex items-center justify-center relative z-[2] px-4 pb-8 pt-24 sm:px-6 sm:pb-12 lg:p-12 bg-slate-50/80 dark:bg-[#020b18]/75 backdrop-blur-sm transition-colors duration-500">
 
         {/* Subtle right panel background with large blurred orbs */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -84,15 +84,15 @@ export default function LoginPage() {
         {/* Card Container */}
         <div className="w-full max-w-[440px] relative z-10">
 
-          <div className="bg-white/80 dark:bg-[#0f172a]/40 backdrop-blur-3xl border border-slate-200/80 dark:border-white/10 rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] p-8 sm:p-10 flex flex-col relative overflow-hidden group/card hover:border-ocean-cyan/30 dark:hover:border-cyan-500/30 transition-all duration-700">
+          <div className="bg-white/80 dark:bg-[#0f172a]/40 backdrop-blur-3xl border border-slate-200/80 dark:border-white/10 rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] p-6 sm:p-10 flex flex-col relative overflow-hidden group/card hover:border-ocean-cyan/30 dark:hover:border-cyan-500/30 transition-all duration-700">
 
             {/* Header Area */}
-            <div className="flex items-center gap-4 mb-10">
-              <div className="w-16 h-16 bg-white dark:bg-[#0f172a] text-ocean-cyan dark:text-cyan-400 rounded-2xl flex items-center justify-center shadow-md dark:shadow-[0_0_30px_rgba(34,211,238,0.15)] border border-slate-200/60 dark:border-white/5 flex-shrink-0">
+            <div className="flex items-center gap-3 mb-8 sm:gap-4 sm:mb-10">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white dark:bg-[#0f172a] text-ocean-cyan dark:text-cyan-400 rounded-2xl flex items-center justify-center shadow-md dark:shadow-[0_0_30px_rgba(34,211,238,0.15)] border border-slate-200/60 dark:border-white/5 flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg>
               </div>
               <div>
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                   {t('title')}
                 </h2>
                 <p className="text-sm font-medium text-slate-500 dark:text-white/60 leading-snug mt-1">
