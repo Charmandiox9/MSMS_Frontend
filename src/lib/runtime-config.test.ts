@@ -47,4 +47,13 @@ describe('runtime-config', () => {
 
     expect(getBuildTimeAuthBaseUrl()).toBe('http://localhost:3001/api');
   });
+  it('keeps runtime configuration and OAuth under the public base path', async () => {
+    vi.stubEnv('NEXT_PUBLIC_BASE_PATH', '/fasol/marsys');
+    const fetchMock = vi.fn(async () => Response.json({ graphqlUrl: '/api/graphql' }));
+    vi.stubGlobal('fetch', fetchMock);
+    const { resolveApiBaseUrl, getBuildTimeAuthBaseUrl } = await loadRuntimeConfig('/api/graphql');
+    expect(getBuildTimeAuthBaseUrl()).toBe('/fasol/marsys/api');
+    await expect(resolveApiBaseUrl()).resolves.toBe('/fasol/marsys/api');
+    expect(fetchMock).toHaveBeenCalledWith('/fasol/marsys/api/runtime-config', { cache: 'no-store' });
+  });
 });

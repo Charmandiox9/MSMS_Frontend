@@ -86,4 +86,11 @@ describe("middleware", () => {
     expect(pattern.test("/_next/static/chunk.js")).toBe(false);
     expect(pattern.test("/favicon.ico")).toBe(false);
   });
+  it('preserves Next basePath when redirecting the OAuth callback', () => {
+    const req = new NextRequest('https://marsys.test/fasol/marsys/auth/callback?route=/dashboard/justifications', {
+      nextConfig: { basePath: '/fasol/marsys' },
+    });
+    const result = middleware(req);
+    expect(location(result)).toBe('/fasol/marsys/dashboard/justifications');
+  });
 });

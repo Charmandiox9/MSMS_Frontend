@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { googleLoginUrl } from '@/lib/auth';
+import { withBasePath } from '@/lib/base-path';
 import LoginSquid from '@/components/auth/LoginSquid';
 import LoginPreferences from '@/components/auth/LoginPreferences';
 
@@ -103,7 +104,7 @@ export default function LoginPage() {
             {/* Action Area */}
             <div className="space-y-6">
               {/* Glowing Google Button */}
-              <a href={googleLoginUrl ?? '/login'} className="w-full relative group/btn block">
+              <a href={googleLoginUrl ?? withBasePath('/login')} className="w-full relative group/btn block">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-ocean-cyan to-blue-500 rounded-[14px] blur opacity-20 dark:opacity-30 group-hover/btn:opacity-50 dark:group-hover/btn:opacity-70 transition duration-500"></div>
                 <div className="relative w-full flex items-center justify-center gap-3 bg-white dark:bg-[#0a0f1c] border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white py-4 px-4 rounded-[14px] shadow-sm transition-all font-bold overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-100 dark:via-white/10 to-transparent -translate-x-[100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000"></div>
