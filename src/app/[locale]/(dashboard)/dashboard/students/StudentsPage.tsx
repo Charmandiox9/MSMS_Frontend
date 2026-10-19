@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, FileUp, Pencil, UsersRound } from "lucide-react";
+import { Plus, FileUp, Pencil, UsersRound, ListChecks } from "lucide-react";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
@@ -10,6 +10,7 @@ import PaginationControls from "@/components/ui/PaginationControls";
 import type { Student } from "@/types/students";
 import type { PaginatedResponse } from "@/types/pagination";
 import type { CurrentCourseCatalog } from "@/types/academic";
+import { Link } from "@/i18n/routing";
 import StudentDialog from "./StudentDialog";
 import ImportStudentsDialog from "./ImportStudentsDialog";
 
@@ -214,8 +215,13 @@ export default function StudentsPage({
                       {t("noCourses")}
                     </span>
                   )}
+                  {student.careerCurriculumVersion && <span className="rounded-lg bg-ocean-cyan/10 px-2 py-1 text-xs text-primary">{student.careerCurriculumVersion.career.name} · {t("cohortYear", { year: student.careerCurriculumVersion.cohortYear })}</span>}
                 </div>
-                {canManage && (
+                <div className="flex flex-wrap gap-2">
+                  <Link href={`/dashboard/students/${student.id}/progress`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/5 focus-visible:ring-2 focus-visible:ring-primary">
+                    <ListChecks className="h-3.5 w-3.5" />{t("progress")}
+                  </Link>
+                  {canManage && (
                   <button
                     type="button"
                     aria-label={t("editStudent", { name: student.name })}
@@ -225,7 +231,8 @@ export default function StudentsPage({
                     <Pencil className="h-3.5 w-3.5" />
                     {t("edit")}
                   </button>
-                )}
+                  )}
+                </div>
               </li>
             ))}
           </ul>

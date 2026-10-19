@@ -27,12 +27,17 @@ import CourseTeachersDialog from "./CourseTeachersDialog";
 import { Link } from "@/i18n/routing";
 
 type Instructor = { id: string; name: string; email: string };
+type CareerTag = { id: string; code: string; name: string };
 type ScheduleRow = {
   id: string;
   nrc: string;
   day: string;
   block: string;
-  course: { code: string | null; name: string };
+  course: {
+    code: string | null;
+    name: string;
+    curriculumCourses?: { curriculumVersion: { career: CareerTag } }[];
+  };
   semester: { name: string };
   teachers: Instructor[];
   kind?: "COURSE" | "ASSISTANTSHIP";
@@ -50,6 +55,7 @@ type Subject = {
   entries: ScheduleRow[];
   semester: string;
   teachers: Instructor[];
+  careers: CareerTag[];
 };
 
 /** Horarios del semestre activo con los profesores asignados a cada NRC. */
@@ -144,7 +150,6 @@ export default function SubjectsPage() {
         const message =
           cause instanceof Error ? cause.message : loadErrorMessage;
         setError(message);
-        toast.error(message);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -163,8 +168,14 @@ export default function SubjectsPage() {
         entries: [],
         semester: row.semester.name,
         teachers: row.teachers,
+        careers: [],
       };
       current.entries.push(row);
+      for (const item of row.course.curriculumCourses ?? []) {
+        if (!current.careers.some((career) => career.id === item.curriculumVersion.career.id)) {
+          current.careers.push(item.curriculumVersion.career);
+        }
+      }
       grouped.set(row.nrc, current);
     }
     return [...grouped.values()].sort((a, b) => a.name.localeCompare(b.name));
@@ -193,22 +204,23 @@ export default function SubjectsPage() {
   const importCsv = async (file: File) => {
     setImporting(true);
     setError(null);
+    const operation = file.text().then((csv) =>
+      apiFetch<{ importedRows: number }>("/academic/courses/import-csv", {
+        method: "POST",
+        body: JSON.stringify({ csv }),
+      }),
+    );
+    toast.promise(operation, {
+      loading: t("importing"),
+      success: (result) => t("importSuccess", { count: result.importedRows }),
+      error: (cause: unknown) => cause instanceof Error ? cause.message : t("errors.import"),
+    });
     try {
-      const result = await apiFetch<{ importedRows: number }>(
-        "/academic/courses/import-csv",
-        {
-          method: "POST",
-          body: JSON.stringify({ csv: await file.text() }),
-        },
-      );
-      toast.success(t("importSuccess", { count: result.importedRows }));
+      await operation;
       setLoading(true);
       setReloadKey((key) => key + 1);
-    } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : t("errors.import");
-      setError(message);
-      toast.error(message);
+    } catch {
+      // El toast ya comunica el error de importación.
     } finally {
       setImporting(false);
     }
@@ -393,6 +405,15 @@ export default function SubjectsPage() {
                         <h2 className="truncate text-sm font-semibold text-foreground">
                           {subject.name}
                         </h2>
+                        {subject.careers.length > 0 && (
+                          <p className="mt-1 flex flex-wrap gap-1" aria-label={t("careersLabel")}>
+                            {subject.careers.map((career) => (
+                              <span key={career.id} className="rounded-md bg-secondary/10 px-1.5 py-0.5 text-[10px] font-semibold text-secondary">
+                                {career.name}
+                              </span>
+                            ))}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex min-w-0 items-start gap-1.5 pl-11 text-xs text-muted-foreground md:pl-0">

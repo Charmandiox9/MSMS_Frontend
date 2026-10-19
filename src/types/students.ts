@@ -11,6 +11,12 @@ export interface Student {
   id: string;
   name: string;
   email: string;
+  careerCurriculumVersionId?: string | null;
+  careerCurriculumVersion?: {
+    id: string;
+    cohortYear: number;
+    career: { id: string; code: string; name: string };
+  } | null;
   enrollments: StudentEnrollment[];
 }
 

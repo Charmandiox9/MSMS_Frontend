@@ -20,7 +20,17 @@ const COURSES = [
     nrc: "10001",
     day: "Lunes",
     block: "A",
-    course: { code: "ED", name: "Estructura de Datos" },
+    course: {
+      code: "ED",
+      name: "Estructura de Datos",
+      curriculumCourses: [
+        {
+          curriculumVersion: {
+            career: { id: "career-1", code: "INF", name: "Ingeniería Civil en Computación" },
+          },
+        },
+      ],
+    },
     semester: { name: "2026-2" },
   },
   {
@@ -106,6 +116,17 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
       structure.closest("li") ?? structure.closest("tr") ?? document.body;
     expect(within(row as HTMLElement).getByText("Juan Pérez")).toBeDefined();
     expect(screen.getByText("Sin profesor asignado")).toBeDefined();
+  });
+
+  it("muestra la carrera cuya malla incluye la asignatura", async () => {
+    installFakeApi({
+      "GET /academic/courses": ok(COURSES),
+      "GET /academic/teachers": ok({ items: [], total: 0, page: 1, pageSize: 100, totalPages: 0 }),
+    });
+    renderAs(<SubjectsPage />, ["ACADEMIC_SECRETARY"]);
+
+    const subject = await screen.findByText("Estructura de Datos");
+    expect(within(subject.closest("li")!).getByText("Ingeniería Civil en Computación")).toBeDefined();
   });
 
   it.each(["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"] as const)(
