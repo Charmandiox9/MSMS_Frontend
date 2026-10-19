@@ -72,13 +72,13 @@ export default function AcademicSecretaryDashboard() {
             <QuickActionCard
               title={t("actions.academicInfo")}
               description={t("actions.academicInfoDesc")}
-              href="/dashboard/academic-information"
+              href="/dashboard/subjects"
               icon={FileSpreadsheet}
             />
             <QuickActionCard
               title={t("actions.records")}
               description={t("actions.recordsDesc")}
-              href="/dashboard/academic-information"
+              href="/dashboard/students"
               icon={BookOpenCheck}
             />
           </div>

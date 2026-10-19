@@ -43,10 +43,11 @@ describe("Navigation configuration and filtering", () => {
 
     const academicSection = filtered.find((s) => s.key === "academic");
     const itemKeys = academicSection?.items.map((i) => i.key);
-    expect(itemKeys).toContain("academicInformation");
-    expect(itemKeys).not.toContain("academicWorkload");
+    expect(itemKeys).not.toContain("academicInformation");
     expect(itemKeys).not.toContain("justifications");
     expect(itemKeys).toContain("justificationsManagement");
+    expect(itemKeys).toContain("academicWorkload");
+    expect(itemKeys).toContain("titulation");
     expect(itemKeys).toContain("subjects");
     expect(itemKeys).toContain("teachers");
     const analysisSection = filtered.find((section) => section.key === "analysis");
@@ -72,7 +73,7 @@ describe("Navigation configuration and filtering", () => {
     const itemKeys = academicSection?.items.map((i) => i.key);
     expect(itemKeys).not.toContain("justifications");
     expect(itemKeys).not.toContain("justificationsManagement");
-    expect(itemKeys).toContain("academicInformation");
+    expect(itemKeys).not.toContain("academicInformation");
     expect(itemKeys).toContain("titulation");
   });
 
@@ -95,7 +96,7 @@ describe("Navigation configuration and filtering", () => {
     expect(itemKeys).toContain("academicWorkload");
     expect(itemKeys).toContain("assistantships");
     expect(itemKeys).toContain("titulation");
-    expect(itemKeys).toContain("academicInformation");
+    expect(itemKeys).not.toContain("academicInformation");
   });
 
   it("should only return public/unrestricted items when role is null", () => {
@@ -200,6 +201,20 @@ describe("Navigation configuration and filtering", () => {
     expect(
       isRouteAllowed(
         "/dashboard/subjects",
+        DASHBOARD_SECTIONS,
+        "ACADEMIC_SECRETARY",
+      ),
+    ).toBe(true);
+    expect(
+      isRouteAllowed(
+        "/dashboard/academic-workload",
+        DASHBOARD_SECTIONS,
+        "ACADEMIC_SECRETARY",
+      ),
+    ).toBe(true);
+    expect(
+      isRouteAllowed(
+        "/dashboard/titulation",
         DASHBOARD_SECTIONS,
         "ACADEMIC_SECRETARY",
       ),
