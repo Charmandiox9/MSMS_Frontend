@@ -48,8 +48,12 @@ describe("Academic charts", () => {
     expect(screen.getByText("Pagos PH estimados por componente")).toBeDefined();
     expect(screen.getByText(/227\.700\.000/)).toBeDefined();
     expect(screen.getByText("Centro costero")).toBeDefined();
-    expect(screen.getByText("Aporte VRA")).toBeDefined();
     expect(screen.getByText("Estudio de mareas")).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Ver detalles de Centro costero" }));
+    const projectDialog = screen.getByRole("dialog");
+    expect(within(projectDialog).getByText("Aporte VRA")).toBeDefined();
+    expect(within(projectDialog).getByText("Fecha de inicio")).toBeDefined();
+    fireEvent.click(within(projectDialog).getByRole("button", { name: "Cerrar detalle" }));
     expect(api.calls('POST /graphql')).toHaveLength(1);
     expect(api.calls('GET /academic/reports')).toHaveLength(0);
 

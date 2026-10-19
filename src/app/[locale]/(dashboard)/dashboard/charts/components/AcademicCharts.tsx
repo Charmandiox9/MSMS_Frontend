@@ -8,6 +8,7 @@ import { createApiGraphqlClient } from '@/lib/graphql-client';
 import { ACADEMIC_CHARTS, unpackReport } from '@/lib/academic-analytics';
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton } from "@/components/ui/LoadingSkeletons";
+import Modal from "@/components/ui/Modal";
 import {
   Area,
   AreaChart,
@@ -136,13 +137,14 @@ function TrendChart({ title, researchValues, outputValues, researchLabel, output
 }
 
 const budgetFields = ["totalAmount", "vraContribution", "vridtContribution", "recoveryAmount", "facultyContribution", "depreciationAmount", "profitabilityAmount"] as const;
-type FundingTranslationKey = `funding.${typeof budgetFields[number]}` | "funding.title" | "funding.fundingSource";
+type FundingTranslationKey = `funding.${typeof budgetFields[number]}` | "funding.title" | "funding.fundingSource" | "funding.details" | "funding.detailsFor" | "funding.detailsDescription" | "funding.reportingYear" | "funding.startsOn" | "funding.status" | "closeDetails" | `statuses.${string}`;
 
-function BudgetCharts({ rows, title, empty, t, selectedYear, onYearSelect, selectedMonth, onMonthSelect, selectedFundingField, onFundingSelect, monthlyTitle, monthlyBasis, noMonthlyData, unassignedLabel, backToYears, locale }: { rows: Row[]; title: string; empty: string; t: (key: FundingTranslationKey) => string; selectedYear?: string; onYearSelect: (year: string) => void; selectedMonth?: string; onMonthSelect: (month: string) => void; selectedFundingField?: string; onFundingSelect: (field: string) => void; monthlyTitle: string; monthlyBasis: string; noMonthlyData: string; unassignedLabel: (count: number) => string; backToYears: string; locale: string }) {
+function BudgetCharts({ rows, title, empty, t, selectedYear, onYearSelect, selectedMonth, onMonthSelect, selectedFundingField, onFundingSelect, monthlyTitle, monthlyBasis, noMonthlyData, unassignedLabel, backToYears, locale }: { rows: Row[]; title: string; empty: string; t: (key: FundingTranslationKey, values?: Record<string, string | number>) => string; selectedYear?: string; onYearSelect: (year: string) => void; selectedMonth?: string; onMonthSelect: (month: string) => void; selectedFundingField?: string; onFundingSelect: (field: string) => void; monthlyTitle: string; monthlyBasis: string; noMonthlyData: string; unassignedLabel: (count: number) => string; backToYears: string; locale: string }) {
   const visibleRows = rows.filter((row) =>
     (!selectedYear || String(row.reportingYear ?? "") === selectedYear) &&
     (!selectedMonth || (typeof row.startsOn === "string" && row.startsOn.startsWith(`${selectedYear}-`) && row.startsOn.slice(5, 7) === selectedMonth)),
   );
+  const [selectedProject, setSelectedProject] = useState<Row | null>(null);
   const trends = new Map<string, Map<string, number>>();
   for (const row of rows) {
     const currency = typeof row.currency === "string" ? row.currency : "";
@@ -201,10 +203,18 @@ function BudgetCharts({ rows, title, empty, t, selectedYear, onYearSelect, selec
       })}
     </div>
     <div className="overflow-x-auto rounded-xl border border-border/70">
-      <table className="min-w-[1050px] w-full text-left text-xs"><thead className="bg-muted/40 text-muted-foreground"><tr>{["title", "fundingSource", ...budgetFields].map((field) => <th key={field} className="px-3 py-2 font-semibold">{t(`funding.${field}` as FundingTranslationKey)}</th>)}</tr></thead>
-        <tbody>{visibleRows.map((row, index) => <tr key={`${String(row.code ?? row.title)}-${index}`} className="border-t border-border/70"><td className="max-w-64 px-3 py-2 font-medium">{String(row.title ?? "—")}</td><td className="px-3 py-2">{String(row.fundingSource ?? "—")}</td>{budgetFields.map((field) => <td key={field} className="whitespace-nowrap px-3 py-2 tabular-nums">{money(row[field], String(row.currency ?? "CLP"))}</td>)}</tr>)}</tbody>
+      <table className="w-full min-w-[620px] text-left text-xs"><thead className="bg-muted/40 text-muted-foreground"><tr>{["title", "fundingSource", "totalAmount"].map((field) => <th key={field} className="px-3 py-2 font-semibold">{t(`funding.${field}` as FundingTranslationKey)}</th>)}<th className="px-3 py-2 text-right font-semibold">{t("funding.details")}</th></tr></thead>
+        <tbody>{visibleRows.map((row, index) => <tr key={`${String(row.code ?? row.title)}-${index}`} className="border-t border-border/70"><td className="max-w-80 px-3 py-3 font-medium text-foreground">{String(row.title ?? "—")}</td><td className="max-w-56 px-3 py-3 text-muted-foreground">{String(row.fundingSource ?? "—")}</td><td className="whitespace-nowrap px-3 py-3 tabular-nums">{money(row.totalAmount, String(row.currency ?? "CLP"))}</td><td className="px-3 py-3 text-right"><button type="button" onClick={() => setSelectedProject(row)} className="rounded-lg border border-border px-3 py-2 font-semibold text-primary transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label={t("funding.detailsFor", { title: String(row.title ?? "—") })}>{t("funding.details")}</button></td></tr>)}</tbody>
       </table>
     </div>
+    {selectedProject && <Modal isOpen title={String(selectedProject.title ?? t("funding.title"))} description={t("funding.detailsDescription")} size="2xl" closeLabel={t("closeDetails")} onClose={() => setSelectedProject(null)}>
+      <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+        <div className="sm:col-span-2"><dt className="text-xs font-semibold text-muted-foreground">{t("funding.fundingSource")}</dt><dd className="mt-1 text-sm font-medium">{String(selectedProject.fundingSource ?? "—")}</dd></div>
+        {(["reportingYear", "startsOn"] as const).map((field) => <div key={field}><dt className="text-xs font-semibold text-muted-foreground">{t(`funding.${field}`)}</dt><dd className="mt-1 text-sm font-medium">{String(selectedProject[field] ?? "—")}</dd></div>)}
+        <div><dt className="text-xs font-semibold text-muted-foreground">{t("funding.status")}</dt><dd className="mt-1 text-sm font-medium">{selectedProject.status ? t(`statuses.${String(selectedProject.status)}`) : "—"}</dd></div>
+        {budgetFields.map((field) => <div key={field} className="border-t border-border/70 pt-3"><dt className="text-xs font-semibold text-muted-foreground">{t(`funding.${field}` as FundingTranslationKey)}</dt><dd className="mt-1 text-sm font-semibold tabular-nums">{money(selectedProject[field], String(selectedProject.currency ?? "CLP"))}</dd></div>)}
+      </dl>
+    </Modal>}
   </section>;
 }
 
@@ -330,7 +340,7 @@ export default function AcademicCharts() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <DistributionChart title={t("projectStatuses")} values={charts.projectStatuses} empty={t("empty")} formatLabel={(label) => t(`statuses.${label}`)} selectedLabel={projectStatusFilter} onSelect={(label) => setProjectStatusFilter((current) => current === label ? "" : label)} />
-        <BudgetCharts rows={visibleProjectRows} title={t("budgets")} empty={t("empty")} t={(key) => t(key)} selectedYear={year} onYearSelect={selectYear} selectedMonth={budgetMonthFilter} onMonthSelect={(month) => setBudgetMonthFilter((current) => current === month ? "" : month)} selectedFundingField={fundingFieldFilter} onFundingSelect={(field) => setFundingFieldFilter((current) => current === field ? "" : field)} monthlyTitle={t("monthlyBudgetBreakdown", { year })} monthlyBasis={t("monthlyBudgetBasis")} noMonthlyData={t("noMonthlyBudgetData")} unassignedLabel={(count) => t("unassignedBudgetDates", { count })} backToYears={t("backToYears")} locale={locale} />
+        <BudgetCharts rows={visibleProjectRows} title={t("budgets")} empty={t("empty")} t={(key, values) => t(key, values)} selectedYear={year} onYearSelect={selectYear} selectedMonth={budgetMonthFilter} onMonthSelect={(month) => setBudgetMonthFilter((current) => current === month ? "" : month)} selectedFundingField={fundingFieldFilter} onFundingSelect={(field) => setFundingFieldFilter((current) => current === field ? "" : field)} monthlyTitle={t("monthlyBudgetBreakdown", { year })} monthlyBasis={t("monthlyBudgetBasis")} noMonthlyData={t("noMonthlyBudgetData")} unassignedLabel={(count) => t("unassignedBudgetDates", { count })} backToYears={t("backToYears")} locale={locale} />
         <DistributionChart title={t("outputKinds")} values={charts.outputKinds} empty={t("empty")} formatLabel={(label) => t(`kinds.${label}`)} selectedLabel={outputKindFilter} onSelect={(label) => setOutputKindFilter((current) => current === label ? "" : label)} />
         <TrendChart title={t("researchAndOutputsTrend")} researchValues={charts.researchByYear} outputValues={charts.outputsByYear} researchLabel={t("research")} outputLabel={t("outputs")} empty={t("empty")} selectedYear={year} onYearSelect={selectYear} />
         <PaymentChart title={t("hourlyByComponent")} values={charts.hourlyByComponent} empty={t("empty")} formatLabel={(label) => t(`components.${label}`)} selectedComponent={hourlyComponentFilter} onSelect={(label) => setHourlyComponentFilter((current) => current === label ? "" : label)} />
