@@ -119,7 +119,7 @@ export default function AssistantshipDetailModal({
           </div>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="rounded-lg bg-primary/10 px-2.5 py-1 font-bold tabular-nums text-primary">
-              {t("nrc", { nrc: item.nrc })}
+              {t("nrc", { nrc: item.nrc ?? "—" })}
             </span>
             {item.assistantshipNrc && (
               <span className="rounded-lg bg-secondary/15 px-2.5 py-1 font-bold tabular-nums text-secondary">
@@ -169,13 +169,14 @@ export default function AssistantshipDetailModal({
               <div>
                 <p className="text-xs text-muted-foreground">{t("table.course")}</p>
                 <p className="font-semibold text-foreground">{item.courseName}</p>
+                {item.careerName && <p className="text-xs text-muted-foreground">{item.careerName}</p>}
                 {item.courseCode && (
                   <p className="text-xs text-muted-foreground font-mono">{item.courseCode}</p>
                 )}
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{t("filters.teacher")}</p>
-                <p className="font-medium text-foreground">{item.teacherName}</p>
+                <p className="font-medium text-foreground">{item.teacherName ?? "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{t("filters.semester")}</p>

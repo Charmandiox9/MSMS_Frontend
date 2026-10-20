@@ -995,7 +995,7 @@
     },
     "form": {
       "title": "Register assistantship",
-      "description": "Select a teaching assignment and register a student who has already passed that course.",
+      "description": "Register a current or past assistantship and link it to a student.",
       "semester": "Semester",
       "course": "Course, NRC, and teacher",
       "selectCourse": "Select a course…",
@@ -1030,7 +1030,18 @@
       "assistantshipNrc": "Assistantship NRC",
       "editTitle": "Edit assistantship",
       "update": "Save changes",
-      "updated": "Assistantship updated successfully."
+      "updated": "Assistantship updated successfully.",
+      "lookupHint": "Enter the email and leave the field to find the student.",
+      "studentFound": "Student found. This assistantship will be linked to their record.",
+      "studentNew": "No student has this email. Their record will be created when you save.",
+      "studentCareer": "Student degree program",
+      "studentCurriculum": "Student degree program and cohort",
+      "assistantshipCareer": "Assistantship degree program",
+      "selectCareer": "Select a degree program",
+      "historicalCourse": "Degree program course",
+      "courseNrc": "Course NRC (optional)",
+      "cohort": "Cohort {year}",
+      "noCareerCourses": "Select a degree program with curriculum courses."
     },
     "errors": {
       "load": "We could not load assistantships. Please try again.",
@@ -1047,7 +1058,9 @@
       "SCHEDULE_CONFLICT": "Schedules overlap with each other or another assistantship held by this student.",
       "INVALID_SCHEDULE": "Check the schedule: the end must be after the start.",
       "ASSIGNMENT_NOT_FOUND": "The selected teaching assignment no longer exists. Refresh and try again.",
-      "RETRY": "The data changed while saving. Please try again."
+      "RETRY": "The data changed while saving. Please try again.",
+      "CAREER_REQUIRED": "Select the student degree program and curriculum.",
+      "COURSE_CAREER": "This course does not belong to the selected degree program."
     },
     "edit": "Edit"
   },
@@ -1242,7 +1255,10 @@
       "save": "Could not save the student.",
       "import": "Could not import students.",
       "fileSize": "The file exceeds the 2 MB limit."
-    }
+    },
+    "assistantships": "Assistantship history ({count})",
+    "assistantshipCourseNrc": "Course NRC: {nrc}",
+    "assistantshipNrc": "Assistantship NRC: {nrc}"
   },
   "CareersPage": {
     "eyebrow": "Academic information",

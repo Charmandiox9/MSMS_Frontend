@@ -1,11 +1,19 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { MockedProvider } from "@apollo/client/testing/react";
 import { GraphQLError } from "graphql";
 import messages from "../../../../../../../messages/es.json";
 import {
   ASSIGNMENTS,
+  STUDENT,
+  CAREER_COURSES,
   HISTORY,
   OPTIONS,
   REGISTER,
@@ -52,6 +60,11 @@ const semester = {
 const item: Assistantship & { __typename: "AssistantshipView" } = {
   __typename: "AssistantshipView",
   id: "record",
+  studentId: "student",
+  courseId: "course",
+  careerId: null,
+  careerName: null,
+  careerCurriculumVersionId: "curriculum",
   teachingAssignmentId: "assignment",
   assistantshipNrc: "20001",
   assistantName: "Ana Pérez",
@@ -75,12 +88,36 @@ const optionsMock = {
   result: {
     data: {
       assistantshipOptions: {
+        careers: [
+          {
+            id: "career",
+            name: "Biología Marina",
+            isActive: true,
+            curriculumVersions: [{ id: "curriculum", cohortYear: 2025 }],
+          },
+        ],
         semesters: [semester],
         teachers: [{ id: "teacher", name: "Docente" }],
         blocks: [
           { code: "A", startsAtMinute: 490, endsAtMinute: 580 },
           { code: "H", startsAtMinute: 1290, endsAtMinute: 1380 },
         ],
+      },
+    },
+  },
+  maxUsageCount: 20,
+};
+const studentMock = {
+  request: { query: STUDENT, variables: { email: "ana@example.test" } },
+  result: {
+    data: {
+      assistantshipStudent: {
+        id: "student",
+        name: "Ana Pérez",
+        email: "ana@example.test",
+        careerId: "career",
+        careerName: "Biología Marina",
+        careerCurriculumVersionId: "curriculum",
       },
     },
   },
@@ -155,6 +192,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
       <NextIntlClientProvider locale="es" messages={messages}>
         <MockedProvider
           mocks={[
+            studentMock,
             assignmentsMock,
             { request: { query: UPDATE, variables: () => true }, result },
           ]}
@@ -189,6 +227,9 @@ describe("assistantship management", { timeout: 15000 }, () => {
     fireEvent.change(screen.getByLabelText("NRC de la ayudantía"), {
       target: { value: "20002" },
     });
+    await screen.findByText(
+      "Estudiante encontrado. La ayudantía quedará vinculada a su ficha.",
+    );
     fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
     await waitFor(() => expect(onRegistered).toHaveBeenCalledWith(semester.id));
     expect(result).toHaveBeenCalledWith(
@@ -277,6 +318,104 @@ describe("assistantship management", { timeout: 15000 }, () => {
     );
   });
 
+  it("registers a historical course for a new student without requiring NRC or teacher", async () => {
+    const past = {
+      ...semester,
+      id: "past",
+      name: "2025-2",
+      isActive: false,
+      startsOn: "2025-08-01",
+      endsOn: "2025-12-31",
+    };
+    const result = vi.fn((_variables: { input: Record<string, unknown> }) => ({
+      data: { registerAssistantship: { ...item, semesterId: past.id } },
+    }));
+    const onRegistered = vi.fn();
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <MockedProvider
+          mocks={[
+            {
+              request: {
+                query: STUDENT,
+                variables: { email: "new@example.test" },
+              },
+              result: { data: { assistantshipStudent: null } },
+            },
+            {
+              request: {
+                query: CAREER_COURSES,
+                variables: { careerId: "career" },
+              },
+              result: {
+                data: {
+                  assistantshipCareerCourses: [
+                    { id: "course", name: "Biología marina", code: "BIO101" },
+                  ],
+                },
+              },
+            },
+            { request: { query: REGISTER, variables: () => true }, result },
+          ]}
+        >
+          <RegisterAssistantshipDialog
+            semesters={[semester, past]}
+            careers={optionsMock.result.data.assistantshipOptions.careers}
+            blocks={[]}
+            initialSemesterId={past.id}
+            onClose={vi.fn()}
+            onRegistered={onRegistered}
+          />
+        </MockedProvider>
+      </NextIntlClientProvider>,
+    );
+    fireEvent.change(screen.getByLabelText("Correo electrónico"), {
+      target: { value: "new@example.test" },
+    });
+    fireEvent.blur(screen.getByLabelText("Correo electrónico"));
+    await screen.findByText(
+      "No existe un estudiante con ese correo. Se creará su ficha al guardar.",
+    );
+    fireEvent.change(screen.getByLabelText("Nombre completo"), {
+      target: { value: "Alumno nuevo" },
+    });
+    fireEvent.change(
+      screen.getByLabelText("Carrera y cohorte del estudiante"),
+      { target: { value: "curriculum" } },
+    );
+    await screen.findByRole("option", { name: /Biología marina · BIO101/ });
+    fireEvent.change(screen.getByLabelText("Asignatura de la carrera"), {
+      target: { value: "course" },
+    });
+    fireEvent.change(screen.getByLabelText("Fecha de aprobación"), {
+      target: { value: "2025-07-01" },
+    });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar ayudantía" }));
+    await waitFor(() => expect(onRegistered).toHaveBeenCalledWith("past"));
+    expect(result).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          semesterId: "past",
+          courseId: "course",
+          careerId: "career",
+          careerCurriculumVersionId: "curriculum",
+          assistantEmail: "new@example.test",
+        }),
+      }),
+    );
+    const input = result.mock.calls[0]?.[0] as {
+      input: {
+        teachingAssignmentId?: string;
+        courseNrc?: string;
+        assistantshipNrc?: string;
+      };
+    };
+    expect(input.input.teachingAssignmentId).toBeUndefined();
+    expect(input.input.courseNrc).toBeUndefined();
+    expect(input.input.assistantshipNrc).toBeUndefined();
+  });
+
   it("shows a retry action on load failure", async () => {
     render(
       <NextIntlClientProvider locale="es" messages={messages}>
@@ -312,6 +451,10 @@ describe("assistantship management", { timeout: 15000 }, () => {
     fireEvent.change(screen.getByLabelText("Correo electrónico"), {
       target: { value: "ana@example.test" },
     });
+    fireEvent.blur(screen.getByLabelText("Correo electrónico"));
+    await screen.findByText(
+      "Estudiante encontrado. La ayudantía quedará vinculada a su ficha.",
+    );
     fireEvent.change(screen.getByLabelText("Fecha de aprobación"), {
       target: { value: "2026-07-01" },
     });
@@ -325,6 +468,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
       <NextIntlClientProvider locale="es" messages={messages}>
         <MockedProvider
           mocks={[
+            studentMock,
             assignmentsMock,
             {
               request: { query: REGISTER, variables: () => true },
@@ -381,6 +525,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
       <NextIntlClientProvider locale="es" messages={messages}>
         <MockedProvider
           mocks={[
+            studentMock,
             assignmentsMock,
             {
               request: { query: REGISTER, variables: () => true },
@@ -462,7 +607,9 @@ describe("assistantship management", { timeout: 15000 }, () => {
 
     expect(await screen.findByText("Consulta de ayudantía")).toBeDefined();
     const dialog = screen.getByRole("dialog");
-    expect(within(dialog).getByText("Datos del estudiante ayudante")).toBeDefined();
+    expect(
+      within(dialog).getByText("Datos del estudiante ayudante"),
+    ).toBeDefined();
     expect(within(dialog).getByText("ana@example.test")).toBeDefined();
     expect(within(dialog).getByText("Laboratorio A")).toBeDefined();
 
@@ -504,7 +651,9 @@ describe("assistantship management", { timeout: 15000 }, () => {
       </NextIntlClientProvider>,
     );
     expect(await screen.findByText("Ana Pérez")).toBeDefined();
-    const exportBtn = screen.getByRole("button", { name: "Exportar historial" });
+    const exportBtn = screen.getByRole("button", {
+      name: "Exportar historial",
+    });
     fireEvent.click(exportBtn);
 
     expect(createObjectURLMock).toHaveBeenCalled();

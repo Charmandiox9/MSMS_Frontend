@@ -9,6 +9,7 @@ import Skeleton from "@/components/ui/Skeleton";
 import { SkeletonStatus } from "@/components/ui/LoadingSkeletons";
 import {
   ASSIGNMENTS,
+  CAREER_COURSES,
   REGISTER,
   UPDATE,
   type Assistantship,
@@ -17,11 +18,18 @@ import {
 } from "../graphql";
 import { assistantshipErrorKey } from "../errors";
 import { buttonClass, Field, inputClass } from "./controls";
+import StudentIdentityFields, {
+  useAssistantshipStudent,
+} from "./StudentIdentityFields";
 import ScheduleFields, { type ScheduleDraft } from "./ScheduleFields";
-import type { AssistantshipBlockOption } from "../schema-types";
+import type {
+  AssistantshipCareerOption,
+  AssistantshipBlockOption,
+} from "../schema-types";
 
 export default function RegisterAssistantshipDialog({
   semesters,
+  careers = [],
   blocks,
   initialRecord,
   initialSemesterId,
@@ -29,6 +37,7 @@ export default function RegisterAssistantshipDialog({
   onRegistered,
 }: {
   semesters: SemesterOption[];
+  careers?: AssistantshipCareerOption[];
   blocks: AssistantshipBlockOption[];
   initialRecord?: Assistantship;
   initialSemesterId?: string;
@@ -47,6 +56,15 @@ export default function RegisterAssistantshipDialog({
   const [assignmentId, setAssignmentId] = useState(
     initialRecord?.teachingAssignmentId ?? "",
   );
+  const [selectedCareerId, setSelectedCareerId] = useState(
+    initialRecord?.careerId ?? "",
+  );
+  const [courseId, setCourseId] = useState(initialRecord?.courseId ?? "");
+  const identity = useAssistantshipStudent(initialRecord, careers);
+  const { student, effectiveCurriculumId, studentCareer, lookupReady } =
+    identity;
+  const careerId =
+    selectedCareerId || student?.careerId || studentCareer?.id || "";
   const effectiveBlocks = [
     ...blocks,
     ...(initialRecord?.schedules ?? []).flatMap((schedule, index) =>
@@ -79,9 +97,22 @@ export default function RegisterAssistantshipDialog({
     })),
   );
   const semester = semesters.find((item) => item.id === semesterId);
+  const historical = !!semester && !semester.isActive;
+  const availableSemesters = semesters.filter(
+    (item) =>
+      item.isActive ||
+      item.endsOn <
+        (semesters.find((item) => item.isActive)?.startsOn ??
+          new Date().toISOString().slice(0, 10)),
+  );
+  const courses = useQuery(CAREER_COURSES, {
+    variables: { careerId },
+    skip: !historical || !careerId,
+    fetchPolicy: "network-only",
+  });
   const assignments = useQuery(ASSIGNMENTS, {
     variables: { semesterId },
-    skip: !semesterId,
+    skip: !semesterId || historical,
     fetchPolicy: "network-only",
   });
   const [register, { loading: saving }] = useMutation(REGISTER);
@@ -90,14 +121,25 @@ export default function RegisterAssistantshipDialog({
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (savingRef.current) return;
+    if (savingRef.current || !lookupReady) return;
     const form = new FormData(event.currentTarget);
     const text = (key: string) => String(form.get(key) ?? "").trim();
     const input: Registration = {
-      teachingAssignmentId: assignmentId,
+      semesterId,
+      teachingAssignmentId: historical
+        ? initialRecord?.semesterId === semesterId &&
+          initialRecord.courseId === courseId
+          ? (initialRecord.teachingAssignmentId ?? undefined)
+          : undefined
+        : assignmentId,
+      courseId: historical ? courseId : undefined,
+      careerId: historical ? careerId : undefined,
+      courseNrc: historical ? text("courseNrc") || undefined : undefined,
+      careerCurriculumVersionId: effectiveCurriculumId || undefined,
+      studentId: student?.id,
       assistantName: text("name"),
       assistantEmail: text("email"),
-      assistantshipNrc: text("assistantshipNrc"),
+      assistantshipNrc: text("assistantshipNrc") || undefined,
       approvedOn: text("approvedOn"),
       startsOn: text("startsOn"),
       endsOn: text("endsOn"),
@@ -182,9 +224,16 @@ export default function RegisterAssistantshipDialog({
             className="btn-cta-primary"
             disabled={
               busy ||
-              !assignmentId ||
-              assignments.loading ||
-              Boolean(assignments.error)
+              !lookupReady ||
+              !effectiveCurriculumId ||
+              (historical
+                ? !courseId ||
+                  !careerId ||
+                  courses.loading ||
+                  Boolean(courses.error)
+                : !assignmentId ||
+                  assignments.loading ||
+                  Boolean(assignments.error))
             }
           >
             {busy && (
@@ -216,63 +265,117 @@ export default function RegisterAssistantshipDialog({
               onChange={(event) => {
                 setSemesterId(event.target.value);
                 setAssignmentId("");
+                setCourseId("");
               }}
             >
-              {semesters.map((item) => (
+              {availableSemesters.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name}
                 </option>
               ))}
             </select>
           </Field>
-          <Field label={t("form.course")} htmlFor="register-assignment">
-            {assignments.loading ? (
-              <SkeletonStatus label={t("loading")}>
-                <Skeleton className="h-11 w-full rounded-xl" />
-              </SkeletonStatus>
-            ) : (
+          {historical ? (
+            <Field
+              label={t("form.assistantshipCareer")}
+              htmlFor="register-career"
+            >
               <select
-                id="register-assignment"
+                id="register-career"
                 className={inputClass}
                 required
-                value={assignmentId}
-                disabled={assignments.loading || Boolean(assignments.error)}
-                onChange={(event) => setAssignmentId(event.target.value)}
+                value={careerId}
+                onChange={(event) => {
+                  setSelectedCareerId(event.target.value);
+                  setCourseId("");
+                }}
               >
-                <option value="">
-                  {t(assignments.loading ? "loading" : "form.selectCourse")}
-                </option>
-                {assignments.data?.assistantshipAssignments.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.courseName} · {t("nrc", { nrc: item.nrc })} ·{" "}
-                    {item.teacherName}
+                <option value="">{t("form.selectCareer")}</option>
+                {careers.map((career) => (
+                  <option key={career.id} value={career.id}>
+                    {career.name}
                   </option>
                 ))}
               </select>
-            )}
-          </Field>
-        </div>
-        {assignments.error ? (
-          <div
-            role="alert"
-            className="flex flex-wrap items-center gap-3 text-sm text-coral-red"
+            </Field>
+          ) : null}
+          <Field
+            label={t(historical ? "form.historicalCourse" : "form.course")}
+            htmlFor="register-assignment"
           >
-            <p>{t("errors.load")}</p>
+            <select
+              id="register-assignment"
+              className={inputClass}
+              required
+              value={historical ? courseId : assignmentId}
+              disabled={
+                historical
+                  ? !careerId || courses.loading || !!courses.error
+                  : assignments.loading || !!assignments.error
+              }
+              onChange={(event) =>
+                historical
+                  ? setCourseId(event.target.value)
+                  : setAssignmentId(event.target.value)
+              }
+            >
+              <option value="">{t("form.selectCourse")}</option>
+              {historical
+                ? courses.data?.assistantshipCareerCourses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.name}
+                      {course.code ? ` · ${course.code}` : ""}
+                    </option>
+                  ))
+                : assignments.data?.assistantshipAssignments.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.courseName} · {t("nrc", { nrc: item.nrc })} ·{" "}
+                      {item.teacherName}
+                    </option>
+                  ))}
+            </select>
+          </Field>
+          {historical && (
+            <Field label={t("form.courseNrc")} htmlFor="register-course-nrc">
+              <input
+                id="register-course-nrc"
+                name="courseNrc"
+                maxLength={50}
+                className={inputClass}
+                defaultValue={initialRecord?.nrc ?? ""}
+              />
+            </Field>
+          )}
+        </div>
+        {(historical ? courses.loading : assignments.loading) ? (
+          <SkeletonStatus label={t("loading")}>
+            <Skeleton className="h-11 w-full rounded-xl" />
+          </SkeletonStatus>
+        ) : null}
+        {(historical ? courses.error : assignments.error) ? (
+          <div role="alert" className="text-sm text-coral-red">
+            {t("errors.load")}
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-coral-red/30 bg-coral-red/10 px-3 py-1.5 text-xs font-bold text-coral-red hover:bg-coral-red/20 transition-all cursor-pointer"
-              onClick={() => void assignments.refetch().catch(() => undefined)}
+              className={buttonClass}
+              onClick={() =>
+                void (
+                  historical ? courses.refetch() : assignments.refetch()
+                ).catch(() => undefined)
+              }
             >
               {t("retry")}
             </button>
           </div>
-        ) : !assignments.loading &&
-          !assignments.data?.assistantshipAssignments.length ? (
+        ) : !(historical ? courses.loading : assignments.loading) &&
+          !(historical
+            ? courses.data?.assistantshipCareerCourses.length
+            : assignments.data?.assistantshipAssignments.length) ? (
           <p
             role="status"
             className="rounded-xl bg-muted p-3 text-xs text-muted-foreground"
           >
-            {t("form.noAssignments")}
+            {t(historical ? "form.noCareerCourses" : "form.noAssignments")}
           </p>
         ) : null}
 
@@ -281,35 +384,21 @@ export default function RegisterAssistantshipDialog({
             {t("form.student")}
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("form.name")} htmlFor="register-name">
-              <input
-                id="register-name"
-                name="name"
-                defaultValue={initialRecord?.assistantName}
-                className={inputClass}
-                autoComplete="name"
-                maxLength={150}
-                required
-              />
-            </Field>
-            <Field label={t("form.email")} htmlFor="register-email">
-              <input
-                id="register-email"
-                name="email"
-                defaultValue={initialRecord?.assistantEmail}
-                type="email"
-                className={inputClass}
-                autoComplete="email"
-                maxLength={254}
-                required
-              />
-            </Field>
+            <StudentIdentityFields
+              identity={identity}
+              careers={careers}
+              onEmailChange={() => {
+                setSelectedCareerId("");
+                setCourseId("");
+              }}
+              onCurriculumChange={() => setCourseId("")}
+            />
             <Field label={t("form.assistantshipNrc")} htmlFor="register-code">
               <input
                 id="register-code"
                 name="assistantshipNrc"
                 defaultValue={initialRecord?.assistantshipNrc ?? ""}
-                required
+                required={!historical}
                 className={inputClass}
                 maxLength={50}
               />

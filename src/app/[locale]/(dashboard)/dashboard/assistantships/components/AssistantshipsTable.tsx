@@ -103,11 +103,11 @@ export default function AssistantshipsTable({
                   {item.courseName}
                 </p>
                 <p className="mt-1 text-xs tabular-nums text-primary font-medium">
-                  {t("nrc", { nrc: item.nrc })}
+                  {t("nrc", { nrc: item.nrc ?? "—" })}
                   {item.courseCode && ` · ${item.courseCode}`}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {item.teacherName}
+                  {item.teacherName ?? "—"}
                 </p>
               </td>
               <td className="px-5 py-4 font-medium text-foreground">

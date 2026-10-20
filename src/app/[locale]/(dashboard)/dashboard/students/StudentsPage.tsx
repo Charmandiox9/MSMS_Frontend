@@ -13,6 +13,7 @@ import type { CurrentCourseCatalog } from "@/types/academic";
 import { Link } from "@/i18n/routing";
 import StudentDialog from "./StudentDialog";
 import ImportStudentsDialog from "./ImportStudentsDialog";
+import StudentAssistantships from "./StudentAssistantships";
 
 export default function StudentsPage({
   initialNrc = "",
@@ -216,6 +217,7 @@ export default function StudentsPage({
                     </span>
                   )}
                   {student.careerCurriculumVersion && <span className="rounded-lg bg-ocean-cyan/10 px-2 py-1 text-xs text-primary">{student.careerCurriculumVersion.career.name} · {t("cohortYear", { year: student.careerCurriculumVersion.cohortYear })}</span>}
+                  <StudentAssistantships items={student.assistantships ?? []} />
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Link href={`/dashboard/students/${student.id}/progress`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/5 focus-visible:ring-2 focus-visible:ring-primary">

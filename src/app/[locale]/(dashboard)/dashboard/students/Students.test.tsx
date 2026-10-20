@@ -55,8 +55,21 @@ const response = {
 describe("Estudiantes", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.unstubAllGlobals());
+  it("muestra las asignaturas y semestres en que el estudiante fue ayudante", async () => {
+    installFakeApi({
+      "GET /academic/careers/options": ok([]),
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/students": ok({ ...response, items: [{ ...student, assistantships: [{ id: 'assistantship', course, semester: { id: 'past', name: '2025-2' }, nrc: null, courseNrc: '45678', startsOn: '2025-08-01', endsOn: '2025-12-31' }] }] }),
+    });
+    renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
+    expect(await screen.findByText("Historial de ayudantías (1)")).toBeDefined();
+    fireEvent.click(screen.getByText("Historial de ayudantías (1)"));
+    expect(screen.getByText("Biología marina · 2025-2")).toBeDefined();
+    expect(screen.getByText("NRC de asignatura: 45678")).toBeDefined();
+  });
   it("consulta estudiantes con filtros por NRC, búsqueda y paginación del backend", async () => {
     const api = installFakeApi({
+      "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok(catalog),
       "GET /academic/students": ok({ ...response, total: 12, totalPages: 2 }),
     });
@@ -90,7 +103,8 @@ describe("Estudiantes", () => {
     "permite consultar a %s y oculta las acciones de escritura",
     async (role) => {
       installFakeApi({
-        "GET /academic/courses/current": ok(catalog),
+        "GET /academic/careers/options": ok([]),
+      "GET /academic/courses/current": ok(catalog),
         "GET /academic/students": ok(response),
       });
       renderAs(<StudentsPage />, [role]);
@@ -104,6 +118,7 @@ describe("Estudiantes", () => {
   );
   it("recupera una consulta fallida con reintentar", async () => {
     const api = installFakeApi({
+      "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok(catalog),
       "GET /academic/students": fail(500, "No disponible"),
     });
@@ -115,6 +130,7 @@ describe("Estudiantes", () => {
   });
   it("crea el perfil manual y vincula un NRC seleccionado", async () => {
     const api = installFakeApi({
+      "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok(catalog),
       "POST /academic/students": ok(student),
     });
@@ -138,6 +154,7 @@ describe("Estudiantes", () => {
     fireEvent.click(screen.getByRole("button", { name: "Guardar estudiante" }));
     await waitFor(() => expect(saved).toHaveBeenCalledOnce());
     expect(api.calls("POST /academic/students")[0].body).toEqual({
+      careerCurriculumVersionId: null,
       name: "Ana Soto",
       email: "ana@example.com",
       semesterId: "semester",
@@ -146,6 +163,7 @@ describe("Estudiantes", () => {
   });
   it("consulta la matrícula actual al editar y permite sustituir vínculos", async () => {
     const api = installFakeApi({
+      "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok(catalog),
       "GET /academic/students/student": ok(student),
       "PATCH /academic/students/student": ok(student),
@@ -167,6 +185,7 @@ describe("Estudiantes", () => {
   });
   it("permite crear el perfil sin semestre y no envía matrículas", async () => {
     const api = installFakeApi({
+      "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok({ semester: null, courses: [] }),
       "POST /academic/students": ok(student),
     });
@@ -185,12 +204,14 @@ describe("Estudiantes", () => {
       expect(api.calls("POST /academic/students")).toHaveLength(1),
     );
     expect(api.calls("POST /academic/students")[0].body).toEqual({
+      careerCurriculumVersionId: null,
       name: "Ana Soto",
       email: "ana@example.com",
     });
   });
   it("envía el CSV y el semestre visible y comunica los resultados", async () => {
     const api = installFakeApi({
+      "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok(catalog),
       "POST /academic/students/import-csv": ok({
         importedStudents: 1,
@@ -217,6 +238,7 @@ describe("Estudiantes", () => {
   });
   it("mantiene el formulario abierto al rechazar un NRC del CSV", async () => {
     installFakeApi({
+      "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok(catalog),
       "POST /academic/students/import-csv": fail(
         400,
@@ -237,6 +259,7 @@ describe("Estudiantes", () => {
   });
   it("sin semestre impide importar matrículas", async () => {
     installFakeApi({
+      "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok({ semester: null, courses: [] }),
     });
     renderAs(<ImportStudentsDialog onSaved={vi.fn()} onClose={vi.fn()} />);

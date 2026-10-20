@@ -995,7 +995,7 @@
     },
     "form": {
       "title": "Registrar ayudantía",
-      "description": "Selecciona una carga docente y registra al estudiante que ya aprobó esa asignatura.",
+      "description": "Registra una ayudantía del semestre activo o de semestres anteriores y vincúlala a un estudiante.",
       "semester": "Semestre",
       "course": "Asignatura, NRC y profesor",
       "selectCourse": "Seleccionar asignatura…",
@@ -1030,7 +1030,18 @@
       "assistantshipNrc": "NRC de la ayudantía",
       "editTitle": "Editar ayudantía",
       "update": "Guardar cambios",
-      "updated": "Ayudantía actualizada correctamente."
+      "updated": "Ayudantía actualizada correctamente.",
+      "lookupHint": "Ingresa el correo y sal del campo para buscar al estudiante.",
+      "studentFound": "Estudiante encontrado. La ayudantía quedará vinculada a su ficha.",
+      "studentNew": "No existe un estudiante con ese correo. Se creará su ficha al guardar.",
+      "studentCareer": "Carrera del estudiante",
+      "studentCurriculum": "Carrera y cohorte del estudiante",
+      "assistantshipCareer": "Carrera de la ayudantía",
+      "selectCareer": "Selecciona una carrera",
+      "historicalCourse": "Asignatura de la carrera",
+      "courseNrc": "NRC de la asignatura (opcional)",
+      "cohort": "Cohorte {year}",
+      "noCareerCourses": "Selecciona una carrera con asignaturas en su malla."
     },
     "errors": {
       "load": "No pudimos cargar las ayudantías. Intenta nuevamente.",
@@ -1047,7 +1058,9 @@
       "SCHEDULE_CONFLICT": "Los horarios se superponen entre sí o con otra ayudantía del estudiante.",
       "INVALID_SCHEDULE": "Revisa los horarios: el término debe ser posterior al inicio.",
       "ASSIGNMENT_NOT_FOUND": "La carga docente seleccionada ya no existe. Actualiza e intenta nuevamente.",
-      "RETRY": "Los datos cambiaron mientras guardabas. Intenta nuevamente."
+      "RETRY": "Los datos cambiaron mientras guardabas. Intenta nuevamente.",
+      "CAREER_REQUIRED": "Selecciona la carrera y malla del estudiante.",
+      "COURSE_CAREER": "La asignatura no pertenece a la carrera seleccionada."
     },
     "edit": "Editar"
   },
@@ -1309,7 +1322,10 @@
       "save": "No fue posible guardar el estudiante.",
       "import": "No fue posible importar los estudiantes.",
       "fileSize": "El archivo supera el máximo de 2 MB."
-    }
+    },
+    "assistantships": "Historial de ayudantías ({count})",
+    "assistantshipCourseNrc": "NRC de asignatura: {nrc}",
+    "assistantshipNrc": "NRC de ayudantía: {nrc}"
   },
   "CareersPage": {
     "eyebrow": "Información académica",
