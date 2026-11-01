@@ -59,6 +59,18 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         href: "/dashboard",
         icon: LayoutDashboard,
       },
+      {
+        key: "privacyRequests",
+        href: "/dashboard/privacy-requests",
+        icon: ShieldCheck,
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+          "TEACHING_SUPPORT_COORDINATOR",
+          "PRIVACY_OFFICER",
+        ],
+      },
     ],
   },
   {
@@ -204,12 +216,6 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         href: "/dashboard/audit",
         icon: ShieldCheck,
         allowedRoles: ["SYSTEM_ADMIN"],
-      },
-      {
-        key: "privacyRequests",
-        href: "/dashboard/privacy-requests",
-        icon: ShieldCheck,
-        allowedRoles: ["SYSTEM_ADMIN", "PRIVACY_OFFICER"],
       },
       {
         key: "settings",

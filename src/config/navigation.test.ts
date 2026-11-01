@@ -34,15 +34,18 @@ describe("Navigation configuration and filtering", () => {
       DASHBOARD_SECTIONS,
       "PRIVACY_OFFICER",
     );
-    const systemSection = officerNavigation.find((section) => section.key === "system");
+    const mainSection = officerNavigation.find((section) => section.key === "main");
 
-    expect(systemSection?.items.map((item) => item.key)).toEqual(["privacyRequests"]);
+    expect(mainSection?.items.map((item) => item.key)).toContain("privacyRequests");
     expect(
       isRouteAllowed("/dashboard/privacy-requests", DASHBOARD_SECTIONS, "PRIVACY_OFFICER"),
     ).toBe(true);
     expect(
       isRouteAllowed("/dashboard/privacy-requests", DASHBOARD_SECTIONS, "ACADEMIC_SECRETARY"),
-    ).toBe(false);
+    ).toBe(true);
+    expect(
+      isRouteAllowed("/dashboard/privacy-requests", DASHBOARD_SECTIONS, "TEACHING_SUPPORT_COORDINATOR"),
+    ).toBe(true);
   });
 
   it("should expose academic analysis and omit system administration for ACADEMIC_SECRETARY", () => {
