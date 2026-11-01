@@ -164,17 +164,236 @@ function OutputEditor({ record, researches, onClose, onSaved }: { record: Resear
   const t = useTranslations("AcademicRepository.outputs");
   const common = useTranslations("AcademicRepository");
   const [saving, setSaving] = useState(false);
-  const [values, setValues] = useState({ researchId: record?.researchId ?? "", kind: record?.kind ?? "ARTICLE" as ResearchOutputKind, reportingYear: String(record?.reportingYear ?? new Date().getFullYear()), title: record?.title ?? "", doi: record?.doi ?? "", journal: record?.journal ?? "", issn: record?.issn ?? "", isbn: record?.isbn ?? "", quartile: record?.quartile ?? "", fiveYearImpactFactor: record?.fiveYearImpactFactor ?? "", publicationDate: record?.publicationDate?.slice(0, 10) ?? "", publisher: record?.publisher ?? "", publicationPlace: record?.publicationPlace ?? "", indexation: record?.indexation ?? "", studentParticipation: record?.studentParticipation === null || record?.studentParticipation === undefined ? "" : String(record.studentParticipation), internationalParticipation: record?.internationalParticipation === null || record?.internationalParticipation === undefined ? "" : String(record.internationalParticipation), intellectualPropertyType: record?.intellectualPropertyType ?? "", phase: record?.phase ?? "", phaseDate: record?.phaseDate?.slice(0, 10) ?? "", notes: record?.notes ?? "" });
-  const change = (key: keyof typeof values, value: string) => setValues((current) => ({ ...current, [key]: value }));
+  const [values, setValues] = useState({
+    researchId: record?.researchId ?? "",
+    kind: record?.kind ?? ("ARTICLE" as ResearchOutputKind),
+    reportingYear: String(record?.reportingYear ?? new Date().getFullYear()),
+    title: record?.title ?? "",
+    doi: record?.doi ?? "",
+    journal: record?.journal ?? "",
+    issn: record?.issn ?? "",
+    isbn: record?.isbn ?? "",
+    quartile: record?.quartile ?? "",
+    fiveYearImpactFactor: record?.fiveYearImpactFactor ?? "",
+    publicationDate: record?.publicationDate?.slice(0, 10) ?? "",
+    publisher: record?.publisher ?? "",
+    publicationPlace: record?.publicationPlace ?? "",
+    indexation: record?.indexation ?? "",
+    studentParticipation:
+      record?.studentParticipation === null ||
+      record?.studentParticipation === undefined
+        ? ""
+        : String(record.studentParticipation),
+    internationalParticipation:
+      record?.internationalParticipation === null ||
+      record?.internationalParticipation === undefined
+        ? ""
+        : String(record.internationalParticipation),
+    intellectualPropertyType:
+      record?.kind === "INTELLECTUAL_PROPERTY"
+        ? record.intellectualPropertyType ?? ""
+        : "",
+    phase:
+      record?.kind === "INTELLECTUAL_PROPERTY" ? record.phase ?? "" : "",
+    phaseDate:
+      record?.kind === "INTELLECTUAL_PROPERTY"
+        ? record.phaseDate?.slice(0, 10) ?? ""
+        : "",
+    notes: record?.notes ?? "",
+  });
+  const change = (key: keyof typeof values, value: string) =>
+    setValues((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "kind" && value !== "INTELLECTUAL_PROPERTY"
+        ? { intellectualPropertyType: "", phase: "", phaseDate: "" }
+        : {}),
+    }));
+  const isIntellectualProperty = values.kind === "INTELLECTUAL_PROPERTY";
   const submit = async (event: FormEvent) => {
-    event.preventDefault(); if (saving) return; setSaving(true);
-    const payload = { ...values, reportingYear: Number(values.reportingYear), doi: values.doi || null, journal: values.journal || null, issn: values.issn || null, isbn: values.isbn || null, quartile: values.quartile || null, fiveYearImpactFactor: values.fiveYearImpactFactor || null, publicationDate: values.publicationDate || null, publisher: values.publisher || null, publicationPlace: values.publicationPlace || null, indexation: values.indexation || null, studentParticipation: values.studentParticipation === "" ? null : values.studentParticipation === "true", internationalParticipation: values.internationalParticipation === "" ? null : values.internationalParticipation === "true", intellectualPropertyType: values.intellectualPropertyType || null, phase: values.phase || null, phaseDate: values.phaseDate || null, notes: values.notes || null, ...(record ? { expectedUpdatedAt: record.updatedAt } : {}) };
+    event.preventDefault();
+    if (saving) return;
+    setSaving(true);
+    const payload = {
+      ...values,
+      reportingYear: Number(values.reportingYear),
+      doi: values.doi || null,
+      journal: values.journal || null,
+      issn: values.issn || null,
+      isbn: values.isbn || null,
+      quartile: values.quartile || null,
+      fiveYearImpactFactor: values.fiveYearImpactFactor || null,
+      publicationDate: values.publicationDate || null,
+      publisher: values.publisher || null,
+      publicationPlace: values.publicationPlace || null,
+      indexation: values.indexation || null,
+      studentParticipation:
+        values.studentParticipation === ""
+          ? null
+          : values.studentParticipation === "true",
+      internationalParticipation:
+        values.internationalParticipation === ""
+          ? null
+          : values.internationalParticipation === "true",
+      intellectualPropertyType: values.intellectualPropertyType || null,
+      phase: values.phase || null,
+      phaseDate: values.phaseDate || null,
+      notes: values.notes || null,
+      ...(record ? { expectedUpdatedAt: record.updatedAt } : {}),
+    };
     const operation = apiFetch(`/academic/research-outputs${record ? `/${record.id}` : ""}`, { method: record ? "PUT" : "POST", body: JSON.stringify(payload) });
     toast.promise(operation, { loading: t("saving"), success: t(record ? "updated" : "created"), error: (cause: unknown) => cause instanceof Error ? cause.message : t("saveError") });
     try { await operation; onSaved(); } catch { /* feedback via toast */ } finally { setSaving(false); }
   };
-  const textField = (key: keyof typeof values, type = "text") => <label className="text-sm font-medium">{t(`fields.${key}`)}<input className={fieldClass} type={type} value={values[key]} required={["title", "reportingYear", "researchId"].includes(key)} onChange={(e) => change(key, e.target.value)} /></label>;
-  return <Modal isOpen title={t(record ? "edit" : "create")} description={t("formHint")} size="4xl" onClose={() => !saving && onClose()} closeOnEscape={!saving} closeOnBackdropClick={!saving} closeLabel={common("close")}><form onSubmit={(e) => void submit(e)} className="space-y-4"><div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-medium">{t("fields.researchId")}<select className={fieldClass} required value={values.researchId} onChange={(e) => change("researchId", e.target.value)}><option value="">{t("chooseResearch")}</option>{researches.map((r) => <option key={r.id} value={r.id}>{r.code ? `${r.code} · ` : ""}{r.title}</option>)}</select></label><label className="text-sm font-medium">{t("fields.kind")}<select className={fieldClass} value={values.kind} onChange={(e) => change("kind", e.target.value)}>{kinds.map((k) => <option key={k} value={k}>{t(`kinds.${k}`)}</option>)}</select></label>{textField("title")}<label className="text-sm font-medium">{t("fields.reportingYear")}<input className={fieldClass} type="number" min="1900" max="2200" required value={values.reportingYear} onChange={(e) => change("reportingYear", e.target.value)} /></label>{textField("doi")} {textField("journal")} {textField("issn")} {textField("isbn")} {textField("quartile")} {textField("fiveYearImpactFactor", "number")} {textField("publicationDate", "date")} {textField("publisher")} {textField("publicationPlace")} {textField("indexation")}<label className="text-sm font-medium">{t("fields.studentParticipation")}<select className={fieldClass} value={values.studentParticipation} onChange={(e) => change("studentParticipation", e.target.value)}><option value="">{common("unknown")}</option><option value="true">{common("yes")}</option><option value="false">{common("no")}</option></select></label><label className="text-sm font-medium">{t("fields.internationalParticipation")}<select className={fieldClass} value={values.internationalParticipation} onChange={(e) => change("internationalParticipation", e.target.value)}><option value="">{common("unknown")}</option><option value="true">{common("yes")}</option><option value="false">{common("no")}</option></select></label>{textField("intellectualPropertyType")} {textField("phase")} {textField("phaseDate", "date")}<label className="text-sm font-medium sm:col-span-2">{t("fields.notes")}<textarea className={fieldClass} rows={3} value={values.notes} onChange={(e) => change("notes", e.target.value)} /></label></div>{record?.authors.length ? <p className="text-xs text-muted-foreground">{t("authorsPreserved", { count: record.authors.length })}</p> : null}<div className="flex justify-end gap-3 border-t border-border pt-4"><button type="button" className={secondaryButton} disabled={saving} onClick={onClose}>{common("cancel")}</button><button type="submit" className={primaryButton} disabled={saving}>{common(saving ? "saving" : "save")}</button></div></form></Modal>;
+  const textField = (key: keyof typeof values, type = "text") => (
+    <label className="text-sm font-medium">
+      {t(`fields.${key}`)}
+      <input
+        className={fieldClass}
+        type={type}
+        min={key === "fiveYearImpactFactor" ? 0 : undefined}
+        max={key === "fiveYearImpactFactor" ? 999999.9999 : undefined}
+        step={key === "fiveYearImpactFactor" ? 0.0001 : undefined}
+        value={values[key]}
+        required={["title", "reportingYear", "researchId"].includes(key)}
+        onChange={(event) => change(key, event.target.value)}
+      />
+    </label>
+  );
+
+  return (
+    <Modal
+      isOpen
+      title={t(record ? "edit" : "create")}
+      description={t("formHint")}
+      size="4xl"
+      onClose={() => !saving && onClose()}
+      closeOnEscape={!saving}
+      closeOnBackdropClick={!saving}
+      closeLabel={common("close")}
+    >
+      <form onSubmit={(event) => void submit(event)} className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="text-sm font-medium">
+            {t("fields.researchId")}
+            <select
+              className={fieldClass}
+              required
+              value={values.researchId}
+              onChange={(event) => change("researchId", event.target.value)}
+            >
+              <option value="">{t("chooseResearch")}</option>
+              {researches.map((research) => (
+                <option key={research.id} value={research.id}>
+                  {research.code ? `${research.code} · ` : ""}
+                  {research.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-sm font-medium">
+            {t("fields.kind")}
+            <select
+              className={fieldClass}
+              value={values.kind}
+              onChange={(event) => change("kind", event.target.value)}
+            >
+              {kinds.map((kind) => (
+                <option key={kind} value={kind}>
+                  {t(`kinds.${kind}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+          {textField("title")}
+          <label className="text-sm font-medium">
+            {t("fields.reportingYear")}
+            <input
+              className={fieldClass}
+              type="number"
+              min="1900"
+              max="2200"
+              required
+              value={values.reportingYear}
+              onChange={(event) => change("reportingYear", event.target.value)}
+            />
+          </label>
+          {textField("doi")}
+          {textField("journal")}
+          {textField("issn")}
+          {textField("isbn")}
+          {textField("quartile")}
+          {textField("fiveYearImpactFactor", "number")}
+          {textField("publicationDate", "date")}
+          {textField("publisher")}
+          {textField("publicationPlace")}
+          {textField("indexation")}
+          <label className="text-sm font-medium">
+            {t("fields.studentParticipation")}
+            <select
+              className={fieldClass}
+              value={values.studentParticipation}
+              onChange={(event) =>
+                change("studentParticipation", event.target.value)
+              }
+            >
+              <option value="">{common("unknown")}</option>
+              <option value="true">{common("yes")}</option>
+              <option value="false">{common("no")}</option>
+            </select>
+          </label>
+          <label className="text-sm font-medium">
+            {t("fields.internationalParticipation")}
+            <select
+              className={fieldClass}
+              value={values.internationalParticipation}
+              onChange={(event) =>
+                change("internationalParticipation", event.target.value)
+              }
+            >
+              <option value="">{common("unknown")}</option>
+              <option value="true">{common("yes")}</option>
+              <option value="false">{common("no")}</option>
+            </select>
+          </label>
+          {isIntellectualProperty && (
+            <>
+              {textField("intellectualPropertyType")}
+              {textField("phase")}
+              {textField("phaseDate", "date")}
+            </>
+          )}
+          <label className="text-sm font-medium sm:col-span-2">
+            {t("fields.notes")}
+            <textarea
+              className={fieldClass}
+              rows={3}
+              value={values.notes}
+              onChange={(event) => change("notes", event.target.value)}
+            />
+          </label>
+        </div>
+        {record?.authors.length ? (
+          <p className="text-xs text-muted-foreground">
+            {t("authorsPreserved", { count: record.authors.length })}
+          </p>
+        ) : null}
+        <div className="flex justify-end gap-3 border-t border-border pt-4">
+          <button
+            type="button"
+            className={secondaryButton}
+            disabled={saving}
+            onClick={onClose}
+          >
+            {common("cancel")}
+          </button>
+          <button type="submit" className={primaryButton} disabled={saving}>
+            {common(saving ? "saving" : "save")}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
 }
 
 function OutputDetails({ row, onClose, onEdit }: { row: ResearchOutputRecord; onClose: () => void; onEdit: () => void }) {
