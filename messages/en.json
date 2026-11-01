@@ -897,7 +897,7 @@
     },
     "cookies": {
       "title": "Cookies and local storage",
-      "description": "The platform uses a necessary cookie to maintain a session and browser local storage for interface preferences such as language, theme, and dismissal of this notice. The code review did not find analytics or advertising tools currently; this information must be checked against each deployment and its integrations."
+      "description": "The platform uses a necessary cookie to maintain a session and browser local storage for interface preferences such as language, theme, color palette, and dismissal of this notice. The code review did not find analytics or advertising tools currently; this information must be checked against each deployment and its integrations."
     },
     "navigation": {
       "label": "Privacy navigation",
@@ -909,8 +909,21 @@
     "eyebrow": "Privacy",
     "title": "Data rights requests",
     "description": "Submit and track a request about your personal data. Submitting a request does not automatically delete or modify data; the responsible officer will review identity, scope, and applicable exceptions.",
+    "tabs": {
+      "label": "Privacy request sections",
+      "new": "New request",
+      "mine": "My requests",
+      "queue": "Management queue"
+    },
     "loading": "Loading requests",
     "form": {
+      "panelTitle": "Request an action about your data",
+      "panelDescription": "Choose the right you want to exercise. We will review your identity and the request before making changes to information.",
+      "steps": {
+        "choose": "Choose the right you want to exercise.",
+        "describe": "Identify the related data and what you are requesting.",
+        "track": "Keep the reference and follow progress and the response here."
+      },
       "rightLabel": "Right you want to exercise",
       "detailsLabel": {
         "RECTIFICATION": "Identify the data to correct and the requested change",
@@ -943,9 +956,12 @@
     },
     "mine": {
       "title": "My requests",
+      "description": "Review the status, deadlines, and responses for requests linked to your account.",
       "empty": "You have not submitted any requests.",
+      "newRequest": "Create a request",
       "reference": "Reference: {reference}",
       "created": "Submitted {date}",
+      "response": "Response",
       "details": "Request details: {details}",
       "due": "Response due by {date}",
       "blockingDue": "Priority response target: {date} (48 hours; legal period is two business days)",
@@ -954,6 +970,7 @@
     },
     "queue": {
       "title": "Request queue",
+      "description": "Review each request, update its status, and send a response. When appropriate, manage an extension in its separate field.",
       "empty": "There are no open requests.",
       "subjectRemoved": "Account no longer available",
       "request": "{right} · {date}",
@@ -963,7 +980,9 @@
       "extended": "Extension applied; the new due date is shown above.",
       "nextStatus": "Next status",
       "chooseStatus": "Choose an action",
-      "responseOrExtensionLabel": "Response or extension reason",
+      "currentResponse": "Recorded response",
+      "responseLabel": "Response to the requester",
+      "extensionReasonLabel": "Reason for the extension",
       "responseHint": "The response is encrypted and shown only to the requester and authorized staff.",
       "denialHint": "If declining the request, explain the grounds and notify the requester of the legal 30 business day period to complain to the Agency.",
       "extendDeadline": "Extend by 30 days",

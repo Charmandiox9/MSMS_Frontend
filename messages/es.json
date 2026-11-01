@@ -897,7 +897,7 @@
     },
     "cookies": {
       "title": "Cookies y almacenamiento local",
-      "description": "La plataforma utiliza una cookie necesaria para mantener la sesión y almacenamiento local del navegador para preferencias de interfaz, como idioma, tema y cierre de este aviso. La revisión del código no encontró actualmente herramientas de analítica ni publicidad; esta información debe contrastarse con cada despliegue y sus integraciones."
+      "description": "La plataforma utiliza una cookie necesaria para mantener la sesión y almacenamiento local del navegador para preferencias de interfaz, como idioma, tema, paleta de colores y cierre de este aviso. La revisión del código no encontró actualmente herramientas de analítica ni publicidad; esta información debe contrastarse con cada despliegue y sus integraciones."
     },
     "navigation": {
       "label": "Navegación de privacidad",
@@ -909,8 +909,21 @@
     "eyebrow": "Privacidad",
     "title": "Solicitudes de derechos",
     "description": "Inicia y consulta el estado de una solicitud sobre tus datos personales. Registrar una solicitud no elimina ni modifica datos automáticamente; la persona responsable revisará la identidad, el alcance y las excepciones aplicables.",
+    "tabs": {
+      "label": "Secciones de solicitudes de privacidad",
+      "new": "Nueva solicitud",
+      "mine": "Mis solicitudes",
+      "queue": "Bandeja de gestión"
+    },
     "loading": "Cargando solicitudes",
     "form": {
+      "panelTitle": "Solicitar una acción sobre tus datos",
+      "panelDescription": "Elige el derecho que quieres ejercer. Revisaremos tu identidad y la solicitud antes de realizar cambios en la información.",
+      "steps": {
+        "choose": "Selecciona el derecho que quieres ejercer.",
+        "describe": "Indica los datos relacionados y lo que solicitas.",
+        "track": "Guarda el folio y consulta aquí el avance y la respuesta."
+      },
       "rightLabel": "Derecho que deseas ejercer",
       "detailsLabel": {
         "RECTIFICATION": "Indica los datos que deben corregirse y el cambio solicitado",
@@ -943,9 +956,12 @@
     },
     "mine": {
       "title": "Mis solicitudes",
+      "description": "Consulta aquí el estado, los plazos y las respuestas de las solicitudes asociadas a tu cuenta.",
       "empty": "Aún no has registrado solicitudes.",
+      "newRequest": "Crear una solicitud",
       "reference": "Folio: {reference}",
       "created": "Enviada el {date}",
+      "response": "Respuesta",
       "details": "Antecedentes de la solicitud: {details}",
       "due": "Plazo de respuesta hasta {date}",
       "blockingDue": "Meta prioritaria de respuesta: {date} (48 horas; plazo legal de dos días hábiles)",
@@ -954,6 +970,7 @@
     },
     "queue": {
       "title": "Bandeja de gestión",
+      "description": "Revisa cada solicitud, actualiza su estado y comunica una respuesta. Si corresponde, tramita la prórroga desde su propio campo.",
       "empty": "No hay solicitudes abiertas.",
       "subjectRemoved": "Cuenta ya no disponible",
       "request": "{right} · {date}",
@@ -963,7 +980,9 @@
       "extended": "Prórroga aplicada; nuevo vencimiento visible arriba.",
       "nextStatus": "Siguiente estado",
       "chooseStatus": "Selecciona una acción",
-      "responseOrExtensionLabel": "Respuesta o fundamento de prórroga",
+      "currentResponse": "Respuesta registrada",
+      "responseLabel": "Respuesta para la persona solicitante",
+      "extensionReasonLabel": "Fundamento de la prórroga",
       "responseHint": "La respuesta queda cifrada y solo se muestra a la persona y al personal autorizado.",
       "denialHint": "Si no se acoge la solicitud, fundamenta la decisión y comunica el plazo legal de 30 días hábiles para reclamar ante la Agencia.",
       "extendDeadline": "Prorrogar 30 días",

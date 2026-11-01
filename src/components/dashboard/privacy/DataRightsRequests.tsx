@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { FormEvent, KeyboardEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
 import { CardsSkeleton, PageSkeleton } from "@/components/ui/LoadingSkeletons";
 import PaginationControls from "@/components/ui/PaginationControls";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import DataRightsStatusBadge from "@/components/dashboard/privacy/DataRightsStatusBadge";
 
 type RightType = "ACCESS" | "RECTIFICATION" | "SUPPRESSION" | "OPPOSITION" | "PORTABILITY" | "BLOCKING";
 type RequestStatus = "RECEIVED" | "VERIFYING" | "IN_PROGRESS" | "COMPLETED" | "DENIED" | "CLOSED";
@@ -36,6 +38,8 @@ type RequestQueue = {
   totalPages: number;
 };
 
+type RequestView = "new" | "mine" | "queue";
+
 const rightTypes: RightType[] = ["ACCESS", "RECTIFICATION", "SUPPRESSION", "OPPOSITION", "PORTABILITY", "BLOCKING"];
 const transitions: Record<RequestStatus, RequestStatus[]> = {
   RECEIVED: ["VERIFYING", "DENIED"],
@@ -51,17 +55,20 @@ export default function DataRightsRequests() {
   const locale = useLocale();
   const { activeRole } = useActiveRole();
   const canManageQueue = activeRole === "SYSTEM_ADMIN" || activeRole === "PRIVACY_OFFICER";
+  const [activeView, setActiveView] = useState<RequestView | null>(null);
   const [rightType, setRightType] = useState<RightType>("ACCESS");
   const [details, setDetails] = useState("");
   const [mine, setMine] = useState<DataRightsRequest[]>([]);
   const [queue, setQueue] = useState<RequestQueue | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [extensionReasons, setExtensionReasons] = useState<Record<string, string>>({});
   const [nextStatuses, setNextStatuses] = useState<Record<string, RequestStatus | undefined>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
   const [queuePage, setQueuePage] = useState(1);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const dateFormat = useMemo(
     () => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }),
     [locale],
@@ -98,10 +105,16 @@ export default function DataRightsRequests() {
     try {
       const created = await apiFetch<DataRightsRequest>("/privacy/requests", {
         method: "POST",
-        body: JSON.stringify({ rightType, ...(details.trim() ? { details: details.trim() } : {}) }),
+        body: JSON.stringify({
+          rightType,
+          ...(rightType !== "ACCESS" && details.trim()
+            ? { details: details.trim() }
+            : {}),
+        }),
       });
       toast.success(t("success.submitted", { reference: created.id }));
       setDetails("");
+      setActiveView("mine");
       reloadData();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t("errors.submit"));
@@ -136,7 +149,7 @@ export default function DataRightsRequests() {
   };
 
   const extendDeadline = async (request: DataRightsRequest) => {
-    const note = notes[request.id]?.trim();
+    const note = extensionReasons[request.id]?.trim();
     if (!note) {
       toast.error(t("errors.extensionReasonRequired"));
       return;
@@ -148,7 +161,7 @@ export default function DataRightsRequests() {
         body: JSON.stringify({ note }),
       });
       toast.success(t("success.extended"));
-      setNotes((current) => ({ ...current, [request.id]: "" }));
+      setExtensionReasons((current) => ({ ...current, [request.id]: "" }));
       reloadData();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t("errors.update"));
@@ -158,23 +171,69 @@ export default function DataRightsRequests() {
   };
 
   if (activeRole === null) return <PageSkeleton label={t("loading")} />;
+  const selectedView = activeView ?? (canManageQueue ? "queue" : "new");
+  const availableViews: RequestView[] = canManageQueue
+    ? ["queue", "new", "mine"]
+    : ["new", "mine"];
+  const viewLabels: Record<RequestView, string> = {
+    new: t("tabs.new"),
+    mine: t("tabs.mine"),
+    queue: t("tabs.queue"),
+  };
+  const focusView = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    const keyToIndex: Record<string, number> = {
+      ArrowRight: (index + 1) % availableViews.length,
+      ArrowLeft: (index - 1 + availableViews.length) % availableViews.length,
+      Home: 0,
+      End: availableViews.length - 1,
+    };
+    const nextIndex = keyToIndex[event.key];
+    if (nextIndex === undefined) return;
+    event.preventDefault();
+    const nextView = availableViews[nextIndex];
+    if (!nextView) return;
+    setActiveView(nextView);
+    tabRefs.current[nextIndex]?.focus();
+  };
 
   return (
     <section className="space-y-8">
-      <header className="max-w-3xl space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">{t("eyebrow")}</p>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("title")}</h1>
-        <p className="text-sm leading-6 text-muted-foreground">{t("description")}</p>
-      </header>
+      <DashboardPageHeader eyebrow={t("eyebrow")} title={t("title")} subtitle={t("description")} />
 
-      <form onSubmit={submitRequest} className="grid gap-4 rounded-2xl border border-border bg-card p-5 sm:grid-cols-[1fr_auto] sm:items-end sm:p-6">
+      <div role="tablist" aria-label={t("tabs.label")} className="flex flex-wrap gap-2 border-b border-border">
+        {availableViews.map((view, index) => (
+          <button key={view} ref={(element) => { tabRefs.current[index] = element; }} tabIndex={selectedView === view ? 0 : -1} onKeyDown={(event) => focusView(event, index)} type="button" role="tab" aria-selected={selectedView === view} aria-controls={`requests-${view}-panel`} onClick={() => setActiveView(view)} className={`rounded-t-xl px-4 py-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selectedView === view ? "border-b-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+            {viewLabels[view]}
+          </button>
+        ))}
+      </div>
+
+      {selectedView === "new" && (
+      <section id="requests-new-panel" role="tabpanel" aria-label={t("tabs.new")} tabIndex={0} className="space-y-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+      <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+        <h2 className="text-lg font-semibold text-card-foreground">{t("form.panelTitle")}</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{t("form.panelDescription")}</p>
+        <ol className="mt-5 grid gap-3 sm:grid-cols-3">
+          {["choose", "describe", "track"].map((step, index) => (
+            <li key={step} className="flex gap-3 rounded-xl bg-muted p-4">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{index + 1}</span>
+              <span className="text-sm leading-5 text-foreground">{t(`form.steps.${step}`)}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <form onSubmit={submitRequest} className="grid gap-4 rounded-2xl border border-border bg-card p-5 sm:p-6">
         <label className="space-y-2 text-sm font-medium text-card-foreground" htmlFor="right-type">
           <span>{t("form.rightLabel")}</span>
           <select
             id="right-type"
             className="block min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             value={rightType}
-            onChange={(event) => setRightType(event.target.value as RightType)}
+            onChange={(event) => {
+              setRightType(event.target.value as RightType);
+              setDetails("");
+            }}
           >
             {rightTypes.map((right) => (
               <option key={right} value={right}>{t(`rights.${right}`)}</option>
@@ -206,13 +265,19 @@ export default function DataRightsRequests() {
         >
           {t(submitting ? "form.submitting" : "form.submit")}
         </button>
-        <p className="text-xs leading-5 text-muted-foreground sm:col-span-2">{t("form.noSensitiveDetails")}</p>
+        <p className="text-xs leading-5 text-muted-foreground">{t("form.noSensitiveDetails")}</p>
       </form>
+      </section>
+      )}
 
-      <section aria-labelledby="mine-heading" className="space-y-4">
+      {selectedView === "mine" && <section id="requests-mine-panel" role="tabpanel" aria-labelledby="mine-heading" tabIndex={0} className="space-y-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
         <h2 id="mine-heading" className="text-xl font-semibold text-foreground">{t("mine.title")}</h2>
+        <p className="max-w-3xl text-sm leading-6 text-muted-foreground">{t("mine.description")}</p>
         {loading ? <CardsSkeleton count={2} label={t("loading")} /> : mine.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border bg-card p-8 text-sm text-muted-foreground">{t("mine.empty")}</p>
+          <div className="space-y-4 rounded-2xl border border-dashed border-border bg-card p-8">
+            <p className="text-sm text-muted-foreground">{t("mine.empty")}</p>
+            <button type="button" onClick={() => setActiveView("new")} className="min-h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground">{t("mine.newRequest")}</button>
+          </div>
         ) : (
           <ul className="space-y-3">
             {mine.map((request) => (
@@ -225,20 +290,21 @@ export default function DataRightsRequests() {
                     <p className="mt-1 text-xs text-muted-foreground">{request.rightType === "BLOCKING" ? t("mine.blockingDue", { date: dateFormat.format(new Date(request.dueAt)) }) : t("mine.due", { date: dateFormat.format(new Date(request.dueAt)) })}</p>
                     {request.extendedAt && <p className="mt-1 text-xs text-muted-foreground">{t("mine.extended")}</p>}
                   </div>
-                  <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">{t(`statuses.${request.status}`)}</span>
+                  <DataRightsStatusBadge status={request.status} />
                 </div>
-                {request.responseNote && <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{request.responseNote}</p>}
-                {request.details && <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{request.details}</p>}
+                {request.responseNote && <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-muted-foreground"><span className="font-semibold text-foreground">{t("mine.response")}: </span>{request.responseNote}</p>}
+                {request.details && <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{t("mine.details", { details: request.details })}</p>}
                 {request.extensionNote && <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("mine.extensionReason", { reason: request.extensionNote })}</p>}
               </li>
             ))}
           </ul>
         )}
-      </section>
+      </section>}
 
-      {canManageQueue && (
-        <section aria-labelledby="queue-heading" className="space-y-4">
+      {canManageQueue && selectedView === "queue" && (
+        <section id="requests-queue-panel" role="tabpanel" aria-labelledby="queue-heading" tabIndex={0} className="space-y-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
           <h2 id="queue-heading" className="text-xl font-semibold text-foreground">{t("queue.title")}</h2>
+          <p className="max-w-3xl text-sm leading-6 text-muted-foreground">{t("queue.description")}</p>
           {loading ? <CardsSkeleton count={3} label={t("loading")} /> : !queue?.items.length ? (
             <p className="rounded-2xl border border-dashed border-border bg-card p-8 text-sm text-muted-foreground">{t("queue.empty")}</p>
           ) : (
@@ -253,12 +319,13 @@ export default function DataRightsRequests() {
                       <p className="mt-1 text-xs font-medium text-muted-foreground">{request.rightType === "BLOCKING" ? t("queue.blockingDue", { date: dateFormat.format(new Date(request.dueAt)) }) : t("queue.due", { date: dateFormat.format(new Date(request.dueAt)) })}</p>
                       {request.extendedAt && <p className="mt-1 text-xs text-muted-foreground">{t("queue.extended")}</p>}
                     </div>
-                    <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">{t(`statuses.${request.status}`)}</span>
+                    <DataRightsStatusBadge status={request.status} />
                   </div>
                   {request.details && <p className="whitespace-pre-wrap rounded-xl bg-muted p-4 text-sm leading-6 text-foreground">{t("queue.details", { details: request.details })}</p>}
-                  {request.responseNote && <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{request.responseNote}</p>}
+                  {request.responseNote && <p className="whitespace-pre-wrap rounded-xl border border-border bg-muted p-4 text-sm leading-6 text-foreground"><span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("queue.currentResponse")}</span>{request.responseNote}</p>}
                   {transitions[request.status].length > 0 && (
-                    <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
+                    <div className="space-y-4 border-t border-border pt-4">
+                    <div className="grid gap-3 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
                       <label className="space-y-2 text-xs font-medium text-muted-foreground" htmlFor={`status-${request.id}`}>
                         <span>{t("queue.nextStatus")}</span>
                         <select
@@ -277,29 +344,16 @@ export default function DataRightsRequests() {
                         </select>
                       </label>
                       <label className="space-y-2 text-xs font-medium text-muted-foreground" htmlFor={`response-${request.id}`}>
-                        <span>{t("queue.responseOrExtensionLabel")}</span>
+                        <span>{t("queue.responseLabel")}</span>
                         <textarea
                           id={`response-${request.id}`}
+                          aria-describedby={`response-hint-${request.id}`}
                           maxLength={2000}
                           className="block min-h-10 w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
                           value={notes[request.id] ?? ""}
                           onChange={(event) => setNotes((current) => ({ ...current, [request.id]: event.target.value }))}
                         />
                       </label>
-                      <div className="space-y-2 text-xs leading-5 text-muted-foreground">
-                        <p>{t("queue.responseHint")}</p>
-                        {nextStatuses[request.id] === "DENIED" && <p>{t("queue.denialHint")}</p>}
-                        {request.rightType !== "BLOCKING" && ["RECEIVED", "VERIFYING", "IN_PROGRESS"].includes(request.status) && !request.extendedAt && (
-                          <button
-                            className="min-h-10 rounded-lg border border-border px-3 text-sm font-semibold text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-                            disabled={busyId === request.id}
-                            onClick={() => void extendDeadline(request)}
-                            type="button"
-                          >
-                            {t("queue.extendDeadline")}
-                          </button>
-                        )}
-                      </div>
                       <button
                         className="min-h-10 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60 sm:col-start-3"
                         disabled={busyId === request.id || !nextStatuses[request.id]}
@@ -308,6 +362,33 @@ export default function DataRightsRequests() {
                       >
                         {t(busyId === request.id ? "queue.saving" : "queue.save")}
                       </button>
+                    </div>
+                    <div className="space-y-2 text-xs leading-5 text-muted-foreground">
+                      <p id={`response-hint-${request.id}`}>{t("queue.responseHint")}</p>
+                      {nextStatuses[request.id] === "DENIED" && <p>{t("queue.denialHint")}</p>}
+                    </div>
+                    {request.rightType !== "BLOCKING" && ["RECEIVED", "VERIFYING", "IN_PROGRESS"].includes(request.status) && !request.extendedAt && (
+                      <div className="grid gap-3 rounded-xl bg-muted p-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                        <label className="space-y-2 text-xs font-medium text-foreground" htmlFor={`extension-${request.id}`}>
+                          <span>{t("queue.extensionReasonLabel")}</span>
+                          <textarea
+                            id={`extension-${request.id}`}
+                            maxLength={1000}
+                            className="block min-h-20 w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
+                            value={extensionReasons[request.id] ?? ""}
+                            onChange={(event) => setExtensionReasons((current) => ({ ...current, [request.id]: event.target.value }))}
+                          />
+                        </label>
+                        <button
+                          className="min-h-10 rounded-lg border border-border bg-card px-3 text-sm font-semibold text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                          disabled={busyId === request.id}
+                          onClick={() => void extendDeadline(request)}
+                          type="button"
+                        >
+                          {t("queue.extendDeadline")}
+                        </button>
+                      </div>
+                    )}
                     </div>
                   )}
                 </li>
