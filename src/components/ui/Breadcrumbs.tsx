@@ -30,6 +30,7 @@ const ROUTE_NAME_MAP: Record<string, string> = {
   charts: 'charts',
   users: 'users',
   audit: 'audit',
+  'privacy-requests': 'privacyRequests',
   settings: 'settings',
 };
 
