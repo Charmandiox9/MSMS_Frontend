@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
 import { getCurrentTerms, type TermsDocument } from '@/lib/legal-terms';
 import { PageSkeleton } from '@/components/ui/LoadingSkeletons';
+import PublicPageToolbar from '@/components/layout/PublicPageToolbar';
 
 export default function TermsDocumentPage() {
   const locale = useLocale();
@@ -23,8 +23,9 @@ export default function TermsDocumentPage() {
   if (!document && !error) return <PageSkeleton label={t('loading')} />;
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8 sm:py-16">
-      <article className="space-y-10">
+    <main className="w-full px-5 py-8 sm:px-8 sm:py-10">
+      <PublicPageToolbar backLabel={t('back')} />
+      <article className="mx-auto max-w-5xl space-y-10 pb-8">
         <header className="max-w-3xl space-y-4">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">MARSYS</p>
           <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{document?.title ?? t('metadata.title')}</h1>
@@ -43,9 +44,6 @@ export default function TermsDocumentPage() {
           </div>
         )}
 
-        <nav aria-label={t('back')}>
-          <Link className="text-sm font-medium text-primary underline underline-offset-4" href="/">{t('back')}</Link>
-        </nav>
       </article>
     </main>
   );

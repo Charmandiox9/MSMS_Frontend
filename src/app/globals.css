@@ -65,6 +65,26 @@
   --accent-foreground: #451a03;
 }
 
+:root[data-palette="marine"] {
+  --accent: #0d9488;
+  --accent-foreground: #ffffff;
+}
+
+.dark[data-palette="marine"] {
+  --accent: #2dd4bf;
+  --accent-foreground: #022c22;
+}
+
+:root[data-palette="coral"] {
+  --accent: #ef4444;
+  --accent-foreground: #ffffff;
+}
+
+.dark[data-palette="coral"] {
+  --accent: #fb7185;
+  --accent-foreground: #4c0519;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

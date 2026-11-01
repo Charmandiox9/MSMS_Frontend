@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
+import PublicPageToolbar from "@/components/layout/PublicPageToolbar";
 
 export const dynamic = "force-dynamic";
 
@@ -31,8 +32,9 @@ export default async function PrivacyPage() {
   const sections = ["dataCategories", "purposes", "lawfulBasis", "recipients", "retention", "security"] as const;
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8 sm:py-16">
-      <article className="space-y-10">
+    <main className="w-full px-5 py-8 sm:px-8 sm:py-10">
+      <PublicPageToolbar backLabel={t("navigation.back")} />
+      <article className="mx-auto max-w-5xl space-y-10 pb-8">
         <header className="max-w-3xl space-y-5">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">{t("eyebrow")}</p>
           <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{t("title")}</h1>
