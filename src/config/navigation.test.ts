@@ -29,6 +29,22 @@ describe("Navigation configuration and filtering", () => {
     expect(academicItemKeys).not.toContain("justifications");
   });
 
+  it("limits the privacy request queue to privacy officers and system administrators", () => {
+    const officerNavigation = getFilteredNavigation(
+      DASHBOARD_SECTIONS,
+      "PRIVACY_OFFICER",
+    );
+    const systemSection = officerNavigation.find((section) => section.key === "system");
+
+    expect(systemSection?.items.map((item) => item.key)).toEqual(["privacyRequests"]);
+    expect(
+      isRouteAllowed("/dashboard/privacy-requests", DASHBOARD_SECTIONS, "PRIVACY_OFFICER"),
+    ).toBe(true);
+    expect(
+      isRouteAllowed("/dashboard/privacy-requests", DASHBOARD_SECTIONS, "ACADEMIC_SECRETARY"),
+    ).toBe(false);
+  });
+
   it("should expose academic analysis and omit system administration for ACADEMIC_SECRETARY", () => {
     const filtered = getFilteredNavigation(
       DASHBOARD_SECTIONS,

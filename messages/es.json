@@ -231,6 +231,7 @@
     "reports": "Reportes e indicadores",
     "users": "Usuarios",
     "audit": "Auditoría del sistema",
+    "privacyRequests": "Solicitudes de privacidad",
     "settings": "Configuración",
     "logout": "Cerrar sesión",
     "accountMenu": "Abrir menú de cuenta",
@@ -252,7 +253,8 @@
       "SYSTEM_ADMIN": "Administrador del sistema",
       "ACADEMIC_SECRETARY": "Secretario docente",
       "ACADEMIC_PROCESS_ANALYST": "Analista académico",
-      "TEACHING_SUPPORT_COORDINATOR": "Apoyo docente"
+      "TEACHING_SUPPORT_COORDINATOR": "Apoyo docente",
+      "PRIVACY_OFFICER": "Responsable de privacidad"
     },
     "switchRole": "Cambiar rol activo",
     "switchRoleTitle": "Roles asignados",
@@ -837,10 +839,13 @@
         "suppression": { "title": "Supresión", "description": "Solicitar la eliminación de datos en los casos establecidos por la ley." },
         "opposition": { "title": "Oposición", "description": "Oponerse a determinados tratamientos en las circunstancias previstas por la ley." },
         "portability": { "title": "Portabilidad", "description": "Solicitar una copia estructurada y de uso común cuando se cumplan los requisitos legales." },
-        "blocking": { "title": "Bloqueo", "description": "Solicitar la suspensión temporal del tratamiento en los casos que reconoce la ley." }
+        "blocking": { "title": "Bloqueo", "description": "Solicitar la suspensión temporal del tratamiento en los casos que reconoce la ley; su respuesta tiene un plazo especial de dos días hábiles." }
       },
-      "contactConfigured": "Utilice el canal institucional indicado arriba para iniciar una solicitud. No incluya antecedentes sensibles en un correo ordinario; la institución debe verificar su identidad y entregar un medio seguro cuando corresponda.",
-      "contactPending": "El canal institucional para ejercer estos derechos aún no está configurado. La institución debe publicarlo antes de habilitar el servicio.",
+      "contactConfigured": "Las personas con cuenta institucional pueden iniciar la solicitud en el portal. Para otras consultas, utilice el canal institucional indicado arriba. No incluya antecedentes sensibles en un correo ordinario.",
+      "contactPending": "El canal institucional para personas sin cuenta aún no está configurado; la institución debe publicarlo.",
+      "responseTime": "El responsable debe acusar recibo y responder por escrito dentro de 30 días corridos desde el ingreso; puede prorrogar una vez hasta por otros 30 días corridos. Las solicitudes de bloqueo temporal vinculadas a rectificación, supresión u oposición tienen un plazo especial de dos días hábiles. Debe conservar evidencia del envío, fecha y contenido íntegro. Si deniega, debe informar el plazo legal de 30 días hábiles para reclamar ante la Agencia. El objetivo de 48 horas del portal para bloqueos es conservador y no reemplaza el cómputo legal.",
+      "portalLink": "Abrir portal de solicitudes",
+      "lawSource": "Consultar texto oficial de la Ley 21.719",
       "blockingNote": "El bloqueo puede solicitarse mientras se resuelve una solicitud de rectificación, supresión u oposición, según las condiciones legales aplicables."
     },
     "cookies": {
@@ -850,6 +855,84 @@
     "navigation": {
       "label": "Navegación de privacidad",
       "login": "Volver al acceso de MARSYS"
+    }
+  },
+  "DataRightsRequestPage": {
+    "eyebrow": "Privacidad",
+    "title": "Solicitudes de derechos",
+    "description": "Inicia y consulta el estado de una solicitud sobre tus datos personales. Registrar una solicitud no elimina ni modifica datos automáticamente; la persona responsable revisará la identidad, el alcance y las excepciones aplicables.",
+    "loading": "Cargando solicitudes",
+    "form": {
+      "rightLabel": "Derecho que deseas ejercer",
+      "detailsLabel": {
+        "RECTIFICATION": "Indica los datos que deben corregirse y el cambio solicitado",
+        "SUPPRESSION": "Identifica los datos, el tratamiento y la causal de supresión que invocas",
+        "OPPOSITION": "Identifica el tratamiento y explica la causal de oposición",
+        "PORTABILITY": "Indica los datos cuyo traslado solicitas",
+        "BLOCKING": "Identifica los datos o tratamiento cuyo bloqueo solicitas"
+      },
+      "detailsHint": "Describe solo la información necesaria para tramitar la solicitud. La identidad y el correo de respuesta se toman de tu cuenta institucional.",
+      "blockingDeadline": "El bloqueo temporal asociado a rectificación, supresión u oposición tiene un plazo legal especial de dos días hábiles. El portal lo prioriza con una meta conservadora de 48 horas.",
+      "submit": "Enviar solicitud",
+      "submitting": "Enviando…",
+      "noSensitiveDetails": "Describe solo los datos y la petición necesarios. No adjuntes documentos; si se requieren antecedentes, la institución indicará un canal seguro."
+    },
+    "rights": {
+      "ACCESS": "Acceso",
+      "RECTIFICATION": "Rectificación",
+      "SUPPRESSION": "Supresión",
+      "OPPOSITION": "Oposición",
+      "PORTABILITY": "Portabilidad",
+      "BLOCKING": "Bloqueo"
+    },
+    "statuses": {
+      "RECEIVED": "Recibida",
+      "VERIFYING": "Verificando identidad",
+      "IN_PROGRESS": "En gestión",
+      "COMPLETED": "Respondida",
+      "DENIED": "No acogida",
+      "CLOSED": "Cerrada"
+    },
+    "mine": {
+      "title": "Mis solicitudes",
+      "empty": "Aún no has registrado solicitudes.",
+      "reference": "Folio: {reference}",
+      "created": "Enviada el {date}",
+      "details": "Antecedentes de la solicitud: {details}",
+      "due": "Plazo de respuesta hasta {date}",
+      "blockingDue": "Meta prioritaria de respuesta: {date} (48 horas; plazo legal de dos días hábiles)",
+      "extended": "El plazo fue prorrogado una vez.",
+      "extensionReason": "Fundamento de la prórroga: {reason}"
+    },
+    "queue": {
+      "title": "Bandeja de gestión",
+      "empty": "No hay solicitudes abiertas.",
+      "subjectRemoved": "Cuenta ya no disponible",
+      "request": "{right} · {date}",
+      "details": "Solicitud: {details}",
+      "due": "Vence el {date}",
+      "blockingDue": "Prioridad de bloqueo · meta 48 horas: {date}",
+      "extended": "Prórroga aplicada; nuevo vencimiento visible arriba.",
+      "nextStatus": "Siguiente estado",
+      "chooseStatus": "Selecciona una acción",
+      "responseOrExtensionLabel": "Respuesta o fundamento de prórroga",
+      "responseHint": "La respuesta queda cifrada y solo se muestra a la persona y al personal autorizado.",
+      "denialHint": "Si no se acoge la solicitud, fundamenta la decisión y comunica el plazo legal de 30 días hábiles para reclamar ante la Agencia.",
+      "extendDeadline": "Prorrogar 30 días",
+      "save": "Actualizar",
+      "saving": "Guardando…"
+    },
+    "success": {
+      "submitted": "Solicitud recibida. Folio: {reference}",
+      "updated": "Estado actualizado.",
+      "extended": "Plazo prorrogado 30 días."
+    },
+    "errors": {
+      "load": "No se pudieron cargar las solicitudes.",
+      "submit": "No se pudo registrar la solicitud.",
+      "update": "No se pudo actualizar la solicitud.",
+      "responseRequired": "Escribe una respuesta antes de completar o no acoger la solicitud.",
+      "extensionReasonRequired": "Escribe el fundamento antes de prorrogar el plazo."
     }
   },
   "NotFound": {

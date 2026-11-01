@@ -231,6 +231,7 @@
     "reports": "Reports and indicators",
     "users": "Users",
     "audit": "System audit",
+    "privacyRequests": "Privacy requests",
     "settings": "Settings",
     "logout": "Log out",
     "accountMenu": "Open account menu",
@@ -252,7 +253,8 @@
       "SYSTEM_ADMIN": "System administrator",
       "ACADEMIC_SECRETARY": "Academic secretary",
       "ACADEMIC_PROCESS_ANALYST": "Academic process analyst",
-      "TEACHING_SUPPORT_COORDINATOR": "Teaching support coordinator"
+      "TEACHING_SUPPORT_COORDINATOR": "Teaching support coordinator",
+      "PRIVACY_OFFICER": "Privacy officer"
     },
     "switchRole": "Switch active role",
     "switchRoleTitle": "Assigned roles",
@@ -837,10 +839,13 @@
         "suppression": { "title": "Erasure", "description": "Request deletion of data in the cases established by law." },
         "opposition": { "title": "Objection", "description": "Object to certain processing in the circumstances provided by law." },
         "portability": { "title": "Portability", "description": "Request a structured, commonly used copy when legal requirements are met." },
-        "blocking": { "title": "Blocking", "description": "Request temporary suspension of processing in cases recognized by law." }
+        "blocking": { "title": "Blocking", "description": "Request temporary suspension of processing in cases recognized by law; the response has a special two business day period." }
       },
-      "contactConfigured": "Use the institutional channel above to start a request. Do not include sensitive records in ordinary email; the institution must verify your identity and provide a secure method where appropriate.",
-      "contactPending": "The institutional channel for exercising these rights has not been configured. The institution must publish it before the service is enabled.",
+      "contactConfigured": "People with an institutional account can start a request in the portal. For other enquiries, use the institutional channel above. Do not include sensitive records in ordinary email.",
+      "contactPending": "The institutional channel for people without an account has not been configured; the institution must publish it.",
+      "responseTime": "The controller must acknowledge receipt and respond in writing within 30 calendar days; the period may be extended once by up to 30 additional calendar days. Temporary blocking requests linked to rectification, erasure, or objection have a special two business day response period. The controller must retain evidence of sending, date, and full response contents. A denial must inform the requester of the 30 business day period to complain to the Agency. The portal's 48-hour blocking target is conservative and does not replace the legal calculation.",
+      "portalLink": "Open request portal",
+      "lawSource": "Read the official text of Law 21.719",
       "blockingNote": "Blocking may be requested while a rectification, erasure, or objection request is being resolved, under the applicable legal conditions."
     },
     "cookies": {
@@ -850,6 +855,84 @@
     "navigation": {
       "label": "Privacy navigation",
       "login": "Return to MARSYS sign in"
+    }
+  },
+  "DataRightsRequestPage": {
+    "eyebrow": "Privacy",
+    "title": "Data rights requests",
+    "description": "Submit and track a request about your personal data. Submitting a request does not automatically delete or modify data; the responsible officer will review identity, scope, and applicable exceptions.",
+    "loading": "Loading requests",
+    "form": {
+      "rightLabel": "Right you want to exercise",
+      "detailsLabel": {
+        "RECTIFICATION": "Identify the data to correct and the requested change",
+        "SUPPRESSION": "Identify the data, processing, and erasure ground you rely on",
+        "OPPOSITION": "Identify the processing and explain the ground for objection",
+        "PORTABILITY": "Identify the data you want transferred",
+        "BLOCKING": "Identify the data or processing you want blocked"
+      },
+      "detailsHint": "Describe only the information needed to process your request. Your institutional account provides your identity and reply email.",
+      "blockingDeadline": "Temporary blocking linked to rectification, erasure, or objection has a special legal response period of two business days. The portal prioritizes it with a conservative 48-hour target.",
+      "submit": "Submit request",
+      "submitting": "Submitting…",
+      "noSensitiveDetails": "Describe only the data and action needed for your request. Do not attach documents; if supporting records are needed, the institution will provide a secure channel."
+    },
+    "rights": {
+      "ACCESS": "Access",
+      "RECTIFICATION": "Rectification",
+      "SUPPRESSION": "Erasure",
+      "OPPOSITION": "Objection",
+      "PORTABILITY": "Portability",
+      "BLOCKING": "Blocking"
+    },
+    "statuses": {
+      "RECEIVED": "Received",
+      "VERIFYING": "Identity verification",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Responded",
+      "DENIED": "Declined",
+      "CLOSED": "Closed"
+    },
+    "mine": {
+      "title": "My requests",
+      "empty": "You have not submitted any requests.",
+      "reference": "Reference: {reference}",
+      "created": "Submitted {date}",
+      "details": "Request details: {details}",
+      "due": "Response due by {date}",
+      "blockingDue": "Priority response target: {date} (48 hours; legal period is two business days)",
+      "extended": "The deadline has been extended once.",
+      "extensionReason": "Reason for extension: {reason}"
+    },
+    "queue": {
+      "title": "Request queue",
+      "empty": "There are no open requests.",
+      "subjectRemoved": "Account no longer available",
+      "request": "{right} · {date}",
+      "details": "Request: {details}",
+      "due": "Due {date}",
+      "blockingDue": "Blocking priority · 48-hour target: {date}",
+      "extended": "Extension applied; the new due date is shown above.",
+      "nextStatus": "Next status",
+      "chooseStatus": "Choose an action",
+      "responseOrExtensionLabel": "Response or extension reason",
+      "responseHint": "The response is encrypted and shown only to the requester and authorized staff.",
+      "denialHint": "If declining the request, explain the grounds and notify the requester of the legal 30 business day period to complain to the Agency.",
+      "extendDeadline": "Extend by 30 days",
+      "save": "Update",
+      "saving": "Saving…"
+    },
+    "success": {
+      "submitted": "Request received. Reference: {reference}",
+      "updated": "Status updated.",
+      "extended": "Deadline extended by 30 days."
+    },
+    "errors": {
+      "load": "Could not load requests.",
+      "submit": "Could not submit the request.",
+      "update": "Could not update the request.",
+      "responseRequired": "Enter a response before completing or declining the request.",
+      "extensionReasonRequired": "Enter the reason before extending the deadline."
     }
   },
   "NotFound": {

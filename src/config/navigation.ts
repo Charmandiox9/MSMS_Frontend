@@ -35,6 +35,7 @@ export type NavigationKey =
   | "charts"
   | "users"
   | "audit"
+  | "privacyRequests"
   | "settings";
 
 export interface NavigationItem {
@@ -203,6 +204,12 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         href: "/dashboard/audit",
         icon: ShieldCheck,
         allowedRoles: ["SYSTEM_ADMIN"],
+      },
+      {
+        key: "privacyRequests",
+        href: "/dashboard/privacy-requests",
+        icon: ShieldCheck,
+        allowedRoles: ["SYSTEM_ADMIN", "PRIVACY_OFFICER"],
       },
       {
         key: "settings",

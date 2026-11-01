@@ -97,6 +97,13 @@ export default async function PrivacyPage() {
           <p className="mt-5 text-sm leading-6 text-muted-foreground">
             {contactEmail ? t("rights.contactConfigured") : t("rights.contactPending")}
           </p>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("rights.responseTime")}</p>
+          <Link className="mt-3 inline-flex text-sm font-medium text-primary underline underline-offset-4" href="/dashboard/privacy-requests">
+            {t("rights.portalLink")}
+          </Link>
+          <a className="mt-3 block text-sm font-medium text-primary underline underline-offset-4" href="https://www.bcn.cl/leychile/navegar?idNorma=1209272" rel="noopener noreferrer" target="_blank">
+            {t("rights.lawSource")}
+          </a>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("rights.blockingNote")}</p>
         </section>
 
