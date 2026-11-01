@@ -775,36 +775,82 @@
     "rights": "© {year} MARSYS · Facultad de Ciencias del Mar, UCN"
   },
   "Privacy": {
-    "cookie_message": "Utilizamos cookies propias y de terceros para mejorar su experiencia, analizar el tráfico y cumplir con la Ley N° 21.719 de Protección de Datos de Chile. Lee nuestra",
+    "notice_label": "Aviso de almacenamiento necesario",
+    "storage_notice": "MARSYS usa una cookie necesaria para mantener tu sesión y almacenamiento local para preferencias de interfaz. No usamos actualmente cookies de analítica ni publicidad. Lee la información de",
     "privacy_policy": "Política de Privacidad",
-    "accept_all": "Aceptar todas",
-    "reject_all": "Rechazar no esenciales",
-    "manage": "Configurar cookies",
-    "preferences_title": "Preferencias de Privacidad",
-    "preferences_desc": "Gestiona tu consentimiento para las distintas cookies que usamos. Las cookies estrictamente necesarias no pueden desactivarse.",
-    "necessary_title": "Estrictamente necesarias",
-    "necessary_desc": "Requeridas para el funcionamiento básico del sitio, mantener tu sesión y recordar tus preferencias de idioma y tema.",
-    "analytics_title": "Análisis y rendimiento",
-    "analytics_desc": "Nos ayudan a entender cómo interactúas con la plataforma, medir el tráfico y mejorar la experiencia de usuario.",
-    "marketing_title": "Publicidad y seguimiento",
-    "marketing_desc": "Utilizadas para rastrear tu navegación y mostrar contenido relevante. (MARSYS no utiliza actualmente este tipo de cookies).",
-    "save_preferences": "Guardar preferencias"
+    "dismiss_notice": "Entendido"
   },
-  "PrivacyPolicy": {
-    "title": "Política de Privacidad y Protección de Datos",
-    "last_updated": "Última actualización: Agosto 2026",
-    "intro_title": "1. Introducción",
-    "intro_text": "En MARSYS (Plataforma de Gestión Académica de la Facultad de Ciencias del Mar, UCN), respetamos y protegemos la privacidad de nuestros usuarios. Esta política describe cómo recopilamos, utilizamos y salvaguardamos su información personal, en estricto cumplimiento con la Ley N° 21.719 de Protección de Datos Personales de Chile.",
-    "collection_title": "2. Información que Recopilamos",
-    "collection_text": "Recopilamos información necesaria para la gestión académica y administrativa, incluyendo datos de identificación (nombre, RUT, correo institucional), datos académicos (avance curricular, notas) y registros de actividad dentro de la plataforma (solicitudes de laboratorios, vehículos, etc.).",
-    "use_title": "3. Uso de la Información",
-    "use_text": "Los datos recopilados se utilizan exclusivamente para los fines operativos de la plataforma MARSYS, tales como la trazabilidad de procesos internos, asignación de recursos, gestión de roles y comunicación oficial dentro de la comunidad de la FCM.",
-    "arco_title": "4. Sus Derechos ARCO",
-    "arco_text": "De acuerdo con la Ley N° 21.719, usted tiene el derecho de Acceder, Rectificar, Cancelar u Oponerse al tratamiento de sus datos personales. Para ejercer estos derechos, puede comunicarse con la administración de la plataforma a través de su cuenta institucional.",
-    "cookies_title": "5. Uso de Cookies",
-    "cookies_text": "Utilizamos cookies estrictamente necesarias para mantener su sesión activa y preferencias de interfaz (como idioma y tema oscuro/claro). No utilizamos cookies para rastreo publicitario de terceros.",
-    "contact_title": "6. Contacto",
-    "contact_text": "Si tienes preguntas o inquietudes sobre esta Política de Privacidad o el manejo de tus datos, por favor contacta a la administración de la Facultad de Ciencias del Mar."
+  "PrivacyNoticePage": {
+    "metadata": {
+      "title": "Privacidad y datos personales | MARSYS",
+      "description": "Información sobre el tratamiento de datos personales en la plataforma académica MARSYS."
+    },
+    "eyebrow": "Privacidad y datos personales",
+    "title": "Información de privacidad de MARSYS",
+    "intro": "Esta página describe los datos que la plataforma puede tratar, sus usos técnicos y las medidas implementadas. La institución responsable debe completar y validar la información institucional antes de aprobar esta política.",
+    "reviewDate": "1 de noviembre de 2026",
+    "version": "Revisión técnica: {date} · Versión {version}",
+    "status": {
+      "title": "Información institucional pendiente de validación",
+      "description": "El nombre legal del responsable, su representante, el canal oficial, las bases de licitud por finalidad, los plazos de conservación, los destinatarios y las transferencias deben ser confirmados por la institución. Esta página no acredita por sí sola el cumplimiento ni constituye una política institucional aprobada."
+    },
+    "controller": {
+      "title": "Responsable y contacto",
+      "nameLabel": "Responsable del tratamiento",
+      "contactLabel": "Canal para consultas y solicitudes",
+      "pending": "Pendiente de confirmación institucional",
+      "contactPending": "Canal oficial pendiente de configuración",
+      "representativePending": "La identificación del representante legal y, si corresponde, del encargado de prevención debe ser publicada por la institución responsable."
+    },
+    "sections": {
+      "dataCategories": {
+        "title": "Categorías de datos",
+        "description": "Según los módulos habilitados, MARSYS puede tratar datos de identidad y contacto, roles y actividad de cuenta; información académica de docentes, estudiantes y ayudantes; registros de docencia; proyectos, investigaciones, participantes y resultados académicos; y solicitudes académicas con sus antecedentes adjuntos. Los archivos enviados como evidencia pueden contener información sensible."
+      },
+      "purposes": {
+        "title": "Usos de la plataforma",
+        "description": "El software utiliza esos datos para autenticar y autorizar cuentas, administrar procesos académicos y de investigación, registrar decisiones y mantener trazabilidad y seguridad operativa. La institución debe especificar y aprobar las finalidades concretas de cada módulo."
+      },
+      "lawfulBasis": {
+        "title": "Base de licitud",
+        "description": "La plataforma no presume que el consentimiento sea la base aplicable. El responsable institucional debe determinar, documentar y comunicar la base de licitud correspondiente a cada finalidad y demostrarla cuando sea requerida."
+      },
+      "recipients": {
+        "title": "Acceso y destinatarios",
+        "description": "El acceso dentro de MARSYS está limitado por sesión y permisos asignados. También pueden intervenir proveedores de autenticación, alojamiento, base de datos y almacenamiento de archivos, según la configuración del despliegue. La institución debe identificar los proveedores reales, destinatarios y transferencias internacionales aplicables."
+      },
+      "retention": {
+        "title": "Conservación y eliminación",
+        "description": "Los plazos deben definirse por categoría y finalidad conforme a las obligaciones académicas y legales de la institución. La plataforma no determina por sí sola esos plazos ni garantiza la eliminación de respaldos o copias del proveedor; deben configurarse y verificarse en cada entorno."
+      },
+      "security": {
+        "title": "Medidas técnicas",
+        "description": "El proyecto incorpora cifrado de campos personales en la aplicación, controles de acceso por rol, protección de sesión y medidas para reducir la exposición de datos en registros técnicos. La institución debe revisar su configuración, proveedores, respaldos, recuperación y pruebas periódicas antes de operar en producción."
+      }
+    },
+    "rights": {
+      "title": "Derechos de las personas",
+      "description": "La Ley 21.719 contempla los siguientes derechos, sujetos a sus requisitos y excepciones legales:",
+      "items": {
+        "access": { "title": "Acceso", "description": "Saber si se tratan datos personales y acceder a ellos y a la información prevista por la ley." },
+        "rectification": { "title": "Rectificación", "description": "Solicitar que se corrijan datos inexactos, desactualizados o incompletos." },
+        "suppression": { "title": "Supresión", "description": "Solicitar la eliminación de datos en los casos establecidos por la ley." },
+        "opposition": { "title": "Oposición", "description": "Oponerse a determinados tratamientos en las circunstancias previstas por la ley." },
+        "portability": { "title": "Portabilidad", "description": "Solicitar una copia estructurada y de uso común cuando se cumplan los requisitos legales." },
+        "blocking": { "title": "Bloqueo", "description": "Solicitar la suspensión temporal del tratamiento en los casos que reconoce la ley." }
+      },
+      "contactConfigured": "Utilice el canal institucional indicado arriba para iniciar una solicitud. No incluya antecedentes sensibles en un correo ordinario; la institución debe verificar su identidad y entregar un medio seguro cuando corresponda.",
+      "contactPending": "El canal institucional para ejercer estos derechos aún no está configurado. La institución debe publicarlo antes de habilitar el servicio.",
+      "blockingNote": "El bloqueo puede solicitarse mientras se resuelve una solicitud de rectificación, supresión u oposición, según las condiciones legales aplicables."
+    },
+    "cookies": {
+      "title": "Cookies y almacenamiento local",
+      "description": "La plataforma utiliza una cookie necesaria para mantener la sesión y almacenamiento local del navegador para preferencias de interfaz, como idioma, tema y cierre de este aviso. La revisión del código no encontró actualmente herramientas de analítica ni publicidad; esta información debe contrastarse con cada despliegue y sus integraciones."
+    },
+    "navigation": {
+      "label": "Navegación de privacidad",
+      "login": "Volver al acceso de MARSYS"
+    }
   },
   "NotFound": {
     "title": "404",

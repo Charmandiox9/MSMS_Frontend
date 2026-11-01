@@ -775,36 +775,82 @@
     "rights": "© {year} MARSYS · Faculty of Marine Sciences, UCN"
   },
   "Privacy": {
-    "cookie_message": "We use first and third-party cookies to improve your experience, analyze traffic, and comply with the Chilean Data Protection Law (N° 21.719). Read our",
+    "notice_label": "Essential storage notice",
+    "storage_notice": "MARSYS uses a necessary cookie to maintain your session and browser local storage for interface preferences. We do not currently use analytics or advertising cookies. Read the information in our",
     "privacy_policy": "Privacy Policy",
-    "accept_all": "Accept All",
-    "reject_all": "Reject Non-Essential",
-    "manage": "Manage Preferences",
-    "preferences_title": "Privacy Preferences",
-    "preferences_desc": "Manage your consent for the different cookies we use. Strictly necessary cookies cannot be disabled.",
-    "necessary_title": "Strictly Necessary",
-    "necessary_desc": "Required for the basic operation of the site, maintaining your session, and remembering your language and theme preferences.",
-    "analytics_title": "Analytics & Performance",
-    "analytics_desc": "Help us understand how you interact with the platform, measure traffic, and improve the user experience.",
-    "marketing_title": "Marketing & Tracking",
-    "marketing_desc": "Used to track your browsing and show relevant content. (MARSYS does not currently use this type of cookie).",
-    "save_preferences": "Save Preferences"
+    "dismiss_notice": "Understood"
   },
-  "PrivacyPolicy": {
-    "title": "Privacy Policy and Data Protection",
-    "last_updated": "Last updated: August 2026",
-    "intro_title": "1. Introduction",
-    "intro_text": "At MARSYS (Academic Management Platform of the Faculty of Marine Sciences, UCN), we respect and protect our users' privacy. This policy describes how we collect, use, and safeguard your personal information, in strict compliance with the Chilean Personal Data Protection Law (N° 21.719).",
-    "collection_title": "2. Information We Collect",
-    "collection_text": "We collect information necessary for academic and administrative management, including identification data (name, RUT, institutional email), academic data (curricular progress, grades), and activity logs within the platform (laboratory requests, vehicle requests, etc.).",
-    "use_title": "3. Use of Information",
-    "use_text": "The collected data is used exclusively for the operational purposes of the MARSYS platform, such as traceability of internal processes, resource allocation, role management, and official communication within the FCM community.",
-    "arco_title": "4. Your ARCO Rights",
-    "arco_text": "In accordance with Law N° 21.719, you have the right to Access, Rectify, Cancel, or Oppose the processing of your personal data. To exercise these rights, you may contact the platform administration through your institutional account.",
-    "cookies_title": "5. Use of Cookies",
-    "cookies_text": "We use strictly necessary cookies to keep your session active and interface preferences (such as language and dark/light theme). We do not use cookies for third-party advertising tracking.",
-    "contact_title": "6. Contact",
-    "contact_text": "If you have any questions or concerns regarding this Privacy Policy or the handling of your data, please contact the administration of the Faculty of Marine Sciences."
+  "PrivacyNoticePage": {
+    "metadata": {
+      "title": "Privacy and personal data | MARSYS",
+      "description": "Information about personal data processing in the MARSYS academic platform."
+    },
+    "eyebrow": "Privacy and personal data",
+    "title": "MARSYS privacy information",
+    "intro": "This page describes data the platform may process, its technical uses, and implemented safeguards. The responsible institution must complete and validate institutional information before approving this policy.",
+    "reviewDate": "November 1, 2026",
+    "version": "Technical review: {date} · Version {version}",
+    "status": {
+      "title": "Institutional information pending validation",
+      "description": "The controller's legal name, representative, official contact channel, lawful bases for each purpose, retention periods, recipients, and transfers must be confirmed by the institution. This page alone does not certify compliance or constitute an approved institutional policy."
+    },
+    "controller": {
+      "title": "Controller and contact",
+      "nameLabel": "Data controller",
+      "contactLabel": "Channel for questions and requests",
+      "pending": "Pending institutional confirmation",
+      "contactPending": "Official channel has not been configured",
+      "representativePending": "The responsible institution must publish its legal representative and, where applicable, its prevention officer."
+    },
+    "sections": {
+      "dataCategories": {
+        "title": "Data categories",
+        "description": "Depending on enabled modules, MARSYS may process identity and contact details, account roles and activity; academic records for faculty, students, and teaching assistants; teaching records; projects, research, participants, and academic outputs; and academic requests with their attachments. Uploaded evidence may contain sensitive information."
+      },
+      "purposes": {
+        "title": "Platform uses",
+        "description": "The software uses these data to authenticate and authorize accounts, manage academic and research processes, record decisions, and maintain traceability and operational security. The institution must specify and approve the purposes for each module."
+      },
+      "lawfulBasis": {
+        "title": "Lawful basis",
+        "description": "The platform does not assume consent is the applicable basis. The institutional controller must determine, document, and communicate the lawful basis for each purpose, and demonstrate it when required."
+      },
+      "recipients": {
+        "title": "Access and recipients",
+        "description": "Access within MARSYS is limited by session and assigned permissions. Authentication, hosting, database, and file storage providers may also be involved depending on deployment configuration. The institution must identify the actual providers, recipients, and applicable international transfers."
+      },
+      "retention": {
+        "title": "Retention and deletion",
+        "description": "Retention periods must be defined by data category and purpose in line with the institution's academic and legal obligations. The platform does not determine these periods or guarantee deletion from provider backups and copies; they must be configured and verified in each environment."
+      },
+      "security": {
+        "title": "Technical safeguards",
+        "description": "The project includes application-level encryption of personal data fields, role-based access controls, session protection, and measures to reduce data exposure in technical logs. Before production, the institution must review its configuration, providers, backups, recovery, and periodic security testing."
+      }
+    },
+    "rights": {
+      "title": "Individual rights",
+      "description": "Law 21.719 provides for the following rights, subject to its legal requirements and exceptions:",
+      "items": {
+        "access": { "title": "Access", "description": "Learn whether personal data is being processed and access it and the information required by law." },
+        "rectification": { "title": "Rectification", "description": "Request correction of inaccurate, outdated, or incomplete data." },
+        "suppression": { "title": "Erasure", "description": "Request deletion of data in the cases established by law." },
+        "opposition": { "title": "Objection", "description": "Object to certain processing in the circumstances provided by law." },
+        "portability": { "title": "Portability", "description": "Request a structured, commonly used copy when legal requirements are met." },
+        "blocking": { "title": "Blocking", "description": "Request temporary suspension of processing in cases recognized by law." }
+      },
+      "contactConfigured": "Use the institutional channel above to start a request. Do not include sensitive records in ordinary email; the institution must verify your identity and provide a secure method where appropriate.",
+      "contactPending": "The institutional channel for exercising these rights has not been configured. The institution must publish it before the service is enabled.",
+      "blockingNote": "Blocking may be requested while a rectification, erasure, or objection request is being resolved, under the applicable legal conditions."
+    },
+    "cookies": {
+      "title": "Cookies and local storage",
+      "description": "The platform uses a necessary cookie to maintain a session and browser local storage for interface preferences such as language, theme, and dismissal of this notice. The code review did not find analytics or advertising tools currently; this information must be checked against each deployment and its integrations."
+    },
+    "navigation": {
+      "label": "Privacy navigation",
+      "login": "Return to MARSYS sign in"
+    }
   },
   "NotFound": {
     "title": "404",
