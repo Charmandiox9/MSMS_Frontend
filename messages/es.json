@@ -232,6 +232,7 @@
     "users": "Usuarios",
     "audit": "Auditoría del sistema",
     "privacyRequests": "Solicitudes de privacidad",
+    "profile": "Mi perfil",
     "settings": "Configuración",
     "logout": "Cerrar sesión",
     "accountMenu": "Abrir menú de cuenta",
@@ -781,6 +782,46 @@
     "storage_notice": "MARSYS usa una cookie necesaria para mantener tu sesión y almacenamiento local para preferencias de interfaz. No usamos actualmente cookies de analítica ni publicidad. Lee la información de",
     "privacy_policy": "Política de Privacidad",
     "dismiss_notice": "Entendido"
+  },
+  "TermsAcceptance": {
+    "loading": "Comprobando la aceptación de los términos",
+    "loadErrorTitle": "No pudimos comprobar los términos",
+    "loadError": "No se habilitará el acceso al sistema hasta poder verificar el estado. Intenta nuevamente.",
+    "retry": "Reintentar",
+    "eyebrow": "Revisión requerida",
+    "version": "Versión {version}",
+    "confirmation": "He leído y acepto estos términos de uso para continuar utilizando MARSYS.",
+    "privacySeparate": "Esta aceptación registra las condiciones de uso y no reemplaza ni equivale al consentimiento para tratar datos personales.",
+    "privacyLink": "Revisar la información de privacidad",
+    "saveError": "No pudimos registrar la aceptación. Revisa tu conexión e inténtalo nuevamente.",
+    "saving": "Registrando…",
+    "accept": "Aceptar y continuar"
+  },
+  "Profile": {
+    "loading": "Cargando el perfil",
+    "eyebrow": "Cuenta",
+    "title": "Mi perfil",
+    "description": "Consulta la información de tu cuenta y el historial de aceptación de términos de uso.",
+    "account": "Cuenta activa",
+    "historyTitle": "Aceptaciones registradas",
+    "historyDescription": "El historial conserva la versión, idioma, fecha y huella digital del documento aceptado.",
+    "historyError": "No pudimos cargar el historial. Intenta recargar la página.",
+    "empty": "Aún no hay aceptaciones registradas.",
+    "termsVersion": "Términos de uso · versión {version}",
+    "acceptedAt": "Aceptado el {date}",
+    "acceptedLanguage": "Idioma: {language}",
+    "viewTerms": "Ver términos vigentes",
+    "recordHash": "Huella del documento: {hash}"
+  },
+  "TermsPage": {
+    "metadata": {
+      "title": "Términos de uso | MARSYS",
+      "description": "Términos de uso de la plataforma MARSYS. Documento técnico preliminar pendiente de aprobación institucional."
+    },
+    "loading": "Cargando los términos de uso",
+    "error": "No se pudieron cargar los términos de uso. Intenta recargar la página.",
+    "back": "Volver al inicio",
+    "version": "Versión {version}"
   },
   "PrivacyNoticePage": {
     "metadata": {

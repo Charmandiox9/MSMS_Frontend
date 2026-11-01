@@ -232,6 +232,7 @@
     "users": "Users",
     "audit": "System audit",
     "privacyRequests": "Privacy requests",
+    "profile": "My profile",
     "settings": "Settings",
     "logout": "Log out",
     "accountMenu": "Open account menu",
@@ -781,6 +782,46 @@
     "storage_notice": "MARSYS uses a necessary cookie to maintain your session and browser local storage for interface preferences. We do not currently use analytics or advertising cookies. Read the information in our",
     "privacy_policy": "Privacy Policy",
     "dismiss_notice": "Understood"
+  },
+  "TermsAcceptance": {
+    "loading": "Checking terms acceptance",
+    "loadErrorTitle": "We could not verify the terms",
+    "loadError": "System access stays unavailable until the acceptance status can be checked. Please try again.",
+    "retry": "Try again",
+    "eyebrow": "Review required",
+    "version": "Version {version}",
+    "confirmation": "I have read and accept these terms of use to continue using MARSYS.",
+    "privacySeparate": "This acceptance records the conditions of use and does not replace or constitute consent to personal data processing.",
+    "privacyLink": "Review privacy information",
+    "saveError": "We could not record your acceptance. Check your connection and try again.",
+    "saving": "Recording…",
+    "accept": "Accept and continue"
+  },
+  "Profile": {
+    "loading": "Loading your profile",
+    "eyebrow": "Account",
+    "title": "My profile",
+    "description": "Review your account information and terms of use acceptance history.",
+    "account": "Active account",
+    "historyTitle": "Recorded acceptances",
+    "historyDescription": "The history keeps the version, language, date, and document fingerprint for each acceptance.",
+    "historyError": "We could not load your history. Try reloading the page.",
+    "empty": "No acceptances have been recorded yet.",
+    "termsVersion": "Terms of use · version {version}",
+    "acceptedAt": "Accepted on {date}",
+    "acceptedLanguage": "Language: {language}",
+    "viewTerms": "View current terms",
+    "recordHash": "Document fingerprint: {hash}"
+  },
+  "TermsPage": {
+    "metadata": {
+      "title": "Terms of use | MARSYS",
+      "description": "MARSYS platform terms of use. Preliminary technical document pending institutional approval."
+    },
+    "loading": "Loading terms of use",
+    "error": "Terms of use could not be loaded. Please reload the page.",
+    "back": "Back to home",
+    "version": "Version {version}"
   },
   "PrivacyNoticePage": {
     "metadata": {

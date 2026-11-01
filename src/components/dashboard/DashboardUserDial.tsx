@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, LogOut, Moon, Settings, Sun } from 'lucide-react';
+import { Home, LogOut, Moon, Settings, Sun, UserRound } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -15,8 +15,8 @@ type SpeedDialItem = {
 };
 
 const DIAL_RADIUS = 88;
-const DIAL_START_ANGLE = -105;
-const DIAL_END_ANGLE = 15;
+const DIAL_START_ANGLE = -140;
+const DIAL_END_ANGLE = 30;
 
 function getDialTransform(index: number, itemCount: number): string {
   const step = itemCount > 1
@@ -108,6 +108,10 @@ export default function DashboardUserDial({
     {
       id: 'settings',
       content: <Link href="/dashboard/settings" onClick={closeMenu} aria-label={t('settings')} title={t('settings')} className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ocean-cyan/20 text-ocean-cyan shadow-lg shadow-ocean-cyan/15 transition-transform hover:scale-110 hover:bg-ocean-cyan/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"><Settings className="h-4 w-4" /></Link>,
+    },
+    {
+      id: 'profile',
+      content: <Link href="/dashboard/profile" onClick={closeMenu} aria-label={t('profile')} title={t('profile')} className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ocean-cyan/20 text-ocean-cyan shadow-lg shadow-ocean-cyan/15 transition-transform hover:scale-110 hover:bg-ocean-cyan/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"><UserRound className="h-4 w-4" /></Link>,
     },
     {
       id: 'logout',
