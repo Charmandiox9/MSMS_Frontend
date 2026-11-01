@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import EssentialStorageNotice from "@/components/providers/EssentialStorageNotice";
 import SmoothScroll from "@/components/behavior/SmoothScroll";
 import { Toaster } from 'sonner';
+import { ColorPaletteProvider } from '@/components/providers/ColorPaletteProvider';
 
 export const metadata: Metadata = {
   title: "MARSYS - UCN Facultad de Ciencias del Mar",
@@ -40,11 +41,13 @@ export default async function RootLayout({
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300">
         <SmoothScroll />
         <ThemeProvider>
-          <NextIntlClientProvider messages={messages}>
-            {children}
-            <EssentialStorageNotice />
-            <Toaster position="bottom-right" theme="system" richColors closeButton expand visibleToasts={4} />
-          </NextIntlClientProvider>
+          <ColorPaletteProvider>
+            <NextIntlClientProvider messages={messages}>
+              {children}
+              <EssentialStorageNotice />
+              <Toaster position="bottom-right" theme="system" richColors closeButton expand visibleToasts={4} />
+            </NextIntlClientProvider>
+          </ColorPaletteProvider>
         </ThemeProvider>
       </body>
     </html>
