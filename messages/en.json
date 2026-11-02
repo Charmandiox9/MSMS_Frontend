@@ -205,12 +205,6 @@
     "warning": "Exclusive access for @ucn.cl, @ce.ucn.cl, and @alumnos.ucn.cl accounts",
     "button": "Continue with Google",
     "toggleTheme": "Change theme",
-    "colorPalette": "Color palette",
-    "palettes": {
-      "ocean": "Ocean",
-      "marine": "Marine",
-      "coral": "Coral"
-    },
     "toggleLanguage": "Change language",
     "back": "Back to Home"
   },
