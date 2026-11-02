@@ -792,8 +792,9 @@
   "TermsAcceptance": {
     "loading": "Checking terms acceptance",
     "loadErrorTitle": "We could not verify the terms",
-    "loadError": "System access stays unavailable until the acceptance status can be checked. Please try again.",
+    "loadError": "Access stays unavailable until the status can be verified. Check that the backend is available and its database has the terms migration applied.",
     "retry": "Try again",
+    "logout": "Sign out",
     "eyebrow": "Review required",
     "version": "Version {version}",
     "confirmation": "I have read and accept these terms of use to continue using MARSYS.",

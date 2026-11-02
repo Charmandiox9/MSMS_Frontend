@@ -4,10 +4,12 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { acceptCurrentTerms, getCurrentTerms, getTermsStatus, type TermsDocument } from '@/lib/legal-terms';
 import { DashboardShellSkeleton } from '@/components/ui/LoadingSkeletons';
-import { Link } from '@/i18n/routing';
+import { Link, useRouter } from '@/i18n/routing';
+import { logout } from '@/lib/auth';
 
 export default function TermsAcceptanceGate({ children }: { children: ReactNode }) {
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations('TermsAcceptance');
   const [document, setDocument] = useState<TermsDocument | null>(null);
   const [required, setRequired] = useState(false);
@@ -15,10 +17,12 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const loadStatus = async () => {
     setLoading(true);
     setError(false);
+    setErrorMessage(null);
     try {
       const status = await getTermsStatus();
       if (status.accepted) {
@@ -29,11 +33,18 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
       const current = await getCurrentTerms(locale);
       setDocument(current);
       setRequired(true);
-    } catch {
+    } catch (cause) {
       setError(true);
+      setErrorMessage(cause instanceof Error ? cause.message : t('loadError'));
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleExit = async () => {
+    await logout().catch(() => undefined);
+    router.replace('/login');
+    router.refresh();
   };
 
   useEffect(() => {
@@ -59,8 +70,12 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
     return (
       <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-5 px-6">
         <h1 className="text-2xl font-bold text-foreground">{t('loadErrorTitle')}</h1>
-        <p className="text-muted-foreground">{t('loadError')}</p>
-        <button type="button" onClick={() => void loadStatus()} className="w-fit rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground">{t('retry')}</button>
+        <p className="text-muted-foreground">{errorMessage ?? t('loadError')}</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => void loadStatus()} className="w-fit rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground">{t('retry')}</button>
+          <button type="button" onClick={() => void handleExit()} className="w-fit rounded-xl border border-border px-5 py-3 font-semibold text-foreground">{t('logout')}</button>
+          <Link href="/privacy" className="text-sm font-medium text-primary underline underline-offset-4">{t('privacyLink')}</Link>
+        </div>
       </main>
     );
   }
@@ -91,7 +106,7 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
             <span>{t('confirmation')}</span>
           </label>
           <p className="text-sm text-muted-foreground">{t('privacySeparate')} <Link href="/privacy" className="font-medium text-primary underline underline-offset-4">{t('privacyLink')}</Link></p>
-          {error && <p role="alert" className="text-sm font-medium text-destructive">{t('saveError')}</p>}
+      {error && <p role="alert" className="text-sm font-medium text-destructive">{errorMessage ?? t('saveError')}</p>}
           <button type="button" disabled={!checked || saving} onClick={() => void handleAccept()} className="rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
             {saving ? t('saving') : t('accept')}
           </button>

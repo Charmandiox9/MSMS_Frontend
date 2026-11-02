@@ -792,8 +792,9 @@
   "TermsAcceptance": {
     "loading": "Comprobando la aceptación de los términos",
     "loadErrorTitle": "No pudimos comprobar los términos",
-    "loadError": "No se habilitará el acceso al sistema hasta poder verificar el estado. Intenta nuevamente.",
+    "loadError": "No se habilitará el acceso hasta verificar el estado. Comprueba que el backend esté disponible y que su base de datos tenga aplicada la migración de términos.",
     "retry": "Reintentar",
+    "logout": "Cerrar sesión",
     "eyebrow": "Revisión requerida",
     "version": "Versión {version}",
     "confirmation": "He leído y acepto estos términos de uso para continuar utilizando MARSYS.",
