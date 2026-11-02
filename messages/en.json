@@ -206,6 +206,7 @@
     "button": "Continue with Google",
     "toggleTheme": "Change theme",
     "toggleLanguage": "Change language",
+    "publicControls": "Page controls",
     "back": "Back to Home"
   },
   "Dashboard": {
@@ -239,14 +240,6 @@
     "openDashboard": "Go to dashboard",
     "toggleTheme": "Change theme",
     "toggleLanguage": "Change language",
-    "colorPalette": "Accent color",
-    "colorLabel": "Accent",
-    "publicControls": "Page controls",
-    "palettes": {
-      "ocean": "Amber",
-      "marine": "Teal",
-      "coral": "Coral"
-    },
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "collapse": "Collapse sidebar",
