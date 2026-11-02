@@ -206,7 +206,6 @@
     "button": "Continuar con Google",
     "toggleTheme": "Cambiar tema",
     "toggleLanguage": "Cambiar idioma",
-    "publicControls": "Controles de la página",
     "back": "Volver al inicio"
   },
   "Dashboard": {
@@ -240,6 +239,7 @@
     "openDashboard": "Ir al dashboard",
     "toggleTheme": "Cambiar tema",
     "toggleLanguage": "Cambiar idioma",
+    "publicControls": "Controles de la página",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
     "collapse": "Contraer barra lateral",
