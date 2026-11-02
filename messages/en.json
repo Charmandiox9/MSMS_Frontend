@@ -245,6 +245,14 @@
     "openDashboard": "Go to dashboard",
     "toggleTheme": "Change theme",
     "toggleLanguage": "Change language",
+    "colorPalette": "Accent color",
+    "colorLabel": "Accent",
+    "publicControls": "Page controls",
+    "palettes": {
+      "ocean": "Amber",
+      "marine": "Teal",
+      "coral": "Coral"
+    },
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "collapse": "Collapse sidebar",
@@ -792,7 +800,7 @@
   "TermsAcceptance": {
     "loading": "Checking terms acceptance",
     "loadErrorTitle": "We could not verify the terms",
-    "loadError": "Access stays unavailable until the status can be verified. Check that the backend is available and its database has the terms migration applied.",
+    "loadError": "We could not verify your acceptance right now. Please try again. If the problem continues, sign out and sign in again.",
     "retry": "Try again",
     "logout": "Sign out",
     "eyebrow": "Review required",

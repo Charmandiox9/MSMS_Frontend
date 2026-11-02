@@ -245,6 +245,14 @@
     "openDashboard": "Ir al dashboard",
     "toggleTheme": "Cambiar tema",
     "toggleLanguage": "Cambiar idioma",
+    "colorPalette": "Color de acento",
+    "colorLabel": "Acento",
+    "publicControls": "Controles de la página",
+    "palettes": {
+      "ocean": "Ámbar",
+      "marine": "Turquesa",
+      "coral": "Coral"
+    },
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
     "collapse": "Contraer barra lateral",
@@ -792,7 +800,7 @@
   "TermsAcceptance": {
     "loading": "Comprobando la aceptación de los términos",
     "loadErrorTitle": "No pudimos comprobar los términos",
-    "loadError": "No se habilitará el acceso hasta verificar el estado. Comprueba que el backend esté disponible y que su base de datos tenga aplicada la migración de términos.",
+    "loadError": "No pudimos verificar tu aceptación en este momento. Intenta nuevamente; si el problema continúa, cierra sesión y vuelve a ingresar.",
     "retry": "Reintentar",
     "logout": "Cerrar sesión",
     "eyebrow": "Revisión requerida",
