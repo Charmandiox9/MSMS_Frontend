@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, FileUp, Pencil, UsersRound } from "lucide-react";
+import { BookOpen, Eye, Plus, Pencil, UsersRound } from "lucide-react";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
@@ -12,6 +12,16 @@ import type { PaginatedResponse } from "@/types/pagination";
 import type { CurrentCourseCatalog } from "@/types/academic";
 import StudentDialog from "./StudentDialog";
 import ImportStudentsDialog from "./ImportStudentsDialog";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import AcademicDetailsDialog from "@/components/dashboard/academic/AcademicDetailsDialog";
+import AcademicImportButton from "@/components/dashboard/academic/AcademicImportButton";
+import {
+  academicPrimaryActionClass,
+  academicSecondaryActionClass,
+} from "@/components/dashboard/academic/academicActionStyles";
+
+const studentListGridColumns =
+  "md:grid-cols-[minmax(220px,1.4fr)_minmax(200px,1.1fr)_minmax(280px,1.4fr)]";
 
 export default function StudentsPage({
   initialNrc = "",
@@ -31,6 +41,9 @@ export default function StudentsPage({
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
   const [editor, setEditor] = useState<Student | null | undefined>(undefined);
+  const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
+  const [viewingCoursesStudent, setViewingCoursesStudent] =
+    useState<Student | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const loadError = t("errors.load");
   const canRead = activeRole !== null;
@@ -75,39 +88,29 @@ export default function StudentsPage({
   if (!activeRole) return <PageSkeleton label={t("loading")} />;
   return (
     <div className="space-y-6">
-      <header className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-primary">
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">
-            {t("title")}
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-            {t("subtitle")}
-          </p>
-        </div>
-        {canManage && (
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setEditor(null)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <Plus className="h-4 w-4" />
-              {t("create")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setImportOpen(true)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-bold text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <FileUp className="h-4 w-4" />
-              {t("import")}
-            </button>
-          </div>
-        )}
-      </header>
+      <DashboardPageHeader
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+        actions={
+          canManage ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setEditor(null)}
+                className={academicPrimaryActionClass}
+              >
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                {t("create")}
+              </button>
+              <AcademicImportButton
+                label={t("import")}
+                onClick={() => setImportOpen(true)}
+              />
+            </>
+          ) : null
+        }
+      />
       <section className="space-y-3 rounded-2xl border border-border bg-card p-4">
         {catalog && (
           <p className="text-xs text-muted-foreground">
@@ -151,6 +154,9 @@ export default function StudentsPage({
             </select>
           </label>
         </div>
+        <p className="text-xs leading-5 text-muted-foreground">
+          {t("searchHelp")}
+        </p>
       </section>
       {error ? (
         <div
@@ -176,21 +182,26 @@ export default function StudentsPage({
           {t(search || nrc ? "noMatches" : "empty")}
         </p>
       ) : (
-        <>
-          <p className="text-xs text-muted-foreground">
-            {t("total", { count: result.total })}
-          </p>
-          <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+        <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+          <div className={`hidden ${studentListGridColumns} gap-3 border-b border-border bg-muted/40 px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:grid`}>
+            <span>{t("studentColumn")}</span>
+            <span>{t("coursesColumn")}</span>
+            <span className="text-right">{t("actions")}</span>
+          </div>
+          <ul className="divide-y divide-border">
             {result.items.map((student) => (
               <li
                 key={student.id}
-                className="grid gap-3 p-4 md:grid-cols-[minmax(180px,1fr)_minmax(220px,1.5fr)_auto] md:items-center"
+                className={`grid gap-3 p-4 ${studentListGridColumns} md:items-center`}
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <UsersRound className="h-4 w-4" />
+                    <UsersRound className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <div className="min-w-0">
+                    <span className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
+                      {t("studentColumn")}
+                    </span>
                     <h2 className="text-sm font-semibold text-foreground">
                       {student.name}
                     </h2>
@@ -199,33 +210,51 @@ export default function StudentsPage({
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
+                    {t("coursesColumn")}
+                  </span>
                   {student.enrollments.length ? (
-                    student.enrollments.map((enrollment) => (
-                      <span
-                        key={enrollment.id}
-                        className="rounded-lg bg-primary/5 px-2 py-1 text-xs text-primary"
-                      >
-                        {enrollment.nrc} · {enrollment.course.name}
-                      </span>
-                    ))
+                    <button
+                      type="button"
+                      aria-label={t("viewCoursesFor", { name: student.name })}
+                      onClick={() => setViewingCoursesStudent(student)}
+                      className={academicSecondaryActionClass}
+                    >
+                      <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
+                      {t("viewCourses", { count: student.enrollments.length })}
+                    </button>
                   ) : (
                     <span className="text-xs text-muted-foreground">
                       {t("noCourses")}
                     </span>
                   )}
                 </div>
-                {canManage && (
+                <div className="flex flex-wrap justify-start gap-2 md:justify-end">
+                  <span className="mb-1 w-full text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
+                    {t("actions")}
+                  </span>
                   <button
                     type="button"
-                    aria-label={t("editStudent", { name: student.name })}
-                    onClick={() => setEditor(student)}
-                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/5 focus-visible:ring-2 focus-visible:ring-primary"
+                    aria-label={t("viewStudent", { name: student.name })}
+                    onClick={() => setViewingStudent(student)}
+                    className={academicSecondaryActionClass}
                   >
-                    <Pencil className="h-3.5 w-3.5" />
-                    {t("edit")}
+                    <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                    {t("viewDetails")}
                   </button>
-                )}
+                  {canManage && (
+                    <button
+                      type="button"
+                      aria-label={t("editStudent", { name: student.name })}
+                      onClick={() => setEditor(student)}
+                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                      {t("edit")}
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
@@ -233,12 +262,19 @@ export default function StudentsPage({
             page={page}
             totalPages={Math.max(1, result.totalPages)}
             totalItems={result.total}
+            summary={t("pagination", {
+              page,
+              totalPages: Math.max(1, result.totalPages),
+              total: result.total,
+            })}
+            variant="tableFooter"
+            showSinglePage
             onPageChange={(value) => {
               setLoading(true);
               setPage(value);
             }}
           />
-        </>
+        </section>
       )}
       {editor !== undefined && canManage && (
         <StudentDialog
@@ -246,6 +282,54 @@ export default function StudentsPage({
           initialNrc={nrc}
           onClose={() => setEditor(undefined)}
           onSaved={refresh}
+        />
+      )}
+      {viewingStudent && (
+        <AcademicDetailsDialog
+          title={t("detailsTitle")}
+          description={t("detailsDescription")}
+          closeLabel={t("close")}
+          onClose={() => setViewingStudent(null)}
+          fields={[
+            { label: t("name"), value: viewingStudent.name },
+            { label: t("email"), value: viewingStudent.email },
+            {
+              label: t("courses"),
+              value: viewingStudent.enrollments.length ? (
+                <ul className="space-y-2">
+                  {viewingStudent.enrollments.map((enrollment) => (
+                    <li key={enrollment.id}>
+                      {enrollment.nrc} · {enrollment.course.name} · {enrollment.semester.name}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                t("noCourses")
+              ),
+            },
+          ]}
+        />
+      )}
+      {viewingCoursesStudent && (
+        <AcademicDetailsDialog
+          title={t("coursesDialogTitle", { name: viewingCoursesStudent.name })}
+          description={t("coursesDialogDescription")}
+          closeLabel={t("close")}
+          onClose={() => setViewingCoursesStudent(null)}
+          fields={[
+            {
+              label: t("coursesColumn"),
+              value: (
+                <ul className="space-y-2">
+                  {viewingCoursesStudent.enrollments.map((enrollment) => (
+                    <li key={enrollment.id}>
+                      {enrollment.nrc} · {enrollment.course.name} · {enrollment.semester.name}
+                    </li>
+                  ))}
+                </ul>
+              ),
+            },
+          ]}
         />
       )}
       {importOpen && canManage && (

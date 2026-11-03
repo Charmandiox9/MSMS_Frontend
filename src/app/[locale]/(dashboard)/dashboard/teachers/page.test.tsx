@@ -30,10 +30,6 @@ function teacher(
   };
 }
 
-function csvInput() {
-  return document.querySelector('input[type="file"]') as HTMLInputElement;
-}
-
 function teacherList(items: Teacher[]) {
   return (request: { query: URLSearchParams }) => {
     const page = Number(request.query.get("page") ?? 1);
@@ -80,9 +76,9 @@ describe("TeachersPage (padrón de profesores)", () => {
     installFakeApi({ "GET /academic/teachers": teacherList([teacher(1)]) });
     renderAs(<TeachersPage />, ["ACADEMIC_PROCESS_ANALYST"]);
     expect(await screen.findByText("Profesor 01")).toBeDefined();
-    expect(
-      screen.getByRole("button", { name: "Importar profesores" }),
-    ).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Importar CSV" }));
+    expect(await screen.findByText("Formato de carga de profesores")).toBeDefined();
+    expect(screen.getByLabelText("Archivo CSV")).toBeDefined();
     expect(
       screen.getByRole("button", { name: "Importar pagos PH desde Excel" }),
     ).toBeDefined();
@@ -191,11 +187,15 @@ describe("TeachersPage (padrón de profesores)", () => {
 
     const csv =
       "nombre;correo;nrc1;nrc2\nJuan Pérez;juan.perez@ucn.cl;10001;10002\nAna Soto;ana.soto@ucn.cl;10003;";
-    fireEvent.change(csvInput(), {
+    fireEvent.click(screen.getByRole("button", { name: "Importar CSV" }));
+    fireEvent.change(await screen.findByLabelText("Archivo CSV"), {
       target: {
         files: [new File([csv], "profesores.csv", { type: "text/csv" })],
       },
     });
+    fireEvent.click(
+      screen.getAllByRole("button", { name: "Importar CSV" }).at(-1)!,
+    );
 
     expect(
       await screen.findByText("Se cargaron 2 profesores y 3 asignaciones."),
@@ -221,10 +221,16 @@ describe("TeachersPage (padrón de profesores)", () => {
       "No hay profesores cargados para el semestre activo.",
     );
 
-    fireEvent.change(csvInput(), {
+    fireEvent.click(screen.getByRole("button", { name: "Importar CSV" }));
+    fireEvent.change(await screen.findByLabelText("Archivo CSV"), {
       target: { files: [new File(["x"], "malo.csv")] },
     });
+    fireEvent.click(
+      screen.getAllByRole("button", { name: "Importar CSV" }).at(-1)!,
+    );
 
-    expect(await screen.findByText("Fila 2: correo inválido")).toBeDefined();
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "No se pudo importar el padrón de profesores.",
+    );
   });
 });

@@ -1,31 +1,36 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  FileUp,
-  HelpCircle,
-  Loader2,
+  Eye,
   Mail,
-  Search,
   UserRound,
   Plus,
   Pencil,
   Power,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import Modal from "@/components/ui/Modal";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
+import PaginationControls from "@/components/ui/PaginationControls";
 import { apiFetch } from "@/lib/api";
 import type { Teacher } from "@/types/justifications";
 import type { PaginatedResponse } from "@/types/pagination";
+import type { CurrentCourseCatalog } from "@/types/academic";
 import TeacherDialog from "@/components/dashboard/academic/TeacherDialog";
 import HourlyPayRatesDialog from "@/components/dashboard/academic/HourlyPayRatesDialog";
 import AcademicExcelImport from "@/components/dashboard/repository/AcademicExcelImport";
+import AcademicImportButton from "@/components/dashboard/academic/AcademicImportButton";
+import {
+  academicPrimaryActionClass,
+  academicSecondaryActionClass,
+} from "@/components/dashboard/academic/academicActionStyles";
+import AcademicCsvImportDialog from "@/components/dashboard/academic/AcademicCsvImportDialog";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import AcademicDetailsDialog from "@/components/dashboard/academic/AcademicDetailsDialog";
+import { createCsv } from "@/lib/csv";
 
 const PAGE_SIZE = 10;
 type TeacherStatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
@@ -33,38 +38,47 @@ type TeacherStatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
 export default function TeachersPage() {
   const t = useTranslations("TeachersPage");
   const pay = useTranslations("HourlyPayments");
+  const profileLabels = useTranslations("AcademicManagement");
+  const format = useFormatter();
   const [showPayRates, setShowPayRates] = useState(false);
   const { activeRole } = useActiveRole();
-  const inputRef = useRef<HTMLInputElement>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [activeSemesterName, setActiveSemesterName] = useState<string | null>(null);
+  const [semesterLoading, setSemesterLoading] = useState(true);
+  const [semesterLoadFailed, setSemesterLoadFailed] = useState(false);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<TeacherStatusFilter>("ALL");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showHelp, setShowHelp] = useState(false);
+  const [csvImportOpen, setCsvImportOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<
     Teacher | null | undefined
   >(undefined);
+  const [viewingTeacher, setViewingTeacher] = useState<Teacher | null>(null);
   const [teacherToToggle, setTeacherToToggle] = useState<Teacher | null>(null);
   const [changingStatus, setChangingStatus] = useState(false);
 
-  const downloadExample = () => {
-    const content =
-      "nombre;correo;nrc1;nrc2\nJuan Pérez;juan.perez@ucn.cl;10001;10002\nAna Soto;ana.soto@ucn.cl;10003;";
-    const url = URL.createObjectURL(
-      new Blob([content], { type: "text/csv;charset=utf-8" }),
-    );
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "ejemplo-profesores.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+  const teacherTemplate = createCsv(
+    ["nombre", "correo", "nrc1", "nrc2"],
+    [
+      {
+        nombre: "Nombre Apellido",
+        correo: "docente@example.com",
+        nrc1: "NRC_EXISTENTE_1",
+        nrc2: "NRC_EXISTENTE_2",
+      },
+      {
+        nombre: "Otro Docente",
+        correo: "docente2@example.com",
+        nrc1: "NRC_EXISTENTE_3",
+        nrc2: "",
+      },
+    ],
+  );
 
   const [reloadKey, setReloadKey] = useState(0);
   const canManage =
@@ -73,6 +87,30 @@ export default function TeachersPage() {
     activeRole === "ACADEMIC_PROCESS_ANALYST";
   const canRead = canManage;
   const loadErrorMessage = t("errors.load");
+
+  useEffect(() => {
+    if (!canRead) return;
+    let active = true;
+    apiFetch<CurrentCourseCatalog>("/academic/courses/current")
+      .then((catalog) => {
+        if (active) {
+          setActiveSemesterName(catalog.semester?.name ?? null);
+          setSemesterLoadFailed(false);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setActiveSemesterName(null);
+          setSemesterLoadFailed(true);
+        }
+      })
+      .finally(() => {
+        if (active) setSemesterLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [activeRole, canRead]);
 
   // Carga al entrar y cada vez que `reloadKey` cambia (tras importar el padrón).
   useEffect(() => {
@@ -138,42 +176,14 @@ export default function TeachersPage() {
     }
   };
 
-  const importRoster = async (file: File) => {
-    setImporting(true);
-    setError(null);
-    setMessage(null);
-    try {
-      const result = await apiFetch<{
-        importedTeachers: number;
-        importedAssignments: number;
-      }>("/academic/teachers/import-roster", {
-        method: "POST",
-        body: JSON.stringify({ csv: await file.text() }),
-      });
-      setMessage(
-        t("importSuccess", {
-          teachers: result.importedTeachers,
-          assignments: result.importedAssignments,
-        }),
-      );
-      toast.success(
-        t("importSuccess", {
-          teachers: result.importedTeachers,
-          assignments: result.importedAssignments,
-        }),
-      );
-      setLoading(true);
-      setPage(1);
-      setReloadKey((key) => key + 1);
-    } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : t("errors.import");
-      setError(message);
-      toast.error(message);
-    } finally {
-      setImporting(false);
-    }
-  };
+  const importRoster = (csv: string) =>
+    apiFetch<{
+      importedTeachers: number;
+      importedAssignments: number;
+    }>("/academic/teachers/import-roster", {
+      method: "POST",
+      body: JSON.stringify({ csv }),
+    });
 
   if (activeRole === null) return <PageSkeleton label={t("loading")} />;
   if (!canRead)
@@ -185,85 +195,51 @@ export default function TeachersPage() {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">
-            {t("title")}
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-            {t("subtitle")}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {canManage && (
-            <AcademicExcelImport
-              kind="hourly"
-              onImported={() => {
-                setLoading(true);
-                setPage(1);
-                setReloadKey((key) => key + 1);
-              }}
-            />
-          )}
-          {canManage && (
-            <button
-              type="button"
-              onClick={() => setShowPayRates(true)}
-              className="rounded-2xl border border-primary/30 px-4 py-2.5 text-sm font-bold text-primary"
-            >
-              {pay("ratesTitle")}
-            </button>
-          )}
-          {canManage && (
-            <button
-              type="button"
-              onClick={() => setEditingTeacher(null)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <Plus className="h-4 w-4" />
-              {t("create")}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setShowHelp(true)}
-            className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2.5 text-sm font-bold text-muted-foreground transition hover:border-primary/50 hover:text-primary"
-            aria-label={t("help")}
-            title={t("help")}
-          >
-            <HelpCircle className="h-4 w-4" />?
-          </button>
-          <input
-            ref={inputRef}
-            type="file"
-            accept=".csv,text/csv"
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) void importRoster(file);
-              event.target.value = "";
-            }}
-          />
-          {canManage && (
-            <button
-              type="button"
-              disabled={importing}
-              onClick={() => inputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground hover:bg-muted disabled:opacity-60"
-            >
-              {importing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <FileUp className="h-4 w-4" />
-              )}
-              {t("import")}
-            </button>
-          )}
-        </div>
-      </header>
+      <DashboardPageHeader
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+        actions={
+          <>
+            {canManage && (
+              <button
+                type="button"
+                onClick={() => setEditingTeacher(null)}
+                className={academicPrimaryActionClass}
+              >
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                {t("create")}
+              </button>
+            )}
+            {canManage && (
+              <AcademicImportButton
+                label={t("import")}
+                onClick={() => setCsvImportOpen(true)}
+              />
+            )}
+            {canManage && (
+              <AcademicExcelImport
+                kind="hourly"
+                sourceFileName="Planilla pagos PH 202620.xlsx"
+                onImported={() => {
+                  setLoading(true);
+                  setPage(1);
+                  setReloadKey((key) => key + 1);
+                }}
+              />
+            )}
+            {canManage && (
+              <button
+                type="button"
+                onClick={() => setShowPayRates(true)}
+                className={academicSecondaryActionClass}
+              >
+                {pay("ratesTitle")}
+              </button>
+            )}
+          </>
+        }
+      />
       {error && (
         <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
           {error}
@@ -274,49 +250,58 @@ export default function TeachersPage() {
           {message}
         </div>
       )}
-      <section className="rounded-3xl border border-border bg-card p-4 shadow-sm md:p-5">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            {teachers[0]?.assignments[0] && (
-              <p className="text-xs text-muted-foreground">
-                {t("semester")}: {teachers[0].assignments[0].semester.name}
-              </p>
+      <section className="space-y-3 rounded-2xl border border-border bg-card p-4">
+        {activeSemesterName ? (
+          <p className="text-xs text-muted-foreground">
+            {t("semester", { name: activeSemesterName })}
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            {t(
+              semesterLoading
+                ? "semesterLoading"
+                : semesterLoadFailed
+                  ? "semesterLoadError"
+                  : "noActiveSemester",
             )}
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <label className="text-xs font-semibold text-muted-foreground">
-              {t("statusFilter")}
-              <select
-                value={statusFilter}
-                onChange={(event) => {
-                  setLoading(true);
-                  setStatusFilter(event.target.value as TeacherStatusFilter);
-                  setPage(1);
-                }}
-                className="mt-1 block h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-              >
-                <option value="ALL">{t("allStatuses")}</option>
-                <option value="ACTIVE">{t("active")}</option>
-                <option value="INACTIVE">{t("inactive")}</option>
-              </select>
-            </label>
-            <label className="relative block md:w-80">
-              <span className="sr-only">{t("search")}</span>
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="search"
-                value={search}
-                onChange={(event) => {
-                  setLoading(true);
-                  setSearch(event.target.value);
-                  setPage(1);
-                }}
-                placeholder={t("search")}
-                className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary"
-              />
-            </label>
-          </div>
+          </p>
+        )}
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="text-xs font-semibold text-muted-foreground">
+            {t("searchLabel")}
+            <input
+              type="search"
+              maxLength={100}
+              value={search}
+              onChange={(event) => {
+                setLoading(true);
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder={t("search")}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
+            />
+          </label>
+          <label className="text-xs font-semibold text-muted-foreground">
+            {t("statusFilter")}
+            <select
+              value={statusFilter}
+              onChange={(event) => {
+                setLoading(true);
+                setStatusFilter(event.target.value as TeacherStatusFilter);
+                setPage(1);
+              }}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
+            >
+              <option value="ALL">{t("allStatuses")}</option>
+              <option value="ACTIVE">{t("active")}</option>
+              <option value="INACTIVE">{t("inactive")}</option>
+            </select>
+          </label>
         </div>
+        <p className="text-xs leading-5 text-muted-foreground">
+          {t("searchHelp")}
+        </p>
       </section>
       {loading ? (
         <TableSkeleton columns={3} label={t("loading")} />
@@ -326,56 +311,32 @@ export default function TeachersPage() {
         </div>
       ) : (
         <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          <div className="hidden grid-cols-[minmax(200px,1.2fr)_minmax(200px,1fr)_minmax(240px,1.4fr)] gap-4 border-b border-border bg-muted/40 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:grid">
+          <div className="hidden grid-cols-[minmax(200px,1.2fr)_minmax(200px,1fr)_minmax(240px,1.4fr)] gap-4 border-b border-border bg-muted/40 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:grid xl:grid-cols-[minmax(160px,1fr)_minmax(200px,1.3fr)_minmax(140px,0.8fr)_minmax(280px,1.5fr)]">
             <span>{t("teacherColumn")}</span>
             <span>{t("emailColumn")}</span>
             <span>{t("nrcs")}</span>
+            <span className="hidden text-right xl:block">{t("actions")}</span>
           </div>
           <ul className="divide-y divide-border">
             {teachers.map((teacher) => (
               <li
                 key={teacher.id}
-                className="grid gap-2.5 px-4 py-3 md:grid-cols-[minmax(200px,1.2fr)_minmax(200px,1fr)_minmax(240px,1.4fr)] md:items-center md:gap-4 md:px-5"
+                className="grid gap-3 px-4 py-4 md:grid-cols-[minmax(200px,1.2fr)_minmax(200px,1fr)_minmax(240px,1.4fr)] md:items-center md:gap-4 md:px-5 xl:grid-cols-[minmax(160px,1fr)_minmax(200px,1.3fr)_minmax(140px,0.8fr)_minmax(280px,1.5fr)]"
               >
                 <div className="flex min-w-0 items-center gap-2.5">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <UserRound className="h-4 w-4" />
                   </div>
-                  <span className="truncate text-sm font-semibold text-foreground">
-                    {teacher.name}
-                  </span>
-                </div>
-                <p className="flex min-w-0 items-center gap-1.5 pl-11 text-xs text-muted-foreground md:pl-0">
-                  <span className="md:hidden">{t("emailColumn")}:</span>
-                  <Mail className="h-3.5 w-3.5 shrink-0" />
                   <span className="min-w-0">
-                    <span className="block truncate">{teacher.email}</span>
-                    {teacher.rut && (
-                      <span className="block text-xs">
-                        {pay("rut")}: {teacher.rut}
-                      </span>
-                    )}
+                    <span className="block truncate text-sm font-semibold text-foreground">
+                      {teacher.name}
+                    </span>
                     {teacher.academicDegree && (
-                      <span className="block text-xs">
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
                         {pay(`degrees.${teacher.academicDegree}`)}
                         {teacher.certification
                           ? ` · ${pay(`certifications.${teacher.certification}`)}`
                           : ""}
-                      </span>
-                    )}
-                    {teacher.academicUnit && (
-                      <span className="block text-xs">
-                        {teacher.academicUnit}
-                      </span>
-                    )}
-                    {teacher.professionalTitle && (
-                      <span className="block text-xs">
-                        {teacher.professionalTitle}
-                      </span>
-                    )}
-                    {teacher.institution && (
-                      <span className="block text-xs">
-                        {teacher.institution}
                       </span>
                     )}
                     <span
@@ -383,6 +344,13 @@ export default function TeachersPage() {
                     >
                       {t(teacher.isActive === false ? "inactive" : "active")}
                     </span>
+                  </span>
+                </div>
+                <p className="flex min-w-0 items-center gap-1.5 pl-11 text-xs text-muted-foreground md:pl-0">
+                  <span className="md:hidden">{t("emailColumn")}:</span>
+                  <Mail className="h-3.5 w-3.5 shrink-0" />
+                  <span className="min-w-0">
+                    <span className="block truncate">{teacher.email}</span>
                   </span>
                 </p>
                 <div className="flex min-w-0 flex-wrap items-center gap-1.5 pl-11 md:pl-0">
@@ -401,15 +369,26 @@ export default function TeachersPage() {
                   ) : (
                     <span className="text-xs text-muted-foreground">—</span>
                   )}
+                </div>
+                <div className="flex flex-wrap items-center gap-2 pl-11 md:pl-0 xl:flex-nowrap xl:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setViewingTeacher(teacher)}
+                    aria-label={t("viewTeacher", { name: teacher.name })}
+                    className={academicSecondaryActionClass}
+                  >
+                    <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                    {t("viewDetails")}
+                  </button>
                   {canManage && (
                     <>
                       <button
                         type="button"
                         onClick={() => setEditingTeacher(teacher)}
                         aria-label={t("editTeacher", { name: teacher.name })}
-                        className="ml-auto inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-sm font-semibold text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       >
-                        <Pencil className="h-3.5 w-3.5" />
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                         {t("editAndCourses")}
                       </button>
                       <button
@@ -421,9 +400,9 @@ export default function TeachersPage() {
                             : "deactivateTeacher",
                           { name: teacher.name },
                         )}
-                        className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-3 py-2 text-xs font-bold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       >
-                        <Power className="h-3.5 w-3.5" />
+                        <Power className="h-3.5 w-3.5" aria-hidden="true" />
                         {t(
                           teacher.isActive === false
                             ? "activate"
@@ -436,40 +415,18 @@ export default function TeachersPage() {
               </li>
             ))}
           </ul>
-          <footer className="flex flex-col gap-3 border-t border-border bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-muted-foreground">
-              {t("pagination", { page, totalPages, total })}
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => {
-                  setLoading(true);
-                  setPage((current) => current - 1);
-                }}
-                aria-label={t("previous")}
-                className="rounded-xl border border-border p-2 text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span className="min-w-8 text-center text-sm font-semibold tabular-nums text-foreground">
-                {page}
-              </span>
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() => {
-                  setLoading(true);
-                  setPage((current) => current + 1);
-                }}
-                aria-label={t("next")}
-                className="rounded-xl border border-border p-2 text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </footer>
+          <PaginationControls
+            page={page}
+            totalPages={totalPages}
+            totalItems={total}
+            summary={t("pagination", { page, totalPages, total })}
+            variant="tableFooter"
+            showSinglePage
+            onPageChange={(value) => {
+              setLoading(true);
+              setPage(value);
+            }}
+          />
         </section>
       )}
       {editingTeacher !== undefined && canManage && (
@@ -484,17 +441,119 @@ export default function TeachersPage() {
           }}
         />
       )}
+      {viewingTeacher && (
+        <AcademicDetailsDialog
+          title={t("detailsTitle")}
+          description={t("detailsDescription")}
+          closeLabel={profileLabels("close")}
+          onClose={() => setViewingTeacher(null)}
+          fields={[
+            { label: profileLabels("name"), value: viewingTeacher.name },
+            { label: profileLabels("email"), value: viewingTeacher.email },
+            {
+              label: t("employeeCode"),
+              value: viewingTeacher.employeeCode,
+            },
+            {
+              label: pay("academicUnit"),
+              value: viewingTeacher.academicUnit,
+            },
+            {
+              label: pay("degree"),
+              value: viewingTeacher.academicDegree
+                ? pay(`degrees.${viewingTeacher.academicDegree}`)
+                : null,
+            },
+            {
+              label: pay("certification"),
+              value: viewingTeacher.certification
+                ? pay(`certifications.${viewingTeacher.certification}`)
+                : null,
+            },
+            {
+              label: pay("professionalTitle"),
+              value: viewingTeacher.professionalTitle,
+            },
+            {
+              label: pay("institution"),
+              value: viewingTeacher.institution,
+            },
+            {
+              label: pay("joinedOn"),
+              value: viewingTeacher.joinedOn
+                ? format.dateTime(new Date(`${viewingTeacher.joinedOn.slice(0, 10)}T00:00:00Z`), {
+                    dateStyle: "medium",
+                    timeZone: "UTC",
+                  })
+                : null,
+            },
+            {
+              label: pay("leftOn"),
+              value: viewingTeacher.leftOn
+                ? format.dateTime(new Date(`${viewingTeacher.leftOn.slice(0, 10)}T00:00:00Z`), {
+                    dateStyle: "medium",
+                    timeZone: "UTC",
+                  })
+                : null,
+            },
+            {
+              label: t("statusFilter"),
+              value: t(viewingTeacher.isActive === false ? "inactive" : "active"),
+            },
+            {
+              label: t("nrcs"),
+              value: viewingTeacher.assignments.length ? (
+                <ul className="space-y-2">
+                  {viewingTeacher.assignments.map((assignment) => (
+                    <li key={assignment.id}>
+                      {assignment.nrc} · {assignment.course.name} · {assignment.semester.name}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                t("noAssignments")
+              ),
+            },
+          ]}
+        />
+      )}
       {showPayRates && canManage && (
         <HourlyPayRatesDialog onClose={() => setShowPayRates(false)} />
       )}
-      {showHelp && (
-        <HelpDialog
+      {csvImportOpen && canManage && (
+        <AcademicCsvImportDialog
           title={t("helpTitle")}
           description={t("helpDescription")}
           format={t("format")}
+          template={{
+            fileName: "ejemplo-profesores.csv",
+            content: teacherTemplate,
+          }}
+          fileLabel={t("file")}
+          templateLabel={t("template")}
           downloadLabel={t("downloadExample")}
-          onDownload={downloadExample}
-          onClose={() => setShowHelp(false)}
+          cancelLabel={t("cancelStatus")}
+          submitLabel={t("import")}
+          submittingLabel={t("importing")}
+          closeLabel={t("cancelStatus")}
+          fileSizeError={t("errors.fileSize")}
+          fileTypeError={t("errors.fileType")}
+          importError={t("errors.import")}
+          maxFileSizeBytes={2_000_000}
+          onClose={() => setCsvImportOpen(false)}
+          onImport={importRoster}
+          onImported={(result) => {
+            const success = t("importSuccess", {
+              teachers: result.importedTeachers,
+              assignments: result.importedAssignments,
+            });
+            setMessage(success);
+            toast.success(success);
+            setCsvImportOpen(false);
+            setLoading(true);
+            setPage(1);
+            setReloadKey((key) => key + 1);
+          }}
         />
       )}
       {teacherToToggle && (
@@ -521,7 +580,7 @@ export default function TeachersPage() {
                 type="button"
                 disabled={changingStatus}
                 onClick={() => setTeacherToToggle(null)}
-                className="btn-cta-secondary"
+                className={academicSecondaryActionClass}
               >
                 {t("cancelStatus")}
               </button>
@@ -529,7 +588,7 @@ export default function TeachersPage() {
                 type="button"
                 disabled={changingStatus}
                 onClick={() => void toggleTeacherStatus()}
-                className="btn-cta-primary"
+                className={academicPrimaryActionClass}
               >
                 {t(
                   teacherToToggle.isActive === false
@@ -546,47 +605,5 @@ export default function TeachersPage() {
         </Modal>
       )}
     </div>
-  );
-}
-
-function HelpDialog({
-  title,
-  description,
-  format,
-  downloadLabel,
-  onDownload,
-  onClose,
-}: {
-  title: string;
-  description: string;
-  format: string;
-  downloadLabel: string;
-  onDownload: () => void;
-  onClose: () => void;
-}) {
-  return (
-    <Modal
-      isOpen={true}
-      onClose={onClose}
-      eyebrow="CSV"
-      title={title}
-      closeLabel="Cerrar"
-      size="lg"
-      footer={
-        <button
-          type="button"
-          onClick={onDownload}
-          className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
-        >
-          <Download className="h-4 w-4" />
-          {downloadLabel}
-        </button>
-      }
-    >
-      <p className="text-sm text-muted-foreground">{description}</p>
-      <code className="mt-4 block rounded-2xl bg-muted p-4 text-xs font-mono text-foreground">
-        {format}
-      </code>
-    </Modal>
   );
 }

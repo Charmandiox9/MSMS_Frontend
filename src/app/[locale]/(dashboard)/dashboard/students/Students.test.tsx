@@ -231,7 +231,7 @@ describe("Estudiantes", () => {
     fireEvent.click(screen.getByRole("button", { name: "Importar CSV" }));
     expect(await screen.findByRole("alert")).toHaveProperty(
       "textContent",
-      "Fila 2: NRC inexistente",
+      "No fue posible importar los estudiantes.",
     );
     expect(saved).not.toHaveBeenCalled();
   });
