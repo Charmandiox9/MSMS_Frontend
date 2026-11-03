@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { BookOpen, Eye, Plus, Pencil, UsersRound } from "lucide-react";
+import {
+  BookOpen,
+  ChevronDown,
+  Eye,
+  Plus,
+  Pencil,
+  UsersRound,
+} from "lucide-react";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
@@ -42,8 +49,8 @@ export default function StudentsPage({
   const [reload, setReload] = useState(0);
   const [editor, setEditor] = useState<Student | null | undefined>(undefined);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
-  const [viewingCoursesStudent, setViewingCoursesStudent] =
-    useState<Student | null>(null);
+  const [expandedCoursesStudentId, setExpandedCoursesStudentId] =
+    useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const loadError = t("errors.load");
   const canRead = activeRole !== null;
@@ -189,74 +196,149 @@ export default function StudentsPage({
             <span className="text-right">{t("actions")}</span>
           </div>
           <ul className="divide-y divide-border">
-            {result.items.map((student) => (
-              <li
-                key={student.id}
-                className={`grid gap-3 p-4 ${studentListGridColumns} md:items-center`}
-              >
-                <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <UsersRound className="h-4 w-4" aria-hidden="true" />
+            {result.items.map((student) => {
+              const coursesExpanded = expandedCoursesStudentId === student.id;
+              const coursesPanelId = `student-courses-${student.id}`;
+
+              return (
+                <li
+                  key={student.id}
+                  className={`grid gap-3 p-4 ${studentListGridColumns} md:items-center`}
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <UsersRound className="h-4 w-4" aria-hidden="true" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
+                        {t("studentColumn")}
+                      </span>
+                      <h2 className="text-sm font-semibold text-foreground">
+                        {student.name}
+                      </h2>
+                      <p className="break-all text-xs text-muted-foreground">
+                        {student.email}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <span className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
-                      {t("studentColumn")}
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
+                      {t("coursesColumn")}
                     </span>
-                    <h2 className="text-sm font-semibold text-foreground">
-                      {student.name}
-                    </h2>
-                    <p className="break-all text-xs text-muted-foreground">
-                      {student.email}
-                    </p>
+                    {student.enrollments.length ? (
+                      <button
+                        type="button"
+                        aria-label={t(
+                          coursesExpanded
+                            ? "hideCoursesFor"
+                            : "viewCoursesFor",
+                          { name: student.name },
+                        )}
+                        aria-expanded={coursesExpanded}
+                        aria-controls={coursesPanelId}
+                        onClick={() =>
+                          setExpandedCoursesStudentId((current) =>
+                            current === student.id ? null : student.id,
+                          )
+                        }
+                        className={`${academicSecondaryActionClass} ${coursesExpanded ? "border-primary/30 bg-primary/5 text-primary" : ""}`}
+                      >
+                        <BookOpen
+                          className="h-3.5 w-3.5"
+                          aria-hidden="true"
+                        />
+                        {coursesExpanded
+                          ? t("hideCourses")
+                          : t("viewCourses", {
+                              count: student.enrollments.length,
+                            })}
+                        <ChevronDown
+                          className={`h-3.5 w-3.5 transition-transform ${coursesExpanded ? "rotate-180" : ""}`}
+                          aria-hidden="true"
+                        />
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {t("noCourses")}
+                      </span>
+                    )}
                   </div>
-                </div>
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
-                    {t("coursesColumn")}
-                  </span>
-                  {student.enrollments.length ? (
+                  <div className="flex flex-wrap justify-start gap-2 md:justify-end">
+                    <span className="mb-1 w-full text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
+                      {t("actions")}
+                    </span>
                     <button
                       type="button"
-                      aria-label={t("viewCoursesFor", { name: student.name })}
-                      onClick={() => setViewingCoursesStudent(student)}
+                      aria-label={t("viewStudent", { name: student.name })}
+                      onClick={() => setViewingStudent(student)}
                       className={academicSecondaryActionClass}
                     >
-                      <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
-                      {t("viewCourses", { count: student.enrollments.length })}
+                      <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                      {t("viewDetails")}
                     </button>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">
-                      {t("noCourses")}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-wrap justify-start gap-2 md:justify-end">
-                  <span className="mb-1 w-full text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
-                    {t("actions")}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label={t("viewStudent", { name: student.name })}
-                    onClick={() => setViewingStudent(student)}
-                    className={academicSecondaryActionClass}
-                  >
-                    <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-                    {t("viewDetails")}
-                  </button>
-                  {canManage && (
-                    <button
-                      type="button"
-                      aria-label={t("editStudent", { name: student.name })}
-                      onClick={() => setEditor(student)}
-                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    {canManage && (
+                      <button
+                        type="button"
+                        aria-label={t("editStudent", { name: student.name })}
+                        onClick={() => setEditor(student)}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        <Pencil
+                          className="h-3.5 w-3.5"
+                          aria-hidden="true"
+                        />
+                        {t("edit")}
+                      </button>
+                    )}
+                  </div>
+                  {student.enrollments.length > 0 && (
+                    <section
+                      id={coursesPanelId}
+                      hidden={!coursesExpanded}
+                      className="min-w-0 rounded-2xl border border-border border-l-2 border-l-primary/50 bg-muted/20 p-4 md:col-span-3"
+                      aria-labelledby={`${coursesPanelId}-title`}
                     >
-                      <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                      {t("edit")}
-                    </button>
+                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <h3
+                          id={`${coursesPanelId}-title`}
+                          className="text-sm font-semibold text-foreground"
+                        >
+                          {t("coursesPanelTitle")}
+                        </h3>
+                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold tabular-nums text-primary">
+                          {t("coursesCount", {
+                            count: student.enrollments.length,
+                          })}
+                        </span>
+                      </div>
+                      <ul className="grid min-w-0 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                        {student.enrollments.map((enrollment) => (
+                          <li
+                            key={enrollment.id}
+                            className="min-w-0 rounded-xl border border-border/70 bg-card px-3 py-3"
+                          >
+                            <div className="mb-2 flex items-center justify-between gap-3">
+                              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                {t("nrcLabel")}
+                              </span>
+                              <span className="rounded-md bg-muted px-2 py-1 text-xs font-semibold tabular-nums text-foreground">
+                                {enrollment.nrc}
+                              </span>
+                            </div>
+                            <h4 className="break-words text-sm font-semibold leading-5 text-foreground">
+                              {enrollment.course.name}
+                            </h4>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {enrollment.semester.name}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
                   )}
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
           <PaginationControls
             page={page}
@@ -293,42 +375,6 @@ export default function StudentsPage({
           fields={[
             { label: t("name"), value: viewingStudent.name },
             { label: t("email"), value: viewingStudent.email },
-            {
-              label: t("courses"),
-              value: viewingStudent.enrollments.length ? (
-                <ul className="space-y-2">
-                  {viewingStudent.enrollments.map((enrollment) => (
-                    <li key={enrollment.id}>
-                      {enrollment.nrc} · {enrollment.course.name} · {enrollment.semester.name}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                t("noCourses")
-              ),
-            },
-          ]}
-        />
-      )}
-      {viewingCoursesStudent && (
-        <AcademicDetailsDialog
-          title={t("coursesDialogTitle", { name: viewingCoursesStudent.name })}
-          description={t("coursesDialogDescription")}
-          closeLabel={t("close")}
-          onClose={() => setViewingCoursesStudent(null)}
-          fields={[
-            {
-              label: t("coursesColumn"),
-              value: (
-                <ul className="space-y-2">
-                  {viewingCoursesStudent.enrollments.map((enrollment) => (
-                    <li key={enrollment.id}>
-                      {enrollment.nrc} · {enrollment.course.name} · {enrollment.semester.name}
-                    </li>
-                  ))}
-                </ul>
-              ),
-            },
           ]}
         />
       )}
