@@ -2,7 +2,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import Modal from "@/components/ui/Modal";
+import FormModal from "@/components/ui/FormModal";
 import { FormSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
 import { createApiGraphqlClient } from '@/lib/graphql-client';
@@ -128,7 +128,7 @@ export default function RepositoryEditor({
     }
   };
   return (
-    <Modal
+    <FormModal
       isOpen
       title={t(`${kind}.${record ? "edit" : "create"}`)}
       description={t("formHint")}
@@ -216,6 +216,7 @@ export default function RepositoryEditor({
             type="button"
             disabled={saving}
             className={secondaryButton}
+            data-modal-dismiss
             onClick={onClose}
           >
             {t("cancel")}
@@ -229,6 +230,6 @@ export default function RepositoryEditor({
           </button>
         </div>
       </form>
-    </Modal>
+    </FormModal>
   );
 }

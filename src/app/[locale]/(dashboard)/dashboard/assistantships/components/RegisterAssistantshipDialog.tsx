@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import FormModal from "@/components/ui/FormModal";
 import Modal from "@/components/ui/Modal";
 import Skeleton from "@/components/ui/Skeleton";
 import { SkeletonStatus } from "@/components/ui/LoadingSkeletons";
@@ -16,7 +17,7 @@ import {
   type SemesterOption,
 } from "../graphql";
 import { assistantshipErrorKey } from "../errors";
-import { buttonClass, Field, inputClass } from "./controls";
+import { Field, inputClass } from "./controls";
 import ScheduleFields, { type ScheduleDraft } from "./ScheduleFields";
 import type { AssistantshipBlockOption } from "../schema-types";
 
@@ -157,7 +158,7 @@ export default function RegisterAssistantshipDialog({
   }
 
   return (
-    <Modal
+    <FormModal
       isOpen={true}
       onClose={() => {
         if (!savingRef.current && !busy) onClose();
@@ -172,6 +173,7 @@ export default function RegisterAssistantshipDialog({
             type="button"
             className="btn-cta-secondary"
             disabled={busy}
+            data-modal-dismiss
             onClick={onClose}
           >
             {t("form.cancel")}
@@ -385,6 +387,6 @@ export default function RegisterAssistantshipDialog({
           blocks={effectiveBlocks}
         />
       </form>
-    </Modal>
+    </FormModal>
   );
 }

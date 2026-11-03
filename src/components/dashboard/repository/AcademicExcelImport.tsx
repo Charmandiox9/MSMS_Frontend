@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FileSpreadsheet } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
-import Modal from "@/components/ui/Modal";
+import FormModal from "@/components/ui/FormModal";
 import { primaryButton, secondaryButton } from "./repository-fields";
+import AcademicImportButton from "@/components/dashboard/academic/AcademicImportButton";
 
 type Preview = {
   totalRows: number;
@@ -49,9 +49,11 @@ const readBase64 = (file: File) =>
 
 export default function AcademicExcelImport({
   kind = "projects",
+  sourceFileName,
   onImported,
 }: {
   kind?: ImportKind;
+  sourceFileName: string;
   onImported: () => void;
 }) {
   const t = useTranslations("AcademicRepository.import");
@@ -74,6 +76,8 @@ export default function AcademicExcelImport({
       .filter(({ email }) => email.length > 0);
   const hasMissingEmail = (preview?.unmatchedTeachers?.length ?? 0) > 0;
   const jobInProgress = job?.status === "QUEUED" || job?.status === "PROCESSING";
+  const jobId = job?.id;
+  const jobStatus = job?.status;
   const canConfirm =
     Boolean(preview?.importable) &&
     Boolean(fileBase64) &&
@@ -83,13 +87,13 @@ export default function AcademicExcelImport({
     !hasMissingEmail;
 
   useEffect(() => {
-    if (!job || job.status === "COMPLETED" || job.status === "FAILED") return;
+    if (!jobId || jobStatus === "COMPLETED" || jobStatus === "FAILED") return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
     const poll = async () => {
       try {
         const status = await apiFetch<ImportJob>(
-          `/academic/imports/jobs/${job.id}`,
+          `/academic/imports/jobs/${jobId}`,
         );
         if (cancelled) return;
         setJob(status);
@@ -121,7 +125,7 @@ export default function AcademicExcelImport({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [job?.id, job?.status, isProjects, isResearch, onImported, t]);
+  }, [jobId, jobStatus, isProjects, isResearch, onImported, t]);
 
   const requestPreview = async (
     encoded: string,
@@ -241,16 +245,12 @@ export default function AcademicExcelImport({
 
   return (
     <>
-      <button
-        type="button"
-        className={secondaryButton}
+      <AcademicImportButton
+        label={buttonLabel}
         onClick={() => setOpen(true)}
-      >
-        <FileSpreadsheet className="h-4 w-4" />
-        {buttonLabel}
-      </button>
+      />
       {open && (
-        <Modal
+        <FormModal
           isOpen
           title={modalTitle}
           description={description}
@@ -261,6 +261,9 @@ export default function AcademicExcelImport({
           closeLabel={t("close")}
         >
           <div className="space-y-4">
+            <p className="rounded-xl bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+              {t("sourceFile", { name: sourceFileName })}
+            </p>
             <label className="block text-sm font-medium">
               {t("fileLabel")}
               <input
@@ -396,6 +399,7 @@ export default function AcademicExcelImport({
                 type="button"
                 className={secondaryButton}
                 disabled={busy}
+                data-modal-dismiss
                 onClick={() => setOpen(false)}
               >
                 {t("cancel")}
@@ -410,7 +414,7 @@ export default function AcademicExcelImport({
               </button>
             </div>
           </div>
-        </Modal>
+        </FormModal>
       )}
     </>
   );

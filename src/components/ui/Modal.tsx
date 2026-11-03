@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { X } from "lucide-react";
 
 export type ModalSize =
@@ -23,6 +29,12 @@ export interface ModalProps {
   ariaLabel?: string;
   className?: string;
   contentClassName?: string;
+  unsavedChanges?: {
+    title: string;
+    description: string;
+    continueEditing: string;
+    discard: string;
+  };
 }
 
 const SIZE_CLASSES: Record<ModalSize, string> = {
@@ -53,15 +65,29 @@ export default function Modal({
   ariaLabel,
   className = "",
   contentClassName = "",
+  unsavedChanges,
 }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+  const requestClose = useCallback(() => {
+    if (unsavedChanges && hasUnsavedChanges) {
+      setConfirmingDiscard(true);
+      return;
+    }
+    onClose();
+  }, [hasUnsavedChanges, onClose, unsavedChanges]);
   useEffect(() => {
     if (!isOpen) return;
     const previousFocus = document.activeElement;
     const dialog = dialogRef.current;
-    const focusable = () =>
-      Array.from(
-        dialog?.querySelectorAll<HTMLElement>(
+    const focusable = () => {
+      const confirmation = dialog?.querySelector<HTMLElement>(
+        '[role="alertdialog"]',
+      );
+      const focusRoot = confirmingDiscard ? confirmation : dialog;
+      return Array.from(
+        focusRoot?.querySelectorAll<HTMLElement>(
           "button, a[href], input, select, textarea, [tabindex]",
         ) ?? [],
       ).filter(
@@ -70,7 +96,11 @@ export default function Modal({
           element.tabIndex >= 0 &&
           !element.closest("[hidden]"),
       );
-    (focusable()[0] ?? dialog)?.focus();
+    };
+    const initialFocus = confirmingDiscard
+      ? dialog?.querySelector<HTMLElement>("[autofocus]")
+      : null;
+    (initialFocus ?? focusable()[0] ?? dialog)?.focus();
     const trapFocus = (event: KeyboardEvent) => {
       if (event.key !== "Tab") return;
       const elements = focusable();
@@ -103,7 +133,7 @@ export default function Modal({
       if (previousFocus instanceof HTMLElement && previousFocus.isConnected)
         previousFocus.focus();
     };
-  }, [isOpen]);
+  }, [isOpen, confirmingDiscard]);
   useEffect(() => {
     if (!isOpen) return;
 
@@ -112,7 +142,8 @@ export default function Modal({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (closeOnEscape && event.key === "Escape") {
-        onClose();
+        if (confirmingDiscard) setConfirmingDiscard(false);
+        else requestClose();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -121,7 +152,7 @@ export default function Modal({
       document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, onClose, closeOnEscape]);
+  }, [isOpen, confirmingDiscard, requestClose, closeOnEscape]);
 
   if (!isOpen) {
     return null;
@@ -135,9 +166,34 @@ export default function Modal({
     <div
       data-lenis-prevent
       onClick={(event) => {
-        if (event.target === event.currentTarget && closeOnBackdropClick) {
-          onClose();
+        if (
+          !confirmingDiscard &&
+          event.target === event.currentTarget &&
+          closeOnBackdropClick
+        ) {
+          requestClose();
         }
+      }}
+      onChangeCapture={() => {
+        if (unsavedChanges) setHasUnsavedChanges(true);
+      }}
+      onClickCapture={(event) => {
+        if (!unsavedChanges || !(event.target instanceof Element)) return;
+        const dismissButton = event.target.closest("[data-modal-dismiss]");
+        if (dismissButton) {
+          event.preventDefault();
+          event.stopPropagation();
+          requestClose();
+          return;
+        }
+        if (event.target.closest("[data-modal-dirty]")) {
+          setHasUnsavedChanges(true);
+          return;
+        }
+        const form = event.target.closest("form");
+        const button = event.target.closest("button");
+        if (form && button && button.type !== "submit")
+          setHasUnsavedChanges(true);
       }}
       className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 p-3 sm:p-4 backdrop-blur-sm"
       role="dialog"
@@ -182,7 +238,7 @@ export default function Modal({
               {showCloseButton && (
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={requestClose}
                   aria-label={closeLabel}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border text-muted-foreground transition hover:border-primary/50 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
@@ -204,6 +260,50 @@ export default function Modal({
           <footer className="flex flex-wrap items-center justify-end gap-3 border-t border-border bg-muted/20 p-4 md:p-5 shrink-0">
             {footer}
           </footer>
+        )}
+        {confirmingDiscard && unsavedChanges && (
+          <div
+            className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[2px]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <section
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="modal-discard-title"
+              aria-describedby="modal-discard-description"
+              className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-xl"
+            >
+              <h3
+                id="modal-discard-title"
+                className="text-lg font-bold text-foreground"
+              >
+                {unsavedChanges.title}
+              </h3>
+              <p
+                id="modal-discard-description"
+                className="mt-2 text-sm leading-relaxed text-muted-foreground"
+              >
+                {unsavedChanges.description}
+              </p>
+              <div className="mt-6 flex flex-wrap justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="min-h-11 rounded-xl border border-destructive/50 bg-background px-4 py-2.5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+                >
+                  {unsavedChanges.discard}
+                </button>
+                <button
+                  type="button"
+                  autoFocus
+                  onClick={() => setConfirmingDiscard(false)}
+                  className="min-h-11 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+                >
+                  {unsavedChanges.continueEditing}
+                </button>
+              </div>
+            </section>
+          </div>
         )}
       </div>
     </div>

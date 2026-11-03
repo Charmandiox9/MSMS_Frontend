@@ -3,8 +3,12 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import Modal from "@/components/ui/Modal";
+import FormModal from "@/components/ui/FormModal";
 import { apiFetch } from "@/lib/api";
+import {
+  academicPrimaryActionClass,
+  academicSecondaryActionClass,
+} from "./academicActionStyles";
 import {
   academicDegrees,
   hourlyTeacherCategories,
@@ -88,7 +92,8 @@ export default function HourlyPayRatesDialog({
   };
 
   return (
-    <Modal
+    <FormModal
+      key={retry}
       isOpen
       title={t("ratesTitle")}
       description={t("ratesDescription")}
@@ -99,6 +104,27 @@ export default function HourlyPayRatesDialog({
       }}
       closeOnEscape={!saving}
       closeOnBackdropClick={!saving}
+      footer={
+        <>
+          <button
+            type="button"
+            disabled={saving}
+            data-modal-dismiss
+            onClick={onClose}
+            className={academicSecondaryActionClass}
+          >
+            {t("close")}
+          </button>
+          <button
+            type="submit"
+            form="hourly-rate-editor"
+            disabled={saving || !catalog?.semester}
+            className={academicPrimaryActionClass}
+          >
+            {t(saving ? "savingRate" : "saveRate")}
+          </button>
+        </>
+      }
     >
       {error && (
         <p role="alert" className="text-sm text-destructive">
@@ -120,7 +146,14 @@ export default function HourlyPayRatesDialog({
         ) : (
           <div className="space-y-5">
             <p className="text-sm font-bold">{catalog.semester.name}</p>
-            <form onSubmit={(event) => void submit(event)}>
+            <form
+              id="hourly-rate-editor"
+              onSubmit={(event) => void submit(event)}
+              className="space-y-3"
+            >
+              <p className="text-xs leading-5 text-muted-foreground">
+                {t("rateFormHelp")}
+              </p>
               <fieldset disabled={saving} className="grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
                   {t("category")}
@@ -198,54 +231,88 @@ export default function HourlyPayRatesDialog({
                     className={fieldClass}
                   />
                 </label>
-                <button
-                  type="submit"
-                  className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
-                >
-                  {t(saving ? "savingRate" : "saveRate")}
-                </button>
               </fieldset>
             </form>
             {!catalog.rates.length ? (
               <p className="text-sm text-muted-foreground">{t("noRates")}</p>
             ) : (
-              <ul className="divide-y divide-border">
-                {catalog.rates.map((rate) => (
-                  <li
-                    key={rate.id}
-                    className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"
-                  >
-                    <span>
-                      {t(`categories.${rate.category}`)} ·{" "}
-                      {t(`degrees.${rate.academicDegree}`)} ·{" "}
-                      {t(`certifications.${rate.certification}`)}
-                    </span>
-                    <span className="font-bold tabular-nums">
-                      {format.number(Number(rate.hourlyRateClp), {
-                        style: "currency",
-                        currency: "CLP",
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                    <button
-                      type="button"
-                      disabled={saving}
-                      className="text-primary underline"
-                      onClick={() => {
-                        setCategory(rate.category);
-                        setDegree(rate.academicDegree);
-                        setCertification(rate.certification);
-                        setAmount(rate.hourlyRateClp);
-                      }}
+              <section className="space-y-3" aria-labelledby="hourly-rate-list-title">
+                <h2
+                  id="hourly-rate-list-title"
+                  className="text-sm font-bold text-foreground"
+                >
+                  {t("ratesListTitle")}
+                </h2>
+                <div className="hidden grid-cols-[minmax(0,1fr)_10rem_8rem] gap-4 border-y border-border bg-muted/40 px-4 py-3 text-center text-xs font-semibold text-muted-foreground sm:grid">
+                  <span>{t("rateProfile")}</span>
+                  <span>{t("rateValueLabel")}</span>
+                  <span>{t("actions")}</span>
+                </div>
+                <ul className="divide-y divide-border border-y border-border">
+                  {catalog.rates.map((rate) => (
+                    <li
+                      key={rate.id}
+                      className="grid gap-3 px-2 py-4 sm:grid-cols-[minmax(0,1fr)_10rem_8rem] sm:items-center sm:gap-4 sm:px-4"
                     >
-                      {t("editRate")}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                      <dl className="min-w-0 divide-y divide-border rounded-xl border border-border bg-muted/20">
+                        <div className="grid min-w-0 grid-cols-[minmax(6.5rem,0.8fr)_minmax(0,1.2fr)] items-center gap-3 px-3 py-2">
+                          <dt className="text-xs font-semibold text-muted-foreground">
+                            {t("category")}
+                          </dt>
+                          <dd className="min-w-0 justify-self-end break-words rounded-full bg-primary/10 px-2.5 py-1 text-right text-xs font-semibold text-primary">
+                            {t(`categories.${rate.category}`)}
+                          </dd>
+                        </div>
+                        <div className="grid min-w-0 grid-cols-[minmax(6.5rem,0.8fr)_minmax(0,1.2fr)] items-center gap-3 px-3 py-2">
+                          <dt className="text-xs font-semibold text-muted-foreground">
+                            {t("degree")}
+                          </dt>
+                          <dd className="min-w-0 break-words text-right text-sm font-medium text-foreground">
+                            {t(`degrees.${rate.academicDegree}`)}
+                          </dd>
+                        </div>
+                        <div className="grid min-w-0 grid-cols-[minmax(6.5rem,0.8fr)_minmax(0,1.2fr)] items-center gap-3 px-3 py-2">
+                          <dt className="text-xs font-semibold text-muted-foreground">
+                            {t("certification")}
+                          </dt>
+                          <dd className="min-w-0 break-words text-right text-sm font-medium text-foreground">
+                            {t(`certifications.${rate.certification}`)}
+                          </dd>
+                        </div>
+                      </dl>
+                      <div className="flex items-center justify-between gap-3 sm:justify-center sm:border-l sm:border-border sm:pl-3">
+                        <span className="text-xs font-medium text-muted-foreground sm:hidden">
+                          {t("rateValueLabel")}
+                        </span>
+                        <span className="font-bold tabular-nums text-foreground">
+                          {format.number(Number(rate.hourlyRateClp), {
+                            style: "currency",
+                            currency: "CLP",
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={saving}
+                        data-modal-dirty
+                        className="min-h-10 justify-self-center px-3 text-sm font-semibold text-primary underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:opacity-60 sm:border-l sm:border-border sm:pl-4"
+                        onClick={() => {
+                          setCategory(rate.category);
+                          setDegree(rate.academicDegree);
+                          setCertification(rate.certification);
+                          setAmount(rate.hourlyRateClp);
+                        }}
+                      >
+                        {t("editRate")}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
             )}
           </div>
         ))}
-    </Modal>
+    </FormModal>
   );
 }
