@@ -29,7 +29,9 @@ describe("DataRightsRequests", () => {
       .mockResolvedValueOnce([request] as never);
     renderAs(<DataRightsRequests />, ["ACADEMIC_SECRETARY"]);
 
+    fireEvent.click(screen.getByRole("tab", { name: "Mis solicitudes" }));
     await screen.findByText("Aún no has registrado solicitudes.");
+    fireEvent.click(screen.getByRole("tab", { name: "Nueva solicitud" }));
     fireEvent.change(screen.getByLabelText("Derecho que deseas ejercer"), {
       target: { value: "PORTABILITY" },
     });
@@ -45,6 +47,7 @@ describe("DataRightsRequests", () => {
       });
     });
     await screen.findByText("Acceso");
+    fireEvent.click(screen.getByRole("tab", { name: "Nueva solicitud" }));
     expect((screen.getByLabelText(/Indica los datos cuyo traslado solicitas/) as HTMLTextAreaElement).value).toBe("");
   });
 
@@ -55,7 +58,9 @@ describe("DataRightsRequests", () => {
       .mockResolvedValueOnce([] as never);
     renderAs(<DataRightsRequests />, ["ACADEMIC_SECRETARY"]);
 
+    fireEvent.click(screen.getByRole("tab", { name: "Mis solicitudes" }));
     await screen.findByText("Aún no has registrado solicitudes.");
+    fireEvent.click(screen.getByRole("tab", { name: "Nueva solicitud" }));
     fireEvent.change(screen.getByLabelText("Derecho que deseas ejercer"), {
       target: { value: "RECTIFICATION" },
     });
@@ -85,7 +90,9 @@ describe("DataRightsRequests", () => {
       .mockResolvedValueOnce(queue as never);
     renderAs(<DataRightsRequests />, ["PRIVACY_OFFICER"]);
 
-    expect(await screen.findByText("Bandeja de gestión")).toBeDefined();
+    expect(
+      await screen.findByRole("tab", { name: "Bandeja de gestión" }),
+    ).toBeDefined();
     expect(await screen.findByText("ada@ucn.cl")).toBeDefined();
     expect(await screen.findByText("Solicitud: Corregir correo personal")).toBeDefined();
     expect(apiFetch).toHaveBeenCalledWith("/privacy/requests/queue?page=1&pageSize=20");
@@ -107,7 +114,7 @@ describe("DataRightsRequests", () => {
       .mockResolvedValueOnce({ ...queue, items: [{ ...queue.items[0], extendedAt: "2026-11-15T00:00:00.000Z" }] } as never);
     renderAs(<DataRightsRequests />, ["PRIVACY_OFFICER"]);
 
-    fireEvent.change(await screen.findByLabelText("Respuesta o fundamento de prórroga"), {
+    fireEvent.change(await screen.findByLabelText("Fundamento de la prórroga"), {
       target: { value: "Complejidad del caso" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Prorrogar 30 días" }));
