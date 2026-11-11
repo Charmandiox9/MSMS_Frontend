@@ -1,3 +1,4 @@
+import EmailInput from "@/components/ui/EmailInput";
 import { Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type {
@@ -97,9 +98,9 @@ export default function RepositoryParticipants({
               <>
                 <label className="text-sm font-medium">
                   {t("fields.contactEmail")}
-                  <input
+                  <EmailInput
                     className={fieldClass}
-                    type="email"
+
                     maxLength={254}
                     value={item.contactEmail ?? ""}
                     onChange={(event) =>

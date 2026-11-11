@@ -1,5 +1,6 @@
 "use client";
 
+import DecimalInput from "@/components/ui/DecimalInput";
 import { useEffect, useState, type FormEvent } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -220,14 +221,11 @@ export default function HourlyPayRatesDialog({
                 )}
                 <label className="text-sm">
                   {t("hourlyRate")}
-                  <input
+                  <DecimalInput
                     required
-                    type="number"
-                    min="0.01"
-                    max="9999999999.99"
-                    step="0.01"
+                    maxLength={13}
                     value={amount}
-                    onChange={(event) => setAmount(event.target.value)}
+                    onValueChange={setAmount}
                     className={fieldClass}
                   />
                 </label>
@@ -236,7 +234,10 @@ export default function HourlyPayRatesDialog({
             {!catalog.rates.length ? (
               <p className="text-sm text-muted-foreground">{t("noRates")}</p>
             ) : (
-              <section className="space-y-3" aria-labelledby="hourly-rate-list-title">
+              <section
+                className="space-y-3"
+                aria-labelledby="hourly-rate-list-title"
+              >
                 <h2
                   id="hourly-rate-list-title"
                   className="text-sm font-bold text-foreground"

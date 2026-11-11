@@ -1,4 +1,5 @@
 "use client";
+import EmailInput from "@/components/ui/EmailInput";
 import { useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { Loader2 } from "lucide-react";
@@ -295,11 +296,11 @@ export default function RegisterAssistantshipDialog({
               />
             </Field>
             <Field label={t("form.email")} htmlFor="register-email">
-              <input
+              <EmailInput
                 id="register-email"
                 name="email"
                 defaultValue={initialRecord?.assistantEmail}
-                type="email"
+
                 className={inputClass}
                 autoComplete="email"
                 maxLength={254}

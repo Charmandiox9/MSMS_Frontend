@@ -1,5 +1,6 @@
 "use client";
 
+import EmailInput from "@/components/ui/EmailInput";
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -150,9 +151,9 @@ export default function StudentDialog({
           </label>
           <label className="text-sm font-semibold">
             {t("email")}
-            <input
+            <EmailInput
               required
-              type="email"
+
               maxLength={254}
               value={email}
               onChange={(event) => setEmail(event.target.value)}

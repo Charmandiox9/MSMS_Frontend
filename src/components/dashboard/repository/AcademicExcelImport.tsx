@@ -1,5 +1,6 @@
 "use client";
 
+import EmailInput from "@/components/ui/EmailInput";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -346,8 +347,7 @@ export default function AcademicExcelImport({
                           rows: rows.join(", "),
                         })}
                       </span>
-                      <input
-                        type="email"
+                      <EmailInput
                         autoComplete="email"
                         required
                         maxLength={254}
