@@ -26,7 +26,7 @@ export default function SettingsPage() {
   const [endsOn, setEndsOn] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [reloadKey, setReloadKey] = useState(0);
@@ -64,14 +64,22 @@ export default function SettingsPage() {
     event.preventDefault();
     setSaving(true);
     setError(null);
-    setMessage(null);
+
     try {
-      await apiFetch<Semester>("/academic/semesters/activate", {
-        method: "POST",
-        body: JSON.stringify({ name, startsOn, endsOn }),
-      });
-      setMessage(t("success", { name }));
-      toast.success(t("success", { name }));
+      await apiFetch<Semester>(
+        editingId
+          ? `/academic/semesters/${editingId}`
+          : "/academic/semesters/activate",
+        {
+          method: editingId ? "PATCH" : "POST",
+          body: JSON.stringify({ name, startsOn, endsOn }),
+        },
+      );
+      toast.success(t(editingId ? "updated" : "success", { name }));
+      setEditingId(null);
+      setName("");
+      setStartsOn("");
+      setEndsOn("");
       setLoading(true);
       setReloadKey((key) => key + 1);
     } catch (cause) {
@@ -105,23 +113,30 @@ export default function SettingsPage() {
         </p>
       </header>
       {error && (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div
+          role="alert"
+          className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+        >
           {error}
         </div>
       )}
-      {message && (
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-300">
-          {message}
-        </div>
-      )}
       <section className="rounded-3xl border border-border bg-card p-5 shadow-sm md:p-6">
-        <form onSubmit={submit} className="grid gap-4 md:grid-cols-2">
+        <form
+          aria-busy={saving}
+          onSubmit={submit}
+          className="grid gap-4 md:grid-cols-2"
+        >
+          <h2 className="text-lg font-bold text-foreground md:col-span-2">
+            {t(editingId ? "edit" : "activate")}
+          </h2>
           <label className="md:col-span-2">
             <span className="text-sm font-bold text-foreground">
               {t("name")}
             </span>
             <input
               required
+              maxLength={100}
+              disabled={saving || loading}
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder={t("namePlaceholder")}
@@ -135,6 +150,7 @@ export default function SettingsPage() {
             <input
               required
               type="date"
+              disabled={saving || loading}
               value={startsOn}
               onChange={(event) => setStartsOn(event.target.value)}
               className="mt-2 h-11 w-full rounded-2xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary"
@@ -147,15 +163,31 @@ export default function SettingsPage() {
             <input
               required
               type="date"
+              disabled={saving || loading}
               value={endsOn}
               onChange={(event) => setEndsOn(event.target.value)}
               className="mt-2 h-11 w-full rounded-2xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary"
             />
           </label>
-          <div className="md:col-span-2">
+          <div className="flex flex-wrap gap-3 md:col-span-2">
+            {editingId && (
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => {
+                  setEditingId(null);
+                  setName("");
+                  setStartsOn("");
+                  setEndsOn("");
+                }}
+                className="min-h-11 rounded-xl border border-border px-4 text-sm font-semibold focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {t("cancel")}
+              </button>
+            )}
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || loading}
               className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-60"
             >
               {saving ? (
@@ -163,7 +195,7 @@ export default function SettingsPage() {
               ) : (
                 <CheckCircle2 className="h-4 w-4" />
               )}
-              {saving ? t("saving") : t("activate")}
+              {saving ? t("saving") : t(editingId ? "saveChanges" : "activate")}
             </button>
           </div>
         </form>
@@ -192,6 +224,21 @@ export default function SettingsPage() {
                     {semester.isActive ? t("active") : t("inactive")}
                   </span>
                 </div>
+                {semester.isActive && (
+                  <button
+                    type="button"
+                    disabled={saving || loading}
+                    onClick={() => {
+                      setEditingId(semester.id);
+                      setName(semester.name);
+                      setStartsOn(semester.startsOn.slice(0, 10));
+                      setEndsOn(semester.endsOn.slice(0, 10));
+                    }}
+                    className="mt-3 min-h-11 rounded-xl border border-border px-3 text-sm font-semibold text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    {t("edit")}
+                  </button>
+                )}
                 <p className="mt-2 text-xs text-muted-foreground">
                   {semester.startsOn.slice(0, 10)} —{" "}
                   {semester.endsOn.slice(0, 10)}

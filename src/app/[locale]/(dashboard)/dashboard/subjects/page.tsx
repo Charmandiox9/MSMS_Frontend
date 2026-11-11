@@ -1,14 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  Download,
-  FileUp,
-  HelpCircle,
-  Loader2,
   Search,
   UserRound,
   UsersRound,
@@ -20,19 +16,31 @@ import Modal from "@/components/ui/Modal";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
+import { createCsv } from "@/lib/csv";
 import { fetchAllTeachers } from "@/lib/teachers";
+import AcademicImportButton, {
+  academicPrimaryActionClass,
+  academicSecondaryActionClass,
+} from "@/components/dashboard/academic/AcademicImportButton";
+import AcademicCsvImportDialog from "@/components/dashboard/academic/AcademicCsvImportDialog";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 
 import EditSubjectDialog from "./EditSubjectDialog";
 import CourseTeachersDialog from "./CourseTeachersDialog";
 import { Link } from "@/i18n/routing";
 
 type Instructor = { id: string; name: string; email: string };
+type CareerTag = { id: string; code: string; name: string };
 type ScheduleRow = {
   id: string;
   nrc: string;
   day: string;
   block: string;
-  course: { code: string | null; name: string };
+  course: {
+    code: string | null;
+    name: string;
+    curriculumCourses?: { curriculumVersion: { career: CareerTag } }[];
+  };
   semester: { name: string };
   teachers: Instructor[];
   kind?: "COURSE" | "ASSISTANTSHIP";
@@ -50,6 +58,7 @@ type Subject = {
   entries: ScheduleRow[];
   semester: string;
   teachers: Instructor[];
+  careers: CareerTag[];
 };
 
 /** Horarios del semestre activo con los profesores asignados a cada NRC. */
@@ -93,7 +102,6 @@ const PAGE_SIZE = 10;
 export default function SubjectsPage() {
   const t = useTranslations("SubjectsPage");
   const { activeRole } = useActiveRole();
-  const inputRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<ScheduleRow[]>([]);
   const [search, setSearch] = useState("");
   const [selectedDay, setSelectedDay] = useState("");
@@ -106,22 +114,27 @@ export default function SubjectsPage() {
   );
   const [allScheduleOpen, setAllScheduleOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showHelp, setShowHelp] = useState(false);
-
-  const downloadExample = () => {
-    const content =
-      "nrc;asignatura;dia;bloque;sala\n10001;Estructura de Datos;Lunes;A;G6-47\n10001;Estructura de Datos;Miércoles;A;G6-48\n10002;Biología Marina;Martes;C;G6-49";
-    const url = URL.createObjectURL(
-      new Blob([content], { type: "text/csv;charset=utf-8" }),
-    );
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "ejemplo-asignaturas.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+  const [csvImportOpen, setCsvImportOpen] = useState(false);
+  const scheduleTemplate = createCsv(
+    ["nrc", "asignatura", "dia", "bloque", "sala"],
+    [
+      {
+        nrc: "NRC_EXISTENTE_1",
+        asignatura: "Asignatura de ejemplo",
+        dia: "Lunes",
+        bloque: "A",
+        sala: "Sala 1",
+      },
+      {
+        nrc: "NRC_EXISTENTE_1",
+        asignatura: "Asignatura de ejemplo",
+        dia: "Miércoles",
+        bloque: "A",
+        sala: "Sala 2",
+      },
+    ],
+  );
 
   const [reloadKey, setReloadKey] = useState(0);
   const canManage =
@@ -144,7 +157,6 @@ export default function SubjectsPage() {
         const message =
           cause instanceof Error ? cause.message : loadErrorMessage;
         setError(message);
-        toast.error(message);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -163,8 +175,14 @@ export default function SubjectsPage() {
         entries: [],
         semester: row.semester.name,
         teachers: row.teachers,
+        careers: [],
       };
       current.entries.push(row);
+      for (const item of row.course.curriculumCourses ?? []) {
+        if (!current.careers.some((career) => career.id === item.curriculumVersion.career.id)) {
+          current.careers.push(item.curriculumVersion.career);
+        }
+      }
       grouped.set(row.nrc, current);
     }
     return [...grouped.values()].sort((a, b) => a.name.localeCompare(b.name));
@@ -190,29 +208,11 @@ export default function SubjectsPage() {
     page * PAGE_SIZE,
   );
 
-  const importCsv = async (file: File) => {
-    setImporting(true);
-    setError(null);
-    try {
-      const result = await apiFetch<{ importedRows: number }>(
-        "/academic/courses/import-csv",
-        {
-          method: "POST",
-          body: JSON.stringify({ csv: await file.text() }),
-        },
-      );
-      toast.success(t("importSuccess", { count: result.importedRows }));
-      setLoading(true);
-      setReloadKey((key) => key + 1);
-    } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : t("errors.import");
-      setError(message);
-      toast.error(message);
-    } finally {
-      setImporting(false);
-    }
-  };
+  const importCsv = (csv: string) =>
+    apiFetch<{ importedRows: number }>("/academic/courses/import-csv", {
+      method: "POST",
+      body: JSON.stringify({ csv }),
+    });
 
   if (activeRole === null) return <PageSkeleton label={t("loading")} />;
   if (!canRead)
@@ -228,75 +228,40 @@ export default function SubjectsPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">
-            {t("title")}
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-            {t("subtitle")}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {canManage && (
+      <DashboardPageHeader
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+        actions={
+          <>
+            {canManage && (
+              <button
+                type="button"
+                onClick={() => setCreating(true)}
+                className={academicPrimaryActionClass}
+              >
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                {t("create")}
+              </button>
+            )}
+            {canManage && (
+              <AcademicImportButton
+                label={t("import")}
+                onClick={() => setCsvImportOpen(true)}
+              />
+            )}
             <button
               type="button"
-              onClick={() => setCreating(true)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              onClick={() => setAllScheduleOpen(true)}
+              disabled={rows.length === 0}
+              className={academicSecondaryActionClass}
             >
-              <Plus className="h-4 w-4" />
-              {t("create")}
+              <CalendarDays className="h-4 w-4" />
+              {t("viewAllSchedule")}
             </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setShowHelp(true)}
-            className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2.5 text-sm font-bold text-muted-foreground transition hover:border-primary/50 hover:text-primary"
-            aria-label={t("help")}
-            title={t("help")}
-          >
-            <HelpCircle className="h-4 w-4" />?
-          </button>
-          <button
-            type="button"
-            onClick={() => setAllScheduleOpen(true)}
-            disabled={rows.length === 0}
-            className="inline-flex items-center gap-2 rounded-2xl border border-primary/30 bg-card px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <CalendarDays className="h-4 w-4" />
-            {t("viewAllSchedule")}
-          </button>
-          <input
-            ref={inputRef}
-            type="file"
-            accept=".csv,text/csv"
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) void importCsv(file);
-              event.target.value = "";
-            }}
-          />
-          {canManage && (
-            <button
-              type="button"
-              disabled={importing}
-              onClick={() => inputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {importing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <FileUp className="h-4 w-4" />
-              )}
-              {t("import")}
-            </button>
-          )}
-        </div>
-      </header>
+          </>
+        }
+      />
 
       {error && (
         <div
@@ -393,6 +358,15 @@ export default function SubjectsPage() {
                         <h2 className="truncate text-sm font-semibold text-foreground">
                           {subject.name}
                         </h2>
+                        {subject.careers.length > 0 && (
+                          <p className="mt-1 flex flex-wrap gap-1" aria-label={t("careersLabel")}>
+                            {subject.careers.map((career) => (
+                              <span key={career.id} className="rounded-md bg-secondary/10 px-1.5 py-0.5 text-[10px] font-semibold text-secondary">
+                                {career.name}
+                              </span>
+                            ))}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex min-w-0 items-start gap-1.5 pl-11 text-xs text-muted-foreground md:pl-0">
@@ -524,15 +498,34 @@ export default function SubjectsPage() {
           }}
         />
       )}
-      {showHelp && (
-        <HelpDialog
+      {csvImportOpen && canManage && (
+        <AcademicCsvImportDialog
           title={t("helpTitle")}
           description={t("helpDescription")}
           format={t("format")}
+          template={{
+            fileName: "ejemplo-asignaturas.csv",
+            content: scheduleTemplate,
+          }}
+          fileLabel={t("file")}
+          templateLabel={t("template")}
           downloadLabel={t("downloadExample")}
+          cancelLabel={t("close")}
+          submitLabel={t("import")}
+          submittingLabel={t("importing")}
           closeLabel={t("close")}
-          onDownload={downloadExample}
-          onClose={() => setShowHelp(false)}
+          fileSizeError={t("errors.fileSize")}
+          fileTypeError={t("errors.fileType")}
+          importError={t("errors.import")}
+          maxFileSizeBytes={2_000_000}
+          onClose={() => setCsvImportOpen(false)}
+          onImport={importCsv}
+          onImported={(result) => {
+            toast.success(t("importSuccess", { count: result.importedRows }));
+            setCsvImportOpen(false);
+            setLoading(true);
+            setReloadKey((key) => key + 1);
+          }}
         />
       )}
       {selected && (
@@ -550,50 +543,6 @@ export default function SubjectsPage() {
         />
       )}
     </div>
-  );
-}
-
-function HelpDialog({
-  title,
-  description,
-  format,
-  downloadLabel,
-  closeLabel,
-  onDownload,
-  onClose,
-}: {
-  title: string;
-  description: string;
-  format: string;
-  downloadLabel: string;
-  closeLabel: string;
-  onDownload: () => void;
-  onClose: () => void;
-}) {
-  return (
-    <Modal
-      isOpen={true}
-      onClose={onClose}
-      eyebrow="CSV"
-      title={title}
-      closeLabel={closeLabel}
-      size="lg"
-      footer={
-        <button
-          type="button"
-          onClick={onDownload}
-          className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
-        >
-          <Download className="h-4 w-4" />
-          {downloadLabel}
-        </button>
-      }
-    >
-      <p className="text-sm text-muted-foreground">{description}</p>
-      <code className="mt-4 block rounded-2xl bg-muted p-4 text-xs font-mono text-foreground">
-        {format}
-      </code>
-    </Modal>
   );
 }
 

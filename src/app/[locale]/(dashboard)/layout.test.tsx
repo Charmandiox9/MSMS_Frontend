@@ -8,7 +8,10 @@ import { useActiveRole } from '@/context/ActiveRoleContext';
 // Referencia estable, como el router real de Next.
 const router = vi.hoisted(() => ({ replace: vi.fn() }));
 const { replace } = router;
-vi.mock('next/navigation', () => ({ useRouter: () => router }));
+vi.mock('next/navigation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/navigation')>()),
+  useRouter: () => router,
+}));
 vi.mock('@/components/dashboard/DashboardSidebar', () => ({ default: () => <nav>sidebar</nav> }));
 vi.mock('@/components/dashboard/DashboardHeader', () => ({ default: () => <header>header</header> }));
 
@@ -24,6 +27,19 @@ function renderLayout() {
       </DashboardLayout>
     </IntlProvider>,
   );
+}
+
+function installAuthenticatedApi(routes: Parameters<typeof installFakeApi>[0] = {}) {
+  return installFakeApi({
+    "GET /legal/terms/status": () => ({
+      body: {
+        currentVersion: "2026-01",
+        accepted: true,
+        acceptedAt: "2026-01-01T00:00:00.000Z",
+      },
+    }),
+    ...routes,
+  });
 }
 
 describe('DashboardLayout (sesión)', () => {
@@ -76,7 +92,7 @@ describe('DashboardLayout (sesión)', () => {
   });
 
   it('con sesión renderiza el dashboard con el rol activo', async () => {
-    installFakeApi({
+    installAuthenticatedApi({
       'GET /auth/session': () => ({ body: { email: 'ana@ucn.cl', roles: ['ACADEMIC_SECRETARY', 'SYSTEM_ADMIN'] } }),
     });
     renderLayout();
@@ -89,7 +105,7 @@ describe('DashboardLayout (sesión)', () => {
 
   it('ignora un rol guardado que la sesión ya no tiene', async () => {
     localStorage.setItem('marsys_active_role', 'SYSTEM_ADMIN');
-    installFakeApi({ 'GET /auth/session': () => ({ body: { email: 'ana@ucn.cl', roles: ['ACADEMIC_SECRETARY'] } }) });
+    installAuthenticatedApi({ 'GET /auth/session': () => ({ body: { email: 'ana@ucn.cl', roles: ['ACADEMIC_SECRETARY'] } }) });
     renderLayout();
 
     expect(await screen.findByText('rol:ACADEMIC_SECRETARY')).toBeDefined();

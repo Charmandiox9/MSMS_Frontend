@@ -2,10 +2,12 @@
 
 import {
   BarChart3,
+  ChevronDown,
   PanelLeftClose,
   PanelLeftOpen,
   X,
 } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/routing';
 import { DASHBOARD_SECTIONS, getFilteredNavigation } from '@/config/navigation';
@@ -31,6 +33,7 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const t = useTranslations('DashboardNav');
   const pathname = usePathname();
+  const [openGroups, setOpenGroups] = useState<string[]>([]);
 
   const sections = getFilteredNavigation(DASHBOARD_SECTIONS, activeRole);
 
@@ -48,7 +51,14 @@ export default function DashboardSidebar({
             </p>
           )}
           <div className="space-y-1">
-            {section.items.map((item) => {
+            {(() => {
+              const groupOrder = ['studentSupport', 'academicInformation', 'research', 'administration'] as const;
+              const groupedItems = groupOrder.map((group) => ({
+                group,
+                items: section.items.filter((item) => item.group === group),
+              })).filter(({ items }) => items.length > 0);
+              const ungroupedItems = section.items.filter((item) => !item.group);
+              const renderItem = (item: (typeof section.items)[number]) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
               return (
@@ -68,7 +78,34 @@ export default function DashboardSidebar({
                   {!isCollapsed && <span className="truncate">{t(item.key)}</span>}
                 </Link>
               );
-            })}
+              };
+
+              return <>
+                {ungroupedItems.map(renderItem)}
+                {groupedItems.map(({ group, items }) => {
+                  if (items.length === 1) return renderItem(items[0]);
+                  const groupKey = `${section.key}.${group}`;
+                  const active = items.some((item) => pathname === item.href);
+                  const isOpen = openGroups.includes(groupKey) || active;
+                  return <div key={groupKey}>
+                    {!isCollapsed && <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      onClick={() => setOpenGroups((current) => current.includes(groupKey)
+                        ? current.filter((key) => key !== groupKey)
+                        : [...current, groupKey])}
+                      className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-bold text-primary-foreground/55 transition-colors hover:bg-primary-foreground/5 hover:text-primary-foreground/80"
+                    >
+                      <span>{t(`groups.${group}`)}</span>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>}
+                    {(isCollapsed || isOpen) && <div className={`${isCollapsed ? '' : 'ml-2 space-y-1 border-l border-primary-foreground/10 pl-2'}`}>
+                      {items.map(renderItem)}
+                    </div>}
+                  </div>;
+                })}
+              </>;
+            })()}
           </div>
         </section>
       ))}

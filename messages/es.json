@@ -4,6 +4,12 @@
     "metrics": "Cargando indicadores…",
     "table": "Cargando registros…"
   },
+  "FormModal": {
+    "unsavedTitle": "Hay cambios sin guardar",
+    "unsavedDescription": "Si sales ahora, perderás los cambios que realizaste en este formulario.",
+    "continueEditing": "Seguir editando",
+    "discardChanges": "Descartar cambios"
+  },
   "Landing": {
     "badge": "Plataforma de gestión para la FCM",
     "title_part1": "Gestión académica y",
@@ -226,17 +232,19 @@
     "academicInformation": "Información académica",
     "subjects": "Asignaturas",
     "teachers": "Profesores",
-    "academicWorkload": "Carga académica",
     "titulation": "Titulaciones",
     "reports": "Reportes e indicadores",
     "users": "Usuarios",
     "audit": "Auditoría del sistema",
+    "privacyRequests": "Solicitudes de privacidad",
+    "profile": "Mi perfil",
     "settings": "Configuración",
     "logout": "Cerrar sesión",
     "accountMenu": "Abrir menú de cuenta",
-    "openDashboard": "Ir al dashboard",
+    "openDashboard": "Ir al inicio",
     "toggleTheme": "Cambiar tema",
     "toggleLanguage": "Cambiar idioma",
+    "publicControls": "Controles de la página",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
     "collapse": "Contraer barra lateral",
@@ -252,7 +260,8 @@
       "SYSTEM_ADMIN": "Administrador del sistema",
       "ACADEMIC_SECRETARY": "Secretario docente",
       "ACADEMIC_PROCESS_ANALYST": "Analista académico",
-      "TEACHING_SUPPORT_COORDINATOR": "Apoyo docente"
+      "TEACHING_SUPPORT_COORDINATOR": "Apoyo docente",
+      "PRIVACY_OFFICER": "Responsable de privacidad"
     },
     "switchRole": "Cambiar rol activo",
     "switchRoleTitle": "Roles asignados",
@@ -261,7 +270,18 @@
     "projects": "Proyectos",
     "research": "Investigaciones",
     "researchOutputs": "Resultados de investigación",
-    "charts": "Gráficos"
+    "charts": "Gráficos",
+    "careers": "Carreras",
+    "groups": {
+      "studentSupport": "Atención estudiantil",
+      "academicInformation": "Información académica",
+      "research": "Investigación",
+      "administration": "Administración"
+    },
+    "switchToLight": "Usar modo claro",
+    "switchToDark": "Usar modo oscuro",
+    "switchToEnglish": "Cambiar a inglés",
+    "switchToSpanish": "Cambiar a español"
   },
   "JustificationsPage": {
     "eyebrow": "Apoyo docente",
@@ -427,8 +447,10 @@
     "subtitle": "Carga el horario semanal por NRC y consulta la distribución de cada asignatura.",
     "loading": "Cargando asignaturas…",
     "import": "Importar CSV",
-    "help": "Ayuda del formato",
     "downloadExample": "Descargar ejemplo",
+    "template": "Plantilla CSV",
+    "file": "Archivo CSV",
+    "importing": "Importando…",
     "helpTitle": "Formato de carga de asignaturas",
     "helpDescription": "Importa una fila por cada día y bloque de la asignatura. La columna sala es opcional; si se omite, se conserva la sala existente.",
     "format": "nrc;asignatura;dia;bloque;sala",
@@ -479,6 +501,8 @@
     "errors": {
       "load": "No se pudieron cargar las asignaturas.",
       "import": "No se pudo importar el archivo CSV.",
+      "fileSize": "El archivo supera el máximo de 2 MB.",
+      "fileType": "Selecciona un archivo con extensión .csv.",
       "access": "No tienes acceso a esta página."
     },
     "assistantship": "Ayudantía",
@@ -515,39 +539,57 @@
       "noSemester": "Activa un semestre antes de crear una asignatura.",
       "catalogHint": "El NRC y los horarios identifican esta asignatura en el semestre activo."
     },
-    "viewStudents": "Estudiantes"
+    "viewStudents": "Estudiantes",
+    "help": "Ayuda del formato",
+    "careersLabel": "Carreras de la malla"
   },
   "TeachersPage": {
     "eyebrow": "Carga académica",
     "title": "Profesores y NRC",
     "subtitle": "Relaciona cada profesor con su correo institucional y los NRC que imparte en el semestre activo.",
     "loading": "Cargando profesores…",
-    "import": "Importar profesores",
-    "help": "Ayuda del formato",
+    "import": "Importar CSV",
     "downloadExample": "Descargar ejemplo",
+    "template": "Plantilla CSV",
+    "file": "Archivo CSV",
+    "importing": "Importando…",
     "helpTitle": "Formato de carga de profesores",
     "helpDescription": "Usa una fila por profesor. Después del nombre y correo agrega uno o más NRC de asignaturas.",
     "format": "Formato: nombre;correo;nrc1;nrc2… Puedes usar una columna por NRC o separar varios por coma.",
     "importSuccess": "Se cargaron {teachers} profesores y {assignments} asignaciones.",
     "search": "Buscar por nombre, correo o NRC…",
+    "searchLabel": "Buscar profesores",
+    "semesterLoading": "Cargando semestre activo…",
+    "semesterLoadError": "No se pudo cargar el semestre activo.",
+    "noActiveSemester": "No hay un semestre activo.",
+    "searchHelp": "Busca por nombre, correo institucional, código de funcionario o NRC. Ejemplos: «María Soto», «maria@ucn.cl» o «10002».",
     "empty": "No hay profesores cargados para el semestre activo.",
     "noMatches": "No hay profesores que coincidan con la búsqueda.",
     "teacherColumn": "Profesor",
     "emailColumn": "Correo institucional",
     "nrcs": "NRC asignados",
-    "semester": "Semestre activo",
+    "actions": "Acciones",
+    "viewDetails": "Ver detalle",
+    "viewTeacher": "Ver detalle de {name}",
+    "detailsTitle": "Detalle del profesor",
+    "detailsDescription": "Datos académicos y asignaciones del profesor.",
+    "employeeCode": "Código de funcionario",
+    "noAssignments": "Sin asignaturas asignadas.",
+    "semester": "Semestre activo: {name}",
     "pagination": "Página {page} de {totalPages} · {total} profesores",
     "previous": "Página anterior",
     "next": "Página siguiente",
     "errors": {
       "load": "No se pudieron cargar los profesores.",
       "import": "No se pudo importar el padrón de profesores.",
+      "fileSize": "El archivo supera el máximo de 2 MB.",
+      "fileType": "Selecciona un archivo con extensión .csv.",
       "access": "No tienes acceso a esta página.",
       "status": "No se pudo actualizar el estado del profesor."
     },
     "create": "Crear profesor",
     "editTeacher": "Editar {name} y sus asignaturas",
-    "editAndCourses": "Editar y asignaturas",
+    "editAndCourses": "Editar",
     "statusFilter": "Estado",
     "allStatuses": "Todos",
     "active": "Activo",
@@ -564,9 +606,14 @@
     "cancelStatus": "Cancelar",
     "statusSaving": "Actualizando estado…",
     "statusActivated": "Se activó a {name}.",
-    "statusDeactivated": "Se desactivó a {name}."
+    "statusDeactivated": "Se desactivó a {name}.",
+    "help": "Ayuda del formato"
   },
   "SemesterSettingsPage": {
+    "edit": "Editar semestre activo",
+    "saveChanges": "Guardar cambios",
+    "cancel": "Cancelar edición",
+    "updated": "Se actualizó el semestre {name}.",
     "eyebrow": "Configuración académica",
     "title": "Semestre activo",
     "subtitle": "Define el período que utilizarán las cargas de asignaturas, profesores y justificaciones.",
@@ -775,8 +822,11 @@
     "rights": "© {year} MARSYS · Facultad de Ciencias del Mar, UCN"
   },
   "Privacy": {
-    "cookie_message": "Utilizamos cookies propias y de terceros para mejorar su experiencia, analizar el tráfico y cumplir con la Ley N° 21.719 de Protección de Datos de Chile. Lee nuestra",
+    "notice_label": "Aviso de almacenamiento necesario",
+    "storage_notice": "MARSYS usa una cookie necesaria para mantener tu sesión y almacenamiento local para preferencias de interfaz. No usamos actualmente cookies de analítica ni publicidad. Lee la información de",
     "privacy_policy": "Política de Privacidad",
+    "dismiss_notice": "Entendido",
+    "cookie_message": "Utilizamos cookies propias y de terceros para mejorar su experiencia, analizar el tráfico y cumplir con la Ley N° 21.719 de Protección de Datos de Chile. Lee nuestra",
     "accept_all": "Aceptar todas",
     "reject_all": "Rechazar no esenciales",
     "manage": "Configurar cookies",
@@ -790,21 +840,237 @@
     "marketing_desc": "Utilizadas para rastrear tu navegación y mostrar contenido relevante. (MARSYS no utiliza actualmente este tipo de cookies).",
     "save_preferences": "Guardar preferencias"
   },
-  "PrivacyPolicy": {
-    "title": "Política de Privacidad y Protección de Datos",
-    "last_updated": "Última actualización: Agosto 2026",
-    "intro_title": "1. Introducción",
-    "intro_text": "En MARSYS (Plataforma de Gestión Académica de la Facultad de Ciencias del Mar, UCN), respetamos y protegemos la privacidad de nuestros usuarios. Esta política describe cómo recopilamos, utilizamos y salvaguardamos su información personal, en estricto cumplimiento con la Ley N° 21.719 de Protección de Datos Personales de Chile.",
-    "collection_title": "2. Información que Recopilamos",
-    "collection_text": "Recopilamos información necesaria para la gestión académica y administrativa, incluyendo datos de identificación (nombre, RUT, correo institucional), datos académicos (avance curricular, notas) y registros de actividad dentro de la plataforma (solicitudes de laboratorios, vehículos, etc.).",
-    "use_title": "3. Uso de la Información",
-    "use_text": "Los datos recopilados se utilizan exclusivamente para los fines operativos de la plataforma MARSYS, tales como la trazabilidad de procesos internos, asignación de recursos, gestión de roles y comunicación oficial dentro de la comunidad de la FCM.",
-    "arco_title": "4. Sus Derechos ARCO",
-    "arco_text": "De acuerdo con la Ley N° 21.719, usted tiene el derecho de Acceder, Rectificar, Cancelar u Oponerse al tratamiento de sus datos personales. Para ejercer estos derechos, puede comunicarse con la administración de la plataforma a través de su cuenta institucional.",
-    "cookies_title": "5. Uso de Cookies",
-    "cookies_text": "Utilizamos cookies estrictamente necesarias para mantener su sesión activa y preferencias de interfaz (como idioma y tema oscuro/claro). No utilizamos cookies para rastreo publicitario de terceros.",
-    "contact_title": "6. Contacto",
-    "contact_text": "Si tienes preguntas o inquietudes sobre esta Política de Privacidad o el manejo de tus datos, por favor contacta a la administración de la Facultad de Ciencias del Mar."
+  "TermsAcceptance": {
+    "loading": "Comprobando la aceptación de los términos",
+    "loadErrorTitle": "No pudimos comprobar los términos",
+    "loadError": "No pudimos verificar tu aceptación en este momento. Intenta nuevamente; si el problema continúa, cierra sesión y vuelve a ingresar.",
+    "retry": "Reintentar",
+    "logout": "Cerrar sesión",
+    "eyebrow": "Revisión requerida",
+    "version": "Versión {version}",
+    "confirmation": "He leído y acepto estos términos de uso para continuar utilizando MARSYS.",
+    "privacySeparate": "Esta aceptación registra las condiciones de uso y no reemplaza ni equivale al consentimiento para tratar datos personales.",
+    "privacyLink": "Revisar la información de privacidad",
+    "saveError": "No pudimos registrar la aceptación. Revisa tu conexión e inténtalo nuevamente.",
+    "saving": "Registrando…",
+    "accept": "Aceptar y continuar"
+  },
+  "Profile": {
+    "loading": "Cargando el perfil",
+    "eyebrow": "Cuenta",
+    "title": "Mi perfil",
+    "description": "Consulta la información de tu cuenta y el historial de aceptación de términos de uso.",
+    "account": "Cuenta activa",
+    "historyTitle": "Aceptaciones registradas",
+    "historyDescription": "El historial conserva la versión, idioma, fecha y huella digital del documento aceptado.",
+    "historyError": "No pudimos cargar el historial. Intenta recargar la página.",
+    "empty": "Aún no hay aceptaciones registradas.",
+    "termsVersion": "Términos de uso · versión {version}",
+    "acceptedAt": "Aceptado el {date}",
+    "acceptedLanguage": "Idioma: {language}",
+    "viewTerms": "Ver términos vigentes",
+    "recordHash": "Huella del documento: {hash}"
+  },
+  "TermsPage": {
+    "metadata": {
+      "title": "Términos de uso | MARSYS",
+      "description": "Términos de uso de la plataforma MARSYS. Documento técnico preliminar pendiente de aprobación institucional."
+    },
+    "loading": "Cargando los términos de uso",
+    "error": "No se pudieron cargar los términos de uso. Intenta recargar la página.",
+    "back": "Volver al inicio",
+    "version": "Versión {version}"
+  },
+  "PrivacyNoticePage": {
+    "metadata": {
+      "title": "Privacidad y datos personales | MARSYS",
+      "description": "Información sobre el tratamiento de datos personales en la plataforma académica MARSYS."
+    },
+    "eyebrow": "Privacidad y datos personales",
+    "title": "Información de privacidad de MARSYS",
+    "intro": "Esta página describe los datos que la plataforma puede tratar, sus usos técnicos y las medidas implementadas. La institución responsable debe completar y validar la información institucional antes de aprobar esta política.",
+    "reviewDate": "1 de noviembre de 2026",
+    "version": "Revisión técnica: {date} · Versión {version}",
+    "status": {
+      "title": "Información institucional pendiente de validación",
+      "description": "El nombre legal del responsable, su representante, el canal oficial, las bases de licitud por finalidad, los plazos de conservación, los destinatarios y las transferencias deben ser confirmados por la institución. Esta página no acredita por sí sola el cumplimiento ni constituye una política institucional aprobada."
+    },
+    "controller": {
+      "title": "Responsable y contacto",
+      "nameLabel": "Responsable del tratamiento",
+      "contactLabel": "Canal para consultas y solicitudes",
+      "pending": "Pendiente de confirmación institucional",
+      "contactPending": "Canal oficial pendiente de configuración",
+      "representativePending": "La identificación del representante legal y, si corresponde, del encargado de prevención debe ser publicada por la institución responsable."
+    },
+    "sections": {
+      "dataCategories": {
+        "title": "Categorías de datos",
+        "description": "Según los módulos habilitados, MARSYS puede tratar datos de identidad y contacto, roles y actividad de cuenta; información académica de docentes, estudiantes y ayudantes; registros de docencia; proyectos, investigaciones, participantes y resultados académicos; y solicitudes académicas con sus antecedentes adjuntos. Los archivos enviados como evidencia pueden contener información sensible."
+      },
+      "purposes": {
+        "title": "Usos de la plataforma",
+        "description": "El software utiliza esos datos para autenticar y autorizar cuentas, administrar procesos académicos y de investigación, registrar decisiones y mantener trazabilidad y seguridad operativa. La institución debe especificar y aprobar las finalidades concretas de cada módulo."
+      },
+      "lawfulBasis": {
+        "title": "Base de licitud",
+        "description": "La plataforma no presume que el consentimiento sea la base aplicable. El responsable institucional debe determinar, documentar y comunicar la base de licitud correspondiente a cada finalidad y demostrarla cuando sea requerida."
+      },
+      "recipients": {
+        "title": "Acceso y destinatarios",
+        "description": "El acceso dentro de MARSYS está limitado por sesión y permisos asignados. También pueden intervenir proveedores de autenticación, alojamiento, base de datos y almacenamiento de archivos, según la configuración del despliegue. La institución debe identificar los proveedores reales, destinatarios y transferencias internacionales aplicables."
+      },
+      "retention": {
+        "title": "Conservación y eliminación",
+        "description": "Los plazos deben definirse por categoría y finalidad conforme a las obligaciones académicas y legales de la institución. La plataforma no determina por sí sola esos plazos ni garantiza la eliminación de respaldos o copias del proveedor; deben configurarse y verificarse en cada entorno."
+      },
+      "security": {
+        "title": "Medidas técnicas",
+        "description": "El proyecto incorpora cifrado de campos personales en la aplicación, controles de acceso por rol, protección de sesión y medidas para reducir la exposición de datos en registros técnicos. La institución debe revisar su configuración, proveedores, respaldos, recuperación y pruebas periódicas antes de operar en producción."
+      }
+    },
+    "rights": {
+      "title": "Derechos de las personas",
+      "description": "La Ley 21.719 contempla los siguientes derechos, sujetos a sus requisitos y excepciones legales:",
+      "items": {
+        "access": {
+          "title": "Acceso",
+          "description": "Saber si se tratan datos personales y acceder a ellos y a la información prevista por la ley."
+        },
+        "rectification": {
+          "title": "Rectificación",
+          "description": "Solicitar que se corrijan datos inexactos, desactualizados o incompletos."
+        },
+        "suppression": {
+          "title": "Supresión",
+          "description": "Solicitar la eliminación de datos en los casos establecidos por la ley."
+        },
+        "opposition": {
+          "title": "Oposición",
+          "description": "Oponerse a determinados tratamientos en las circunstancias previstas por la ley."
+        },
+        "portability": {
+          "title": "Portabilidad",
+          "description": "Solicitar una copia estructurada y de uso común cuando se cumplan los requisitos legales."
+        },
+        "blocking": {
+          "title": "Bloqueo",
+          "description": "Solicitar la suspensión temporal del tratamiento en los casos que reconoce la ley; su respuesta tiene un plazo especial de dos días hábiles."
+        }
+      },
+      "contactConfigured": "Las personas con cuenta institucional pueden iniciar la solicitud en el portal. Para otras consultas, utilice el canal institucional indicado arriba. No incluya antecedentes sensibles en un correo ordinario.",
+      "contactPending": "El canal institucional para personas sin cuenta aún no está configurado; la institución debe publicarlo.",
+      "responseTime": "El responsable debe acusar recibo y responder por escrito dentro de 30 días corridos desde el ingreso; puede prorrogar una vez hasta por otros 30 días corridos. Las solicitudes de bloqueo temporal vinculadas a rectificación, supresión u oposición tienen un plazo especial de dos días hábiles. Debe conservar evidencia del envío, fecha y contenido íntegro. Si deniega, debe informar el plazo legal de 30 días hábiles para reclamar ante la Agencia. El objetivo de 48 horas del portal para bloqueos es conservador y no reemplaza el cómputo legal.",
+      "portalLink": "Abrir portal de solicitudes",
+      "lawSource": "Consultar texto oficial de la Ley 21.719",
+      "blockingNote": "El bloqueo puede solicitarse mientras se resuelve una solicitud de rectificación, supresión u oposición, según las condiciones legales aplicables."
+    },
+    "cookies": {
+      "title": "Cookies y almacenamiento local",
+      "description": "La plataforma utiliza una cookie necesaria para mantener la sesión y almacenamiento local del navegador para preferencias de interfaz, como idioma, tema, paleta de colores y cierre de este aviso. La revisión del código no encontró actualmente herramientas de analítica ni publicidad; esta información debe contrastarse con cada despliegue y sus integraciones."
+    },
+    "navigation": {
+      "label": "Navegación de privacidad",
+      "back": "Volver al inicio",
+      "login": "Volver al acceso de MARSYS"
+    }
+  },
+  "DataRightsRequestPage": {
+    "eyebrow": "Privacidad",
+    "title": "Solicitudes de derechos",
+    "description": "Inicia y consulta el estado de una solicitud sobre tus datos personales. Registrar una solicitud no elimina ni modifica datos automáticamente; la persona responsable revisará la identidad, el alcance y las excepciones aplicables.",
+    "tabs": {
+      "label": "Secciones de solicitudes de privacidad",
+      "new": "Nueva solicitud",
+      "mine": "Mis solicitudes",
+      "queue": "Bandeja de gestión"
+    },
+    "loading": "Cargando solicitudes",
+    "form": {
+      "panelTitle": "Solicitar una acción sobre tus datos",
+      "panelDescription": "Elige el derecho que quieres ejercer. Revisaremos tu identidad y la solicitud antes de realizar cambios en la información.",
+      "steps": {
+        "choose": "Selecciona el derecho que quieres ejercer.",
+        "describe": "Indica los datos relacionados y lo que solicitas.",
+        "track": "Guarda el folio y consulta aquí el avance y la respuesta."
+      },
+      "rightLabel": "Derecho que deseas ejercer",
+      "detailsLabel": {
+        "RECTIFICATION": "Indica los datos que deben corregirse y el cambio solicitado",
+        "SUPPRESSION": "Identifica los datos, el tratamiento y la causal de supresión que invocas",
+        "OPPOSITION": "Identifica el tratamiento y explica la causal de oposición",
+        "PORTABILITY": "Indica los datos cuyo traslado solicitas",
+        "BLOCKING": "Identifica los datos o tratamiento cuyo bloqueo solicitas"
+      },
+      "detailsHint": "Describe solo la información necesaria para tramitar la solicitud. La identidad y el correo de respuesta se toman de tu cuenta institucional.",
+      "blockingDeadline": "El bloqueo temporal asociado a rectificación, supresión u oposición tiene un plazo legal especial de dos días hábiles. El portal lo prioriza con una meta conservadora de 48 horas.",
+      "submit": "Enviar solicitud",
+      "submitting": "Enviando…",
+      "noSensitiveDetails": "Describe solo los datos y la petición necesarios. No adjuntes documentos; si se requieren antecedentes, la institución indicará un canal seguro."
+    },
+    "rights": {
+      "ACCESS": "Acceso",
+      "RECTIFICATION": "Rectificación",
+      "SUPPRESSION": "Supresión",
+      "OPPOSITION": "Oposición",
+      "PORTABILITY": "Portabilidad",
+      "BLOCKING": "Bloqueo"
+    },
+    "statuses": {
+      "RECEIVED": "Recibida",
+      "VERIFYING": "Verificando identidad",
+      "IN_PROGRESS": "En gestión",
+      "COMPLETED": "Respondida",
+      "DENIED": "No acogida",
+      "CLOSED": "Cerrada"
+    },
+    "mine": {
+      "title": "Mis solicitudes",
+      "description": "Consulta aquí el estado, los plazos y las respuestas de las solicitudes asociadas a tu cuenta.",
+      "empty": "Aún no has registrado solicitudes.",
+      "newRequest": "Crear una solicitud",
+      "reference": "Folio: {reference}",
+      "created": "Enviada el {date}",
+      "response": "Respuesta",
+      "details": "Antecedentes de la solicitud: {details}",
+      "due": "Plazo de respuesta hasta {date}",
+      "blockingDue": "Meta prioritaria de respuesta: {date} (48 horas; plazo legal de dos días hábiles)",
+      "extended": "El plazo fue prorrogado una vez.",
+      "extensionReason": "Fundamento de la prórroga: {reason}"
+    },
+    "queue": {
+      "title": "Bandeja de gestión",
+      "description": "Revisa cada solicitud, actualiza su estado y comunica una respuesta. Si corresponde, tramita la prórroga desde su propio campo.",
+      "empty": "No hay solicitudes abiertas.",
+      "subjectRemoved": "Cuenta ya no disponible",
+      "request": "{right} · {date}",
+      "details": "Solicitud: {details}",
+      "due": "Vence el {date}",
+      "blockingDue": "Prioridad de bloqueo · meta 48 horas: {date}",
+      "extended": "Prórroga aplicada; nuevo vencimiento visible arriba.",
+      "nextStatus": "Siguiente estado",
+      "chooseStatus": "Selecciona una acción",
+      "currentResponse": "Respuesta registrada",
+      "responseLabel": "Respuesta para la persona solicitante",
+      "extensionReasonLabel": "Fundamento de la prórroga",
+      "responseHint": "La respuesta queda cifrada y solo se muestra a la persona y al personal autorizado.",
+      "denialHint": "Si no se acoge la solicitud, fundamenta la decisión y comunica el plazo legal de 30 días hábiles para reclamar ante la Agencia.",
+      "extendDeadline": "Prorrogar 30 días",
+      "save": "Actualizar",
+      "saving": "Guardando…"
+    },
+    "success": {
+      "submitted": "Solicitud recibida. Folio: {reference}",
+      "updated": "Estado actualizado.",
+      "extended": "Plazo prorrogado 30 días."
+    },
+    "errors": {
+      "load": "No se pudieron cargar las solicitudes.",
+      "submit": "No se pudo registrar la solicitud.",
+      "update": "No se pudo actualizar la solicitud.",
+      "responseRequired": "Escribe una respuesta antes de completar o no acoger la solicitud.",
+      "extensionReasonRequired": "Escribe el fundamento antes de prorrogar el plazo."
+    }
   },
   "NotFound": {
     "title": "404",
@@ -986,7 +1252,7 @@
     },
     "form": {
       "title": "Registrar ayudantía",
-      "description": "Selecciona una carga docente y registra al estudiante que ya aprobó esa asignatura.",
+      "description": "Registra una ayudantía del semestre activo o de semestres anteriores y vincúlala a un estudiante.",
       "semester": "Semestre",
       "course": "Asignatura, NRC y profesor",
       "selectCourse": "Seleccionar asignatura…",
@@ -1021,7 +1287,18 @@
       "assistantshipNrc": "NRC de la ayudantía",
       "editTitle": "Editar ayudantía",
       "update": "Guardar cambios",
-      "updated": "Ayudantía actualizada correctamente."
+      "updated": "Ayudantía actualizada correctamente.",
+      "lookupHint": "Ingresa el correo y sal del campo para buscar al estudiante.",
+      "studentFound": "Estudiante encontrado. La ayudantía quedará vinculada a su ficha.",
+      "studentNew": "No existe un estudiante con ese correo. Se creará su ficha al guardar.",
+      "studentCareer": "Carrera del estudiante",
+      "studentCurriculum": "Carrera y cohorte del estudiante",
+      "assistantshipCareer": "Carrera de la ayudantía",
+      "selectCareer": "Selecciona una carrera",
+      "historicalCourse": "Asignatura de la carrera",
+      "courseNrc": "NRC de la asignatura (opcional)",
+      "cohort": "Cohorte {year}",
+      "noCareerCourses": "Selecciona una carrera con asignaturas en su malla."
     },
     "errors": {
       "load": "No pudimos cargar las ayudantías. Intenta nuevamente.",
@@ -1038,7 +1315,9 @@
       "SCHEDULE_CONFLICT": "Los horarios se superponen entre sí o con otra ayudantía del estudiante.",
       "INVALID_SCHEDULE": "Revisa los horarios: el término debe ser posterior al inicio.",
       "ASSIGNMENT_NOT_FOUND": "La carga docente seleccionada ya no existe. Actualiza e intenta nuevamente.",
-      "RETRY": "Los datos cambiaron mientras guardabas. Intenta nuevamente."
+      "RETRY": "Los datos cambiaron mientras guardabas. Intenta nuevamente.",
+      "CAREER_REQUIRED": "Selecciona la carrera y malla del estudiante.",
+      "COURSE_CAREER": "La asignatura no pertenece a la carrera seleccionada."
     },
     "edit": "Editar"
   },
@@ -1137,7 +1416,7 @@
   "ChartsPage": {
     "eyebrow": "Análisis académico",
     "title": "Gráficos e indicadores",
-    "subtitle": "Explora tendencias de proyectos, presupuestos, investigaciones, producción académica y pagos de profesores hora.",
+    "subtitle": "Consulta proyectos y publicaciones por departamento, estados, tipos de resultados, tendencias y pagos PH estimados.",
     "loading": "Cargando datos para los gráficos…",
     "error": "No se pudieron cargar los datos para el análisis.",
     "retry": "Reintentar",
@@ -1170,7 +1449,13 @@
       "recoveryAmount": "Recuperación",
       "facultyContribution": "Aporte facultad",
       "depreciationAmount": "Depreciación",
-      "profitabilityAmount": "Rentabilidad"
+      "profitabilityAmount": "Rentabilidad",
+      "details": "Ver detalles",
+      "detailsFor": "Ver detalles de {title}",
+      "detailsDescription": "Resumen de financiamiento y presupuesto registrado del proyecto.",
+      "reportingYear": "Año de registro",
+      "startsOn": "Fecha de inicio",
+      "status": "Estado"
     },
     "outputKinds": "Resultados por tipo",
     "outputsByYear": "Producción académica por año",
@@ -1179,7 +1464,15 @@
     "unknownDate": "Sin fecha registrada",
     "hourlyByComponent": "Pagos PH estimados por componente",
     "empty": "Sin registros para los filtros seleccionados.",
-    "statuses": { "REGISTERED": "Registrado", "AWARDED": "Adjudicado", "IN_PROGRESS": "En curso", "COMPLETED": "Completado", "CLOSED": "Cerrado", "CANCELLED": "Cancelado", "Sin informar": "Sin informar" },
+    "statuses": {
+      "REGISTERED": "Registrado",
+      "AWARDED": "Adjudicado",
+      "IN_PROGRESS": "En curso",
+      "COMPLETED": "Completado",
+      "CLOSED": "Cerrado",
+      "CANCELLED": "Cancelado",
+      "Sin informar": "Sin informar"
+    },
     "kinds": {
       "ARTICLE": "Artículo",
       "BOOK": "Libro",
@@ -1192,7 +1485,13 @@
       "LABORATORY": "Laboratorio",
       "FIELDWORK": "Terreno",
       "ASSISTANTSHIP": "Ayudantía"
-    }
+    },
+    "closeDetails": "Cerrar detalle",
+    "projectsFrom": "Proyectos desde",
+    "projectsTo": "Proyectos hasta",
+    "projectsByDepartment": "Cantidad de proyectos por departamento",
+    "publicationsByDepartment": "Cantidad de publicaciones por departamento",
+    "unassignedDepartment": "Sin asignar"
   },
   "UnderDevelopment": {
     "badge": "En desarrollo",
@@ -1215,6 +1514,8 @@
     "noSemester": "No hay un semestre activo. Puedes guardar los datos del profesor; activa un semestre para vincular asignaturas.",
     "nrc": "NRC",
     "searchOptions": "Buscar en la lista",
+    "courseSearchHelp": "Busca por nombre, código de asignatura o NRC. Ejemplos: «Biología Marina» o «10002».",
+    "teacherSearchHelp": "Busca por nombre o correo institucional. Ejemplos: «María Soto» o «maria@ucn.cl».",
     "selectedCount": "{count, plural, one {# seleccionado} other {# seleccionados}}",
     "noMatches": "No hay coincidencias.",
     "emptyOptions": "No hay registros disponibles.",
@@ -1265,31 +1566,58 @@
     "noSemesterProfile": "No hay semestre activo. Puedes guardar los datos del estudiante sin vincular asignaturas.",
     "selectionHint": "Marca para vincular y desmarca para desvincular. Los cambios se aplican al guardar.",
     "search": "Buscar por nombre o correo",
+    "searchHelp": "Busca por nombre o correo; usa el filtro de asignatura para ver matrículas por NRC. Ejemplos: «Ana Pérez», «ana@ucn.cl» o NRC «10002».",
+    "selectionSearchHelp": "Busca por nombre de asignatura, código o NRC. Ejemplos: «Biología Marina» o «10002».",
     "filterCourse": "Filtrar por asignatura",
+    "studentColumn": "Estudiante",
+    "coursesColumn": "Asignaturas del semestre",
+    "actions": "Acciones",
+    "viewCourses": "Ver asignaturas ({count})",
+    "viewCoursesFor": "Ver asignaturas de {name}",
+    "hideCourses": "Ocultar asignaturas",
+    "hideCoursesFor": "Ocultar asignaturas de {name}",
+    "coursesPanelTitle": "Asignaturas inscritas",
+    "coursesCount": "{count, plural, one {# asignatura} other {# asignaturas}}",
+    "nrcLabel": "NRC",
     "allStudents": "Todos los estudiantes",
     "noSemesterList": "Sin semestre activo. Los estudiantes permanecen registrados.",
     "empty": "No hay estudiantes registrados.",
     "noMatches": "No hay estudiantes que coincidan con los filtros.",
     "noCourses": "Sin asignaturas en el semestre activo",
-    "edit": "Editar y asignaturas",
+    "viewDetails": "Ver detalle",
+    "viewStudent": "Ver detalle de {name}",
+    "detailsTitle": "Detalle del estudiante",
+    "detailsDescription": "Información de identificación y contacto del estudiante.",
+    "edit": "Editar estudiante",
     "editStudent": "Editar {name} y sus asignaturas",
     "total": "{count, plural, one {# estudiante} other {# estudiantes}}",
+    "pagination": "Página {page} de {totalPages} · {total, plural, one {# estudiante} other {# estudiantes}}",
     "importTitle": "Importar estudiantes",
     "importDescription": "Carga estudiantes y vincúlalos a NRC existentes en el semestre activo.",
     "importing": "Importando…",
     "imported": "{students} estudiantes procesados; {created} nuevos y {enrollments} vínculos añadidos.",
     "noSemesterImport": "Activa un semestre antes de importar matrículas.",
+    "noCoursesImport": "No hay NRC en el semestre activo. Carga asignaturas antes de importar estudiantes.",
     "csvFormat": "Archivo CSV UTF-8 separado por punto y coma o coma. Incluye nombre, correo y una o más columnas de NRC.",
     "importRules": "Los correos deben ser únicos dentro del archivo. Todos los NRC deben existir en el semestre activo. Se rechaza el archivo completo si una fila es inválida. Reimportar añade vínculos faltantes y conserva los demás. Máximo 5000 estudiantes y 2 MB.",
     "file": "Archivo CSV",
     "downloadExample": "Descargar ejemplo CSV",
+    "template": "Plantilla CSV",
     "exampleDownloaded": "Ejemplo CSV descargado.",
     "errors": {
       "load": "No fue posible cargar los estudiantes o las asignaturas.",
       "save": "No fue posible guardar el estudiante.",
       "import": "No fue posible importar los estudiantes.",
-      "fileSize": "El archivo supera el máximo de 2 MB."
-    }
+      "fileSize": "El archivo supera el máximo de 2 MB.",
+      "fileType": "Selecciona un archivo con extensión .csv."
+    },
+    "career": "Carrera y malla",
+    "noCareer": "Sin carrera asignada",
+    "cohortYear": "Cohorte {year}",
+    "progress": "Ver avance",
+    "assistantships": "Historial de ayudantías ({count})",
+    "assistantshipCourseNrc": "NRC de asignatura: {nrc}",
+    "assistantshipNrc": "NRC de ayudantía: {nrc}"
   },
   "HourlyPayments": {
     "rut": "RUT",
@@ -1328,6 +1656,10 @@
     "calculating": "Calculando pagos…",
     "semesterTotal": "Total del semestre",
     "ratesTitle": "Tarifas PH",
+    "ratesListTitle": "Tarifas registradas",
+    "rateProfile": "Perfil de tarifa",
+    "rateValueLabel": "Valor mensual",
+    "actions": "Acciones",
     "ratesDescription": "Configura el valor mensual por hora directa del semestre activo. Los contratos existentes conservan la tarifa aplicada al registrarlos.",
     "category": "Categoría",
     "hourlyRate": "Valor mensual por hora directa (CLP)",
@@ -1335,6 +1667,7 @@
     "rateSaved": "Tarifa guardada.",
     "saveError": "No fue posible guardar la tarifa.",
     "saveRate": "Guardar tarifa",
+    "rateFormHelp": "Elige categoría y grado; para profesores antiguos selecciona también la certificación. Ingresa el valor mensual en pesos chilenos, con hasta dos decimales.",
     "editRate": "Editar tarifa",
     "close": "Cerrar",
     "noSemester": "Activa un semestre para configurar sus tarifas.",
@@ -1369,6 +1702,7 @@
       "button": "Importar Excel",
       "title": "Importar proyectos desde Excel",
       "description": "Carga la planilla de proyectos 2025-2026. Revisa las filas válidas, errores y duplicados antes de confirmar.",
+      "sourceFile": "Archivo fuente admitido: {name}",
       "fileLabel": "Archivo .xlsx",
       "xlsxOnly": "Selecciona un archivo .xlsx.",
       "tooLarge": "El archivo supera el límite de 12 MB.",
@@ -1611,5 +1945,154 @@
       "contactEmail": "Correo de contacto",
       "gender": "Género (opcional)"
     }
+  },
+  "PrivacyPolicy": {
+    "title": "Política de Privacidad y Protección de Datos",
+    "last_updated": "Última actualización: Agosto 2026",
+    "intro_title": "1. Introducción",
+    "intro_text": "En MARSYS (Plataforma de Gestión Académica de la Facultad de Ciencias del Mar, UCN), respetamos y protegemos la privacidad de nuestros usuarios. Esta política describe cómo recopilamos, utilizamos y salvaguardamos su información personal, en estricto cumplimiento con la Ley N° 21.719 de Protección de Datos Personales de Chile.",
+    "collection_title": "2. Información que Recopilamos",
+    "collection_text": "Recopilamos información necesaria para la gestión académica y administrativa, incluyendo datos de identificación (nombre, RUT, correo institucional), datos académicos (avance curricular, notas) y registros de actividad dentro de la plataforma (solicitudes de laboratorios, vehículos, etc.).",
+    "use_title": "3. Uso de la Información",
+    "use_text": "Los datos recopilados se utilizan exclusivamente para los fines operativos de la plataforma MARSYS, tales como la trazabilidad de procesos internos, asignación de recursos, gestión de roles y comunicación oficial dentro de la comunidad de la FCM.",
+    "arco_title": "4. Sus Derechos ARCO",
+    "arco_text": "De acuerdo con la Ley N° 21.719, usted tiene el derecho de Acceder, Rectificar, Cancelar u Oponerse al tratamiento de sus datos personales. Para ejercer estos derechos, puede comunicarse con la administración de la plataforma a través de su cuenta institucional.",
+    "cookies_title": "5. Uso de Cookies",
+    "cookies_text": "Utilizamos cookies estrictamente necesarias para mantener su sesión activa y preferencias de interfaz (como idioma y tema oscuro/claro). No utilizamos cookies para rastreo publicitario de terceros.",
+    "contact_title": "6. Contacto",
+    "contact_text": "Si tienes preguntas o inquietudes sobre esta Política de Privacidad o el manejo de tus datos, por favor contacta a la administración de la Facultad de Ciencias del Mar."
+  },
+  "CareersPage": {
+    "eyebrow": "Información académica",
+    "title": "Carreras y mallas curriculares",
+    "subtitle": "Organiza las carreras, sus mallas por cohorte y las asignaturas que componen cada periodo académico.",
+    "create": "Crear carrera",
+    "createTitle": "Crear carrera y primera malla",
+    "editTitle": "Editar carrera",
+    "editVersionTitle": "Editar malla de cohorte {year}",
+    "versionTitle": "Nueva malla · {name}",
+    "formDescription": "Las mallas quedan asociadas a una cohorte de ingreso para conservar el avance curricular histórico.",
+    "code": "Código",
+    "name": "Nombre de la carrera",
+    "cohortYear": "Año de ingreso de la cohorte",
+    "curriculumCourses": "Asignaturas de la malla",
+    "curriculumSource": "Forma de cargar las asignaturas",
+    "manualEntry": "Agregar manualmente",
+    "importCsvOption": "Importar desde CSV",
+    "selectCourse": "Selecciona una asignatura",
+    "termNumber": "Semestre",
+    "addCourse": "Agregar",
+    "remove": "Quitar",
+    "noCourses": "Agrega las asignaturas que forman parte de esta malla.",
+    "courseCatalogEmpty": "No hay asignaturas en el catálogo. Registra asignaturas antes de crear una malla.",
+    "termBadge": "Semestre {term}",
+    "term": "Semestre {term}",
+    "cohort": "Cohorte {year}",
+    "courseCount": "{count, plural, one {# asignatura} other {# asignaturas}}",
+    "assignedStudents": "{count, plural, one {# estudiante} other {# estudiantes}}",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "addVersion": "Agregar malla para otra cohorte",
+    "import": "Importar malla CSV",
+    "importTitle": "Importar malla de {name}",
+    "importDescription": "Sube un CSV UTF-8 con las columnas nombre_asignatura y semestre. Las asignaturas que aún no existan se agregarán al catálogo.",
+    "csvFile": "Archivo CSV",
+    "importPreview": "{file} · {count} asignaturas detectadas",
+    "importMore": "y {count} más",
+    "importEmptyFile": "El archivo no contiene asignaturas.",
+    "importing": "Importando malla…",
+    "imported": "Malla de cohorte {year} importada con {count} filas.",
+    "queueSubmitting": "Enviando la malla a la cola…",
+    "queued": "Carga en cola; se procesará en segundo plano.",
+    "createdCsv": "Carrera {name} creada con la malla de cohorte {year} ({count} asignaturas).",
+    "processing": "Procesando…",
+    "jobQueued": "La malla está en espera para procesarse…",
+    "jobProcessing": "Procesando malla…",
+    "jobFailedHint": "La importación falló. Revisa la notificación para ver el detalle.",
+    "editCurriculum": "Editar malla",
+    "editCareer": "Editar {name}",
+    "empty": "Aún no hay carreras registradas.",
+    "loading": "Cargando carreras y mallas…",
+    "retry": "Reintentar",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "created": "Carrera y malla creadas.",
+    "updated": "Carrera actualizada.",
+    "versionCreated": "Nueva malla creada.",
+    "versionUpdated": "Malla actualizada.",
+    "activated": "Carrera activada.",
+    "deactivated": "Carrera desactivada.",
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "errors": {
+      "load": "No fue posible cargar las carreras y mallas.",
+      "save": "No fue posible guardar la carrera o la malla.",
+      "import": "No fue posible importar la malla.",
+      "delete": "No fue posible eliminar la carrera."
+    },
+    "delete": "Eliminar carrera",
+    "deleteTitle": "Eliminar {name}",
+    "deleteDescription": "Se eliminarán la carrera y sus mallas. Las asignaturas del catálogo se conservan. Si tiene estudiantes o ayudantías vinculadas, deberás desactivarla para conservar su historial.",
+    "deleting": "Eliminando carrera…",
+    "deleted": "Carrera eliminada.",
+    "viewCurriculum": "Ver malla",
+    "viewerTitle": "Malla curricular: {name}",
+    "viewerDescription": "Asignaturas organizadas por año y semestre para la cohorte seleccionada.",
+    "selectCohort": "Seleccionar cohorte",
+    "year": "Año {year}",
+    "noCurricula": "Esta carrera todavía no tiene mallas registradas.",
+    "emptyCurriculum": "Esta malla todavía no tiene asignaturas.",
+    "noTermCourses": "Sin asignaturas registradas",
+    "scrollHint": "En pantallas pequeñas, desplázate horizontalmente para ver todos los años.",
+    "curriculumDiagram": "Malla curricular por año y semestre"
+  },
+  "StudentProgressPage": {
+    "eyebrow": "Avance curricular",
+    "back": "Volver a estudiantes",
+    "cohort": "Malla de cohorte {year}",
+    "overallProgress": "Avance de la malla",
+    "passedSummary": "{passed} de {total} asignaturas aprobadas · {enrolled} inscritas este semestre",
+    "term": "Semestre {term}",
+    "outcomes": {
+      "PASSED": "Aprobada",
+      "FAILED": "Reprobada",
+      "PENDING": "Sin cursar"
+    },
+    "enrolledCurrent": "Inscrita este semestre · {semester}",
+    "attempt": "Intento {number}",
+    "nrc": "NRC {nrc}",
+    "otherAttempts": "Asignaturas fuera de la malla",
+    "noCurriculum": "Este estudiante aún no tiene una carrera y malla asignadas.",
+    "emptyCurriculum": "La malla no tiene asignaturas registradas.",
+    "recordAttempt": "Registrar resultado",
+    "recordTitle": "Registrar resultado de asignatura",
+    "recordDescription": "Las asignaturas inscritas se reflejan desde la lista del semestre activo. Cada resultado final se conserva como un intento histórico.",
+    "course": "Asignatura",
+    "selectCourse": "Selecciona una asignatura",
+    "semesterSelect": "Semestre cursado",
+    "selectSemester": "Selecciona un semestre",
+    "result": "Resultado",
+    "nrcOptional": "NRC (opcional)",
+    "save": "Guardar resultado",
+    "saving": "Guardando…",
+    "saved": "Resultado registrado.",
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "loading": "Cargando avance curricular…",
+    "retry": "Reintentar",
+    "errors": {
+      "load": "No fue posible cargar el avance curricular.",
+      "save": "No fue posible registrar el resultado."
+    }
+  },
+  "DepartmentField": {
+    "label": "Departamento",
+    "hint": "Selecciona la carrera que corresponde al departamento. Es opcional; los registros sin vínculo se cuentan como «Sin asignar».",
+    "loading": "Cargando departamentos…",
+    "unassigned": "Sin asignar",
+    "error": "No se pudieron cargar los departamentos.",
+    "retry": "Reintentar"
   }
 }

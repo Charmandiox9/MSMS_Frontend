@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderAs } from "@/test/render";
@@ -94,10 +95,9 @@ describe("CourseTeachersDialog", () => {
     );
     await screen.findByLabelText(/Ana Soto/);
     fireEvent.click(screen.getByRole("button", { name: "Guardar vínculos" }));
-    expect(await screen.findByRole("alert")).toHaveProperty(
-      "textContent",
-      "El semestre activo cambió",
-    );
+    await waitFor(() => expect(screen.getByRole("button", {name: "Guardar vínculos"})).toHaveProperty("disabled", false));
+    expect(toast.promise).toHaveBeenCalledWith(expect.any(Promise), expect.objectContaining({error: expect.any(Function)}));
+    expect(screen.getByRole("dialog")).toBeDefined();
     expect(saved).not.toHaveBeenCalled();
   });
 });

@@ -20,7 +20,17 @@ const COURSES = [
     nrc: "10001",
     day: "Lunes",
     block: "A",
-    course: { code: "ED", name: "Estructura de Datos" },
+    course: {
+      code: "ED",
+      name: "Estructura de Datos",
+      curriculumCourses: [
+        {
+          curriculumVersion: {
+            career: { id: "career-1", code: "INF", name: "Ingeniería Civil en Computación" },
+          },
+        },
+      ],
+    },
     semester: { name: "2026-2" },
   },
   {
@@ -106,6 +116,17 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
       structure.closest("li") ?? structure.closest("tr") ?? document.body;
     expect(within(row as HTMLElement).getByText("Juan Pérez")).toBeDefined();
     expect(screen.getByText("Sin profesor asignado")).toBeDefined();
+  });
+
+  it("muestra la carrera cuya malla incluye la asignatura", async () => {
+    installFakeApi({
+      "GET /academic/courses": ok(COURSES),
+      "GET /academic/teachers": ok({ items: [], total: 0, page: 1, pageSize: 100, totalPages: 0 }),
+    });
+    renderAs(<SubjectsPage />, ["ACADEMIC_SECRETARY"]);
+
+    const subject = await screen.findByText("Estructura de Datos");
+    expect(within(subject.closest("li")!).getByText("Ingeniería Civil en Computación")).toBeDefined();
   });
 
   it.each(["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"] as const)(
@@ -215,12 +236,13 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
     );
 
     const csv = "nrc;asignatura;dia;bloque\n10001;Estructura de Datos;Lunes;A";
-    const input = document.querySelector(
-      'input[type="file"]',
-    ) as HTMLInputElement;
-    fireEvent.change(input, {
+    fireEvent.click(screen.getByRole("button", { name: "Importar CSV" }));
+    fireEvent.change(await screen.findByLabelText("Archivo CSV"), {
       target: { files: [new File([csv], "horarios.csv")] },
     });
+    fireEvent.click(
+      screen.getAllByRole("button", { name: "Importar CSV" }).at(-1)!,
+    );
 
     await waitFor(() =>
       expect(api.calls("GET /academic/courses")).toHaveLength(2),
@@ -294,15 +316,16 @@ describe("SubjectsPage (asignaturas y horarios)", () => {
       "No hay asignaturas cargadas para el semestre activo.",
     );
 
-    const input = document.querySelector(
-      'input[type="file"]',
-    ) as HTMLInputElement;
-    fireEvent.change(input, {
+    fireEvent.click(screen.getByRole("button", { name: "Importar CSV" }));
+    fireEvent.change(await screen.findByLabelText("Archivo CSV"), {
       target: { files: [new File(["x"], "malo.csv")] },
     });
+    fireEvent.click(
+      screen.getAllByRole("button", { name: "Importar CSV" }).at(-1)!,
+    );
 
     expect((await screen.findByRole("alert")).textContent).toBe(
-      "Fila 3: bloque inválido",
+      "No se pudo importar el archivo CSV.",
     );
   });
 });

@@ -8,65 +8,89 @@ afterEach(() => vi.unstubAllGlobals());
 beforeEach(() => localStorage.clear());
 
 describe("Academic charts", () => {
-  it('bloquea coordinación sin consultar la API', async () => {
+  it("bloquea coordinación sin consultar la API", async () => {
     const api = installFakeApi();
-    renderAs(<AcademicCharts />, ['TEACHING_SUPPORT_COORDINATOR']);
-    await screen.findByRole('alert');
+    renderAs(<AcademicCharts />, ["TEACHING_SUPPORT_COORDINATOR"]);
+    await screen.findByRole("alert");
     expect(api.requests).toHaveLength(0);
   });
-  it('permite reintentar una consulta GraphQL fallida y cargar indicadores vacíos', async () => {
-    const api = installFakeApi({ 'POST /graphql': fail(500, 'error') });
-    renderAs(<AcademicCharts />, ['ACADEMIC_PROCESS_ANALYST']);
-    await screen.findByRole('alert');
-    api.on('POST /graphql', ok({ data: { academicCharts: { projects: { columns: [], rows: [], totalRows: 0 },
-      researchByYear: [], outputs: [], hourlyByComponent: [], semesters: [] } } }));
-    fireEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
-    await screen.findByText('Proyectos por estado');
-    expect(screen.queryByRole('alert')).toBeNull();
-    expect(api.calls('POST /graphql')).toHaveLength(2);
+  it("permite reintentar una consulta GraphQL fallida y cargar indicadores vacíos", async () => {
+    const api = installFakeApi({ "POST /graphql": fail(500, "error") });
+    renderAs(<AcademicCharts />, ["ACADEMIC_PROCESS_ANALYST"]);
+    await screen.findByRole("alert");
+    api.on(
+      "POST /graphql",
+      ok({
+        data: {
+          academicCharts: {
+            projectsByDepartment: [],
+            publicationsByDepartment: [],
+            projects: { columns: [], rows: [], totalRows: 0 },
+            researchByYear: [],
+            outputs: [],
+            hourlyByComponent: [],
+            semesters: [],
+          },
+        },
+      }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
+    await screen.findByText("Proyectos por estado");
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(api.calls("POST /graphql")).toHaveLength(2);
   });
-  it("shows repository, budget, research output, and PH indicators to the secretary", async () => {
-    const columns = ['reportingYear', 'startsOn', 'title', 'fundingSource', 'status', 'currency', 'totalAmount', 'vraContribution'];
-    const projectRows = [
-      { reportingYear: 2026, startsOn: '2026-03-15', title: 'Centro costero', fundingSource: 'ANID', status: 'IN_PROGRESS', currency: 'CLP', totalAmount: '227700000', vraContribution: '1200000' },
-      { reportingYear: 2026, startsOn: '2026-07-02', title: 'Estudio de mareas', fundingSource: 'UCN', status: 'COMPLETED', currency: 'CLP', totalAmount: '500000', vraContribution: '0' },
-    ];
+  it("mantiene los gráficos solicitados y muestra conteos por departamento sin presupuestos", async () => {
     const api = installFakeApi({
-      'POST /graphql': ok({ data: { academicCharts: {
-        projects: { columns, rows: projectRows.map((row) => ({ values: columns.map((column) => row[column as keyof typeof row]) })), totalRows: 2 },
-        researchByYear: [{ label: '2026', value: '1' }],
-        outputs: [{ kind: 'ARTICLE', reportingYear: 2026, count: 1 }],
-        hourlyByComponent: [{ label: 'LECTURE', value: '30000', count: 1 }],
-        semesters: [{ id: 'semester', name: '2026-2' }],
-      } } }),
+      "POST /graphql": ok({
+        data: {
+          academicCharts: {
+            projects: {
+              columns: ["status"],
+              rows: [{ values: ["IN_PROGRESS"] }, { values: ["COMPLETED"] }],
+              totalRows: 2,
+            },
+            projectsByDepartment: [
+              { label: "Biología Marina", value: "1" },
+              { label: "", value: "1" },
+            ],
+            publicationsByDepartment: [
+              { label: "Biología Marina", value: "3" },
+              { label: "", value: "2" },
+            ],
+            researchByYear: [{ label: "2026", value: "1" }],
+            outputs: [{ kind: "ARTICLE", reportingYear: 2026, count: 1 }],
+            hourlyByComponent: [{ label: "LECTURE", value: "30000", count: 1 }],
+            semesters: [],
+          },
+        },
+      }),
     });
     renderAs(<AcademicCharts />, ["ACADEMIC_SECRETARY"]);
-
-    expect(await screen.findByText("Gráficos e indicadores")).toBeDefined();
-    expect(screen.getByText("Proyectos por estado")).toBeDefined();
-    expect(screen.getByText("Presupuesto registrado por moneda")).toBeDefined();
+    await screen.findByText("Proyectos por estado");
+    expect(screen.queryByText("Presupuesto registrado por moneda")).toBeNull();
+    expect(
+      screen.getByText("Cantidad de proyectos por departamento"),
+    ).toBeDefined();
+    expect(
+      screen.getByText("Cantidad de publicaciones por departamento"),
+    ).toBeDefined();
+    expect(screen.getAllByText("Sin asignar")).toHaveLength(2);
     expect(screen.getByText("Pagos PH estimados por componente")).toBeDefined();
-    expect(screen.getByText(/227\.700\.000/)).toBeDefined();
-    expect(screen.getByText("Centro costero")).toBeDefined();
-    expect(screen.getByText("Aporte VRA")).toBeDefined();
-    expect(screen.getByText("Estudio de mareas")).toBeDefined();
-    expect(api.calls('POST /graphql')).toHaveLength(1);
-    expect(api.calls('GET /academic/reports')).toHaveLength(0);
-
-    fireEvent.change(screen.getByLabelText("Presupuesto desde"), { target: { value: "2025-03-01" } });
-    fireEvent.change(screen.getByLabelText("Presupuesto hasta"), { target: { value: "2025-09-30" } });
-    await waitFor(() => {
-      const request = api.calls('POST /graphql').at(-1)?.body as { variables: { filters: { startsOn?: string; endsOn?: string } } };
-      expect(request.variables.filters.startsOn).toBe('2025-03-01');
-      expect(request.variables.filters.endsOn).toBe('2025-09-30');
+    fireEvent.change(screen.getByLabelText("Proyectos desde"), {
+      target: { value: "2025-03-01" },
     });
-    fireEvent.click(screen.getAllByRole("button", { name: /Aporte VRA/ })[0]);
-    expect(screen.queryByText("Estudio de mareas")).toBeNull();
-    expect(screen.getByRole("button", { name: "Limpiar filtros" })).toBeDefined();
-    fireEvent.click(screen.getByRole("button", { name: "Limpiar filtros" }));
-    fireEvent.click(within(screen.getByRole("group", { name: "Presupuesto registrado por moneda · CLP" })).getByRole("button", { name: "2026" }));
-    expect(await screen.findByText("Presupuesto agrupado por mes de inicio · 2026")).toBeDefined();
-    fireEvent.click(within(screen.getByRole("group", { name: "Presupuesto agrupado por mes de inicio · 2026" })).getByRole("button", { name: "marzo" }));
-    expect(screen.queryByText("Estudio de mareas")).toBeNull();
+    fireEvent.change(screen.getByLabelText("Proyectos hasta"), {
+      target: { value: "2025-09-30" },
+    });
+    await waitFor(() => {
+      const body = api.calls("POST /graphql").at(-1)?.body as {
+        variables: { filters: { startsOn?: string; endsOn?: string } };
+      };
+      expect(body.variables.filters).toMatchObject({
+        startsOn: "2025-03-01",
+        endsOn: "2025-09-30",
+      });
+    });
+    expect(api.calls("GET /academic/reports")).toHaveLength(0);
   });
 });

@@ -9,15 +9,20 @@ export interface AssistantshipScheduleView {
 
 export interface AssistantshipView {
   id: string;
-  teachingAssignmentId: string;
+  teachingAssignmentId: string | null;
+  studentId: string | null;
+  courseId: string;
+  careerId: string | null;
+  careerCurriculumVersionId: string | null;
+  careerName: string | null;
   assistantshipNrc: string | null;
   assistantName: string;
   assistantEmail: string;
   studentCode: string | null;
   courseName: string;
   courseCode: string | null;
-  nrc: string;
-  teacherName: string;
+  nrc: string | null;
+  teacherName: string | null;
   semesterId: string;
   semesterName: string;
   approvedOn: string;
@@ -59,9 +64,37 @@ export interface AssistantshipBlockOption {
 }
 
 export interface AssistantshipOptions {
+  careers: Array<AssistantshipCareerOption>;
   blocks: Array<AssistantshipBlockOption>;
   semesters: Array<AssistantshipSemesterOption>;
   teachers: Array<AssistantshipTeacherOption>;
+}
+
+export interface AssistantshipCurriculumOption {
+  id: string;
+  cohortYear: number;
+}
+
+export interface AssistantshipCareerOption {
+  id: string;
+  name: string;
+  isActive: boolean;
+  curriculumVersions: Array<AssistantshipCurriculumOption>;
+}
+
+export interface AssistantshipStudentOption {
+  id: string;
+  name: string;
+  email: string;
+  careerCurriculumVersionId: string | null;
+  careerId: string | null;
+  careerName: string | null;
+}
+
+export interface AssistantshipCourseOption {
+  id: string;
+  name: string;
+  code: string | null;
 }
 
 export interface AssistantshipAssignmentOption {
@@ -82,8 +115,14 @@ export interface AssistantshipFilters {
 }
 
 export interface RegisterAssistantshipInput {
-  assistantshipNrc: string;
-  teachingAssignmentId: string;
+  assistantshipNrc?: string | null;
+  teachingAssignmentId?: string | null;
+  semesterId: string;
+  courseId?: string | null;
+  careerId?: string | null;
+  careerCurriculumVersionId?: string | null;
+  studentId?: string | null;
+  courseNrc?: string | null;
   assistantName: string;
   assistantEmail: string;
   studentCode?: string | null;

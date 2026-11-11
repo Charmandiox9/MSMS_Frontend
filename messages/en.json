@@ -4,6 +4,12 @@
     "metrics": "Loading metrics…",
     "table": "Loading records…"
   },
+  "FormModal": {
+    "unsavedTitle": "You have unsaved changes",
+    "unsavedDescription": "If you leave now, the changes made in this form will be lost.",
+    "continueEditing": "Continue editing",
+    "discardChanges": "Discard changes"
+  },
   "Landing": {
     "badge": "MARSYS · Welcome",
     "title_part1": "Centralized academic",
@@ -226,17 +232,19 @@
     "academicInformation": "Academic information",
     "subjects": "Subjects",
     "teachers": "Teachers",
-    "academicWorkload": "Academic workload",
     "titulation": "Graduation",
     "reports": "Reports and indicators",
     "users": "Users",
     "audit": "System audit",
+    "privacyRequests": "Privacy requests",
+    "profile": "My profile",
     "settings": "Settings",
     "logout": "Log out",
     "accountMenu": "Open account menu",
-    "openDashboard": "Go to dashboard",
+    "openDashboard": "Go to home",
     "toggleTheme": "Change theme",
     "toggleLanguage": "Change language",
+    "publicControls": "Page controls",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "collapse": "Collapse sidebar",
@@ -252,7 +260,8 @@
       "SYSTEM_ADMIN": "System administrator",
       "ACADEMIC_SECRETARY": "Academic secretary",
       "ACADEMIC_PROCESS_ANALYST": "Academic process analyst",
-      "TEACHING_SUPPORT_COORDINATOR": "Teaching support coordinator"
+      "TEACHING_SUPPORT_COORDINATOR": "Teaching support coordinator",
+      "PRIVACY_OFFICER": "Privacy officer"
     },
     "switchRole": "Switch active role",
     "switchRoleTitle": "Assigned roles",
@@ -261,7 +270,18 @@
     "projects": "Projects",
     "research": "Research",
     "researchOutputs": "Research outputs",
-    "charts": "Charts"
+    "charts": "Charts",
+    "careers": "Careers",
+    "groups": {
+      "studentSupport": "Student support",
+      "academicInformation": "Academic information",
+      "research": "Research",
+      "administration": "Administration"
+    },
+    "switchToLight": "Use light mode",
+    "switchToDark": "Use dark mode",
+    "switchToEnglish": "Switch to English",
+    "switchToSpanish": "Switch to Spanish"
   },
   "JustificationsPage": {
     "eyebrow": "Teaching support",
@@ -427,8 +447,10 @@
     "subtitle": "Upload the weekly schedule by NRC and inspect each subject's distribution.",
     "loading": "Loading subjects…",
     "import": "Import CSV",
-    "help": "Format help",
     "downloadExample": "Download example",
+    "template": "CSV template",
+    "file": "CSV file",
+    "importing": "Importing…",
     "helpTitle": "Subject upload format",
     "helpDescription": "Import one row per course day and block. The room (sala) column is optional; omitting it preserves existing rooms.",
     "format": "nrc;asignatura;dia;bloque;sala",
@@ -479,6 +501,8 @@
     "errors": {
       "load": "Subjects could not be loaded.",
       "import": "The CSV could not be imported.",
+      "fileSize": "The file exceeds the 2 MB limit.",
+      "fileType": "Select a file with the .csv extension.",
       "access": "You do not have access to this page."
     },
     "assistantship": "Assistantship",
@@ -515,39 +539,57 @@
       "noSemester": "Activate a semester before creating a course.",
       "catalogHint": "The NRC and schedules identify this course in the active semester."
     },
-    "viewStudents": "Students"
+    "viewStudents": "Students",
+    "help": "Format help",
+    "careersLabel": "Curriculum careers"
   },
   "TeachersPage": {
     "eyebrow": "Academic workload",
     "title": "Teachers and NRCs",
     "subtitle": "Link each teacher to their institutional email and the NRCs they teach in the active semester.",
     "loading": "Loading teachers…",
-    "import": "Import teachers",
-    "help": "Format help",
+    "import": "Import CSV",
     "downloadExample": "Download example",
+    "template": "CSV template",
+    "file": "CSV file",
+    "importing": "Importing…",
     "helpTitle": "Teacher upload format",
     "helpDescription": "Use one row per teacher. After the name and email, add one or more subject NRCs.",
     "format": "Format: name;email;nrc1;nrc2… Use one column per NRC or separate several with commas.",
     "importSuccess": "Loaded {teachers} teachers and {assignments} assignments.",
     "search": "Search by name, email, or NRC…",
+    "searchLabel": "Search teachers",
+    "semesterLoading": "Loading active semester…",
+    "semesterLoadError": "Could not load the active semester.",
+    "noActiveSemester": "There is no active semester.",
+    "searchHelp": "Search by name, institutional email, employee code, or NRC. Examples: “Maria Soto”, “maria@ucn.cl”, or “10002”.",
     "empty": "No teachers are loaded for the active semester.",
     "noMatches": "No teachers match the search.",
     "teacherColumn": "Teacher",
     "emailColumn": "Institutional email",
     "nrcs": "Assigned NRCs",
-    "semester": "Active semester",
+    "actions": "Actions",
+    "viewDetails": "View details",
+    "viewTeacher": "View details for {name}",
+    "detailsTitle": "Teacher details",
+    "detailsDescription": "Teacher academic profile and assignments.",
+    "employeeCode": "Employee code",
+    "noAssignments": "No assigned courses.",
+    "semester": "Active semester: {name}",
     "pagination": "Page {page} of {totalPages} · {total} teachers",
     "previous": "Previous page",
     "next": "Next page",
     "errors": {
       "load": "Teachers could not be loaded.",
       "import": "The teacher roster could not be imported.",
+      "fileSize": "The file exceeds the 2 MB limit.",
+      "fileType": "Select a file with the .csv extension.",
       "access": "You do not have access to this page.",
       "status": "Teacher status could not be updated."
     },
     "create": "Create teacher",
     "editTeacher": "Edit {name} and their courses",
-    "editAndCourses": "Edit and courses",
+    "editAndCourses": "Edit",
     "statusFilter": "Status",
     "allStatuses": "All",
     "active": "Active",
@@ -564,9 +606,14 @@
     "cancelStatus": "Cancel",
     "statusSaving": "Updating status…",
     "statusActivated": "{name} was activated.",
-    "statusDeactivated": "{name} was deactivated."
+    "statusDeactivated": "{name} was deactivated.",
+    "help": "Format help"
   },
   "SemesterSettingsPage": {
+    "edit": "Edit active semester",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel editing",
+    "updated": "Semester {name} was updated.",
     "eyebrow": "Academic settings",
     "title": "Active semester",
     "subtitle": "Define the period used by subject, teacher, and justification imports.",
@@ -775,8 +822,11 @@
     "rights": "© {year} MARSYS · Faculty of Marine Sciences, UCN"
   },
   "Privacy": {
-    "cookie_message": "We use first and third-party cookies to improve your experience, analyze traffic, and comply with the Chilean Data Protection Law (N° 21.719). Read our",
+    "notice_label": "Essential storage notice",
+    "storage_notice": "MARSYS uses a necessary cookie to maintain your session and browser local storage for interface preferences. We do not currently use analytics or advertising cookies. Read the information in our",
     "privacy_policy": "Privacy Policy",
+    "dismiss_notice": "Understood",
+    "cookie_message": "We use first and third-party cookies to improve your experience, analyze traffic, and comply with the Chilean Data Protection Law (N° 21.719). Read our",
     "accept_all": "Accept All",
     "reject_all": "Reject Non-Essential",
     "manage": "Manage Preferences",
@@ -790,21 +840,237 @@
     "marketing_desc": "Used to track your browsing and show relevant content. (MARSYS does not currently use this type of cookie).",
     "save_preferences": "Save Preferences"
   },
-  "PrivacyPolicy": {
-    "title": "Privacy Policy and Data Protection",
-    "last_updated": "Last updated: August 2026",
-    "intro_title": "1. Introduction",
-    "intro_text": "At MARSYS (Academic Management Platform of the Faculty of Marine Sciences, UCN), we respect and protect our users' privacy. This policy describes how we collect, use, and safeguard your personal information, in strict compliance with the Chilean Personal Data Protection Law (N° 21.719).",
-    "collection_title": "2. Information We Collect",
-    "collection_text": "We collect information necessary for academic and administrative management, including identification data (name, RUT, institutional email), academic data (curricular progress, grades), and activity logs within the platform (laboratory requests, vehicle requests, etc.).",
-    "use_title": "3. Use of Information",
-    "use_text": "The collected data is used exclusively for the operational purposes of the MARSYS platform, such as traceability of internal processes, resource allocation, role management, and official communication within the FCM community.",
-    "arco_title": "4. Your ARCO Rights",
-    "arco_text": "In accordance with Law N° 21.719, you have the right to Access, Rectify, Cancel, or Oppose the processing of your personal data. To exercise these rights, you may contact the platform administration through your institutional account.",
-    "cookies_title": "5. Use of Cookies",
-    "cookies_text": "We use strictly necessary cookies to keep your session active and interface preferences (such as language and dark/light theme). We do not use cookies for third-party advertising tracking.",
-    "contact_title": "6. Contact",
-    "contact_text": "If you have any questions or concerns regarding this Privacy Policy or the handling of your data, please contact the administration of the Faculty of Marine Sciences."
+  "TermsAcceptance": {
+    "loading": "Checking terms acceptance",
+    "loadErrorTitle": "We could not verify the terms",
+    "loadError": "We could not verify your acceptance right now. Please try again. If the problem continues, sign out and sign in again.",
+    "retry": "Try again",
+    "logout": "Sign out",
+    "eyebrow": "Review required",
+    "version": "Version {version}",
+    "confirmation": "I have read and accept these terms of use to continue using MARSYS.",
+    "privacySeparate": "This acceptance records the conditions of use and does not replace or constitute consent to personal data processing.",
+    "privacyLink": "Review privacy information",
+    "saveError": "We could not record your acceptance. Check your connection and try again.",
+    "saving": "Recording…",
+    "accept": "Accept and continue"
+  },
+  "Profile": {
+    "loading": "Loading your profile",
+    "eyebrow": "Account",
+    "title": "My profile",
+    "description": "Review your account information and terms of use acceptance history.",
+    "account": "Active account",
+    "historyTitle": "Recorded acceptances",
+    "historyDescription": "The history keeps the version, language, date, and document fingerprint for each acceptance.",
+    "historyError": "We could not load your history. Try reloading the page.",
+    "empty": "No acceptances have been recorded yet.",
+    "termsVersion": "Terms of use · version {version}",
+    "acceptedAt": "Accepted on {date}",
+    "acceptedLanguage": "Language: {language}",
+    "viewTerms": "View current terms",
+    "recordHash": "Document fingerprint: {hash}"
+  },
+  "TermsPage": {
+    "metadata": {
+      "title": "Terms of use | MARSYS",
+      "description": "MARSYS platform terms of use. Preliminary technical document pending institutional approval."
+    },
+    "loading": "Loading terms of use",
+    "error": "Terms of use could not be loaded. Please reload the page.",
+    "back": "Back to home",
+    "version": "Version {version}"
+  },
+  "PrivacyNoticePage": {
+    "metadata": {
+      "title": "Privacy and personal data | MARSYS",
+      "description": "Information about personal data processing in the MARSYS academic platform."
+    },
+    "eyebrow": "Privacy and personal data",
+    "title": "MARSYS privacy information",
+    "intro": "This page describes data the platform may process, its technical uses, and implemented safeguards. The responsible institution must complete and validate institutional information before approving this policy.",
+    "reviewDate": "November 1, 2026",
+    "version": "Technical review: {date} · Version {version}",
+    "status": {
+      "title": "Institutional information pending validation",
+      "description": "The controller's legal name, representative, official contact channel, lawful bases for each purpose, retention periods, recipients, and transfers must be confirmed by the institution. This page alone does not certify compliance or constitute an approved institutional policy."
+    },
+    "controller": {
+      "title": "Controller and contact",
+      "nameLabel": "Data controller",
+      "contactLabel": "Channel for questions and requests",
+      "pending": "Pending institutional confirmation",
+      "contactPending": "Official channel has not been configured",
+      "representativePending": "The responsible institution must publish its legal representative and, where applicable, its prevention officer."
+    },
+    "sections": {
+      "dataCategories": {
+        "title": "Data categories",
+        "description": "Depending on enabled modules, MARSYS may process identity and contact details, account roles and activity; academic records for faculty, students, and teaching assistants; teaching records; projects, research, participants, and academic outputs; and academic requests with their attachments. Uploaded evidence may contain sensitive information."
+      },
+      "purposes": {
+        "title": "Platform uses",
+        "description": "The software uses these data to authenticate and authorize accounts, manage academic and research processes, record decisions, and maintain traceability and operational security. The institution must specify and approve the purposes for each module."
+      },
+      "lawfulBasis": {
+        "title": "Lawful basis",
+        "description": "The platform does not assume consent is the applicable basis. The institutional controller must determine, document, and communicate the lawful basis for each purpose, and demonstrate it when required."
+      },
+      "recipients": {
+        "title": "Access and recipients",
+        "description": "Access within MARSYS is limited by session and assigned permissions. Authentication, hosting, database, and file storage providers may also be involved depending on deployment configuration. The institution must identify the actual providers, recipients, and applicable international transfers."
+      },
+      "retention": {
+        "title": "Retention and deletion",
+        "description": "Retention periods must be defined by data category and purpose in line with the institution's academic and legal obligations. The platform does not determine these periods or guarantee deletion from provider backups and copies; they must be configured and verified in each environment."
+      },
+      "security": {
+        "title": "Technical safeguards",
+        "description": "The project includes application-level encryption of personal data fields, role-based access controls, session protection, and measures to reduce data exposure in technical logs. Before production, the institution must review its configuration, providers, backups, recovery, and periodic security testing."
+      }
+    },
+    "rights": {
+      "title": "Individual rights",
+      "description": "Law 21.719 provides for the following rights, subject to its legal requirements and exceptions:",
+      "items": {
+        "access": {
+          "title": "Access",
+          "description": "Learn whether personal data is being processed and access it and the information required by law."
+        },
+        "rectification": {
+          "title": "Rectification",
+          "description": "Request correction of inaccurate, outdated, or incomplete data."
+        },
+        "suppression": {
+          "title": "Erasure",
+          "description": "Request deletion of data in the cases established by law."
+        },
+        "opposition": {
+          "title": "Objection",
+          "description": "Object to certain processing in the circumstances provided by law."
+        },
+        "portability": {
+          "title": "Portability",
+          "description": "Request a structured, commonly used copy when legal requirements are met."
+        },
+        "blocking": {
+          "title": "Blocking",
+          "description": "Request temporary suspension of processing in cases recognized by law; the response has a special two business day period."
+        }
+      },
+      "contactConfigured": "People with an institutional account can start a request in the portal. For other enquiries, use the institutional channel above. Do not include sensitive records in ordinary email.",
+      "contactPending": "The institutional channel for people without an account has not been configured; the institution must publish it.",
+      "responseTime": "The controller must acknowledge receipt and respond in writing within 30 calendar days; the period may be extended once by up to 30 additional calendar days. Temporary blocking requests linked to rectification, erasure, or objection have a special two business day response period. The controller must retain evidence of sending, date, and full response contents. A denial must inform the requester of the 30 business day period to complain to the Agency. The portal's 48-hour blocking target is conservative and does not replace the legal calculation.",
+      "portalLink": "Open request portal",
+      "lawSource": "Read the official text of Law 21.719",
+      "blockingNote": "Blocking may be requested while a rectification, erasure, or objection request is being resolved, under the applicable legal conditions."
+    },
+    "cookies": {
+      "title": "Cookies and local storage",
+      "description": "The platform uses a necessary cookie to maintain a session and browser local storage for interface preferences such as language, theme, color palette, and dismissal of this notice. The code review did not find analytics or advertising tools currently; this information must be checked against each deployment and its integrations."
+    },
+    "navigation": {
+      "label": "Privacy navigation",
+      "back": "Back to home",
+      "login": "Return to MARSYS sign in"
+    }
+  },
+  "DataRightsRequestPage": {
+    "eyebrow": "Privacy",
+    "title": "Data rights requests",
+    "description": "Submit and track a request about your personal data. Submitting a request does not automatically delete or modify data; the responsible officer will review identity, scope, and applicable exceptions.",
+    "tabs": {
+      "label": "Privacy request sections",
+      "new": "New request",
+      "mine": "My requests",
+      "queue": "Management queue"
+    },
+    "loading": "Loading requests",
+    "form": {
+      "panelTitle": "Request an action about your data",
+      "panelDescription": "Choose the right you want to exercise. We will review your identity and the request before making changes to information.",
+      "steps": {
+        "choose": "Choose the right you want to exercise.",
+        "describe": "Identify the related data and what you are requesting.",
+        "track": "Keep the reference and follow progress and the response here."
+      },
+      "rightLabel": "Right you want to exercise",
+      "detailsLabel": {
+        "RECTIFICATION": "Identify the data to correct and the requested change",
+        "SUPPRESSION": "Identify the data, processing, and erasure ground you rely on",
+        "OPPOSITION": "Identify the processing and explain the ground for objection",
+        "PORTABILITY": "Identify the data you want transferred",
+        "BLOCKING": "Identify the data or processing you want blocked"
+      },
+      "detailsHint": "Describe only the information needed to process your request. Your institutional account provides your identity and reply email.",
+      "blockingDeadline": "Temporary blocking linked to rectification, erasure, or objection has a special legal response period of two business days. The portal prioritizes it with a conservative 48-hour target.",
+      "submit": "Submit request",
+      "submitting": "Submitting…",
+      "noSensitiveDetails": "Describe only the data and action needed for your request. Do not attach documents; if supporting records are needed, the institution will provide a secure channel."
+    },
+    "rights": {
+      "ACCESS": "Access",
+      "RECTIFICATION": "Rectification",
+      "SUPPRESSION": "Erasure",
+      "OPPOSITION": "Objection",
+      "PORTABILITY": "Portability",
+      "BLOCKING": "Blocking"
+    },
+    "statuses": {
+      "RECEIVED": "Received",
+      "VERIFYING": "Identity verification",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Responded",
+      "DENIED": "Declined",
+      "CLOSED": "Closed"
+    },
+    "mine": {
+      "title": "My requests",
+      "description": "Review the status, deadlines, and responses for requests linked to your account.",
+      "empty": "You have not submitted any requests.",
+      "newRequest": "Create a request",
+      "reference": "Reference: {reference}",
+      "created": "Submitted {date}",
+      "response": "Response",
+      "details": "Request details: {details}",
+      "due": "Response due by {date}",
+      "blockingDue": "Priority response target: {date} (48 hours; legal period is two business days)",
+      "extended": "The deadline has been extended once.",
+      "extensionReason": "Reason for extension: {reason}"
+    },
+    "queue": {
+      "title": "Request queue",
+      "description": "Review each request, update its status, and send a response. When appropriate, manage an extension in its separate field.",
+      "empty": "There are no open requests.",
+      "subjectRemoved": "Account no longer available",
+      "request": "{right} · {date}",
+      "details": "Request: {details}",
+      "due": "Due {date}",
+      "blockingDue": "Blocking priority · 48-hour target: {date}",
+      "extended": "Extension applied; the new due date is shown above.",
+      "nextStatus": "Next status",
+      "chooseStatus": "Choose an action",
+      "currentResponse": "Recorded response",
+      "responseLabel": "Response to the requester",
+      "extensionReasonLabel": "Reason for the extension",
+      "responseHint": "The response is encrypted and shown only to the requester and authorized staff.",
+      "denialHint": "If declining the request, explain the grounds and notify the requester of the legal 30 business day period to complain to the Agency.",
+      "extendDeadline": "Extend by 30 days",
+      "save": "Update",
+      "saving": "Saving…"
+    },
+    "success": {
+      "submitted": "Request received. Reference: {reference}",
+      "updated": "Status updated.",
+      "extended": "Deadline extended by 30 days."
+    },
+    "errors": {
+      "load": "Could not load requests.",
+      "submit": "Could not submit the request.",
+      "update": "Could not update the request.",
+      "responseRequired": "Enter a response before completing or declining the request.",
+      "extensionReasonRequired": "Enter the reason before extending the deadline."
+    }
   },
   "NotFound": {
     "title": "404",
@@ -986,7 +1252,7 @@
     },
     "form": {
       "title": "Register assistantship",
-      "description": "Select a teaching assignment and register a student who has already passed that course.",
+      "description": "Register a current or past assistantship and link it to a student.",
       "semester": "Semester",
       "course": "Course, NRC, and teacher",
       "selectCourse": "Select a course…",
@@ -1021,7 +1287,18 @@
       "assistantshipNrc": "Assistantship NRC",
       "editTitle": "Edit assistantship",
       "update": "Save changes",
-      "updated": "Assistantship updated successfully."
+      "updated": "Assistantship updated successfully.",
+      "lookupHint": "Enter the email and leave the field to find the student.",
+      "studentFound": "Student found. This assistantship will be linked to their record.",
+      "studentNew": "No student has this email. Their record will be created when you save.",
+      "studentCareer": "Student degree program",
+      "studentCurriculum": "Student degree program and cohort",
+      "assistantshipCareer": "Assistantship degree program",
+      "selectCareer": "Select a degree program",
+      "historicalCourse": "Degree program course",
+      "courseNrc": "Course NRC (optional)",
+      "cohort": "Cohort {year}",
+      "noCareerCourses": "Select a degree program with curriculum courses."
     },
     "errors": {
       "load": "We could not load assistantships. Please try again.",
@@ -1038,7 +1315,9 @@
       "SCHEDULE_CONFLICT": "Schedules overlap with each other or another assistantship held by this student.",
       "INVALID_SCHEDULE": "Check the schedule: the end must be after the start.",
       "ASSIGNMENT_NOT_FOUND": "The selected teaching assignment no longer exists. Refresh and try again.",
-      "RETRY": "The data changed while saving. Please try again."
+      "RETRY": "The data changed while saving. Please try again.",
+      "CAREER_REQUIRED": "Select the student degree program and curriculum.",
+      "COURSE_CAREER": "This course does not belong to the selected degree program."
     },
     "edit": "Edit"
   },
@@ -1155,6 +1434,8 @@
     "noSemester": "There is no active semester. You can save the teacher details; activate a semester to link courses.",
     "nrc": "NRC",
     "searchOptions": "Search the list",
+    "courseSearchHelp": "Search by course name, course code, or NRC. Examples: “Marine Biology” or “10002”.",
+    "teacherSearchHelp": "Search by teacher name or institutional email. Examples: “Maria Soto” or “maria@ucn.cl”.",
     "selectedCount": "{count, plural, one {# selected} other {# selected}}",
     "noMatches": "No matches found.",
     "emptyOptions": "No records available.",
@@ -1205,31 +1486,58 @@
     "noSemesterProfile": "There is no active semester. You can save student details without linking courses.",
     "selectionHint": "Check to link and uncheck to unlink. Changes apply when you save.",
     "search": "Search by name or email",
+    "searchHelp": "Search by name or email; use the course filter to view enrollments by NRC. Examples: “Ana Perez”, “ana@ucn.cl”, or NRC “10002”.",
+    "selectionSearchHelp": "Search by course name, course code, or NRC. Examples: “Marine Biology” or “10002”.",
     "filterCourse": "Filter by course",
+    "studentColumn": "Student",
+    "coursesColumn": "Semester courses",
+    "actions": "Actions",
+    "viewCourses": "View courses ({count})",
+    "viewCoursesFor": "View courses for {name}",
+    "hideCourses": "Hide courses",
+    "hideCoursesFor": "Hide courses for {name}",
+    "coursesPanelTitle": "Enrolled courses",
+    "coursesCount": "{count, plural, one {# course} other {# courses}}",
+    "nrcLabel": "NRC",
     "allStudents": "All students",
     "noSemesterList": "No active semester. Students remain registered.",
     "empty": "No students registered.",
     "noMatches": "No students match the filters.",
     "noCourses": "No courses in the active semester",
-    "edit": "Edit and courses",
+    "viewDetails": "View details",
+    "viewStudent": "View details for {name}",
+    "detailsTitle": "Student details",
+    "detailsDescription": "Student identification and contact information.",
+    "edit": "Edit student",
     "editStudent": "Edit {name} and their courses",
     "total": "{count, plural, one {# student} other {# students}}",
+    "pagination": "Page {page} of {totalPages} · {total, plural, one {# student} other {# students}}",
     "importTitle": "Import students",
     "importDescription": "Upload students and link them to existing NRCs in the active semester.",
     "importing": "Importing…",
     "imported": "{students} students processed; {created} new students and {enrollments} added links.",
     "noSemesterImport": "Activate a semester before importing enrollments.",
+    "noCoursesImport": "There are no NRCs in the active semester. Load courses before importing students.",
     "csvFormat": "UTF-8 CSV separated by semicolons or commas. Include name, email and one or more NRC columns.",
     "importRules": "Emails must be unique within the file. Every NRC must exist in the active semester. An invalid row rejects the entire file. Reimporting adds missing links and keeps existing ones. Maximum 5000 students and 2 MB.",
     "file": "CSV file",
     "downloadExample": "Download CSV example",
+    "template": "CSV template",
     "exampleDownloaded": "CSV example downloaded.",
     "errors": {
       "load": "Could not load students or courses.",
       "save": "Could not save the student.",
       "import": "Could not import students.",
-      "fileSize": "The file exceeds the 2 MB limit."
-    }
+      "fileSize": "The file exceeds the 2 MB limit.",
+      "fileType": "Select a file with the .csv extension."
+    },
+    "career": "Career and curriculum",
+    "noCareer": "No career assigned",
+    "cohortYear": "Cohort {year}",
+    "progress": "View progress",
+    "assistantships": "Assistantship history ({count})",
+    "assistantshipCourseNrc": "Course NRC: {nrc}",
+    "assistantshipNrc": "Assistantship NRC: {nrc}"
   },
   "HourlyPayments": {
     "rut": "RUT",
@@ -1268,6 +1576,10 @@
     "calculating": "Calculating payments…",
     "semesterTotal": "Semester total",
     "ratesTitle": "Hourly rates",
+    "ratesListTitle": "Registered rates",
+    "rateProfile": "Rate profile",
+    "rateValueLabel": "Monthly amount",
+    "actions": "Actions",
     "ratesDescription": "Configure the monthly payment per direct teaching hour for the active semester. Existing contracts retain the rate applied when they were registered.",
     "category": "Category",
     "hourlyRate": "Monthly payment per direct hour (CLP)",
@@ -1275,6 +1587,7 @@
     "rateSaved": "Rate saved.",
     "saveError": "Could not save the rate.",
     "saveRate": "Save rate",
+    "rateFormHelp": "Choose the category and degree; for existing teachers, also choose their certification. Enter the monthly amount in Chilean pesos, with up to two decimal places.",
     "editRate": "Edit rate",
     "close": "Close",
     "noSemester": "Activate a semester to configure its rates.",
@@ -1309,6 +1622,7 @@
       "button": "Import Excel",
       "title": "Import projects from Excel",
       "description": "Upload the 2025-2026 projects workbook. Review valid rows, errors, and duplicates before confirming.",
+      "sourceFile": "Supported source file: {name}",
       "fileLabel": ".xlsx file",
       "xlsxOnly": "Select an .xlsx file.",
       "tooLarge": "The file exceeds the 12 MB limit.",
@@ -1555,7 +1869,7 @@
   "ChartsPage": {
     "eyebrow": "Academic analysis",
     "title": "Charts and indicators",
-    "subtitle": "Explore trends in projects, budgets, research, academic outputs, and hourly teacher payments.",
+    "subtitle": "Explore projects and publications by department, project statuses, output types, annual trends and estimated hourly teaching payments.",
     "loading": "Loading chart data…",
     "error": "Chart data could not be loaded.",
     "retry": "Retry",
@@ -1588,7 +1902,13 @@
       "recoveryAmount": "Recovery",
       "facultyContribution": "Faculty contribution",
       "depreciationAmount": "Depreciation",
-      "profitabilityAmount": "Profitability"
+      "profitabilityAmount": "Profitability",
+      "details": "View details",
+      "detailsFor": "View details for {title}",
+      "detailsDescription": "Registered funding and budget summary for this project.",
+      "reportingYear": "Reporting year",
+      "startsOn": "Start date",
+      "status": "Status"
     },
     "outputKinds": "Outputs by type",
     "outputsByYear": "Academic output by year",
@@ -1597,7 +1917,15 @@
     "unknownDate": "No recorded date",
     "hourlyByComponent": "Estimated PH payments by component",
     "empty": "No records match the selected filters.",
-    "statuses": { "REGISTERED": "Registered", "AWARDED": "Awarded", "IN_PROGRESS": "In progress", "COMPLETED": "Completed", "CLOSED": "Closed", "CANCELLED": "Cancelled", "Sin informar": "Not reported" },
+    "statuses": {
+      "REGISTERED": "Registered",
+      "AWARDED": "Awarded",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "CLOSED": "Closed",
+      "CANCELLED": "Cancelled",
+      "Sin informar": "Not reported"
+    },
     "kinds": {
       "ARTICLE": "Article",
       "BOOK": "Book",
@@ -1610,6 +1938,161 @@
       "LABORATORY": "Laboratory",
       "FIELDWORK": "Fieldwork",
       "ASSISTANTSHIP": "Assistantship"
+    },
+    "closeDetails": "Close details",
+    "projectsFrom": "Projects from",
+    "projectsTo": "Projects to",
+    "projectsByDepartment": "Projects by department",
+    "publicationsByDepartment": "Publications by department",
+    "unassignedDepartment": "Unassigned"
+  },
+  "PrivacyPolicy": {
+    "title": "Privacy Policy and Data Protection",
+    "last_updated": "Last updated: August 2026",
+    "intro_title": "1. Introduction",
+    "intro_text": "At MARSYS (Academic Management Platform of the Faculty of Marine Sciences, UCN), we respect and protect our users' privacy. This policy describes how we collect, use, and safeguard your personal information, in strict compliance with the Chilean Personal Data Protection Law (N° 21.719).",
+    "collection_title": "2. Information We Collect",
+    "collection_text": "We collect information necessary for academic and administrative management, including identification data (name, RUT, institutional email), academic data (curricular progress, grades), and activity logs within the platform (laboratory requests, vehicle requests, etc.).",
+    "use_title": "3. Use of Information",
+    "use_text": "The collected data is used exclusively for the operational purposes of the MARSYS platform, such as traceability of internal processes, resource allocation, role management, and official communication within the FCM community.",
+    "arco_title": "4. Your ARCO Rights",
+    "arco_text": "In accordance with Law N° 21.719, you have the right to Access, Rectify, Cancel, or Oppose the processing of your personal data. To exercise these rights, you may contact the platform administration through your institutional account.",
+    "cookies_title": "5. Use of Cookies",
+    "cookies_text": "We use strictly necessary cookies to keep your session active and interface preferences (such as language and dark/light theme). We do not use cookies for third-party advertising tracking.",
+    "contact_title": "6. Contact",
+    "contact_text": "If you have any questions or concerns regarding this Privacy Policy or the handling of your data, please contact the administration of the Faculty of Marine Sciences."
+  },
+  "CareersPage": {
+    "eyebrow": "Academic information",
+    "title": "Careers and curricula",
+    "subtitle": "Organize careers, cohort curricula, and the courses included in each academic term.",
+    "create": "Create career",
+    "createTitle": "Create career and first curriculum",
+    "editTitle": "Edit career",
+    "editVersionTitle": "Edit cohort {year} curriculum",
+    "versionTitle": "New curriculum · {name}",
+    "formDescription": "Curricula are tied to an admission cohort so historical student progress remains accurate.",
+    "code": "Code",
+    "name": "Career name",
+    "cohortYear": "Cohort admission year",
+    "curriculumCourses": "Curriculum courses",
+    "curriculumSource": "How to add curriculum courses",
+    "manualEntry": "Add manually",
+    "importCsvOption": "Import from CSV",
+    "selectCourse": "Select a course",
+    "termNumber": "Term",
+    "addCourse": "Add",
+    "remove": "Remove",
+    "noCourses": "Add the courses that are part of this curriculum.",
+    "courseCatalogEmpty": "There are no courses in the catalog. Add courses before creating a curriculum.",
+    "termBadge": "Term {term}",
+    "term": "Term {term}",
+    "cohort": "Cohort {year}",
+    "courseCount": "{count, plural, one {# course} other {# courses}}",
+    "assignedStudents": "{count, plural, one {# student} other {# students}}",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "addVersion": "Add curriculum for another cohort",
+    "import": "Import curriculum CSV",
+    "importTitle": "Import {name} curriculum",
+    "importDescription": "Upload a UTF-8 CSV with the columns nombre_asignatura and semestre. Courses not yet in the catalog will be added.",
+    "csvFile": "CSV file",
+    "importPreview": "{file} · {count} courses detected",
+    "importMore": "and {count} more",
+    "importEmptyFile": "The file contains no courses.",
+    "importing": "Importing curriculum…",
+    "imported": "Cohort {year} curriculum imported with {count} rows.",
+    "queueSubmitting": "Sending the curriculum to the queue…",
+    "queued": "Import queued; it will be processed in the background.",
+    "createdCsv": "Career {name} created with the cohort {year} curriculum ({count} courses).",
+    "processing": "Processing…",
+    "jobQueued": "The curriculum is waiting to be processed…",
+    "jobProcessing": "Processing curriculum…",
+    "jobFailedHint": "The import failed. Check the notification for details.",
+    "editCurriculum": "Edit curriculum",
+    "editCareer": "Edit {name}",
+    "empty": "No careers have been registered yet.",
+    "loading": "Loading careers and curricula…",
+    "retry": "Retry",
+    "save": "Save",
+    "saving": "Saving…",
+    "created": "Career and curriculum created.",
+    "updated": "Career updated.",
+    "versionCreated": "New curriculum created.",
+    "versionUpdated": "Curriculum updated.",
+    "activated": "Career activated.",
+    "deactivated": "Career deactivated.",
+    "close": "Close",
+    "cancel": "Cancel",
+    "errors": {
+      "load": "Could not load careers and curricula.",
+      "save": "Could not save the career or curriculum.",
+      "import": "Could not import the curriculum.",
+      "delete": "Could not delete the career."
+    },
+    "delete": "Delete career",
+    "deleteTitle": "Delete {name}",
+    "deleteDescription": "The career and its curricula will be deleted. Catalog courses are preserved. Careers linked to students or assistantships must be deactivated to retain their history.",
+    "deleting": "Deleting career…",
+    "deleted": "Career deleted.",
+    "viewCurriculum": "View curriculum",
+    "viewerTitle": "Curriculum: {name}",
+    "viewerDescription": "Courses organized by year and semester for the selected cohort.",
+    "selectCohort": "Select cohort",
+    "year": "Year {year}",
+    "noCurricula": "This career has no curricula yet.",
+    "emptyCurriculum": "This curriculum has no courses yet.",
+    "noTermCourses": "No courses registered",
+    "scrollHint": "On smaller screens, scroll horizontally to see every year.",
+    "curriculumDiagram": "Curriculum by year and semester"
+  },
+  "StudentProgressPage": {
+    "eyebrow": "Curriculum progress",
+    "back": "Back to students",
+    "cohort": "Cohort {year} curriculum",
+    "overallProgress": "Curriculum progress",
+    "passedSummary": "{passed} of {total} courses passed · {enrolled} enrolled this semester",
+    "term": "Term {term}",
+    "outcomes": {
+      "PASSED": "Passed",
+      "FAILED": "Failed",
+      "PENDING": "Not taken"
+    },
+    "enrolledCurrent": "Enrolled this semester · {semester}",
+    "attempt": "Attempt {number}",
+    "nrc": "NRC {nrc}",
+    "otherAttempts": "Courses outside the curriculum",
+    "noCurriculum": "This student has no career and curriculum assigned yet.",
+    "emptyCurriculum": "No courses are registered in this curriculum.",
+    "recordAttempt": "Record result",
+    "recordTitle": "Record course result",
+    "recordDescription": "Enrolled courses are shown from the active semester roster. Each final result is retained as a historical attempt.",
+    "course": "Course",
+    "selectCourse": "Select a course",
+    "semesterSelect": "Semester taken",
+    "selectSemester": "Select a semester",
+    "result": "Result",
+    "nrcOptional": "NRC (optional)",
+    "save": "Save result",
+    "saving": "Saving…",
+    "saved": "Result recorded.",
+    "close": "Close",
+    "cancel": "Cancel",
+    "loading": "Loading curriculum progress…",
+    "retry": "Retry",
+    "errors": {
+      "load": "Could not load curriculum progress.",
+      "save": "Could not record the result."
     }
+  },
+  "DepartmentField": {
+    "label": "Department",
+    "hint": "Select the degree program associated with the department. Optional; records without a link are counted as Unassigned.",
+    "loading": "Loading departments…",
+    "unassigned": "Unassigned",
+    "error": "Could not load departments.",
+    "retry": "Retry"
   }
 }

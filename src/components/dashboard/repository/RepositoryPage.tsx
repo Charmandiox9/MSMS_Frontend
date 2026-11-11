@@ -27,6 +27,8 @@ import {
 import RepositoryEditor from "./RepositoryEditor";
 import RepositoryDetails from "./RepositoryDetails";
 import AcademicExcelImport from "./AcademicExcelImport";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import { academicPrimaryActionClass } from "@/components/dashboard/academic/AcademicImportButton";
 import {
   fieldClass,
   primaryButton,
@@ -237,31 +239,31 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
   const Icon = kind === "projects" ? FolderKanban : FlaskConical;
   return (
     <section className="space-y-6">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-2 flex items-center gap-3 text-3xl font-black tracking-tight">
-            <Icon className="h-7 w-7 text-primary" />
-            {t(`${kind}.title`)}
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            {t(`${kind}.subtitle`)}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <AcademicExcelImport kind={kind} onImported={refresh} />
+      <DashboardPageHeader
+        eyebrow={t("eyebrow")}
+        title={t(`${kind}.title`)}
+        subtitle={t(`${kind}.subtitle`)}
+        badge={<Icon className="h-7 w-7 text-primary" aria-hidden="true" />}
+        actions={
+          <>
           <button
             type="button"
-            className={primaryButton}
+            className={academicPrimaryActionClass}
             onClick={() => setDialog({ mode: "create" })}
           >
             <Plus className="h-4 w-4" />
             {t(`${kind}.create`)}
           </button>
-        </div>
-      </header>
+          {kind === "projects" && (
+            <AcademicExcelImport
+              kind="projects"
+              sourceFileName="proyectos 2025-2026.xlsx"
+              onImported={refresh}
+            />
+          )}
+          </>
+        }
+      />
       <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
         <label className="flex-1 text-xs font-medium text-muted-foreground">
           {t("search")}

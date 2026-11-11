@@ -1,3 +1,4 @@
+import DecimalInput from "@/components/ui/DecimalInput";
 import { useTranslations } from "next-intl";
 import type {
   RepositoryFieldKey,
@@ -48,7 +49,13 @@ export default function RepositoryFields({
                   event: React.ChangeEvent<
                     HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
                   >,
-                ) => onChange(field.key, event.target.value),
+                ) =>
+                  onChange(
+                    field.key,
+                    field.key === "currency"
+                      ? event.target.value.toUpperCase()
+                      : event.target.value,
+                  ),
               };
               return (
                 <label
@@ -82,22 +89,24 @@ export default function RepositoryFields({
                       <option value="true">{t("yes")}</option>
                       <option value="false">{t("no")}</option>
                     </select>
+                  ) : field.type === "money" ? (
+                    <DecimalInput
+                      id={id}
+                      value={values[field.key] ?? ""}
+                      onValueChange={(value) => onChange(field.key, value)}
+                      required={field.required}
+                      className={fieldClass}
+                      maxLength={22}
+                    />
                   ) : (
                     <input
                       {...common}
-                      type={
-                        field.type === "money" ? "text" : (field.type ?? "text")
-                      }
-                      inputMode={field.type === "money" ? "decimal" : undefined}
+                      type={field.type ?? "text"}
                       min={field.type === "number" ? 1900 : undefined}
                       max={field.type === "number" ? 2200 : undefined}
                       maxLength={field.maxLength ?? 200}
                       pattern={
-                        field.type === "money"
-                          ? "[0-9]{1,16}(\\.[0-9]{1,2})?"
-                          : field.key === "currency"
-                            ? "[A-Za-z]{3}"
-                            : undefined
+                        field.key === "currency" ? "[A-Za-z]{3}" : undefined
                       }
                     />
                   )}

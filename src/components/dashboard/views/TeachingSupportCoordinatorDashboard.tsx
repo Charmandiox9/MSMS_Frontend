@@ -70,7 +70,7 @@ export default function TeachingSupportCoordinatorDashboard() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <WidgetCard title={t("actionsTitle")} subtitle={t("actionsSubtitle")}>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               <QuickActionCard
                 title={t("actions.createJustification")}
                 description={t("actions.createJustificationDesc")}
@@ -78,15 +78,9 @@ export default function TeachingSupportCoordinatorDashboard() {
                 icon={PlusCircle}
               />
               <QuickActionCard
-                title={t("actions.workload")}
-                description={t("actions.workloadDesc")}
-                href="/dashboard/academic-workload"
-                icon={CalendarDays}
-              />
-              <QuickActionCard
                 title={t("actions.assistants")}
                 description={t("actions.assistantsDesc")}
-                href="/dashboard/academic-information"
+                href="/dashboard/assistantships"
                 icon={UserCheck}
               />
             </div>

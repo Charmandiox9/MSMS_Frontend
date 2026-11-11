@@ -3,6 +3,7 @@ export const USER_ROLE_CODES = [
   "ACADEMIC_SECRETARY",
   "ACADEMIC_PROCESS_ANALYST",
   "TEACHING_SUPPORT_COORDINATOR",
+  "PRIVACY_OFFICER",
 ] as const;
 
 export type UserRoleCode = (typeof USER_ROLE_CODES)[number];

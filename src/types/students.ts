@@ -11,7 +11,22 @@ export interface Student {
   id: string;
   name: string;
   email: string;
+  careerCurriculumVersionId?: string | null;
+  careerCurriculumVersion?: {
+    id: string;
+    cohortYear: number;
+    career: { id: string; code: string; name: string };
+  } | null;
   enrollments: StudentEnrollment[];
+  assistantships?: {
+    id: string;
+    course: { id: string; name: string; code: string | null };
+    semester: { id: string; name: string };
+    nrc: string | null;
+    courseNrc: string | null;
+    startsOn: string;
+    endsOn: string | null;
+  }[];
 }
 
 export interface StudentImportResult {

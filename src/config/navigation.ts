@@ -1,6 +1,5 @@
 import {
   BookOpenCheck,
-  CalendarDays,
   ClipboardCheck,
   ClipboardList,
   FileBarChart,
@@ -13,6 +12,7 @@ import {
   FlaskConical,
   FileText,
   BarChart3,
+  Building2,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRoleCode } from "@/types/auth";
@@ -21,20 +21,20 @@ export type NavigationKey =
   | "dashboard"
   | "justifications"
   | "justificationsManagement"
-  | "academicInformation"
   | "subjects"
   | "teachers"
   | "projects"
   | "research"
   | "researchOutputs"
   | "students"
-  | "academicWorkload"
+  | "careers"
   | "assistantships"
   | "titulation"
   | "reports"
   | "charts"
   | "users"
   | "audit"
+  | "privacyRequests"
   | "settings";
 
 export interface NavigationItem {
@@ -42,6 +42,8 @@ export interface NavigationItem {
   href: string;
   icon: LucideIcon;
   allowedRoles?: UserRoleCode[];
+  group?:
+    "academicInformation" | "research" | "studentSupport" | "administration";
 }
 
 export interface NavigationSection {
@@ -68,29 +70,26 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         href: "/dashboard/justifications",
         icon: ClipboardCheck,
         allowedRoles: ["TEACHING_SUPPORT_COORDINATOR"],
+        group: "studentSupport",
       },
       {
         key: "justificationsManagement",
         href: "/dashboard/justifications/management",
         icon: ClipboardList,
         allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"],
+        group: "studentSupport",
       },
       {
-        key: "academicInformation",
-        href: "/dashboard/academic-information",
-        icon: BookOpenCheck,
+        key: "careers",
+        href: "/dashboard/careers",
+        icon: Building2,
         allowedRoles: [
           "SYSTEM_ADMIN",
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
           "TEACHING_SUPPORT_COORDINATOR",
         ],
-      },
-      {
-        key: "academicWorkload",
-        href: "/dashboard/academic-workload",
-        icon: CalendarDays,
-        allowedRoles: ["SYSTEM_ADMIN", "TEACHING_SUPPORT_COORDINATOR"],
+        group: "academicInformation",
       },
       {
         key: "subjects",
@@ -101,6 +100,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "academicInformation",
       },
       {
         key: "teachers",
@@ -111,6 +111,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "academicInformation",
       },
       {
         key: "students",
@@ -122,6 +123,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "academicInformation",
       },
       {
         key: "projects",
@@ -132,6 +134,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "research",
       },
       {
         key: "research",
@@ -142,12 +145,18 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "research",
       },
       {
         key: "researchOutputs",
         href: "/dashboard/research-outputs",
         icon: FileText,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
+        group: "research",
       },
       {
         key: "assistantships",
@@ -159,6 +168,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "academicInformation",
       },
       {
         key: "titulation",
@@ -166,9 +176,11 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         icon: GraduationCap,
         allowedRoles: [
           "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
           "TEACHING_SUPPORT_COORDINATOR",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "studentSupport",
       },
     ],
   },
@@ -179,13 +191,21 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: "reports",
         href: "/dashboard/reports",
         icon: FileBarChart,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
       },
       {
         key: "charts",
         href: "/dashboard/charts",
         icon: BarChart3,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
       },
     ],
   },
@@ -193,22 +213,38 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
     key: "system",
     items: [
       {
+        key: "privacyRequests",
+        href: "/dashboard/privacy-requests",
+        icon: ShieldCheck,
+        group: "administration",
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+          "TEACHING_SUPPORT_COORDINATOR",
+          "PRIVACY_OFFICER",
+        ],
+      },
+      {
         key: "users",
         href: "/dashboard/users",
         icon: Users,
         allowedRoles: ["SYSTEM_ADMIN"],
+        group: "administration",
       },
       {
         key: "audit",
         href: "/dashboard/audit",
         icon: ShieldCheck,
         allowedRoles: ["SYSTEM_ADMIN"],
+        group: "administration",
       },
       {
         key: "settings",
         href: "/dashboard/settings",
         icon: Settings,
         allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"],
+        group: "administration",
       },
     ],
   },

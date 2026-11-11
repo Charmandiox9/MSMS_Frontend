@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import Modal from "@/components/ui/Modal";
+import FormModal from "@/components/ui/FormModal";
 import { FormSkeleton } from "@/components/ui/LoadingSkeletons";
 import AcademicSelectionList from "@/components/dashboard/academic/AcademicSelectionList";
 import { apiFetch } from "@/lib/api";
@@ -82,14 +82,14 @@ export default function CourseTeachersDialog({
     try {
       await operation;
       onSaved();
-    } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : t("saveError"));
+    } catch {
+      // El toast ya comunica el error de guardado.
     } finally {
       setSaving(false);
     }
   };
   return (
-    <Modal
+    <FormModal
       isOpen
       title={t("manageTeachers")}
       description={`${name} · ${t("nrc")} ${nrc}`}
@@ -105,6 +105,7 @@ export default function CourseTeachersDialog({
           <button
             type="button"
             disabled={saving}
+            data-modal-dismiss
             onClick={onClose}
             className="rounded-xl border border-border px-4 py-2 text-sm font-bold disabled:opacity-50"
           >
@@ -157,6 +158,7 @@ export default function CourseTeachersDialog({
               selected={selected}
               onChange={setSelected}
               disabled={saving}
+              searchHelp={t("teacherSearchHelp")}
               items={data.teachers.map((teacher) => ({
                 id: teacher.id,
                 title: teacher.name,
@@ -166,6 +168,6 @@ export default function CourseTeachersDialog({
           </>
         )}
       </div>
-    </Modal>
+    </FormModal>
   );
 }
