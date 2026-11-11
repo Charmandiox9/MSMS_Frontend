@@ -21,7 +21,6 @@ const ROUTE_NAME_MAP: Record<string, string> = {
   research: 'research',
   'research-outputs': 'researchOutputs',
   students: 'students',
-  'academic-workload': 'academicWorkload',
   'assistantship-history': 'assistantships',
   assistantships: 'assistantships',
   titulation: 'titulation',
@@ -29,6 +28,7 @@ const ROUTE_NAME_MAP: Record<string, string> = {
   charts: 'charts',
   users: 'users',
   audit: 'audit',
+  'privacy-requests': 'privacyRequests',
   settings: 'settings',
 };
 

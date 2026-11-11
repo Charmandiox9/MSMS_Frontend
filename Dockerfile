@@ -1,11 +1,11 @@
 ARG NODE_IMAGE=node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
 FROM ${NODE_IMAGE} AS base
 
-# Dependencias necesarias para Node en Alpine
+# Shared Node runtime
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# 1. Dependencias (Install)
+# Install locked dependencies
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
@@ -16,6 +16,7 @@ FROM deps AS test
 COPY . .
 CMD ["npm", "test"]
 
+# Compile the production standalone application
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -40,9 +41,8 @@ ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Solo copiamos los archivos de la build standalone (necesita output: 'standalone' en next.config.ts)
-COPY --from=builder /app/public ./public
-# Otorga permisos al usuario nextjs
+# Public assets are not included automatically in standalone output.
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

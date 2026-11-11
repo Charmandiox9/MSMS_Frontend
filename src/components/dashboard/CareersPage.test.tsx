@@ -47,8 +47,39 @@ describe("CareersPage", () => {
     expect(await screen.findByText("Biología Marina")).toBeDefined();
     expect(screen.getByText("Cohorte 2024")).toBeDefined();
     expect(screen.getByText("1 estudiante")).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Ver malla" }));
+    expect(screen.getByRole("dialog")).toBeDefined();
     expect(screen.getByText("Biología marina")).toBeDefined();
     expect(screen.queryByRole("button", { name: "Crear carrera" })).toBeNull();
+  });
+
+  it("confirma la eliminación y conserva el identificador de concurrencia", async () => {
+    const updatedAt = "2026-11-11T12:00:00.000Z";
+    const api = installFakeApi({
+      "GET /academic/careers": ok([
+        {
+          id: "career",
+          code: "BIO",
+          name: "Biología",
+          isActive: true,
+          updatedAt,
+          curriculumVersions: [],
+        },
+      ]),
+      "GET /academic/careers/course-options": ok([]),
+      "DELETE /academic/careers/career": ok({ deleted: true }),
+    });
+    renderAs(<CareersPage />, ["ACADEMIC_SECRETARY"]);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Eliminar Biología" }),
+    );
+    expect(api.calls("DELETE /academic/careers/career")).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar carrera" }));
+    await waitFor(() =>
+      expect(api.calls("DELETE /academic/careers/career")[0].body).toEqual({
+        updatedAt,
+      }),
+    );
   });
 
   it("crea una carrera con sus asignaturas ubicadas en una cohorte", async () => {
@@ -59,7 +90,9 @@ describe("CareersPage", () => {
     });
 
     renderAs(<CareersPage />, ["ACADEMIC_SECRETARY"]);
-    fireEvent.click(await screen.findByRole("button", { name: "Crear carrera" }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Crear carrera" }),
+    );
     fireEvent.change(screen.getByLabelText("Código"), {
       target: { value: "BIO-MAR" },
     });
@@ -72,7 +105,9 @@ describe("CareersPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Agregar" }));
     fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
 
-    await waitFor(() => expect(api.calls("POST /academic/careers")).toHaveLength(1));
+    await waitFor(() =>
+      expect(api.calls("POST /academic/careers")).toHaveLength(1),
+    );
     expect(api.calls("POST /academic/careers")[0].body).toMatchObject({
       code: "BIO-MAR",
       name: "Biología Marina",
@@ -84,12 +119,20 @@ describe("CareersPage", () => {
     const api = installFakeApi({
       "GET /academic/careers": ok([]),
       "GET /academic/careers/course-options": ok([course]),
-      "POST /academic/imports/careers/commit": ok({ id: "job-id", status: "QUEUED" }),
-      "GET /academic/imports/jobs/job-id": ok({ id: "job-id", status: "PROCESSING" }),
+      "POST /academic/imports/careers/commit": ok({
+        id: "job-id",
+        status: "QUEUED",
+      }),
+      "GET /academic/imports/jobs/job-id": ok({
+        id: "job-id",
+        status: "PROCESSING",
+      }),
     });
 
     renderAs(<CareersPage />, ["ACADEMIC_SECRETARY"]);
-    fireEvent.click(await screen.findByRole("button", { name: "Crear carrera" }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Crear carrera" }),
+    );
     fireEvent.change(screen.getByLabelText("Código"), {
       target: { value: "BIO-MAR" },
     });
@@ -106,11 +149,19 @@ describe("CareersPage", () => {
       target: { files: [file] },
     });
 
-    expect(await screen.findByText("malla.csv · 1 asignaturas detectadas")).toBeDefined();
+    expect(
+      await screen.findByText("malla.csv · 1 asignaturas detectadas"),
+    ).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
 
-    await waitFor(() => expect(api.calls("POST /academic/imports/careers/commit")).toHaveLength(1));
-    expect(api.calls("POST /academic/imports/careers/commit")[0].body).toMatchObject({
+    await waitFor(() =>
+      expect(api.calls("POST /academic/imports/careers/commit")).toHaveLength(
+        1,
+      ),
+    );
+    expect(
+      api.calls("POST /academic/imports/careers/commit")[0].body,
+    ).toMatchObject({
       code: "BIO-MAR",
       name: "Biología Marina",
       cohortYear: new Date().getFullYear(),

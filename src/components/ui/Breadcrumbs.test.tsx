@@ -23,6 +23,7 @@ vi.mock('next-intl', () => ({
       justifications: 'Justificaciones',
       justificationsManagement: 'Gestión de justificaciones',
       audit: 'Auditoría',
+      privacyRequests: 'Solicitudes de privacidad',
       researchOutputs: 'Resultados de investigación',
     };
     return translations[key] ?? key;
@@ -81,6 +82,14 @@ describe('Breadcrumbs component', () => {
     renderWithRole('ACADEMIC_SECRETARY');
 
     const current = screen.getByText('Resultados de investigación');
+    expect(current.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('resolves the privacy requests route label instead of displaying its slug', () => {
+    mockPathname = '/dashboard/privacy-requests';
+    renderWithRole('PRIVACY_OFFICER');
+
+    const current = screen.getByText('Solicitudes de privacidad');
     expect(current.getAttribute('aria-current')).toBe('page');
   });
 

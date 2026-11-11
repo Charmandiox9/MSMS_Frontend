@@ -1,3 +1,4 @@
+import EmailInput from "@/components/ui/EmailInput";
 import { useState } from "react";
 import { useQuery } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
@@ -97,7 +98,7 @@ export default function StudentIdentityFields({
         />
       </Field>
       <Field label={t("form.email")} htmlFor="register-email">
-        <input
+        <EmailInput
           id="register-email"
           name="email"
           value={email}
@@ -110,7 +111,6 @@ export default function StudentIdentityFields({
             if (event.target.validity.valid && normalizedEmail)
               setLookupEmail(normalizedEmail);
           }}
-          type="email"
           className={inputClass}
           autoComplete="email"
           maxLength={254}

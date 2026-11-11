@@ -29,6 +29,41 @@ describe("Navigation configuration and filtering", () => {
     expect(academicItemKeys).not.toContain("justifications");
   });
 
+  it("limits the privacy request queue to privacy officers and system administrators", () => {
+    const officerNavigation = getFilteredNavigation(
+      DASHBOARD_SECTIONS,
+      "PRIVACY_OFFICER",
+    );
+    const mainSection = officerNavigation.find(
+      (section) => section.key === "system",
+    );
+
+    expect(mainSection?.items.map((item) => item.key)).toContain(
+      "privacyRequests",
+    );
+    expect(
+      isRouteAllowed(
+        "/dashboard/privacy-requests",
+        DASHBOARD_SECTIONS,
+        "PRIVACY_OFFICER",
+      ),
+    ).toBe(true);
+    expect(
+      isRouteAllowed(
+        "/dashboard/privacy-requests",
+        DASHBOARD_SECTIONS,
+        "ACADEMIC_SECRETARY",
+      ),
+    ).toBe(true);
+    expect(
+      isRouteAllowed(
+        "/dashboard/privacy-requests",
+        DASHBOARD_SECTIONS,
+        "TEACHING_SUPPORT_COORDINATOR",
+      ),
+    ).toBe(true);
+  });
+
   it("should expose academic analysis and omit system administration for ACADEMIC_SECRETARY", () => {
     const filtered = getFilteredNavigation(
       DASHBOARD_SECTIONS,
@@ -46,14 +81,22 @@ describe("Navigation configuration and filtering", () => {
     expect(itemKeys).not.toContain("academicInformation");
     expect(itemKeys).not.toContain("justifications");
     expect(itemKeys).toContain("justificationsManagement");
-    expect(itemKeys).toContain("academicWorkload");
+    expect(itemKeys).not.toContain("academicWorkload");
     expect(itemKeys).toContain("titulation");
     expect(itemKeys).toContain("subjects");
     expect(itemKeys).toContain("teachers");
-    const analysisSection = filtered.find((section) => section.key === "analysis");
-    expect(analysisSection?.items.map((item) => item.key)).toEqual(["reports", "charts"]);
+    const analysisSection = filtered.find(
+      (section) => section.key === "analysis",
+    );
+    expect(analysisSection?.items.map((item) => item.key)).toEqual([
+      "reports",
+      "charts",
+    ]);
     const systemSection = filtered.find((section) => section.key === "system");
-    expect(systemSection?.items.map((item) => item.key)).toEqual(["settings"]);
+    expect(systemSection?.items.map((item) => item.key)).toEqual([
+      "privacyRequests",
+      "settings",
+    ]);
     expect(systemSection?.items.map((item) => item.key)).toContain("settings");
   });
 
@@ -67,7 +110,7 @@ describe("Navigation configuration and filtering", () => {
     expect(sectionKeys).toContain("main");
     expect(sectionKeys).toContain("academic");
     expect(sectionKeys).toContain("analysis");
-    expect(sectionKeys).not.toContain("system");
+    expect(sectionKeys).toContain("system");
 
     const academicSection = filtered.find((s) => s.key === "academic");
     const itemKeys = academicSection?.items.map((i) => i.key);
@@ -87,13 +130,13 @@ describe("Navigation configuration and filtering", () => {
     expect(sectionKeys).toContain("main");
     expect(sectionKeys).toContain("academic");
     expect(sectionKeys).not.toContain("analysis");
-    expect(sectionKeys).not.toContain("system");
+    expect(sectionKeys).toContain("system");
 
     const academicSection = filtered.find((s) => s.key === "academic");
     const itemKeys = academicSection?.items.map((i) => i.key);
     expect(itemKeys).toContain("justifications");
     expect(itemKeys).not.toContain("justificationsManagement");
-    expect(itemKeys).toContain("academicWorkload");
+    expect(itemKeys).not.toContain("academicWorkload");
     expect(itemKeys).toContain("assistantships");
     expect(itemKeys).toContain("titulation");
     expect(itemKeys).not.toContain("academicInformation");
@@ -206,12 +249,10 @@ describe("Navigation configuration and filtering", () => {
       ),
     ).toBe(true);
     expect(
-      isRouteAllowed(
-        "/dashboard/academic-workload",
-        DASHBOARD_SECTIONS,
-        "ACADEMIC_SECRETARY",
+      DASHBOARD_SECTIONS.flatMap((section) => section.items).some(
+        (item) => item.href === "/dashboard/academic-workload",
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       isRouteAllowed(
         "/dashboard/titulation",

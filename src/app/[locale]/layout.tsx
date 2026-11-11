@@ -7,7 +7,7 @@ import { getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import CookieConsent from "@/components/providers/CookieConsent";
+import EssentialStorageNotice from "@/components/providers/EssentialStorageNotice";
 import SmoothScroll from "@/components/behavior/SmoothScroll";
 import { Toaster } from 'sonner';
 
@@ -42,7 +42,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
             {children}
-            <CookieConsent />
+            <EssentialStorageNotice />
             <Toaster position="bottom-right" theme="system" richColors closeButton expand visibleToasts={4} />
           </NextIntlClientProvider>
         </ThemeProvider>

@@ -21,6 +21,7 @@ const ROLE_ICONS: Record<UserRoleCode, LucideIcon> = {
   ACADEMIC_SECRETARY: BookOpenCheck,
   ACADEMIC_PROCESS_ANALYST: FileBarChart,
   TEACHING_SUPPORT_COORDINATOR: CalendarDays,
+  PRIVACY_OFFICER: ShieldCheck,
 };
 
 export default function RoleBadge({

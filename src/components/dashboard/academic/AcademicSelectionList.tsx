@@ -1,21 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 
 export default function AcademicSelectionList({
   items,
   selected,
   onChange,
+  searchHelp,
   disabled = false,
 }: {
   items: { id: string; title: string; description: string }[];
   selected: string[];
   onChange: (ids: string[]) => void;
+  searchHelp: string;
   disabled?: boolean;
 }) {
   const t = useTranslations("AcademicManagement");
   const [search, setSearch] = useState("");
+  const searchHelpId = useId();
   const visible = items.filter((item) =>
     `${item.title} ${item.description}`
       .toLocaleLowerCase()
@@ -27,10 +30,14 @@ export default function AcademicSelectionList({
         {t("searchOptions")}
         <input
           type="search"
+          aria-describedby={searchHelpId}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
         />
+        <span id={searchHelpId} className="mt-1 block font-normal leading-5">
+          {searchHelp}
+        </span>
       </label>
       <p className="text-xs font-semibold text-primary" aria-live="polite">
         {t("selectedCount", { count: selected.length })}

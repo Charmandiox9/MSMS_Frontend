@@ -8,6 +8,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { ActiveRoleProvider, useActiveRole } from "@/context/ActiveRoleContext";
 import { getActiveSession, logout, type ActiveSession } from "@/lib/auth";
 import { DashboardShellSkeleton } from "@/components/ui/LoadingSkeletons";
+import TermsAcceptanceGate from "@/components/legal/TermsAcceptanceGate";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -78,7 +79,9 @@ export default function DashboardLayout({
 
   return (
     <ActiveRoleProvider initialSession={session}>
-      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+      <TermsAcceptanceGate>
+        <DashboardLayoutContent>{children}</DashboardLayoutContent>
+      </TermsAcceptanceGate>
     </ActiveRoleProvider>
   );
 }

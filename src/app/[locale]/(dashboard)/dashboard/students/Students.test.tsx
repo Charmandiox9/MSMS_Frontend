@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderAs } from "@/test/render";
 import { installFakeApi, ok, fail } from "@/test/fake-api";
@@ -128,6 +128,46 @@ describe("Estudiantes", () => {
     fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
     expect(await screen.findByText("Ana Soto")).toBeDefined();
   });
+  it("expande las asignaturas en la fila y permite volver a contraerlas", async () => {
+    installFakeApi({
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/students": ok(response),
+    });
+    renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
+
+    const toggle = await screen.findByRole("button", {
+      name: "Ver asignaturas de Ana Soto",
+    });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(toggle);
+
+    expect(screen.getByRole("heading", { name: "Asignaturas inscritas" })).toBeDefined();
+    expect(screen.getByRole("heading", { name: "Biología marina" })).toBeDefined();
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(
+      screen.queryByRole("heading", { name: "Biología marina" }),
+    ).toBeNull();
+  });
+  it("limita el detalle del estudiante a sus datos personales", async () => {
+    installFakeApi({
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/students": ok(response),
+    });
+    renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Ver detalle de Ana Soto" }),
+    );
+
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText("Ana Soto")).toBeDefined();
+    expect(within(dialog).getByText("ana@example.com")).toBeDefined();
+    expect(within(dialog).queryByText("Biología marina")).toBeNull();
+    expect(within(dialog).queryByText("10001")).toBeNull();
+  });
   it("crea el perfil manual y vincula un NRC seleccionado", async () => {
     const api = installFakeApi({
       "GET /academic/careers/options": ok([]),
@@ -253,7 +293,7 @@ describe("Estudiantes", () => {
     fireEvent.click(screen.getByRole("button", { name: "Importar CSV" }));
     expect(await screen.findByRole("alert")).toHaveProperty(
       "textContent",
-      "Fila 2: NRC inexistente",
+      "No fue posible importar los estudiantes.",
     );
     expect(saved).not.toHaveBeenCalled();
   });

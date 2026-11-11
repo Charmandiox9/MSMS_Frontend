@@ -13,6 +13,7 @@ export interface CurriculumVersion {
 }
 
 export interface Career {
+  updatedAt: string;
   id: string;
   code: string;
   name: string;

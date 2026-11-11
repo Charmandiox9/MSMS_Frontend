@@ -22,6 +22,8 @@ export interface ChartFilters {
   endsOn?: string;
 }
 export interface ChartSummary {
+  projectsByDepartment: {label: string; value: string}[];
+  publicationsByDepartment: {label: string; value: string}[];
   projects: ReportTable;
   researchByYear: { label: string; value: string }[];
   outputs: { kind: string; reportingYear: number; count: number }[];
@@ -44,6 +46,8 @@ export const REPORT_SEMESTERS: TypedDocumentNode<{ academicReportSemesters: { id
 export const ACADEMIC_CHARTS: TypedDocumentNode<{ academicCharts: ChartSummary }, { filters: ChartFilters }> = gql`
   query AcademicCharts($filters: AcademicChartFilters!) {
     academicCharts(filters: $filters) {
+      projectsByDepartment { label value }
+      publicationsByDepartment { label value }
       projects { columns rows { values } totalRows }
       researchByYear { label value }
       outputs { kind reportingYear count }

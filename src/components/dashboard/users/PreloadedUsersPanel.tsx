@@ -1,5 +1,6 @@
 "use client";
 
+import EmailInput from "@/components/ui/EmailInput";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -300,8 +301,7 @@ export default function PreloadedUsersPanel({
             <span className="text-sm font-semibold text-foreground">
               {t("preloads.email")}
             </span>
-            <input
-              type="email"
+            <EmailInput
               autoComplete="email"
               required
               value={email}

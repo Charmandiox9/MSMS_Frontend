@@ -1,6 +1,5 @@
 import {
   BookOpenCheck,
-  CalendarDays,
   ClipboardCheck,
   ClipboardList,
   FileBarChart,
@@ -28,7 +27,6 @@ export type NavigationKey =
   | "research"
   | "researchOutputs"
   | "students"
-  | "academicWorkload"
   | "careers"
   | "assistantships"
   | "titulation"
@@ -36,6 +34,7 @@ export type NavigationKey =
   | "charts"
   | "users"
   | "audit"
+  | "privacyRequests"
   | "settings";
 
 export interface NavigationItem {
@@ -43,7 +42,8 @@ export interface NavigationItem {
   href: string;
   icon: LucideIcon;
   allowedRoles?: UserRoleCode[];
-  group?: "academicInformation" | "research" | "studentSupport" | "administration";
+  group?:
+    "academicInformation" | "research" | "studentSupport" | "administration";
 }
 
 export interface NavigationSection {
@@ -80,17 +80,15 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         group: "studentSupport",
       },
       {
-        key: "academicWorkload",
-        href: "/dashboard/academic-workload",
-        icon: CalendarDays,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "TEACHING_SUPPORT_COORDINATOR"],
-        group: "academicInformation",
-      },
-      {
         key: "careers",
         href: "/dashboard/careers",
         icon: Building2,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST", "TEACHING_SUPPORT_COORDINATOR"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+          "TEACHING_SUPPORT_COORDINATOR",
+        ],
         group: "academicInformation",
       },
       {
@@ -153,7 +151,11 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: "researchOutputs",
         href: "/dashboard/research-outputs",
         icon: FileText,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
         group: "research",
       },
       {
@@ -189,19 +191,40 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: "reports",
         href: "/dashboard/reports",
         icon: FileBarChart,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
       },
       {
         key: "charts",
         href: "/dashboard/charts",
         icon: BarChart3,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
       },
     ],
   },
   {
     key: "system",
     items: [
+      {
+        key: "privacyRequests",
+        href: "/dashboard/privacy-requests",
+        icon: ShieldCheck,
+        group: "administration",
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+          "TEACHING_SUPPORT_COORDINATOR",
+          "PRIVACY_OFFICER",
+        ],
+      },
       {
         key: "users",
         href: "/dashboard/users",

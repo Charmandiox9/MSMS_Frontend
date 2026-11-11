@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import Modal from "@/components/ui/Modal";
+import FormModal from "@/components/ui/FormModal";
 import { FormSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
 import type { CurrentCourseCatalog } from "@/types/academic";
@@ -129,7 +129,7 @@ export default function EditSubjectDialog({
     }
   };
   return (
-    <Modal
+    <FormModal
       isOpen
       onClose={() => {
         if (!saving) onClose();
@@ -147,6 +147,7 @@ export default function EditSubjectDialog({
           <button
             type="button"
             disabled={saving}
+            data-modal-dismiss
             onClick={onClose}
             className="rounded-xl border border-border px-4 py-2 text-sm font-bold disabled:opacity-50"
           >
@@ -335,6 +336,6 @@ export default function EditSubjectDialog({
           </fieldset>
         )}
       </form>
-    </Modal>
+    </FormModal>
   );
 }

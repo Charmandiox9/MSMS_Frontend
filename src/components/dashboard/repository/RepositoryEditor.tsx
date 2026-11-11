@@ -2,7 +2,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import Modal from "@/components/ui/Modal";
+import FormModal from "@/components/ui/FormModal";
 import { FormSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
 import { createApiGraphqlClient } from '@/lib/graphql-client';
@@ -15,6 +15,7 @@ import type {
   RepositoryParticipant,
   RepositoryRecord,
 } from "@/types/academic-repository";
+import DepartmentField from "./DepartmentField";
 import RepositoryFields from "./RepositoryFields";
 import RepositoryParticipants from "./RepositoryParticipants";
 import {
@@ -54,6 +55,7 @@ export default function RepositoryEditor({
   const [participants, setParticipants] = useState<RepositoryParticipant[]>(
     record?.participants ?? [],
   );
+  const [departmentId, setDepartmentId] = useState(record?.departmentId ?? "");
   const [projectId, setProjectId] = useState(record?.projectId ?? "");
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [projects, setProjects] = useState<ProjectOption[]>([]);
@@ -92,6 +94,7 @@ export default function RepositoryEditor({
     setSaving(true);
     const payload = {
       ...fieldsPayload(kind, values),
+      ...(kind === "projects" ? {departmentId: departmentId || null} : {}),
       participants: participants.map(
         ({ name, role, teacherId, contactEmail, gender }) => ({
           name: name.trim(),
@@ -128,7 +131,7 @@ export default function RepositoryEditor({
     }
   };
   return (
-    <Modal
+    <FormModal
       isOpen
       title={t(`${kind}.${record ? "edit" : "create"}`)}
       description={t("formHint")}
@@ -161,6 +164,7 @@ export default function RepositoryEditor({
             </button>
           </div>
         ) : null}
+        {kind === "projects" && <DepartmentField value={departmentId} onChange={setDepartmentId} disabled={saving || loading || !!loadError} />}
         <RepositoryFields
           kind={kind}
           values={values}
@@ -216,6 +220,7 @@ export default function RepositoryEditor({
             type="button"
             disabled={saving}
             className={secondaryButton}
+            data-modal-dismiss
             onClick={onClose}
           >
             {t("cancel")}
@@ -229,6 +234,6 @@ export default function RepositoryEditor({
           </button>
         </div>
       </form>
-    </Modal>
+    </FormModal>
   );
 }

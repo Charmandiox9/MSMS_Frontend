@@ -1,9 +1,10 @@
 "use client";
 
+import EmailInput from "@/components/ui/EmailInput";
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import Modal from "@/components/ui/Modal";
+import FormModal from "@/components/ui/FormModal";
 import { FormSkeleton } from "@/components/ui/LoadingSkeletons";
 import AcademicSelectionList from "@/components/dashboard/academic/AcademicSelectionList";
 import { apiFetch } from "@/lib/api";
@@ -106,7 +107,7 @@ export default function StudentDialog({
     }
   };
   return (
-    <Modal
+    <FormModal
       isOpen
       title={t(student ? "editTitle" : "createTitle")}
       description={t("formDescription")}
@@ -122,6 +123,7 @@ export default function StudentDialog({
           <button
             type="button"
             disabled={saving}
+            data-modal-dismiss
             onClick={onClose}
             className="rounded-xl border border-border px-4 py-2 text-sm font-bold disabled:opacity-50"
           >
@@ -156,9 +158,9 @@ export default function StudentDialog({
           </label>
           <label className="text-sm font-semibold">
             {t("email")}
-            <input
+            <EmailInput
               required
-              type="email"
+
               maxLength={254}
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -214,10 +216,11 @@ export default function StudentDialog({
                   selected={selected}
                   onChange={setSelected}
                   disabled={saving}
+                  searchHelp={t("selectionSearchHelp")}
                   items={catalog.courses.map((course) => ({
                     id: course.nrc,
                     title: course.name,
-                    description: `${t("nrc")} ${course.nrc}`,
+                    description: `${t("nrc")} ${course.nrc}${course.code ? ` · ${course.code}` : ""}`,
                   }))}
                 />
               </>
@@ -225,6 +228,6 @@ export default function StudentDialog({
           </fieldset>
         )}
       </form>
-    </Modal>
+    </FormModal>
   );
 }

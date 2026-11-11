@@ -1,9 +1,10 @@
 "use client";
 
+import EmailInput from "@/components/ui/EmailInput";
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import Modal from "@/components/ui/Modal";
+import FormModal from "@/components/ui/FormModal";
 import { FormSkeleton } from "@/components/ui/LoadingSkeletons";
 import { apiFetch } from "@/lib/api";
 import type { Teacher } from "@/types/justifications";
@@ -128,7 +129,7 @@ export default function TeacherDialog({
     }
   };
   return (
-    <Modal
+    <FormModal
       isOpen
       title={t(teacher ? "editTeacher" : "createTeacher")}
       description={t("teacherDescription")}
@@ -144,6 +145,7 @@ export default function TeacherDialog({
           <button
             type="button"
             disabled={saving}
+            data-modal-dismiss
             onClick={onClose}
             className="rounded-xl border border-border px-4 py-2 text-sm font-bold disabled:opacity-50"
           >
@@ -182,8 +184,7 @@ export default function TeacherDialog({
           </label>
           <label className="text-sm font-semibold">
             {t("email")}
-            <input
-              type="email"
+            <EmailInput
               required
               maxLength={254}
               value={email}
@@ -245,6 +246,7 @@ export default function TeacherDialog({
                   selected={selected}
                   onChange={setSelected}
                   disabled={saving}
+                  searchHelp={t("courseSearchHelp")}
                   items={catalog.courses.map((course) => ({
                     id: course.nrc,
                     title: course.name,
@@ -293,6 +295,6 @@ export default function TeacherDialog({
           </>
         )}
       </form>
-    </Modal>
+    </FormModal>
   );
 }
