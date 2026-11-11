@@ -13,6 +13,8 @@ const codes = [
   "INVALID_SCHEDULE",
   "ASSIGNMENT_NOT_FOUND",
   "RETRY",
+  "CAREER_REQUIRED",
+  "COURSE_CAREER",
 ] as const;
 export function assistantshipErrorKey(error: unknown): string {
   if (CombinedGraphQLErrors.is(error)) {

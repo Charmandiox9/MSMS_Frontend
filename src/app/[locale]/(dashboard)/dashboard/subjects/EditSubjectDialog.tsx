@@ -122,8 +122,8 @@ export default function EditSubjectDialog({
     try {
       const result = await operation;
       onSaved(result.nrc);
-    } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : t("editForm.error"));
+    } catch {
+      // El toast ya comunica el error de guardado.
     } finally {
       setSaving(false);
     }

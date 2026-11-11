@@ -486,6 +486,7 @@ export function AssistantshipsWorkspace({
           key={editing?.id ?? "new"}
           initialRecord={editing ?? undefined}
           semesters={options.data.assistantshipOptions.semesters}
+          careers={options.data.assistantshipOptions.careers}
           blocks={options.data.assistantshipOptions.blocks}
           initialSemesterId={filters.semesterId}
           onClose={() => setDialogOpen(false)}

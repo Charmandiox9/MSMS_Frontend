@@ -13,6 +13,7 @@ import {
   FlaskConical,
   FileText,
   BarChart3,
+  Building2,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRoleCode } from "@/types/auth";
@@ -21,7 +22,6 @@ export type NavigationKey =
   | "dashboard"
   | "justifications"
   | "justificationsManagement"
-  | "academicInformation"
   | "subjects"
   | "teachers"
   | "projects"
@@ -29,6 +29,7 @@ export type NavigationKey =
   | "researchOutputs"
   | "students"
   | "academicWorkload"
+  | "careers"
   | "assistantships"
   | "titulation"
   | "reports"
@@ -43,6 +44,7 @@ export interface NavigationItem {
   href: string;
   icon: LucideIcon;
   allowedRoles?: UserRoleCode[];
+  group?: "academicInformation" | "research" | "studentSupport" | "administration";
 }
 
 export interface NavigationSection {
@@ -81,29 +83,28 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         href: "/dashboard/justifications",
         icon: ClipboardCheck,
         allowedRoles: ["TEACHING_SUPPORT_COORDINATOR"],
+        group: "studentSupport",
       },
       {
         key: "justificationsManagement",
         href: "/dashboard/justifications/management",
         icon: ClipboardList,
         allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"],
-      },
-      {
-        key: "academicInformation",
-        href: "/dashboard/academic-information",
-        icon: BookOpenCheck,
-        allowedRoles: [
-          "SYSTEM_ADMIN",
-          "ACADEMIC_SECRETARY",
-          "ACADEMIC_PROCESS_ANALYST",
-          "TEACHING_SUPPORT_COORDINATOR",
-        ],
+        group: "studentSupport",
       },
       {
         key: "academicWorkload",
         href: "/dashboard/academic-workload",
         icon: CalendarDays,
-        allowedRoles: ["SYSTEM_ADMIN", "TEACHING_SUPPORT_COORDINATOR"],
+        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "TEACHING_SUPPORT_COORDINATOR"],
+        group: "academicInformation",
+      },
+      {
+        key: "careers",
+        href: "/dashboard/careers",
+        icon: Building2,
+        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST", "TEACHING_SUPPORT_COORDINATOR"],
+        group: "academicInformation",
       },
       {
         key: "subjects",
@@ -114,6 +115,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "academicInformation",
       },
       {
         key: "teachers",
@@ -124,6 +126,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "academicInformation",
       },
       {
         key: "students",
@@ -135,6 +138,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "academicInformation",
       },
       {
         key: "projects",
@@ -145,6 +149,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "research",
       },
       {
         key: "research",
@@ -155,12 +160,14 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "research",
       },
       {
         key: "researchOutputs",
         href: "/dashboard/research-outputs",
         icon: FileText,
         allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+        group: "research",
       },
       {
         key: "assistantships",
@@ -172,6 +179,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
           "ACADEMIC_SECRETARY",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "academicInformation",
       },
       {
         key: "titulation",
@@ -179,9 +187,11 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         icon: GraduationCap,
         allowedRoles: [
           "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
           "TEACHING_SUPPORT_COORDINATOR",
           "ACADEMIC_PROCESS_ANALYST",
         ],
+        group: "studentSupport",
       },
     ],
   },
@@ -210,18 +220,21 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         href: "/dashboard/users",
         icon: Users,
         allowedRoles: ["SYSTEM_ADMIN"],
+        group: "administration",
       },
       {
         key: "audit",
         href: "/dashboard/audit",
         icon: ShieldCheck,
         allowedRoles: ["SYSTEM_ADMIN"],
+        group: "administration",
       },
       {
         key: "settings",
         href: "/dashboard/settings",
         icon: Settings,
         allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"],
+        group: "administration",
       },
     ],
   },

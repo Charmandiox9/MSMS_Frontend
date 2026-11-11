@@ -82,8 +82,8 @@ export default function CourseTeachersDialog({
     try {
       await operation;
       onSaved();
-    } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : t("saveError"));
+    } catch {
+      // El toast ya comunica el error de guardado.
     } finally {
       setSaving(false);
     }

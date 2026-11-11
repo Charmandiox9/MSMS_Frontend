@@ -10,6 +10,7 @@ import AcademicSelectionList from "@/components/dashboard/academic/AcademicSelec
 import { apiFetch } from "@/lib/api";
 import type { Student } from "@/types/students";
 import type { CurrentCourseCatalog } from "@/types/academic";
+import type { CareerOption } from "@/types/careers";
 
 const fieldClass =
   "mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30";
@@ -29,6 +30,8 @@ export default function StudentDialog({
   const [name, setName] = useState(student?.name ?? "");
   const [email, setEmail] = useState(student?.email ?? "");
   const [catalog, setCatalog] = useState<CurrentCourseCatalog | null>(null);
+  const [careers, setCareers] = useState<CareerOption[]>([]);
+  const [curriculumVersionId, setCurriculumVersionId] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -38,13 +41,15 @@ export default function StudentDialog({
     let active = true;
     Promise.all([
       apiFetch<CurrentCourseCatalog>("/academic/courses/current"),
+      apiFetch<CareerOption[]>("/academic/careers/options"),
       student
         ? apiFetch<Student>(`/academic/students/${student.id}`)
         : Promise.resolve(null),
     ])
-      .then(([value, latest]) => {
+      .then(([value, careerOptions, latest]) => {
         if (!active) return;
         setCatalog(value);
+        setCareers(careerOptions);
         setSelected(
           latest
             ? latest.enrollments.map(({ nrc }) => nrc)
@@ -55,6 +60,7 @@ export default function StudentDialog({
         if (latest) {
           setName(latest.name);
           setEmail(latest.email);
+          setCurriculumVersionId(latest.careerCurriculumVersionId ?? "");
         }
         setError(null);
       })
@@ -78,6 +84,7 @@ export default function StudentDialog({
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim(),
+          careerCurriculumVersionId: curriculumVersionId || null,
           ...(catalog.semester
             ? { semesterId: catalog.semester.id, nrcs: selected }
             : {}),
@@ -159,6 +166,15 @@ export default function StudentDialog({
               onChange={(event) => setEmail(event.target.value)}
               className={fieldClass}
             />
+          </label>
+          <label className="text-sm font-semibold sm:col-span-2">
+            {t("career")}
+            <select value={curriculumVersionId} onChange={(event) => setCurriculumVersionId(event.target.value)} className={fieldClass}>
+              <option value="">{t("noCareer")}</option>
+              {careers.flatMap((career) => career.curriculumVersions.map((version) => (
+                <option key={version.id} value={version.id} disabled={!career.isActive && version.id !== curriculumVersionId}>{career.name} · {t("cohortYear", { year: version.cohortYear })}</option>
+              )))}
+            </select>
           </label>
         </fieldset>
         {error && (

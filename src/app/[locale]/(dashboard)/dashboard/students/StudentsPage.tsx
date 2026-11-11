@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   BookOpen,
+  ListChecks,
   ChevronDown,
   Eye,
   Plus,
@@ -17,6 +18,7 @@ import PaginationControls from "@/components/ui/PaginationControls";
 import type { Student } from "@/types/students";
 import type { PaginatedResponse } from "@/types/pagination";
 import type { CurrentCourseCatalog } from "@/types/academic";
+import { Link } from "@/i18n/routing";
 import StudentDialog from "./StudentDialog";
 import ImportStudentsDialog from "./ImportStudentsDialog";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
@@ -29,6 +31,7 @@ import {
 
 const studentListGridColumns =
   "md:grid-cols-[minmax(220px,1.4fr)_minmax(200px,1.1fr)_minmax(280px,1.4fr)]";
+import StudentAssistantships from "./StudentAssistantships";
 
 export default function StudentsPage({
   initialNrc = "",
@@ -49,8 +52,9 @@ export default function StudentsPage({
   const [reload, setReload] = useState(0);
   const [editor, setEditor] = useState<Student | null | undefined>(undefined);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
-  const [expandedCoursesStudentId, setExpandedCoursesStudentId] =
-    useState<string | null>(null);
+  const [expandedCoursesStudentId, setExpandedCoursesStudentId] = useState<
+    string | null
+  >(null);
   const [importOpen, setImportOpen] = useState(false);
   const loadError = t("errors.load");
   const canRead = activeRole !== null;
@@ -190,7 +194,9 @@ export default function StudentsPage({
         </p>
       ) : (
         <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          <div className={`hidden ${studentListGridColumns} gap-3 border-b border-border bg-muted/40 px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:grid`}>
+          <div
+            className={`hidden ${studentListGridColumns} gap-3 border-b border-border bg-muted/40 px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:grid`}
+          >
             <span>{t("studentColumn")}</span>
             <span>{t("coursesColumn")}</span>
             <span className="text-right">{t("actions")}</span>
@@ -229,9 +235,7 @@ export default function StudentsPage({
                       <button
                         type="button"
                         aria-label={t(
-                          coursesExpanded
-                            ? "hideCoursesFor"
-                            : "viewCoursesFor",
+                          coursesExpanded ? "hideCoursesFor" : "viewCoursesFor",
                           { name: student.name },
                         )}
                         aria-expanded={coursesExpanded}
@@ -243,10 +247,7 @@ export default function StudentsPage({
                         }
                         className={`${academicSecondaryActionClass} ${coursesExpanded ? "border-primary/30 bg-primary/5 text-primary" : ""}`}
                       >
-                        <BookOpen
-                          className="h-3.5 w-3.5"
-                          aria-hidden="true"
-                        />
+                        <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
                         {coursesExpanded
                           ? t("hideCourses")
                           : t("viewCourses", {
@@ -264,6 +265,13 @@ export default function StudentsPage({
                     )}
                   </div>
                   <div className="flex flex-wrap justify-start gap-2 md:justify-end">
+                    <Link
+                      href={`/dashboard/students/${student.id}/progress`}
+                      className={academicSecondaryActionClass}
+                    >
+                      <ListChecks className="h-3.5 w-3.5" />
+                      {t("progress")}
+                    </Link>
                     <span className="mb-1 w-full text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
                       {t("actions")}
                     </span>
@@ -283,10 +291,7 @@ export default function StudentsPage({
                         onClick={() => setEditor(student)}
                         className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-primary/30 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       >
-                        <Pencil
-                          className="h-3.5 w-3.5"
-                          aria-hidden="true"
-                        />
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                         {t("edit")}
                       </button>
                     )}
@@ -336,6 +341,19 @@ export default function StudentsPage({
                       </ul>
                     </section>
                   )}
+                  {student.careerCurriculumVersion && (
+                    <p className="text-xs text-muted-foreground md:col-span-3">
+                      {student.careerCurriculumVersion.career.name} ·{" "}
+                      {t("cohortYear", {
+                        year: student.careerCurriculumVersion.cohortYear,
+                      })}
+                    </p>
+                  )}
+                  <div className="md:col-span-3">
+                    <StudentAssistantships
+                      items={student.assistantships ?? []}
+                    />
+                  </div>
                 </li>
               );
             })}

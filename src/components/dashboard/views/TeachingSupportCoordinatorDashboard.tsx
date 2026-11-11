@@ -86,7 +86,7 @@ export default function TeachingSupportCoordinatorDashboard() {
               <QuickActionCard
                 title={t("actions.assistants")}
                 description={t("actions.assistantsDesc")}
-                href="/dashboard/academic-information"
+                href="/dashboard/assistantships"
                 icon={UserCheck}
               />
             </div>

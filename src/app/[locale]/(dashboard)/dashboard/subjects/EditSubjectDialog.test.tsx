@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderAs } from "@/test/render";
@@ -192,9 +193,9 @@ describe("Editor de asignaturas", () => {
     );
     await screen.findAllByLabelText("Sala");
     fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
-    expect((await screen.findByRole("alert")).textContent).toContain(
-      "El NRC ya existe",
-    );
+    await waitFor(() => expect(screen.getByRole("button", {name: "Guardar cambios"})).toHaveProperty("disabled", false));
+    expect(toast.promise).toHaveBeenCalledWith(expect.any(Promise), expect.objectContaining({error: expect.any(Function)}));
+    expect(screen.getByRole("dialog")).toBeDefined();
     expect(saved).not.toHaveBeenCalled();
     expect(
       (screen.getAllByLabelText("Sala")[0] as HTMLInputElement).value,
