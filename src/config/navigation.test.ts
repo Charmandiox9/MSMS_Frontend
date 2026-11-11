@@ -65,7 +65,7 @@ describe("Navigation configuration and filtering", () => {
     expect(itemKeys).not.toContain("academicInformation");
     expect(itemKeys).not.toContain("justifications");
     expect(itemKeys).toContain("justificationsManagement");
-    expect(itemKeys).toContain("academicWorkload");
+    expect(itemKeys).not.toContain("academicWorkload");
     expect(itemKeys).toContain("titulation");
     expect(itemKeys).toContain("subjects");
     expect(itemKeys).toContain("teachers");
@@ -112,7 +112,7 @@ describe("Navigation configuration and filtering", () => {
     const itemKeys = academicSection?.items.map((i) => i.key);
     expect(itemKeys).toContain("justifications");
     expect(itemKeys).not.toContain("justificationsManagement");
-    expect(itemKeys).toContain("academicWorkload");
+    expect(itemKeys).not.toContain("academicWorkload");
     expect(itemKeys).toContain("assistantships");
     expect(itemKeys).toContain("titulation");
     expect(itemKeys).not.toContain("academicInformation");
@@ -224,13 +224,7 @@ describe("Navigation configuration and filtering", () => {
         "ACADEMIC_SECRETARY",
       ),
     ).toBe(true);
-    expect(
-      isRouteAllowed(
-        "/dashboard/academic-workload",
-        DASHBOARD_SECTIONS,
-        "ACADEMIC_SECRETARY",
-      ),
-    ).toBe(true);
+    expect(DASHBOARD_SECTIONS.flatMap(section => section.items).some(item => item.href === "/dashboard/academic-workload")).toBe(false);
     expect(
       isRouteAllowed(
         "/dashboard/titulation",

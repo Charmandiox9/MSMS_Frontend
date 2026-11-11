@@ -232,7 +232,6 @@
     "academicInformation": "Información académica",
     "subjects": "Asignaturas",
     "teachers": "Profesores",
-    "academicWorkload": "Carga académica",
     "titulation": "Titulaciones",
     "reports": "Reportes e indicadores",
     "users": "Usuarios",
@@ -1413,7 +1412,7 @@
   "ChartsPage": {
     "eyebrow": "Análisis académico",
     "title": "Gráficos e indicadores",
-    "subtitle": "Explora tendencias de proyectos, presupuestos, investigaciones, producción académica y pagos de profesores hora.",
+    "subtitle": "Consulta proyectos y publicaciones por departamento, estados, tipos de resultados, tendencias y pagos PH estimados.",
     "loading": "Cargando datos para los gráficos…",
     "error": "No se pudieron cargar los datos para el análisis.",
     "retry": "Reintentar",
@@ -1483,7 +1482,12 @@
       "FIELDWORK": "Terreno",
       "ASSISTANTSHIP": "Ayudantía"
     },
-    "closeDetails": "Cerrar detalle"
+    "closeDetails": "Cerrar detalle",
+    "projectsFrom": "Proyectos desde",
+    "projectsTo": "Proyectos hasta",
+    "projectsByDepartment": "Cantidad de proyectos por departamento",
+    "publicationsByDepartment": "Cantidad de publicaciones por departamento",
+    "unassignedDepartment": "Sin asignar"
   },
   "UnderDevelopment": {
     "badge": "En desarrollo",
@@ -2078,5 +2082,13 @@
       "load": "No fue posible cargar el avance curricular.",
       "save": "No fue posible registrar el resultado."
     }
+  },
+  "DepartmentField": {
+    "label": "Departamento",
+    "hint": "Selecciona la carrera que corresponde al departamento. Es opcional; los registros sin vínculo se cuentan como «Sin asignar».",
+    "loading": "Cargando departamentos…",
+    "unassigned": "Sin asignar",
+    "error": "No se pudieron cargar los departamentos.",
+    "retry": "Reintentar"
   }
 }

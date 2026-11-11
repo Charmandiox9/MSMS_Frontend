@@ -17,6 +17,7 @@ export interface RepositoryParticipant {
   gender?: string | null;
 }
 export interface RepositoryRecord {
+  departmentId?: string | null;
   id: string;
   title: string;
   academicUnit: string;

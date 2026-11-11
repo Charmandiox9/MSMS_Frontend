@@ -11,6 +11,7 @@ export interface ResearchOutputAuthor {
 }
 
 export interface ResearchOutputRecord {
+  departmentId?: string | null;
   id: string;
   researchId: string | null;
   kind: ResearchOutputKind;

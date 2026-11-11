@@ -67,7 +67,7 @@ export interface RepositoryResearchDetailData {
 export const REPOSITORY_PROJECT_DETAIL: TypedDocumentNode<RepositoryProjectDetailData, { id: string }> = gql`
   query RepositoryProjectDetail($id: ID!) {
     repositoryProject(id: $id) {
-      id title academicUnit code startsOn endsOn updatedAt createdAt reportingYear status outputCount
+      id title academicUnit departmentId code startsOn endsOn updatedAt createdAt reportingYear status outputCount
       participants { id name role teacherId contactEmail gender }
       faculty resolution classification fundingSource program competition applicationArea
       participationScope officialized revisedEndsOn closedOn currency totalAmount
@@ -90,7 +90,7 @@ export const REPOSITORY_RESEARCH_DETAIL: TypedDocumentNode<RepositoryResearchDet
 export const RESEARCH_OUTPUT_DETAIL: TypedDocumentNode<{ repositoryResearchOutput: ResearchOutputRecord }, { id: string }> = gql`
   query RepositoryResearchOutputDetail($id: ID!) {
     repositoryResearchOutput(id: $id) {
-      id researchId kind reportingYear title doi journal issn isbn quartile
+      id researchId departmentId kind reportingYear title doi journal issn isbn quartile
       fiveYearImpactFactor publicationDate indexation publisher publicationPlace
       studentParticipation internationalParticipation intellectualPropertyType
       phase phaseDate notes updatedAt createdAt
@@ -133,7 +133,7 @@ export const RESEARCH_OUTPUTS: TypedDocumentNode<ResearchOutputsData, { filters:
   query RepositoryResearchOutputs($filters: ResearchOutputListFilters!) {
     repositoryResearchOutputs(filters: $filters) {
       items {
-        id researchId kind reportingYear title doi journal issn isbn quartile
+        id researchId departmentId kind reportingYear title doi journal issn isbn quartile
         fiveYearImpactFactor publicationDate indexation publisher publicationPlace
         studentParticipation internationalParticipation intellectualPropertyType
         phase phaseDate notes updatedAt createdAt

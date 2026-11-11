@@ -15,6 +15,7 @@ import type {
   RepositoryParticipant,
   RepositoryRecord,
 } from "@/types/academic-repository";
+import DepartmentField from "./DepartmentField";
 import RepositoryFields from "./RepositoryFields";
 import RepositoryParticipants from "./RepositoryParticipants";
 import {
@@ -54,6 +55,7 @@ export default function RepositoryEditor({
   const [participants, setParticipants] = useState<RepositoryParticipant[]>(
     record?.participants ?? [],
   );
+  const [departmentId, setDepartmentId] = useState(record?.departmentId ?? "");
   const [projectId, setProjectId] = useState(record?.projectId ?? "");
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [projects, setProjects] = useState<ProjectOption[]>([]);
@@ -92,6 +94,7 @@ export default function RepositoryEditor({
     setSaving(true);
     const payload = {
       ...fieldsPayload(kind, values),
+      ...(kind === "projects" ? {departmentId: departmentId || null} : {}),
       participants: participants.map(
         ({ name, role, teacherId, contactEmail, gender }) => ({
           name: name.trim(),
@@ -161,6 +164,7 @@ export default function RepositoryEditor({
             </button>
           </div>
         ) : null}
+        {kind === "projects" && <DepartmentField value={departmentId} onChange={setDepartmentId} disabled={saving || loading || !!loadError} />}
         <RepositoryFields
           kind={kind}
           values={values}

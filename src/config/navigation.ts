@@ -1,6 +1,5 @@
 import {
   BookOpenCheck,
-  CalendarDays,
   ClipboardCheck,
   ClipboardList,
   FileBarChart,
@@ -28,7 +27,6 @@ export type NavigationKey =
   | "research"
   | "researchOutputs"
   | "students"
-  | "academicWorkload"
   | "careers"
   | "assistantships"
   | "titulation"
@@ -91,13 +89,6 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         icon: ClipboardList,
         allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"],
         group: "studentSupport",
-      },
-      {
-        key: "academicWorkload",
-        href: "/dashboard/academic-workload",
-        icon: CalendarDays,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "TEACHING_SUPPORT_COORDINATOR"],
-        group: "academicInformation",
       },
       {
         key: "careers",

@@ -232,7 +232,6 @@
     "academicInformation": "Academic information",
     "subjects": "Subjects",
     "teachers": "Teachers",
-    "academicWorkload": "Academic workload",
     "titulation": "Graduation",
     "reports": "Reports and indicators",
     "users": "Users",
@@ -1866,7 +1865,7 @@
   "ChartsPage": {
     "eyebrow": "Academic analysis",
     "title": "Charts and indicators",
-    "subtitle": "Explore trends in projects, budgets, research, academic outputs, and hourly teacher payments.",
+    "subtitle": "Explore projects and publications by department, project statuses, output types, annual trends and estimated hourly teaching payments.",
     "loading": "Loading chart data…",
     "error": "Chart data could not be loaded.",
     "retry": "Retry",
@@ -1936,7 +1935,12 @@
       "FIELDWORK": "Fieldwork",
       "ASSISTANTSHIP": "Assistantship"
     },
-    "closeDetails": "Close details"
+    "closeDetails": "Close details",
+    "projectsFrom": "Projects from",
+    "projectsTo": "Projects to",
+    "projectsByDepartment": "Projects by department",
+    "publicationsByDepartment": "Publications by department",
+    "unassignedDepartment": "Unassigned"
   },
   "PrivacyPolicy": {
     "title": "Privacy Policy and Data Protection",
@@ -2078,5 +2082,13 @@
       "load": "Could not load curriculum progress.",
       "save": "Could not record the result."
     }
+  },
+  "DepartmentField": {
+    "label": "Department",
+    "hint": "Select the degree program associated with the department. Optional; records without a link are counted as Unassigned.",
+    "loading": "Loading departments…",
+    "unassigned": "Unassigned",
+    "error": "Could not load departments.",
+    "retry": "Retry"
   }
 }

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
 import { resolveApiBaseUrl } from "@/lib/runtime-config";
+import DepartmentField from "./DepartmentField";
 import Modal from "@/components/ui/Modal";
 import FormModal from "@/components/ui/FormModal";
 import PaginationControls from "@/components/ui/PaginationControls";
@@ -176,6 +177,7 @@ export default function ResearchOutputsPage() {
 function OutputEditor({ record, researches, onClose, onSaved }: { record: ResearchOutputRecord | null; researches: ResearchOption[]; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("AcademicRepository.outputs");
   const common = useTranslations("AcademicRepository");
+  const [departmentId, setDepartmentId] = useState(record?.departmentId ?? "");
   const [saving, setSaving] = useState(false);
   const [values, setValues] = useState({
     researchId: record?.researchId ?? "",
@@ -229,6 +231,7 @@ function OutputEditor({ record, researches, onClose, onSaved }: { record: Resear
     setSaving(true);
     const payload = {
       ...values,
+      departmentId: departmentId || null,
       reportingYear: Number(values.reportingYear),
       doi: values.doi || null,
       journal: values.journal || null,
@@ -286,6 +289,7 @@ function OutputEditor({ record, researches, onClose, onSaved }: { record: Resear
       closeLabel={common("close")}
     >
       <form onSubmit={(event) => void submit(event)} className="space-y-4">
+      <DepartmentField value={departmentId} onChange={setDepartmentId} disabled={saving} />
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="text-sm font-medium">
             {t("fields.researchId")}
