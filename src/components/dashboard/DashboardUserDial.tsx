@@ -3,17 +3,29 @@
 import { Home, LogOut, Moon, Sun, UserRound } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { logout, type ActiveSession } from "@/lib/auth";
-import { getAccountDialLayout } from "./account-dial-layout";
+import AccountDialTooltip from "./AccountDialTooltip";
 import { useMounted } from "@/hooks/useMounted";
 
 type SpeedDialItem = {
   id: string;
+  label: string;
   content: ReactNode;
 };
+
+const DIAL_RADIUS = 88;
+const DIAL_START_ANGLE = -105;
+const DIAL_END_ANGLE = 15;
+
+function getDialTransform(index: number, itemCount: number): string {
+  const step =
+    itemCount > 1 ? (DIAL_END_ANGLE - DIAL_START_ANGLE) / (itemCount - 1) : 0;
+  const angle = ((DIAL_START_ANGLE + step * index) * Math.PI) / 180;
+  return `translateX(${Math.cos(angle) * DIAL_RADIUS}px) translateY(${Math.sin(angle) * DIAL_RADIUS}px)`;
+}
 
 export default function DashboardUserDial({
   session,
@@ -29,7 +41,12 @@ export default function DashboardUserDial({
   const { theme, setTheme, systemTheme } = useTheme();
   const mounted = useMounted();
   const [open, setOpen] = useState(false);
-  const [viewport, setViewport] = useState({ width: 0, height: 0 });
+  const tooltipId = useId();
+  const [tooltip, setTooltip] = useState<{
+    id: string;
+    label: string;
+    anchor: DOMRect;
+  } | null>(null);
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
@@ -40,6 +57,10 @@ export default function DashboardUserDial({
   const isDark =
     theme === "dark" || (theme === "system" && systemTheme === "dark");
   const nextLocale = locale === "es" ? "en" : "es";
+  const themeLabel = t(isDark ? "switchToLight" : "switchToDark");
+  const languageLabel = t(
+    nextLocale === "en" ? "switchToEnglish" : "switchToSpanish",
+  );
 
   const handleLogout = async () => {
     await logout();
@@ -48,6 +69,7 @@ export default function DashboardUserDial({
   };
 
   const closeMenu = () => {
+    setTooltip(null);
     if (!open) return;
 
     void import("animejs").then((module) => {
@@ -90,7 +112,6 @@ export default function DashboardUserDial({
 
   const openMenu = () => {
     if (!avatarRef.current) return;
-    setViewport({ width: window.innerWidth, height: window.innerHeight });
     setTriggerRect(avatarRef.current.getBoundingClientRect());
     setOpen(true);
   };
@@ -100,12 +121,13 @@ export default function DashboardUserDial({
   const items: SpeedDialItem[] = [
     {
       id: "dashboard",
+      label: t("openDashboard"),
       content: (
         <Link
           href="/dashboard"
           onClick={closeMenu}
+          aria-describedby={tooltip?.id === "dashboard" ? tooltipId : undefined}
           aria-label={t("openDashboard")}
-          title={t("openDashboard")}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ucn-navy text-primary-foreground shadow-lg transition-transform hover:scale-110 hover:bg-primary/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
         >
           <Home className="h-4 w-4" />
@@ -114,13 +136,14 @@ export default function DashboardUserDial({
     },
     {
       id: "theme",
+      label: themeLabel,
       content: (
         <button
           type="button"
           onClick={() => setTheme(isDark ? "light" : "dark")}
-          aria-label={t("toggleTheme")}
-          title={t("toggleTheme")}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ucn-navy text-ocean-cyan shadow-lg transition-transform hover:scale-110 hover:bg-primary/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+          aria-describedby={tooltip?.id === "theme" ? tooltipId : undefined}
+          aria-label={themeLabel}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ocean-cyan/10 text-ocean-cyan shadow-lg transition-transform hover:scale-110 hover:bg-primary/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
         >
           {mounted && isDark ? (
             <Sun className="h-4 w-4" />
@@ -132,13 +155,14 @@ export default function DashboardUserDial({
     },
     {
       id: "language",
+      label: languageLabel,
       content: (
         <button
           type="button"
           onClick={() => router.replace(pathname, { locale: nextLocale })}
-          aria-label={`${locale.toUpperCase()} → ${nextLocale.toUpperCase()}`}
-          title={`${locale.toUpperCase()} → ${nextLocale.toUpperCase()}`}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ucn-navy text-[11px] font-black text-primary-foreground shadow-lg transition-transform hover:scale-110 hover:bg-primary/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+          aria-describedby={tooltip?.id === "language" ? tooltipId : undefined}
+          aria-label={languageLabel}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ucn-navy text-[11px] font-black text-ocean-cyan shadow-lg transition-transform hover:scale-110 hover:bg-primary/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
         >
           {locale.toUpperCase()}
         </button>
@@ -146,13 +170,14 @@ export default function DashboardUserDial({
     },
     {
       id: "profile",
+      label: t("profile"),
       content: (
         <Link
           href="/dashboard/profile"
           onClick={closeMenu}
+          aria-describedby={tooltip?.id === "profile" ? tooltipId : undefined}
           aria-label={t("profile")}
-          title={t("profile")}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ocean-cyan/20 text-ocean-cyan shadow-lg shadow-ocean-cyan/15 transition-transform hover:scale-110 hover:bg-ocean-cyan/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ocean-cyan/25 text-ocean-cyan shadow-lg shadow-ocean-cyan/20 transition-transform hover:scale-110 hover:bg-ocean-cyan/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
         >
           <UserRound className="h-4 w-4" />
         </Link>
@@ -160,30 +185,20 @@ export default function DashboardUserDial({
     },
     {
       id: "logout",
+      label: t("logout"),
       content: (
         <button
           type="button"
           onClick={handleLogout}
+          aria-describedby={tooltip?.id === "logout" ? tooltipId : undefined}
           aria-label={t("logout")}
-          title={t("logout")}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-coral-red/70 bg-coral-red text-primary-foreground shadow-lg shadow-coral-red/30 transition-transform hover:scale-110 hover:bg-coral-red/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral-red"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-coral-red/70 bg-coral-red text-primary-foreground shadow-lg shadow-coral-red/30 transition-transform hover:scale-110 hover:bg-coral-red/85 focus-visible:ring-offset-2 focus-visible:ring-offset-ucn-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral-red"
         >
           <LogOut className="h-4 w-4" />
         </button>
       ),
     },
   ];
-
-  const layout = getAccountDialLayout(
-    {
-      x: triggerRect ? triggerRect.left + triggerRect.width / 2 : 0,
-      y: triggerRect ? triggerRect.top + triggerRect.height / 2 : 0,
-    },
-    viewport,
-    items.length,
-  );
-  const getDialTransform = (index: number) =>
-    `translateX(${layout.points[index].x}px) translateY(${layout.points[index].y}px)`;
 
   useEffect(() => {
     if (!open || !triggerRect) return;
@@ -204,7 +219,7 @@ export default function DashboardUserDial({
           glowRef.current?.style.setProperty("opacity", "1");
           itemRefs.current.forEach((element, index) => {
             if (!element) return;
-            element.style.transform = getDialTransform(index);
+            element.style.transform = getDialTransform(index, items.length);
             element.style.opacity = "1";
           });
           return;
@@ -225,10 +240,15 @@ export default function DashboardUserDial({
         });
         itemRefs.current.forEach((element, index) => {
           if (!element) return;
+          const step =
+            items.length > 1
+              ? (DIAL_END_ANGLE - DIAL_START_ANGLE) / (items.length - 1)
+              : 0;
+          const angle = ((DIAL_START_ANGLE + step * index) * Math.PI) / 180;
           anime({
             targets: element,
-            translateX: [0, layout.points[index].x],
-            translateY: [0, layout.points[index].y],
+            translateX: [0, Math.cos(angle) * DIAL_RADIUS],
+            translateY: [0, Math.sin(angle) * DIAL_RADIUS],
             opacity: [0, 1],
             scale: [0.3, 1],
             duration: 500,
@@ -250,28 +270,16 @@ export default function DashboardUserDial({
         itemRefs.current.forEach((element, index) => {
           if (!element) return;
           element.style.opacity = "1";
-          element.style.transform = getDialTransform(index);
+          element.style.transform = getDialTransform(index, items.length);
         });
       });
 
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, triggerRect, viewport]);
-
-  useEffect(() => {
-    if (!open) return;
-    const reposition = () => {
-      if (!avatarRef.current) return;
-      setViewport({ width: window.innerWidth, height: window.innerHeight });
-      setTriggerRect(avatarRef.current.getBoundingClientRect());
-    };
-    window.addEventListener("resize", reposition);
-    return () => window.removeEventListener("resize", reposition);
-  }, [open]);
+  }, [open, triggerRect]);
 
   const avatar = (
     <div
       ref={avatarRef}
-      style={{ opacity: open ? 0 : 1 }}
       className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-ocean-cyan to-primary text-sm font-black text-primary-foreground"
     >
       {session?.avatarUrl ? (
@@ -315,7 +323,10 @@ export default function DashboardUserDial({
           >
             <div
               className="absolute"
-              style={{ left: layout.origin.x, top: layout.origin.y }}
+              style={{
+                left: triggerRect.left + triggerRect.width / 2,
+                top: triggerRect.top + triggerRect.height / 2,
+              }}
             >
               <div
                 ref={glowRef}
@@ -351,12 +362,37 @@ export default function DashboardUserDial({
                   }}
                   className="absolute -translate-x-1/2 -translate-y-1/2 opacity-0"
                 >
-                  <div onClick={(event) => event.stopPropagation()}>
+                  <div
+                    onClick={(event) => event.stopPropagation()}
+                    onPointerEnter={(event) =>
+                      setTooltip({
+                        id: item.id,
+                        label: item.label,
+                        anchor: event.currentTarget.getBoundingClientRect(),
+                      })
+                    }
+                    onPointerLeave={() => setTooltip(null)}
+                    onFocus={(event) =>
+                      setTooltip({
+                        id: item.id,
+                        label: item.label,
+                        anchor: event.currentTarget.getBoundingClientRect(),
+                      })
+                    }
+                    onBlur={() => setTooltip(null)}
+                  >
                     {item.content}
                   </div>
                 </div>
               ))}
             </div>
+            {tooltip && (
+              <AccountDialTooltip
+                id={tooltipId}
+                label={items.find(item => item.id === tooltip.id)?.label ?? tooltip.label}
+                anchor={tooltip.anchor}
+              />
+            )}
           </div>,
           document.body,
         )}

@@ -1,9 +1,9 @@
 # Menú de cuenta y navegación
 
-Se conserva el menú circular compacto original: radio de 88 px, arco de -140 a 30 grados y animación existente. Incluye dashboard, tema, idioma, perfil y cierre de sesión. Configuración se consulta desde Administración.
+Se conserva el ajuste manual del menú circular: radio de 88 px y arco de -105 a 15 grados, con su animación. Incluye inicio, tema, idioma, perfil y cierre de sesión. Configuración se consulta desde Administración.
 
-La posición del conjunto se limita al viewport dejando margen para botones, hover y foco. Al abrir se oculta únicamente el avatar de origen, conservando su espacio, para no mostrar dos avatares cuando el menú debe desplazarse hacia dentro de la pantalla. Al redimensionar se recalculan posición y límites. El cambio no estira la curva ni altera la distancia entre opciones.
+Mi perfil tiene su etiqueta correcta. Tema e idioma indican la acción de destino (por ejemplo, Usar modo claro o Cambiar a inglés). Los tooltips aparecen con puntero o foco de teclado, se ajustan a los bordes de la pantalla y actualizan su texto cuando cambia la opción disponible. Los estilos distinguen navegación, preferencias, perfil y cierre de sesión.
 
-Solicitudes de privacidad pertenece al grupo Administración de la sección Sistema, conservando los roles autorizados y las solicitudes propias de cada usuario. Los grupos del sidebar mantienen su comportamiento desplegable y el grupo de la ruta actual abierto.
+Solicitudes de privacidad pertenece al grupo Administración de la sección Sistema, conservando los roles autorizados y las solicitudes propias. Los grupos del sidebar mantienen su comportamiento desplegable y el grupo de la ruta actual abierto.
 
-Verificación: pruebas geométricas y de navegación, menú con y sin movimiento reducido y recorridos Chromium de escritorio, sidebar contraído y móvil, incluyendo redimensionamiento.
+Verificación de este ajuste: pruebas de textos y tooltips, paridad de traducciones, build y recorridos Chromium de escritorio y móvil. La distribución y los parámetros de la curva se conservan del cambio manual.

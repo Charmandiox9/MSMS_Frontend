@@ -241,7 +241,7 @@
     "settings": "Configuración",
     "logout": "Cerrar sesión",
     "accountMenu": "Abrir menú de cuenta",
-    "openDashboard": "Ir al dashboard",
+    "openDashboard": "Ir al inicio",
     "toggleTheme": "Cambiar tema",
     "toggleLanguage": "Cambiar idioma",
     "publicControls": "Controles de la página",
@@ -277,7 +277,11 @@
       "academicInformation": "Información académica",
       "research": "Investigación",
       "administration": "Administración"
-    }
+    },
+    "switchToLight": "Usar modo claro",
+    "switchToDark": "Usar modo oscuro",
+    "switchToEnglish": "Cambiar a inglés",
+    "switchToSpanish": "Cambiar a español"
   },
   "JustificationsPage": {
     "eyebrow": "Apoyo docente",
