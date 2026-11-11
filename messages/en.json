@@ -597,6 +597,10 @@
     "statusDeactivated": "{name} was deactivated."
   },
   "SemesterSettingsPage": {
+    "edit": "Edit active semester",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel editing",
+    "updated": "Semester {name} was updated.",
     "eyebrow": "Academic settings",
     "title": "Active semester",
     "subtitle": "Define the period used by subject, teacher, and justification imports.",

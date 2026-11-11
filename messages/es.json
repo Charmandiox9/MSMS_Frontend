@@ -597,6 +597,10 @@
     "statusDeactivated": "Se desactivó a {name}."
   },
   "SemesterSettingsPage": {
+    "edit": "Editar semestre activo",
+    "saveChanges": "Guardar cambios",
+    "cancel": "Cancelar edición",
+    "updated": "Se actualizó el semestre {name}.",
     "eyebrow": "Configuración académica",
     "title": "Semestre activo",
     "subtitle": "Define el período que utilizarán las cargas de asignaturas, profesores y justificaciones.",
