@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
 import FormModal from "@/components/ui/FormModal";
+import CurriculumViewer from "./CurriculumViewer";
 import CareerDeleteDialog from "./CareerDeleteDialog";
 import { PageSkeleton } from "@/components/ui/LoadingSkeletons";
 import type { Career, CourseOption } from "@/types/careers";
@@ -697,6 +698,7 @@ function CurriculumImportDialog({
 }
 
 export default function CareersPage() {
+  const [viewing, setViewing] = useState<Career | null>(null);
   const [deleting, setDeleting] = useState<Career | null>(null);
   const t = useTranslations("CareersPage");
   const { activeRole } = useActiveRole();
@@ -854,6 +856,14 @@ export default function CareersPage() {
                   </div>
                 )}
               </div>
+              <button
+                type="button"
+                onClick={() => setViewing(career)}
+                className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary/40 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <BookOpen className="h-4 w-4" aria-hidden="true" />
+                {t("viewCurriculum")}
+              </button>
               <div className="mt-4 space-y-4">
                 {career.curriculumVersions.map((version) => (
                   <section
@@ -890,37 +900,6 @@ export default function CareersPage() {
                         )}
                       </div>
                     </div>
-                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                      {Array.from(
-                        new Set(
-                          version.courses.map((course) => course.termNumber),
-                        ),
-                      )
-                        .sort((a, b) => a - b)
-                        .map((term) => (
-                          <div key={term}>
-                            <h4 className="mb-1 text-[11px] font-bold uppercase tracking-wide text-primary">
-                              {t("term", { term })}
-                            </h4>
-                            <ul className="space-y-1">
-                              {version.courses
-                                .filter((course) => course.termNumber === term)
-                                .map((course) => (
-                                  <li
-                                    key={course.id}
-                                    className="flex items-start gap-2 text-xs text-muted-foreground"
-                                  >
-                                    <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                                    {course.course.code
-                                      ? `${course.course.code} · `
-                                      : ""}
-                                    {course.course.name}
-                                  </li>
-                                ))}
-                            </ul>
-                          </div>
-                        ))}
-                    </div>
                   </section>
                 ))}
               </div>
@@ -954,6 +933,9 @@ export default function CareersPage() {
             </li>
           ))}
         </ul>
+      )}
+      {viewing && (
+        <CurriculumViewer career={viewing} onClose={() => setViewing(null)} />
       )}
       {deleting && (
         <CareerDeleteDialog

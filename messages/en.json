@@ -2028,7 +2028,17 @@
     "deleteTitle": "Delete {name}",
     "deleteDescription": "The career and its curricula will be deleted. Catalog courses are preserved. Careers linked to students or assistantships must be deactivated to retain their history.",
     "deleting": "Deleting career…",
-    "deleted": "Career deleted."
+    "deleted": "Career deleted.",
+    "viewCurriculum": "View curriculum",
+    "viewerTitle": "Curriculum: {name}",
+    "viewerDescription": "Courses organized by year and semester for the selected cohort.",
+    "selectCohort": "Select cohort",
+    "year": "Year {year}",
+    "noCurricula": "This career has no curricula yet.",
+    "emptyCurriculum": "This curriculum has no courses yet.",
+    "noTermCourses": "No courses registered",
+    "scrollHint": "On smaller screens, scroll horizontally to see every year.",
+    "curriculumDiagram": "Curriculum by year and semester"
   },
   "StudentProgressPage": {
     "eyebrow": "Curriculum progress",

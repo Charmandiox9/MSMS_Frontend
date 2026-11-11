@@ -47,7 +47,9 @@ describe("CareersPage", () => {
     expect(await screen.findByText("Biología Marina")).toBeDefined();
     expect(screen.getByText("Cohorte 2024")).toBeDefined();
     expect(screen.getByText("1 estudiante")).toBeDefined();
-    expect(screen.getByText(/BM101 · Biología marina/)).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Ver malla" }));
+    expect(screen.getByRole("dialog")).toBeDefined();
+    expect(screen.getByText("Biología marina")).toBeDefined();
     expect(screen.queryByRole("button", { name: "Crear carrera" })).toBeNull();
   });
 

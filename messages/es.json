@@ -2028,7 +2028,17 @@
     "deleteTitle": "Eliminar {name}",
     "deleteDescription": "Se eliminarán la carrera y sus mallas. Las asignaturas del catálogo se conservan. Si tiene estudiantes o ayudantías vinculadas, deberás desactivarla para conservar su historial.",
     "deleting": "Eliminando carrera…",
-    "deleted": "Carrera eliminada."
+    "deleted": "Carrera eliminada.",
+    "viewCurriculum": "Ver malla",
+    "viewerTitle": "Malla curricular: {name}",
+    "viewerDescription": "Asignaturas organizadas por año y semestre para la cohorte seleccionada.",
+    "selectCohort": "Seleccionar cohorte",
+    "year": "Año {year}",
+    "noCurricula": "Esta carrera todavía no tiene mallas registradas.",
+    "emptyCurriculum": "Esta malla todavía no tiene asignaturas.",
+    "noTermCourses": "Sin asignaturas registradas",
+    "scrollHint": "En pantallas pequeñas, desplázate horizontalmente para ver todos los años.",
+    "curriculumDiagram": "Malla curricular por año y semestre"
   },
   "StudentProgressPage": {
     "eyebrow": "Avance curricular",
