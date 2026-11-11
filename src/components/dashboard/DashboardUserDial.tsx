@@ -16,6 +16,8 @@ type SpeedDialItem = {
   content: ReactNode;
 };
 
+const accountActionClass = "flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ucn-navy text-ocean-cyan shadow-lg transition-transform hover:scale-110 hover:bg-ocean-cyan/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan";
+
 const DIAL_RADIUS = 88;
 const DIAL_START_ANGLE = -105;
 const DIAL_END_ANGLE = 15;
@@ -128,7 +130,7 @@ export default function DashboardUserDial({
           onClick={closeMenu}
           aria-describedby={tooltip?.id === "dashboard" ? tooltipId : undefined}
           aria-label={t("openDashboard")}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ucn-navy text-primary-foreground shadow-lg transition-transform hover:scale-110 hover:bg-primary/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+          className={accountActionClass}
         >
           <Home className="h-4 w-4" />
         </Link>
@@ -143,7 +145,7 @@ export default function DashboardUserDial({
           onClick={() => setTheme(isDark ? "light" : "dark")}
           aria-describedby={tooltip?.id === "theme" ? tooltipId : undefined}
           aria-label={themeLabel}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ocean-cyan/10 text-ocean-cyan shadow-lg transition-transform hover:scale-110 hover:bg-primary/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+          className={accountActionClass}
         >
           {mounted && isDark ? (
             <Sun className="h-4 w-4" />
@@ -162,9 +164,9 @@ export default function DashboardUserDial({
           onClick={() => router.replace(pathname, { locale: nextLocale })}
           aria-describedby={tooltip?.id === "language" ? tooltipId : undefined}
           aria-label={languageLabel}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ucn-navy text-[11px] font-black text-ocean-cyan shadow-lg transition-transform hover:scale-110 hover:bg-primary/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+          className={accountActionClass}
         >
-          {locale.toUpperCase()}
+          <span className="text-[11px] font-black">{locale.toUpperCase()}</span>
         </button>
       ),
     },
@@ -177,7 +179,7 @@ export default function DashboardUserDial({
           onClick={closeMenu}
           aria-describedby={tooltip?.id === "profile" ? tooltipId : undefined}
           aria-label={t("profile")}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-ocean-cyan/35 bg-ocean-cyan/25 text-ocean-cyan shadow-lg shadow-ocean-cyan/20 transition-transform hover:scale-110 hover:bg-ocean-cyan/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+          className={accountActionClass}
         >
           <UserRound className="h-4 w-4" />
         </Link>
