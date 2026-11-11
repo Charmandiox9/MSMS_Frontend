@@ -34,17 +34,33 @@ describe("Navigation configuration and filtering", () => {
       DASHBOARD_SECTIONS,
       "PRIVACY_OFFICER",
     );
-    const mainSection = officerNavigation.find((section) => section.key === "main");
+    const mainSection = officerNavigation.find(
+      (section) => section.key === "system",
+    );
 
-    expect(mainSection?.items.map((item) => item.key)).toContain("privacyRequests");
+    expect(mainSection?.items.map((item) => item.key)).toContain(
+      "privacyRequests",
+    );
     expect(
-      isRouteAllowed("/dashboard/privacy-requests", DASHBOARD_SECTIONS, "PRIVACY_OFFICER"),
+      isRouteAllowed(
+        "/dashboard/privacy-requests",
+        DASHBOARD_SECTIONS,
+        "PRIVACY_OFFICER",
+      ),
     ).toBe(true);
     expect(
-      isRouteAllowed("/dashboard/privacy-requests", DASHBOARD_SECTIONS, "ACADEMIC_SECRETARY"),
+      isRouteAllowed(
+        "/dashboard/privacy-requests",
+        DASHBOARD_SECTIONS,
+        "ACADEMIC_SECRETARY",
+      ),
     ).toBe(true);
     expect(
-      isRouteAllowed("/dashboard/privacy-requests", DASHBOARD_SECTIONS, "TEACHING_SUPPORT_COORDINATOR"),
+      isRouteAllowed(
+        "/dashboard/privacy-requests",
+        DASHBOARD_SECTIONS,
+        "TEACHING_SUPPORT_COORDINATOR",
+      ),
     ).toBe(true);
   });
 
@@ -69,10 +85,18 @@ describe("Navigation configuration and filtering", () => {
     expect(itemKeys).toContain("titulation");
     expect(itemKeys).toContain("subjects");
     expect(itemKeys).toContain("teachers");
-    const analysisSection = filtered.find((section) => section.key === "analysis");
-    expect(analysisSection?.items.map((item) => item.key)).toEqual(["reports", "charts"]);
+    const analysisSection = filtered.find(
+      (section) => section.key === "analysis",
+    );
+    expect(analysisSection?.items.map((item) => item.key)).toEqual([
+      "reports",
+      "charts",
+    ]);
     const systemSection = filtered.find((section) => section.key === "system");
-    expect(systemSection?.items.map((item) => item.key)).toEqual(["settings"]);
+    expect(systemSection?.items.map((item) => item.key)).toEqual([
+      "privacyRequests",
+      "settings",
+    ]);
     expect(systemSection?.items.map((item) => item.key)).toContain("settings");
   });
 
@@ -86,7 +110,7 @@ describe("Navigation configuration and filtering", () => {
     expect(sectionKeys).toContain("main");
     expect(sectionKeys).toContain("academic");
     expect(sectionKeys).toContain("analysis");
-    expect(sectionKeys).not.toContain("system");
+    expect(sectionKeys).toContain("system");
 
     const academicSection = filtered.find((s) => s.key === "academic");
     const itemKeys = academicSection?.items.map((i) => i.key);
@@ -106,7 +130,7 @@ describe("Navigation configuration and filtering", () => {
     expect(sectionKeys).toContain("main");
     expect(sectionKeys).toContain("academic");
     expect(sectionKeys).not.toContain("analysis");
-    expect(sectionKeys).not.toContain("system");
+    expect(sectionKeys).toContain("system");
 
     const academicSection = filtered.find((s) => s.key === "academic");
     const itemKeys = academicSection?.items.map((i) => i.key);
@@ -224,7 +248,11 @@ describe("Navigation configuration and filtering", () => {
         "ACADEMIC_SECRETARY",
       ),
     ).toBe(true);
-    expect(DASHBOARD_SECTIONS.flatMap(section => section.items).some(item => item.href === "/dashboard/academic-workload")).toBe(false);
+    expect(
+      DASHBOARD_SECTIONS.flatMap((section) => section.items).some(
+        (item) => item.href === "/dashboard/academic-workload",
+      ),
+    ).toBe(false);
     expect(
       isRouteAllowed(
         "/dashboard/titulation",

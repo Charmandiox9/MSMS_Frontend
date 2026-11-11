@@ -42,7 +42,8 @@ export interface NavigationItem {
   href: string;
   icon: LucideIcon;
   allowedRoles?: UserRoleCode[];
-  group?: "academicInformation" | "research" | "studentSupport" | "administration";
+  group?:
+    "academicInformation" | "research" | "studentSupport" | "administration";
 }
 
 export interface NavigationSection {
@@ -58,18 +59,6 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: "dashboard",
         href: "/dashboard",
         icon: LayoutDashboard,
-      },
-      {
-        key: "privacyRequests",
-        href: "/dashboard/privacy-requests",
-        icon: ShieldCheck,
-        allowedRoles: [
-          "SYSTEM_ADMIN",
-          "ACADEMIC_SECRETARY",
-          "ACADEMIC_PROCESS_ANALYST",
-          "TEACHING_SUPPORT_COORDINATOR",
-          "PRIVACY_OFFICER",
-        ],
       },
     ],
   },
@@ -94,7 +83,12 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: "careers",
         href: "/dashboard/careers",
         icon: Building2,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST", "TEACHING_SUPPORT_COORDINATOR"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+          "TEACHING_SUPPORT_COORDINATOR",
+        ],
         group: "academicInformation",
       },
       {
@@ -157,7 +151,11 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: "researchOutputs",
         href: "/dashboard/research-outputs",
         icon: FileText,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
         group: "research",
       },
       {
@@ -193,19 +191,40 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: "reports",
         href: "/dashboard/reports",
         icon: FileBarChart,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
       },
       {
         key: "charts",
         href: "/dashboard/charts",
         icon: BarChart3,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY", "ACADEMIC_PROCESS_ANALYST"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
       },
     ],
   },
   {
     key: "system",
     items: [
+      {
+        key: "privacyRequests",
+        href: "/dashboard/privacy-requests",
+        icon: ShieldCheck,
+        group: "administration",
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+          "TEACHING_SUPPORT_COORDINATOR",
+          "PRIVACY_OFFICER",
+        ],
+      },
       {
         key: "users",
         href: "/dashboard/users",

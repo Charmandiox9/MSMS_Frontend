@@ -58,6 +58,7 @@ describe('DashboardUserDial', () => {
 
     await waitFor(() => expect(screen.getByRole('link', { name: 'openDashboard' })).toBeTruthy());
 
+    expect(screen.queryByRole('link', {name: 'settings'})).toBeNull();
     const overlay = document.body.lastElementChild as HTMLElement;
     await waitFor(() => expect(overlay.style.opacity).toBe('1'));
   });
@@ -85,6 +86,7 @@ describe('DashboardUserDial', () => {
 
     await waitFor(() => expect(screen.getByRole('link', { name: 'openDashboard' })).toBeTruthy());
 
+    expect(screen.queryByRole('link', {name: 'settings'})).toBeNull();
     const overlay = document.body.lastElementChild as HTMLElement;
     expect(overlay.style.opacity).toBe('1');
   });
