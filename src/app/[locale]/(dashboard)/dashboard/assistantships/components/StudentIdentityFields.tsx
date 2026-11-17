@@ -1,181 +1,182 @@
-import EmailInput from "@/components/ui/EmailInput";
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
-import { STUDENT, type Assistantship } from "../graphql";
-import type { AssistantshipCareerOption } from "../schema-types";
-import { Field, inputClass, buttonClass } from "./controls";
+import { STUDENTS, type Assistantship } from "../graphql";
+import type { AssistantshipStudentOption } from "../schema-types";
+import { buttonClass, Field, inputClass } from "./controls";
 
-export function useAssistantshipStudent(
-  initialRecord: Assistantship | undefined,
-  careers: AssistantshipCareerOption[],
-) {
-  const [email, setEmail] = useState(initialRecord?.assistantEmail ?? "");
-  const [lookupEmail, setLookupEmail] = useState(
-    initialRecord?.assistantEmail.toLowerCase() ?? "",
+export function useAssistantshipStudent(initialRecord?: Assistantship) {
+  const [search, setSearch] = useState(initialRecord?.assistantEmail ?? "");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedStudentId, setSelectedStudentId] = useState(
+    initialRecord?.studentId ?? "",
   );
-  const [manualName, setManualName] = useState(
-    initialRecord?.assistantName ?? "",
-  );
-  const [curriculumId, setCurriculumId] = useState(
-    initialRecord?.careerCurriculumVersionId ?? "",
-  );
-  const normalizedEmail = email.trim().toLowerCase();
-  const lookup = useQuery(STUDENT, {
-    variables: { email: lookupEmail },
-    skip: !lookupEmail,
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 250);
+    return () => window.clearTimeout(timeout);
+  }, [search]);
+  const lookup = useQuery(STUDENTS, {
+    variables: { search: debouncedSearch },
+    skip: debouncedSearch.length < 2,
     fetchPolicy: "network-only",
+    notifyOnNetworkStatusChange: true,
   });
-  const lookupCurrent = !!lookupEmail && lookupEmail === normalizedEmail;
-  const student = lookupCurrent ? lookup.data?.assistantshipStudent : undefined;
-  const effectiveCurriculumId =
-    student?.careerCurriculumVersionId ?? curriculumId;
-  const studentCareer = careers.find((career) =>
-    career.curriculumVersions.some(
-      (version) => version.id === effectiveCurriculumId,
-    ),
-  );
-  const lookupReady =
-    lookupCurrent &&
-    !lookup.loading &&
-    !lookup.error &&
-    lookup.data !== undefined;
+  const students = lookup.data?.assistantshipStudents ?? [];
+  const student = students.find(({ id }) => id === selectedStudentId) ?? null;
+  const lookupReady = Boolean(student) && !lookup.loading && !lookup.error;
+
   return {
-    email,
-    setEmail,
-    setLookupEmail,
-    manualName,
-    setManualName,
-    setCurriculumId,
-    normalizedEmail,
-    lookup,
-    lookupCurrent,
+    search,
+    setSearch: (value: string) => {
+      setSearch(value);
+      setSelectedStudentId("");
+    },
+    selectStudent: (value: AssistantshipStudentOption) =>
+      setSelectedStudentId(value.id),
+    students,
     student,
-    effectiveCurriculumId,
-    studentCareer,
+    lookup,
+    debouncedSearch,
     lookupReady,
   };
 }
 
 export default function StudentIdentityFields({
   identity,
-  careers,
-  onEmailChange,
-  onCurriculumChange,
+  onStudentChange,
 }: {
   identity: ReturnType<typeof useAssistantshipStudent>;
-  careers: AssistantshipCareerOption[];
-  onEmailChange: () => void;
-  onCurriculumChange: () => void;
+  onStudentChange: () => void;
 }) {
   const t = useTranslations("AssistantshipsPage");
   const {
+    search,
+    setSearch,
+    selectStudent,
+    students,
     student,
-    manualName,
-    setManualName,
-    email,
-    setEmail,
-    setCurriculumId,
-    normalizedEmail,
-    setLookupEmail,
-    lookupCurrent,
     lookup,
-    effectiveCurriculumId,
+    debouncedSearch,
   } = identity;
+
   return (
-    <>
-      <Field label={t("form.name")} htmlFor="register-name">
+    <div className="space-y-3 sm:col-span-2">
+      <Field label={t("form.studentSearch")} htmlFor="register-student-search">
         <input
-          id="register-name"
-          name="name"
-          value={student?.name ?? manualName}
-          readOnly={!!student}
-          onChange={(event) => setManualName(event.target.value)}
+          id="register-student-search"
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
           className={inputClass}
-          autoComplete="name"
-          maxLength={200}
-          required
+          autoComplete="off"
+          maxLength={100}
+          placeholder={t("form.studentSearchPlaceholder")}
+          aria-describedby="register-student-search-hint"
         />
       </Field>
-      <Field label={t("form.email")} htmlFor="register-email">
-        <EmailInput
-          id="register-email"
-          name="email"
-          value={email}
-          onChange={(event) => {
-            setEmail(event.target.value);
-            setCurriculumId("");
-            onEmailChange();
-          }}
-          onBlur={(event) => {
-            if (event.target.validity.valid && normalizedEmail)
-              setLookupEmail(normalizedEmail);
-          }}
-          className={inputClass}
-          autoComplete="email"
-          maxLength={254}
-          required
-        />
-      </Field>
-      <div className="sm:col-span-2" aria-live="polite">
-        {!lookupCurrent ? (
-          <p className="text-xs text-muted-foreground">
-            {t("form.lookupHint")}
-          </p>
-        ) : lookup.loading ? (
-          <p role="status">{t("loading")}</p>
-        ) : lookup.error ? (
-          <div role="alert">
-            {t("errors.load")}{" "}
-            <button
-              type="button"
-              className={buttonClass}
-              onClick={() => void lookup.refetch().catch(() => undefined)}
-            >
-              {t("retry")}
-            </button>
-          </div>
-        ) : (
-          <p className="text-xs text-secondary">
-            {t(student ? "form.studentFound" : "form.studentNew")}
-          </p>
-        )}
-      </div>
-      {student?.careerCurriculumVersionId ? (
-        <p className="text-sm text-foreground sm:col-span-2">
-          {t("form.studentCareer")}: {student.careerName}
+      <p
+        id="register-student-search-hint"
+        className="text-xs text-muted-foreground"
+      >
+        {t("form.studentSearchHint")}
+      </p>
+
+      {debouncedSearch.length >= 2 && lookup.loading ? (
+        <p role="status" className="text-sm text-muted-foreground">
+          {t("loading")}
         </p>
-      ) : (
-        <Field
-          label={t("form.studentCurriculum")}
-          htmlFor="register-curriculum"
-        >
-          <select
-            id="register-curriculum"
-            required
-            className={inputClass}
-            value={effectiveCurriculumId}
-            onChange={(event) => {
-              setCurriculumId(event.target.value);
-              onCurriculumChange();
-            }}
+      ) : null}
+      {lookup.error ? (
+        <p role="alert" className="text-sm text-coral-red">
+          {t("errors.load")}{" "}
+          <button
+            type="button"
+            className={buttonClass}
+            onClick={() => void lookup.refetch().catch(() => undefined)}
           >
-            <option value="">{t("form.selectCareer")}</option>
-            {careers
-              .filter((career) => career.isActive)
-              .map((career) => (
-                <optgroup key={career.id} label={career.name}>
-                  {career.curriculumVersions.map((version) => (
-                    <option key={version.id} value={version.id}>
-                      {career.name} ·{" "}
-                      {t("form.cohort", { year: version.cohortYear })}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-          </select>
-        </Field>
-      )}
-    </>
+            {t("retry")}
+          </button>
+        </p>
+      ) : null}
+      {debouncedSearch.length >= 2 &&
+      !lookup.loading &&
+      !lookup.error &&
+      !students.length ? (
+        <p role="status" className="text-sm text-muted-foreground">
+          {t("form.noStudentMatches")}
+        </p>
+      ) : null}
+      {students.length > 0 ? (
+        <ul
+          className="max-h-52 space-y-2 overflow-y-auto rounded-xl border border-border p-2"
+          aria-label={t("form.studentResults")}
+        >
+          {students.map((option) => (
+            <li key={option.id}>
+              <button
+                type="button"
+                className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition-colors ${student?.id === option.id ? "border-primary bg-primary/10" : "border-transparent hover:bg-muted"}`}
+                aria-pressed={student?.id === option.id}
+                onClick={() => {
+                  selectStudent(option);
+                  onStudentChange();
+                }}
+              >
+                <span className="block font-semibold text-foreground">
+                  {option.name}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {option.rut || t("form.noRut")} · {option.email}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {student ? (
+        <dl
+          className="grid gap-3 rounded-xl border border-secondary/30 bg-secondary/5 p-4 sm:grid-cols-2"
+          aria-live="polite"
+        >
+          <div>
+            <dt className="text-xs font-medium text-muted-foreground">
+              {t("form.studentRut")}
+            </dt>
+            <dd className="mt-1 text-sm font-semibold text-foreground">
+              {student.rut || t("form.noRut")}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-medium text-muted-foreground">
+              {t("form.studentFullName")}
+            </dt>
+            <dd className="mt-1 text-sm font-semibold text-foreground">
+              {student.name}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-medium text-muted-foreground">
+              {t("form.studentEmail")}
+            </dt>
+            <dd className="mt-1 break-all text-sm font-semibold text-foreground">
+              {student.email}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-medium text-muted-foreground">
+              {t("form.studentCareer")}
+            </dt>
+            <dd className="mt-1 text-sm font-semibold text-foreground">
+              {student.careerName || t("form.noStudentCareer")}
+            </dd>
+          </div>
+        </dl>
+      ) : null}
+    </div>
   );
 }

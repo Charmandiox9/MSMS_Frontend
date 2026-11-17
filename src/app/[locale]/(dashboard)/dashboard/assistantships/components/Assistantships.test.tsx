@@ -12,7 +12,7 @@ import { GraphQLError } from "graphql";
 import messages from "../../../../../../../messages/es.json";
 import {
   ASSIGNMENTS,
-  STUDENT,
+  STUDENTS,
   CAREER_COURSES,
   HISTORY,
   OPTIONS,
@@ -108,17 +108,20 @@ const optionsMock = {
   maxUsageCount: 20,
 };
 const studentMock = {
-  request: { query: STUDENT, variables: { email: "ana@example.test" } },
+  request: { query: STUDENTS, variables: { search: "ana@example.test" } },
   result: {
     data: {
-      assistantshipStudent: {
-        id: "student",
-        name: "Ana Pérez",
-        email: "ana@example.test",
-        careerId: "career",
-        careerName: "Biología Marina",
-        careerCurriculumVersionId: "curriculum",
-      },
+      assistantshipStudents: [
+        {
+          id: "student",
+          name: "Ana Pérez",
+          email: "ana@example.test",
+          rut: "12345678-9",
+          careerId: "career",
+          careerName: "Biología Marina",
+          careerCurriculumVersionId: "curriculum",
+        },
+      ],
     },
   },
   maxUsageCount: 20,
@@ -218,18 +221,19 @@ describe("assistantship management", { timeout: 15000 }, () => {
       </NextIntlClientProvider>,
     );
     await screen.findByRole("option", { name: /Biología marina/ });
+    expect(await screen.findByText("12345678-9")).toBeDefined();
+    expect(screen.getByText("Biología Marina")).toBeDefined();
     expect(
-      (screen.getByLabelText("Nombre completo") as HTMLInputElement).value,
-    ).toBe("Ana Pérez");
+      screen
+        .getByRole("button", { name: /Ana Pérez/ })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
     expect(
       (screen.getByLabelText("Bloque horario") as HTMLSelectElement).value,
     ).toBe("A");
     fireEvent.change(screen.getByLabelText("NRC de la ayudantía"), {
       target: { value: "20002" },
     });
-    await screen.findByText(
-      "Estudiante encontrado. La ayudantía quedará vinculada a su ficha.",
-    );
     fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
     await waitFor(() => expect(onRegistered).toHaveBeenCalledWith(semester.id));
     expect(result).toHaveBeenCalledWith(
@@ -318,7 +322,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
     );
   });
 
-  it("registers a historical course for a new student without requiring NRC or teacher", async () => {
+  it("registers a historical course for a selected student and requires NRC, hours, and schedule", async () => {
     const past = {
       ...semester,
       id: "past",
@@ -337,10 +341,24 @@ describe("assistantship management", { timeout: 15000 }, () => {
           mocks={[
             {
               request: {
-                query: STUDENT,
-                variables: { email: "new@example.test" },
+                query: STUDENTS,
+                variables: { search: "12345678-9" },
               },
-              result: { data: { assistantshipStudent: null } },
+              result: {
+                data: {
+                  assistantshipStudents: [
+                    {
+                      id: "student",
+                      name: "Ana Pérez",
+                      email: "ana@example.test",
+                      rut: "12345678-9",
+                      careerId: "career",
+                      careerName: "Biología Marina",
+                      careerCurriculumVersionId: "curriculum",
+                    },
+                  ],
+                },
+              },
             },
             {
               request: {
@@ -361,7 +379,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
           <RegisterAssistantshipDialog
             semesters={[semester, past]}
             careers={optionsMock.result.data.assistantshipOptions.careers}
-            blocks={[]}
+            blocks={optionsMock.result.data.assistantshipOptions.blocks}
             initialSemesterId={past.id}
             onClose={vi.fn()}
             onRegistered={onRegistered}
@@ -369,26 +387,29 @@ describe("assistantship management", { timeout: 15000 }, () => {
         </MockedProvider>
       </NextIntlClientProvider>,
     );
-    fireEvent.change(screen.getByLabelText("Correo electrónico"), {
-      target: { value: "new@example.test" },
-    });
-    fireEvent.blur(screen.getByLabelText("Correo electrónico"));
-    await screen.findByText(
-      "No existe un estudiante con ese correo. Se creará su ficha al guardar.",
-    );
-    fireEvent.change(screen.getByLabelText("Nombre completo"), {
-      target: { value: "Alumno nuevo" },
-    });
     fireEvent.change(
-      screen.getByLabelText("Carrera y cohorte del estudiante"),
-      { target: { value: "curriculum" } },
+      screen.getByLabelText("Buscar estudiante por nombre, RUT o correo"),
+      {
+        target: { value: "12345678-9" },
+      },
     );
+    fireEvent.click(await screen.findByRole("button", { name: /Ana Pérez/ }));
     await screen.findByRole("option", { name: /Biología marina · BIO101/ });
     fireEvent.change(screen.getByLabelText("Asignatura de la carrera"), {
       target: { value: "course" },
     });
     fireEvent.change(screen.getByLabelText("Fecha de aprobación"), {
       target: { value: "2025-07-01" },
+    });
+    fireEvent.change(screen.getByLabelText("NRC de la ayudantía"), {
+      target: { value: "20003" },
+    });
+    fireEvent.change(screen.getByLabelText("Horas semanales"), {
+      target: { value: "5" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Agregar horario" }));
+    fireEvent.change(screen.getByLabelText("Bloque horario"), {
+      target: { value: "A" },
     });
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: "Guardar ayudantía" }));
@@ -399,8 +420,9 @@ describe("assistantship management", { timeout: 15000 }, () => {
           semesterId: "past",
           courseId: "course",
           careerId: "career",
-          careerCurriculumVersionId: "curriculum",
-          assistantEmail: "new@example.test",
+          studentId: "student",
+          assistantshipNrc: "20003",
+          weeklyHours: 5,
         }),
       }),
     );
@@ -409,11 +431,13 @@ describe("assistantship management", { timeout: 15000 }, () => {
         teachingAssignmentId?: string;
         courseNrc?: string;
         assistantshipNrc?: string;
+        studentId?: string;
       };
     };
     expect(input.input.teachingAssignmentId).toBeUndefined();
     expect(input.input.courseNrc).toBeUndefined();
-    expect(input.input.assistantshipNrc).toBeUndefined();
+    expect(input.input.assistantshipNrc).toBe("20003");
+    expect(input.input.studentId).toBe("student");
   });
 
   it("shows a retry action on load failure", async () => {
@@ -445,16 +469,16 @@ describe("assistantship management", { timeout: 15000 }, () => {
     );
     await screen.findByRole("option", { name: /Biología marina/ });
     fireEvent.change(assignmentSelect, { target: { value: "assignment" } });
-    fireEvent.change(screen.getByLabelText("Nombre completo"), {
-      target: { value: "Ana Pérez" },
-    });
-    fireEvent.change(screen.getByLabelText("Correo electrónico"), {
-      target: { value: "ana@example.test" },
-    });
-    fireEvent.blur(screen.getByLabelText("Correo electrónico"));
-    await screen.findByText(
-      "Estudiante encontrado. La ayudantía quedará vinculada a su ficha.",
+    fireEvent.change(
+      screen.getByLabelText("Buscar estudiante por nombre, RUT o correo"),
+      {
+        target: { value: "ana@example.test" },
+      },
     );
+    fireEvent.click(await screen.findByRole("button", { name: /Ana Pérez/ }));
+    fireEvent.change(screen.getByLabelText("Horas semanales"), {
+      target: { value: "4" },
+    });
     fireEvent.change(screen.getByLabelText("Fecha de aprobación"), {
       target: { value: "2026-07-01" },
     });
@@ -508,7 +532,8 @@ describe("assistantship management", { timeout: 15000 }, () => {
       expect.objectContaining({
         input: expect.objectContaining({
           teachingAssignmentId: "assignment",
-          assistantEmail: "ana@example.test",
+          studentId: "student",
+          weeklyHours: 4,
           approvalConfirmed: true,
           schedules: [{ weekday: 1, startsAtMinute: 1290, endsAtMinute: 1380 }],
         }),
@@ -549,15 +574,17 @@ describe("assistantship management", { timeout: 15000 }, () => {
       </NextIntlClientProvider>,
     );
     await fillRegistration();
+    fireEvent.click(screen.getByRole("button", { name: "Agregar horario" }));
+    fireEvent.change(screen.getByLabelText("Bloque horario"), {
+      target: { value: "A" },
+    });
     fireEvent.click(screen.getByRole("button", { name: "Guardar ayudantía" }));
     await waitFor(() =>
       expect(notifications.error).toHaveBeenCalledWith(
         "La ayudantía o el correo/código estudiantil ya está registrado.",
       ),
     );
-    expect(
-      (screen.getByLabelText("Nombre completo") as HTMLInputElement).value,
-    ).toBe("Ana Pérez");
+    expect(screen.getByText("ana@example.test")).toBeDefined();
     expect(screen.getByRole("dialog")).toBeDefined();
     expect(onRegistered).not.toHaveBeenCalled();
   });

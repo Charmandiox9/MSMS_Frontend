@@ -61,11 +61,9 @@ export default function RegisterAssistantshipDialog({
     initialRecord?.careerId ?? "",
   );
   const [courseId, setCourseId] = useState(initialRecord?.courseId ?? "");
-  const identity = useAssistantshipStudent(initialRecord, careers);
-  const { student, effectiveCurriculumId, studentCareer, lookupReady } =
-    identity;
-  const careerId =
-    selectedCareerId || student?.careerId || studentCareer?.id || "";
+  const identity = useAssistantshipStudent(initialRecord);
+  const { student, lookupReady } = identity;
+  const careerId = selectedCareerId || student?.careerId || "";
   const effectiveBlocks = [
     ...blocks,
     ...(initialRecord?.schedules ?? []).flatMap((schedule, index) =>
@@ -136,18 +134,13 @@ export default function RegisterAssistantshipDialog({
       courseId: historical ? courseId : undefined,
       careerId: historical ? careerId : undefined,
       courseNrc: historical ? text("courseNrc") || undefined : undefined,
-      careerCurriculumVersionId: effectiveCurriculumId || undefined,
-      studentId: student?.id,
-      assistantName: text("name"),
-      assistantEmail: text("email"),
-      assistantshipNrc: text("assistantshipNrc") || undefined,
+      studentId: student!.id,
+      assistantshipNrc: text("assistantshipNrc"),
       approvedOn: text("approvedOn"),
       startsOn: text("startsOn"),
       endsOn: text("endsOn"),
       approvalConfirmed: form.get("approvalConfirmed") === "on",
-      weeklyHours: text("weeklyHours")
-        ? Number(text("weeklyHours"))
-        : undefined,
+      weeklyHours: Number(text("weeklyHours")),
       schedules: schedules.map((schedule) => {
         const block = effectiveBlocks.find(
           (item) => item.code === schedule.block,
@@ -227,7 +220,8 @@ export default function RegisterAssistantshipDialog({
             disabled={
               busy ||
               !lookupReady ||
-              !effectiveCurriculumId ||
+              !student ||
+              !schedules.length ||
               (historical
                 ? !courseId ||
                   !careerId ||
@@ -388,19 +382,17 @@ export default function RegisterAssistantshipDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <StudentIdentityFields
               identity={identity}
-              careers={careers}
-              onEmailChange={() => {
+              onStudentChange={() => {
                 setSelectedCareerId("");
                 setCourseId("");
               }}
-              onCurriculumChange={() => setCourseId("")}
             />
             <Field label={t("form.assistantshipNrc")} htmlFor="register-code">
               <input
                 id="register-code"
                 name="assistantshipNrc"
                 defaultValue={initialRecord?.assistantshipNrc ?? ""}
-                required={!historical}
+                required
                 className={inputClass}
                 maxLength={50}
               />
@@ -415,6 +407,7 @@ export default function RegisterAssistantshipDialog({
                 max="168"
                 step="0.01"
                 className={inputClass}
+                required
               />
             </Field>
           </div>

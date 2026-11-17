@@ -86,6 +86,7 @@ export interface AssistantshipStudentOption {
   id: string;
   name: string;
   email: string;
+  rut: string | null;
   careerCurriculumVersionId: string | null;
   careerId: string | null;
   careerName: string | null;
@@ -115,23 +116,20 @@ export interface AssistantshipFilters {
 }
 
 export interface RegisterAssistantshipInput {
-  assistantshipNrc?: string | null;
+  assistantshipNrc: string;
   teachingAssignmentId?: string | null;
   semesterId: string;
   courseId?: string | null;
   careerId?: string | null;
-  careerCurriculumVersionId?: string | null;
-  studentId?: string | null;
+  studentId: string;
   courseNrc?: string | null;
-  assistantName: string;
-  assistantEmail: string;
   studentCode?: string | null;
   approvedOn: string;
   startsOn: string;
   endsOn: string;
   approvalConfirmed: boolean;
-  weeklyHours?: number | null;
-  schedules?: Array<AssistantshipScheduleInput> | null;
+  weeklyHours: number;
+  schedules: Array<AssistantshipScheduleInput>;
 }
 
 export interface AssistantshipScheduleInput {

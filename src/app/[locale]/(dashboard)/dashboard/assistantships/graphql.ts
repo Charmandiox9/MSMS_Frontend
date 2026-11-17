@@ -86,7 +86,15 @@ export const OPTIONS: TypedDocumentNode<
 > = gql`
   query AssistantshipOptions {
     assistantshipOptions {
-      careers { id name isActive curriculumVersions { id cohortYear } }
+      careers {
+        id
+        name
+        isActive
+        curriculumVersions {
+          id
+          cohortYear
+        }
+      }
       semesters {
         id
         name
@@ -106,23 +114,37 @@ export const OPTIONS: TypedDocumentNode<
     }
   }
 `;
-export const STUDENT: TypedDocumentNode<
-  { assistantshipStudent: import("./schema-types").AssistantshipStudentOption | null },
-  { email: string }
+export const STUDENTS: TypedDocumentNode<
+  {
+    assistantshipStudents: import("./schema-types").AssistantshipStudentOption[];
+  },
+  { search: string }
 > = gql`
-  query AssistantshipStudent($email: String!) {
-    assistantshipStudent(email: $email) {
-      id name email careerCurriculumVersionId careerId careerName
+  query AssistantshipStudents($search: String!) {
+    assistantshipStudents(search: $search) {
+      id
+      name
+      email
+      rut
+      careerCurriculumVersionId
+      careerId
+      careerName
     }
   }
 `;
 
 export const CAREER_COURSES: TypedDocumentNode<
-  { assistantshipCareerCourses: import("./schema-types").AssistantshipCourseOption[] },
+  {
+    assistantshipCareerCourses: import("./schema-types").AssistantshipCourseOption[];
+  },
   { careerId: string }
 > = gql`
   query AssistantshipCareerCourses($careerId: ID!) {
-    assistantshipCareerCourses(careerId: $careerId) { id name code }
+    assistantshipCareerCourses(careerId: $careerId) {
+      id
+      name
+      code
+    }
   }
 `;
 export const ASSIGNMENTS: TypedDocumentNode<
