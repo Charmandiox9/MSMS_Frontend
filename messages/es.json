@@ -627,12 +627,52 @@
     "history": "Semestres registrados",
     "active": "Activo",
     "inactive": "Inactivo",
+    "configureBudget": "Configurar presupuesto",
     "empty": "Todavía no hay semestres registrados.",
     "errors": {
       "load": "No se pudieron cargar los semestres.",
       "save": "No se pudo activar el semestre.",
       "access": "No tienes acceso a esta página."
     }
+  },
+  "SemesterBudgetDialog": {
+    "title": "Presupuesto del semestre",
+    "description": "Configura el presupuesto y las alertas de asignación para {semester}.",
+    "total": "Presupuesto total (CLP)",
+    "allocations": "Distribución por categoría",
+    "allocated": "Asignado: {amount} · Disponible: {remaining}",
+    "category": "Categoría",
+    "amount": "Monto (CLP)",
+    "addCategory": "Agregar categoría",
+    "removeCategory": "Quitar categoría",
+    "defaultTeacher": "Profesores por hora",
+    "defaultAssistantship": "Ayudantías",
+    "thresholds": "Umbrales de notificación",
+    "thresholdHint": "Se compara el porcentaje asignado con el presupuesto total. La alerta aparece en el inicio para los roles seleccionados.",
+    "threshold": "Umbral {number}",
+    "percentage": "Porcentaje (%)",
+    "recipientRoles": "Roles destinatarios",
+    "addThreshold": "Agregar umbral",
+    "removeThreshold": "Quitar umbral",
+    "remove": "Quitar",
+    "cancel": "Cancelar",
+    "save": "Guardar presupuesto",
+    "saving": "Guardando presupuesto…",
+    "saved": "Presupuesto guardado.",
+    "loading": "Cargando presupuesto…",
+    "loadError": "No se pudo cargar la configuración.",
+    "saveError": "No se pudo guardar el presupuesto.",
+    "allocationError": "La suma de las categorías supera el presupuesto total.",
+    "totalError": "Ingresa un presupuesto total mayor que cero y dentro del límite permitido.",
+    "categoryError": "Revisa que cada categoría tenga nombre y un monto válido.",
+    "thresholdError": "Los umbrales deben ser valores únicos entre 1% y 100%.",
+    "close": "Cerrar configuración"
+  },
+  "SemesterBudgetAlerts": {
+    "title": "Alerta de presupuesto",
+    "message": "Se alcanzó el umbral de {threshold}%. La distribución actual es {current}% del presupuesto.",
+    "amounts": "Presupuesto asignado: {allocated} de {total}",
+    "progress": "Porcentaje de presupuesto asignado"
   },
   "DashboardViews": {
     "justificationsManagement": {

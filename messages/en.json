@@ -627,12 +627,52 @@
     "history": "Registered semesters",
     "active": "Active",
     "inactive": "Inactive",
+    "configureBudget": "Configure budget",
     "empty": "No semesters have been registered yet.",
     "errors": {
       "load": "Semesters could not be loaded.",
       "save": "The semester could not be activated.",
       "access": "You do not have access to this page."
     }
+  },
+  "SemesterBudgetDialog": {
+    "title": "Semester budget",
+    "description": "Configure the budget and allocation alerts for {semester}.",
+    "total": "Total budget (CLP)",
+    "allocations": "Allocation by category",
+    "allocated": "Allocated: {amount} · Available: {remaining}",
+    "category": "Category",
+    "amount": "Amount (CLP)",
+    "addCategory": "Add category",
+    "removeCategory": "Remove category",
+    "defaultTeacher": "Hourly teachers",
+    "defaultAssistantship": "Assistantships",
+    "thresholds": "Notification thresholds",
+    "thresholdHint": "The allocated percentage is compared with the total budget. The alert appears on the dashboard for selected roles.",
+    "threshold": "Threshold {number}",
+    "percentage": "Percentage (%)",
+    "recipientRoles": "Recipient roles",
+    "addThreshold": "Add threshold",
+    "removeThreshold": "Remove threshold",
+    "remove": "Remove",
+    "cancel": "Cancel",
+    "save": "Save budget",
+    "saving": "Saving budget…",
+    "saved": "Budget saved.",
+    "loading": "Loading budget…",
+    "loadError": "Could not load the configuration.",
+    "saveError": "Could not save the budget.",
+    "allocationError": "Category allocations exceed the total budget.",
+    "totalError": "Enter a total budget greater than zero and within the allowed limit.",
+    "categoryError": "Check that every category has a name and a valid amount.",
+    "thresholdError": "Thresholds must be unique values between 1% and 100%.",
+    "close": "Close configuration"
+  },
+  "SemesterBudgetAlerts": {
+    "title": "Budget alert",
+    "message": "The {threshold}% threshold was reached. Current allocation is {current}% of the budget.",
+    "amounts": "Allocated budget: {allocated} of {total}",
+    "progress": "Budget allocation percentage"
   },
   "DashboardViews": {
     "justificationsManagement": {

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
 import { CardsSkeleton, PageSkeleton } from "@/components/ui/LoadingSkeletons";
+import SemesterBudgetDialog from "./SemesterBudgetDialog";
 
 type Semester = {
   id: string;
@@ -28,6 +29,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [budgetSemester, setBudgetSemester] = useState<Semester | null>(null);
 
   const [reloadKey, setReloadKey] = useState(0);
   const canManage =
@@ -239,6 +241,13 @@ export default function SettingsPage() {
                     {t("edit")}
                   </button>
                 )}
+                <button
+                  type="button"
+                  onClick={() => setBudgetSemester(semester)}
+                  className="mt-3 ml-2 min-h-11 rounded-xl border border-border px-3 text-sm font-semibold text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  {t("configureBudget")}
+                </button>
                 <p className="mt-2 text-xs text-muted-foreground">
                   {semester.startsOn.slice(0, 10)} —{" "}
                   {semester.endsOn.slice(0, 10)}
@@ -248,6 +257,13 @@ export default function SettingsPage() {
           </div>
         )}
       </section>
+      {budgetSemester && (
+        <SemesterBudgetDialog
+          semesterId={budgetSemester.id}
+          semesterName={budgetSemester.name}
+          onClose={() => setBudgetSemester(null)}
+        />
+      )}
     </div>
   );
 }
