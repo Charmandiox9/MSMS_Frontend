@@ -12,17 +12,19 @@ import {
   CalendarDays,
   ClipboardList,
   Download,
+  DollarSign,
   Plus,
   Search,
   UsersRound,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { resolveApiBaseUrl } from "@/lib/runtime-config";
 import {
   HISTORY,
   OPTIONS,
+  ASSISTANTSHIP_BUDGET,
   type AssistantshipState,
   type Filters,
   type Assistantship,
@@ -31,6 +33,7 @@ import { buttonClass, Field, inputClass, primaryClass } from "./controls";
 import AssistantshipsTable from "./AssistantshipsTable";
 import AssistantshipDetailModal from "./AssistantshipDetailModal";
 import RegisterAssistantshipDialog from "./RegisterAssistantshipDialog";
+import AssistantshipTariffsDialog from "./AssistantshipTariffsDialog";
 
 function createClient() {
   return new ApolloClient({
@@ -90,12 +93,21 @@ export function AssistantshipsWorkspace({
   const [editing, setEditing] = useState<Assistantship | null>(null);
   const [detailItem, setDetailItem] = useState<Assistantship | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [tariffSemesterId, setTariffSemesterId] = useState<string | null>(null);
+  const format = useFormatter();
 
   const options = useQuery(OPTIONS, { fetchPolicy: "network-only" });
   const history = useQuery(HISTORY, {
     variables: { filters },
     fetchPolicy: "network-only",
     notifyOnNetworkStatusChange: true,
+  });
+  const activeSemester = options.data?.assistantshipOptions.semesters.find((item) => item.isActive);
+  const budgetSemesterId = filters.semesterId ?? activeSemester?.id;
+  const assistantshipBudget = useQuery(ASSISTANTSHIP_BUDGET, {
+    variables: { semesterId: budgetSemesterId ?? "" },
+    skip: !budgetSemesterId,
+    fetchPolicy: "network-only",
   });
 
   useEffect(() => {
@@ -143,6 +155,8 @@ export function AssistantshipsWorkspace({
       t("form.startsOn"),
       t("form.endsOn"),
       t("form.hours"),
+      t("tariffs.selected"),
+      t("tariffs.estimatedTotal"),
       t("filters.state"),
       t("table.schedule"),
     ];
@@ -180,6 +194,8 @@ export function AssistantshipsWorkspace({
       `"${item.startsOn || ""}"`,
       `"${item.endsOn || ""}"`,
       item.weeklyHours !== null ? `${item.weeklyHours}` : "",
+      `"${(item.tariffName || "").replace(/"/g, '""')}"`,
+      item.estimatedAmountClp !== null ? `${item.estimatedAmountClp}` : "",
       `"${t(`states.${item.state}`)}"`,
       `"${formatSchedule(item).replace(/"/g, '""')}"`,
     ]);
@@ -213,6 +229,16 @@ export function AssistantshipsWorkspace({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
+          {!readOnly && budgetSemesterId && (
+            <button
+              type="button"
+              className={buttonClass}
+              onClick={() => setTariffSemesterId(budgetSemesterId)}
+            >
+              <DollarSign className="h-4 w-4" aria-hidden="true" />
+              {t("tariffs.configure")}
+            </button>
+          )}
           {!readOnly && (
             <button
               type="button"
@@ -269,6 +295,31 @@ export function AssistantshipsWorkspace({
           ))}
         </div>
       )}
+
+      {budgetSemesterId && assistantshipBudget.data?.assistantshipBudgetSummary && (() => {
+        const budget = assistantshipBudget.data.assistantshipBudgetSummary;
+        const progress = Math.min(Math.max(budget.percentage, 0), 100);
+        return (
+          <section className="rounded-2xl border border-border bg-card p-4" aria-label={t("budget.title")}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="font-bold text-foreground">{t("budget.title")} · {budget.semesterName}</h2>
+                <p className="mt-1 text-xs text-muted-foreground">{t("budget.amounts", {
+                  occupied: format.number(budget.occupiedAmountClp, { style: "currency", currency: "CLP", maximumFractionDigits: 0 }),
+                  allocated: format.number(budget.allocatedAmountClp, { style: "currency", currency: "CLP", maximumFractionDigits: 0 }),
+                })}</p>
+              </div>
+              <p className={`text-xl font-black tabular-nums ${budget.percentage > 100 ? "text-destructive" : "text-primary"}`}>{budget.percentage.toLocaleString(undefined, { maximumFractionDigits: 1 })}%</p>
+            </div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress} aria-label={t("budget.title")}>
+              <div className={`h-full rounded-full ${budget.percentage > 100 ? "bg-destructive" : "bg-primary"}`} style={{ width: `${progress}%` }} />
+            </div>
+            {!budget.allocatedAmountClp ? <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">{t("budget.notConfigured")}</p> : null}
+            {budget.unpricedCount > 0 ? <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">{t("budget.unpriced", { count: budget.unpricedCount })}</p> : null}
+          </section>
+        );
+      })()}
+      {budgetSemesterId && assistantshipBudget.error ? <p role="alert" className="text-sm text-destructive">{t("budget.loadError")}</p> : null}
 
       <section className="overflow-hidden rounded-3xl border border-border bg-card">
         <div className="space-y-5 border-b border-border p-5">
@@ -500,6 +551,13 @@ export function AssistantshipsWorkspace({
               })
               .catch(() => undefined);
           }}
+        />
+      )}
+      {tariffSemesterId && options.data && (
+        <AssistantshipTariffsDialog
+          semesterId={tariffSemesterId}
+          semesterName={options.data.assistantshipOptions.semesters.find((item) => item.id === tariffSemesterId)?.name ?? ""}
+          onClose={() => setTariffSemesterId(null)}
         />
       )}
     </section>

@@ -218,6 +218,20 @@ export default function AssistantshipDetailModal({
           </div>
         </section>
 
+        <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
+          <div className="flex items-center gap-2 border-b border-border pb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <Clock className="h-4 w-4 text-secondary" aria-hidden="true" />
+            <span>{t("tariffs.costSection")}</span>
+          </div>
+          {item.tariffName ? (
+            <div className="grid gap-4 text-sm sm:grid-cols-3">
+              <div><p className="text-xs text-muted-foreground">{t("tariffs.selected")}</p><p className="font-semibold text-foreground">{item.tariffName}</p></div>
+              <div><p className="text-xs text-muted-foreground">{t("tariffs.monthlyRate")}</p><p className="font-semibold text-foreground">{format.number(item.tariffRateClp ?? 0, { style: "currency", currency: "CLP", maximumFractionDigits: 0 })}</p></div>
+              <div><p className="text-xs text-muted-foreground">{t("tariffs.estimatedTotal")}</p><p className="font-semibold text-foreground">{item.estimatedAmountClp === null ? "—" : format.number(item.estimatedAmountClp, { style: "currency", currency: "CLP", maximumFractionDigits: 0 })}</p></div>
+            </div>
+          ) : <p className="text-sm text-muted-foreground">{t("tariffs.legacyUnpriced")}</p>}
+        </section>
+
         {/* Card 4: Schedule breakdown */}
         <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
           <div className="flex items-center gap-2 border-b border-border pb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">

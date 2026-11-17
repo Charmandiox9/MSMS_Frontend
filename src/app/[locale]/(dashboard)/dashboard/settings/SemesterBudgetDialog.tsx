@@ -8,7 +8,7 @@ import Modal from "@/components/ui/Modal";
 import { apiFetch } from "@/lib/api";
 
 type RoleOption = { code: string; name: string };
-type Allocation = { name: string; amountClp: number };
+type Allocation = { code?: "HOURLY_TEACHERS" | "ASSISTANTSHIPS" | null; name: string; amountClp: number };
 type Threshold = { percentage: number; roleCodes: string[] };
 type BudgetData = {
   totalAmountClp: number;
@@ -45,8 +45,8 @@ export default function SemesterBudgetDialog({ semesterId, semesterName, onClose
       setBudget({
         ...data,
         allocations: data.allocations.length ? data.allocations : [
-          { name: t("defaultTeacher"), amountClp: 0 },
-          { name: t("defaultAssistantship"), amountClp: 0 },
+          { code: "HOURLY_TEACHERS", name: t("defaultTeacher"), amountClp: 0 },
+          { code: "ASSISTANTSHIPS", name: t("defaultAssistantship"), amountClp: 0 },
         ],
         thresholds: data.thresholds.length ? data.thresholds : [
           { percentage: 80, roleCodes: [] },
@@ -86,7 +86,7 @@ export default function SemesterBudgetDialog({ semesterId, semesterName, onClose
     setError("");
     const payload = {
       totalAmountClp: Number(budget.totalAmountClp),
-      allocations: budget.allocations.map(({ name, amountClp }) => ({ name: name.trim(), amountClp: Number(amountClp) })),
+      allocations: budget.allocations.map(({ code, name, amountClp }) => ({ code, name: name.trim(), amountClp: Number(amountClp) })),
       thresholds: budget.thresholds.map(({ percentage, roleCodes }) => ({ percentage: Number(percentage), roleCodes })),
     };
     const operation = apiFetch<BudgetData>(`/academic/semesters/${semesterId}/budget`, {

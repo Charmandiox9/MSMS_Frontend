@@ -29,11 +29,32 @@ export interface AssistantshipView {
   startsOn: string;
   endsOn: string | null;
   weeklyHours: number | null;
+  tariffId: string | null;
+  tariffName: string | null;
+  tariffRateClp: number | null;
+  estimatedAmountClp: number | null;
   state: AssistantshipState;
   schedules: Array<AssistantshipScheduleView>;
 }
 
 export type AssistantshipState = "SCHEDULED" | "ACTIVE" | "COMPLETED";
+
+export interface AssistantshipTariffOption {
+  id: string;
+  semesterId: string;
+  name: string;
+  monthlyRateClp: number;
+}
+
+export interface AssistantshipBudgetSummary {
+  semesterId: string;
+  semesterName: string;
+  allocatedAmountClp: number;
+  occupiedAmountClp: number;
+  percentage: number;
+  assistantships: number;
+  unpricedCount: number;
+}
 
 export interface AssistantshipPage {
   items: Array<AssistantshipView>;
@@ -115,6 +136,13 @@ export interface AssistantshipFilters {
   pageSize?: number;
 }
 
+export interface SaveAssistantshipTariffInput {
+  id?: string | null;
+  semesterId: string;
+  name: string;
+  monthlyRateClp: number;
+}
+
 export interface RegisterAssistantshipInput {
   assistantshipNrc: string;
   teachingAssignmentId?: string | null;
@@ -122,6 +150,7 @@ export interface RegisterAssistantshipInput {
   courseId?: string | null;
   careerId?: string | null;
   studentId: string;
+  tariffId?: string | null;
   courseNrc?: string | null;
   studentCode?: string | null;
   approvedOn: string;

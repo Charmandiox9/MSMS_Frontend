@@ -11,6 +11,7 @@ import { SkeletonStatus } from "@/components/ui/LoadingSkeletons";
 import {
   ASSIGNMENTS,
   CAREER_COURSES,
+  TARIFFS,
   REGISTER,
   UPDATE,
   type Assistantship,
@@ -61,6 +62,7 @@ export default function RegisterAssistantshipDialog({
     initialRecord?.careerId ?? "",
   );
   const [courseId, setCourseId] = useState(initialRecord?.courseId ?? "");
+  const [tariffId, setTariffId] = useState(initialRecord?.tariffId ?? "");
   const identity = useAssistantshipStudent(initialRecord);
   const { student, lookupReady } = identity;
   const careerId = selectedCareerId || student?.careerId || "";
@@ -114,6 +116,11 @@ export default function RegisterAssistantshipDialog({
     skip: !semesterId || historical,
     fetchPolicy: "network-only",
   });
+  const tariffs = useQuery(TARIFFS, {
+    variables: { semesterId },
+    skip: !semesterId,
+    fetchPolicy: "network-only",
+  });
   const [register, { loading: saving }] = useMutation(REGISTER);
   const [update, { loading: updating }] = useMutation(UPDATE);
   const busy = saving || updating;
@@ -135,6 +142,7 @@ export default function RegisterAssistantshipDialog({
       careerId: historical ? careerId : undefined,
       courseNrc: historical ? text("courseNrc") || undefined : undefined,
       studentId: student!.id,
+      tariffId,
       assistantshipNrc: text("assistantshipNrc"),
       approvedOn: text("approvedOn"),
       startsOn: text("startsOn"),
@@ -229,7 +237,10 @@ export default function RegisterAssistantshipDialog({
                   Boolean(courses.error)
                 : !assignmentId ||
                   assignments.loading ||
-                  Boolean(assignments.error))
+                  Boolean(assignments.error)) ||
+              !tariffId ||
+              tariffs.loading ||
+              Boolean(tariffs.error)
             }
           >
             {busy && (
@@ -262,6 +273,7 @@ export default function RegisterAssistantshipDialog({
                 setSemesterId(event.target.value);
                 setAssignmentId("");
                 setCourseId("");
+                setTariffId("");
               }}
             >
               {availableSemesters.map((item) => (
@@ -410,6 +422,31 @@ export default function RegisterAssistantshipDialog({
                 required
               />
             </Field>
+            <Field label={t("form.tariff")} htmlFor="register-tariff">
+              <select
+                id="register-tariff"
+                value={tariffId}
+                className={inputClass}
+                required
+                disabled={tariffs.loading || !tariffs.data?.assistantshipTariffs.length}
+                onChange={(event) => setTariffId(event.target.value)}
+              >
+                <option value="">{t("form.selectTariff")}</option>
+                {tariffs.data?.assistantshipTariffs.map((tariff) => (
+                  <option key={tariff.id} value={tariff.id}>
+                    {tariff.name} · {new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(tariff.monthlyRateClp)}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("form.tariffBasis")}
+              </p>
+            </Field>
+            {!tariffs.loading && !tariffs.error && !tariffs.data?.assistantshipTariffs.length && (
+              <p role="status" className="rounded-xl bg-muted p-3 text-xs text-muted-foreground sm:col-span-2">
+                {t("form.noTariffs")}
+              </p>
+            )}
           </div>
         </div>
 

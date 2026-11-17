@@ -1341,7 +1341,11 @@
       "historicalCourse": "Asignatura de la carrera",
       "courseNrc": "NRC de la asignatura (opcional)",
       "cohort": "Cohorte {year}",
-      "noCareerCourses": "Selecciona una carrera con asignaturas en su malla."
+      "noCareerCourses": "Selecciona una carrera con asignaturas en su malla.",
+      "tariff": "Tarifa de ayudantía",
+      "selectTariff": "Selecciona una tarifa…",
+      "tariffBasis": "Tarifa mensual por cada hora semanal. El total se prorratea por días / 30.",
+      "noTariffs": "Configura una tarifa para el semestre antes de registrar la ayudantía."
     },
     "errors": {
       "load": "No pudimos cargar las ayudantías. Intenta nuevamente.",
@@ -1361,9 +1365,52 @@
       "ASSIGNMENT_NOT_FOUND": "La carga docente seleccionada ya no existe. Actualiza e intenta nuevamente.",
       "RETRY": "Los datos cambiaron mientras guardabas. Intenta nuevamente.",
       "CAREER_REQUIRED": "Selecciona la carrera de la ayudantía.",
-      "COURSE_CAREER": "La asignatura no pertenece a la carrera seleccionada."
+      "COURSE_CAREER": "La asignatura no pertenece a la carrera seleccionada.",
+      "TARIFF_REQUIRED": "Selecciona una tarifa para la ayudantía.",
+      "INVALID_TARIFF": "La tarifa no corresponde al semestre seleccionado.",
+      "INVALID_INPUT": "Algunos datos no cumplen las reglas de la ayudantía. Revisa fechas, horarios y campos obligatorios.",
+      "SERVER_ERROR": "Ocurrió un error interno al guardar la ayudantía. Intenta nuevamente."
     },
-    "edit": "Editar"
+    "edit": "Editar",
+    "budget": {
+      "title": "Presupuesto de ayudantías",
+      "amounts": "{occupied} comprometido de {allocated} asignado",
+      "notConfigured": "No hay presupuesto asignado a la categoría Ayudantías para este semestre.",
+      "unpriced": "{count, plural, one {# ayudantía antigua no tiene tarifa para estimar el monto.} other {# ayudantías antiguas no tienen tarifa para estimar el monto.}}",
+      "loadError": "No se pudo cargar el uso del presupuesto de ayudantías."
+    },
+    "tariffs": {
+      "configure": "Configurar tarifas",
+      "title": "Tarifas de ayudantías",
+      "description": "Configura tarifas mensuales por hora semanal para {semester}.",
+      "name": "Nombre de la tarifa",
+      "monthlyRate": "Tarifa mensual (CLP)",
+      "basis": "El monto se estima multiplicando horas semanales por tarifa y días de vigencia / 30.",
+      "perWeeklyHourMonth": "por hora semanal / mes",
+      "add": "Agregar tarifa",
+      "update": "Guardar tarifa",
+      "edit": "Editar",
+      "cancelEdit": "Cancelar edición",
+      "deleteNamed": "Eliminar tarifa {name}",
+      "saving": "Guardando tarifa…",
+      "created": "Tarifa agregada.",
+      "updated": "Tarifa actualizada.",
+      "saveError": "No se pudo guardar la tarifa. Verifica que el nombre no esté repetido.",
+      "deleting": "Eliminando tarifa…",
+      "deleted": "Tarifa eliminada.",
+      "deleteError": "No se pudo eliminar. La tarifa podría estar asignada a una ayudantía.",
+      "loadError": "No se pudieron cargar las tarifas.",
+      "loading": "Cargando tarifas…",
+      "empty": "Aún no hay tarifas configuradas para este semestre.",
+      "close": "Cerrar tarifas",
+      "costSection": "Tarifa y monto estimado",
+      "selected": "Tarifa asignada",
+      "monthlyRateLabel": "Tarifa mensual",
+      "estimatedTotal": "Monto estimado del período",
+      "legacyUnpriced": "Este registro no tiene una tarifa asociada.",
+      "rateRequired": "Ingresa una tarifa mayor que cero y dentro del límite permitido.",
+      "snapshotNote": "Las ayudantías registradas conservan la tarifa aplicada como histórico."
+    }
   },
   "ReportsPage": {
     "title": "Reportes académicos",
@@ -1689,7 +1736,8 @@
     "progress": "Ver avance",
     "assistantships": "Historial de ayudantías ({count})",
     "assistantshipCourseNrc": "NRC de asignatura: {nrc}",
-    "assistantshipNrc": "NRC de ayudantía: {nrc}"
+    "assistantshipNrc": "NRC de ayudantía: {nrc}",
+    "admissionHint": "Formato AAAASS: año (AAAA) + semestre (SS). Ejemplo: 202610 = primer semestre de 2026; 202620 = segundo semestre de 2026."
   },
   "HourlyPayments": {
     "rut": "RUT",

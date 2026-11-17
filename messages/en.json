@@ -1341,7 +1341,11 @@
       "historicalCourse": "Degree program course",
       "courseNrc": "Course NRC (optional)",
       "cohort": "Cohort {year}",
-      "noCareerCourses": "Select a degree program with curriculum courses."
+      "noCareerCourses": "Select a degree program with curriculum courses.",
+      "tariff": "Assistantship tariff",
+      "selectTariff": "Select a tariff…",
+      "tariffBasis": "Monthly rate per weekly hour. Total is prorated by days / 30.",
+      "noTariffs": "Configure a tariff for the semester before registering an assistantship."
     },
     "errors": {
       "load": "We could not load assistantships. Please try again.",
@@ -1361,9 +1365,52 @@
       "ASSIGNMENT_NOT_FOUND": "The selected teaching assignment no longer exists. Refresh and try again.",
       "RETRY": "The data changed while saving. Please try again.",
       "CAREER_REQUIRED": "Select the assistantship degree program.",
-      "COURSE_CAREER": "This course does not belong to the selected degree program."
+      "COURSE_CAREER": "This course does not belong to the selected degree program.",
+      "TARIFF_REQUIRED": "Select an assistantship tariff.",
+      "INVALID_TARIFF": "The tariff does not belong to the selected semester.",
+      "INVALID_INPUT": "Some details do not meet the assistantship rules. Review dates, schedules, and required fields.",
+      "SERVER_ERROR": "An internal error occurred while saving the assistantship. Please try again."
     },
-    "edit": "Edit"
+    "edit": "Edit",
+    "budget": {
+      "title": "Assistantship budget",
+      "amounts": "{occupied} committed of {allocated} allocated",
+      "notConfigured": "No budget is allocated to the Assistantships category for this semester.",
+      "unpriced": "{count, plural, one {# older assistantship has no tariff for estimating its amount.} other {# older assistantships have no tariff for estimating their amount.}}",
+      "loadError": "Could not load assistantship budget usage."
+    },
+    "tariffs": {
+      "configure": "Configure tariffs",
+      "title": "Assistantship tariffs",
+      "description": "Configure monthly rates per weekly hour for {semester}.",
+      "name": "Tariff name",
+      "monthlyRate": "Monthly rate (CLP)",
+      "basis": "Estimated amount is weekly hours × rate × active days / 30.",
+      "perWeeklyHourMonth": "per weekly hour / month",
+      "add": "Add tariff",
+      "update": "Save tariff",
+      "edit": "Edit",
+      "cancelEdit": "Cancel editing",
+      "deleteNamed": "Delete tariff {name}",
+      "saving": "Saving tariff…",
+      "created": "Tariff added.",
+      "updated": "Tariff updated.",
+      "saveError": "Could not save tariff. Check that the name is unique.",
+      "deleting": "Deleting tariff…",
+      "deleted": "Tariff deleted.",
+      "deleteError": "Could not delete. The tariff may be assigned to an assistantship.",
+      "loadError": "Could not load tariffs.",
+      "loading": "Loading tariffs…",
+      "empty": "No tariffs are configured for this semester yet.",
+      "close": "Close tariffs",
+      "costSection": "Tariff and estimated amount",
+      "selected": "Assigned tariff",
+      "monthlyRateLabel": "Monthly rate",
+      "estimatedTotal": "Estimated amount for the period",
+      "legacyUnpriced": "This record has no assigned tariff.",
+      "rateRequired": "Enter a tariff greater than zero and within the allowed limit.",
+      "snapshotNote": "Registered assistantships keep their applied tariff as historical data."
+    }
   },
   "UnderDevelopment": {
     "badge": "Module under development",
@@ -1609,7 +1656,8 @@
     "progress": "View progress",
     "assistantships": "Assistantship history ({count})",
     "assistantshipCourseNrc": "Course NRC: {nrc}",
-    "assistantshipNrc": "Assistantship NRC: {nrc}"
+    "assistantshipNrc": "Assistantship NRC: {nrc}",
+    "admissionHint": "Format YYYYSS: year (YYYY) + semester (SS). Example: 202610 = first semester of 2026; 202620 = second semester of 2026."
   },
   "HourlyPayments": {
     "rut": "RUT",

@@ -315,6 +315,20 @@ describe("Estudiantes", () => {
       { semesterId: "semester", nrcs: ["10002"] },
     );
   });
+  it("formatea el RUT chileno y explica el código de admisión al editar", async () => {
+    installFakeApi({
+      "GET /academic/careers/options": ok([]),
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/students/student": ok({ ...student, rut: "214933985", admission: "202610" }),
+    });
+    renderAs(<StudentDialog student={student} onSaved={vi.fn()} onClose={vi.fn()} />);
+    const rut = await screen.findByLabelText("RUT");
+    expect((rut as HTMLInputElement).value).toBe("21.493.398-5");
+    fireEvent.change(rut, { target: { value: "19999999k" } });
+    expect((rut as HTMLInputElement).value).toBe("19.999.999-K");
+    expect((screen.getByLabelText(/Admisión \(AAAASS\)/) as HTMLInputElement).value).toBe("202610");
+    expect(screen.getByText(/202610 = primer semestre de 2026; 202620 = segundo semestre de 2026/)).toBeDefined();
+  });
   it("muestra solo las mallas de la carrera seleccionada y prioriza el cohorte de admisión", async () => {
     const careers = [
       {
@@ -345,7 +359,7 @@ describe("Estudiantes", () => {
     );
     const career = await screen.findByLabelText("Carrera y malla");
     fireEvent.change(career, { target: { value: "career-a" } });
-    fireEvent.change(screen.getByLabelText("Admisión (AAAASS)"), {
+    fireEvent.change(screen.getByLabelText(/Admisión \(AAAASS\)/), {
       target: { value: "202510" },
     });
     const curriculum = screen.getByLabelText(

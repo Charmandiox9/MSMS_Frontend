@@ -7,6 +7,17 @@ import { STUDENTS, type Assistantship } from "../graphql";
 import type { AssistantshipStudentOption } from "../schema-types";
 import { buttonClass, Field, inputClass } from "./controls";
 
+const formatRut = (value: string) => {
+  const digits = value
+    .replace(/[.\s-]/g, "")
+    .replace(/[^0-9kK]/g, "")
+    .toUpperCase()
+    .slice(0, 9);
+  if (digits.length < 2) return digits;
+  const body = digits.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `${body}-${digits.slice(-1)}`;
+};
+
 export function useAssistantshipStudent(initialRecord?: Assistantship) {
   const [search, setSearch] = useState(initialRecord?.assistantEmail ?? "");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -130,7 +141,7 @@ export default function StudentIdentityFields({
                   {option.name}
                 </span>
                 <span className="block text-xs text-muted-foreground">
-                  {option.rut || t("form.noRut")} · {option.email}
+                  {option.rut ? formatRut(option.rut) : t("form.noRut")} · {option.email}
                 </span>
               </button>
             </li>
@@ -148,7 +159,7 @@ export default function StudentIdentityFields({
               {t("form.studentRut")}
             </dt>
             <dd className="mt-1 text-sm font-semibold text-foreground">
-              {student.rut || t("form.noRut")}
+              {student.rut ? formatRut(student.rut) : t("form.noRut")}
             </dd>
           </div>
           <div>

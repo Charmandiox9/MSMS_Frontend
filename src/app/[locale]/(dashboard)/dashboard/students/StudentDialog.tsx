@@ -15,6 +15,15 @@ import type { CareerOption } from "@/types/careers";
 const fieldClass =
   "mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30";
 
+const rutDigits = (value: string) =>
+  value.replace(/[.\s-]/g, "").replace(/[^0-9kK]/g, "").toUpperCase().slice(0, 9);
+const formatRut = (value: string) => {
+  const digits = rutDigits(value);
+  if (digits.length < 2) return digits;
+  const body = digits.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `${body}-${digits.slice(-1)}`;
+};
+
 export default function StudentDialog({
   student,
   initialNrc,
@@ -29,7 +38,7 @@ export default function StudentDialog({
   const t = useTranslations("StudentsPage");
   const [name, setName] = useState(student?.givenNames ?? student?.name ?? "");
   const [email, setEmail] = useState(student?.email ?? "");
-  const [rut, setRut] = useState(student?.rut ?? "");
+  const [rut, setRut] = useState(rutDigits(student?.rut ?? ""));
   const [personalEmail, setPersonalEmail] = useState(
     student?.personalEmail ?? "",
   );
@@ -85,7 +94,7 @@ export default function StudentDialog({
         if (latest) {
           setName(latest.givenNames ?? latest.name);
           setEmail(latest.email);
-          setRut(latest.rut ?? "");
+          setRut(rutDigits(latest.rut ?? ""));
           setPersonalEmail(latest.personalEmail ?? "");
           setAdmission(latest.admission?.toString() ?? "");
           setPaternalSurname(latest.paternalSurname ?? "");
@@ -239,21 +248,26 @@ export default function StudentDialog({
           <label className="text-sm font-semibold">
             {t("rut")}
             <input
-              maxLength={20}
-              value={rut}
-              onChange={(event) => setRut(event.target.value)}
+              type="text"
+              inputMode="text"
+              autoComplete="off"
+              maxLength={12}
+              value={formatRut(rut)}
+              onChange={(event) => setRut(rutDigits(event.target.value))}
               className={fieldClass}
             />
           </label>
           <label className="text-sm font-semibold">
             {t("admission")}
             <input
+              type="text"
               inputMode="numeric"
-              pattern="\\d{6}"
+              pattern="[0-9]{4}(10|20)"
               maxLength={6}
+              aria-describedby="student-admission-hint"
               value={admission}
               onChange={(event) => {
-                const value = event.target.value;
+                const value = event.target.value.replace(/\D/g, "").slice(0, 6);
                 setAdmission(value);
                 const cohortYear = /^\d{4}(10|20)$/.test(value)
                   ? Number(value.slice(0, 4))
@@ -269,6 +283,9 @@ export default function StudentDialog({
               }}
               className={fieldClass}
             />
+            <span id="student-admission-hint" className="mt-1 block text-xs font-normal text-muted-foreground">
+              {t("admissionHint")}
+            </span>
           </label>
           <label className="text-sm font-semibold">
             {t("birthDate")}

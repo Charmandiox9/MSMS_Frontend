@@ -18,6 +18,8 @@ import {
   OPTIONS,
   REGISTER,
   UPDATE,
+  TARIFFS,
+  ASSISTANTSHIP_BUDGET,
   type Assistantship,
   type Filters,
 } from "../graphql";
@@ -80,6 +82,10 @@ const item: Assistantship & { __typename: "AssistantshipView" } = {
   startsOn: semester.startsOn,
   endsOn: semester.endsOn,
   weeklyHours: 4,
+  tariffId: "tariff",
+  tariffName: "Base",
+  tariffRateClp: 10000,
+  estimatedAmountClp: 204000,
   state: "ACTIVE",
   schedules: [],
 };
@@ -107,6 +113,19 @@ const optionsMock = {
   },
   maxUsageCount: 20,
 };
+const tariffsMock = {
+  request: { query: TARIFFS, variables: () => true },
+  result: { data: { assistantshipTariffs: [{ id: "tariff", semesterId: semester.id, name: "Base", monthlyRateClp: 10000 }] } },
+  maxUsageCount: 30,
+};
+const budgetMock = {
+  request: { query: ASSISTANTSHIP_BUDGET, variables: () => true },
+  result: { data: { assistantshipBudgetSummary: {
+    semesterId: semester.id, semesterName: semester.name, allocatedAmountClp: 500000,
+    occupiedAmountClp: 204000, percentage: 40.8, assistantships: 1, unpricedCount: 0,
+  } } },
+  maxUsageCount: 30,
+};
 const studentMock = {
   request: { query: STUDENTS, variables: { search: "ana@example.test" } },
   result: {
@@ -116,7 +135,7 @@ const studentMock = {
           id: "student",
           name: "Ana Pérez",
           email: "ana@example.test",
-          rut: "12345678-9",
+          rut: "123456789",
           careerId: "career",
           careerName: "Biología Marina",
           careerCurriculumVersionId: "curriculum",
@@ -160,6 +179,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             optionsMock,
+            budgetMock,
             {
               request: { query: HISTORY, variables: () => true },
               result: {
@@ -196,6 +216,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             studentMock,
+            tariffsMock,
             assignmentsMock,
             { request: { query: UPDATE, variables: () => true }, result },
           ]}
@@ -221,7 +242,10 @@ describe("assistantship management", { timeout: 15000 }, () => {
       </NextIntlClientProvider>,
     );
     await screen.findByRole("option", { name: /Biología marina/ });
-    expect(await screen.findByText("12345678-9")).toBeDefined();
+    expect(await screen.findByText("12.345.678-9")).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: /12.345.678-9/ }),
+    ).toBeDefined();
     expect(screen.getByText("Biología Marina")).toBeDefined();
     expect(
       screen
@@ -280,7 +304,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         messages={messages}
         timeZone="America/Santiago"
       >
-        <MockedProvider mocks={[optionsMock, historyMock]}>
+        <MockedProvider mocks={[optionsMock, budgetMock, historyMock]}>
           <AssistantshipsWorkspace />
         </MockedProvider>
       </NextIntlClientProvider>,
@@ -373,6 +397,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
                 },
               },
             },
+            tariffsMock,
             { request: { query: REGISTER, variables: () => true }, result },
           ]}
         >
@@ -406,6 +431,9 @@ describe("assistantship management", { timeout: 15000 }, () => {
     });
     fireEvent.change(screen.getByLabelText("Horas semanales"), {
       target: { value: "5" },
+    });
+    fireEvent.change(await screen.findByLabelText("Tarifa de ayudantía"), {
+      target: { value: "tariff" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Agregar horario" }));
     fireEvent.change(screen.getByLabelText("Bloque horario"), {
@@ -446,6 +474,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             optionsMock,
+            budgetMock,
             {
               request: { query: HISTORY, variables: () => true },
               error: new Error("offline"),
@@ -479,6 +508,9 @@ describe("assistantship management", { timeout: 15000 }, () => {
     fireEvent.change(screen.getByLabelText("Horas semanales"), {
       target: { value: "4" },
     });
+    fireEvent.change(await screen.findByLabelText("Tarifa de ayudantía"), {
+      target: { value: "tariff" },
+    });
     fireEvent.change(screen.getByLabelText("Fecha de aprobación"), {
       target: { value: "2026-07-01" },
     });
@@ -493,6 +525,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             studentMock,
+            tariffsMock,
             assignmentsMock,
             {
               request: { query: REGISTER, variables: () => true },
@@ -544,20 +577,23 @@ describe("assistantship management", { timeout: 15000 }, () => {
     );
   });
 
-  it("keeps the entered values after a conflict and displays a translated notification", async () => {
+  it("keeps entered values and translates nested backend validation errors", async () => {
     const onRegistered = vi.fn();
     render(
       <NextIntlClientProvider locale="es" messages={messages}>
         <MockedProvider
           mocks={[
             studentMock,
+            tariffsMock,
             assignmentsMock,
             {
               request: { query: REGISTER, variables: () => true },
               result: {
                 errors: [
                   new GraphQLError("conflict", {
-                    extensions: { originalError: { code: "DUPLICATE" } },
+                    extensions: {
+                      originalError: { response: { code: "INVALID_INPUT" } },
+                    },
                   }),
                 ],
               },
@@ -581,7 +617,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
     fireEvent.click(screen.getByRole("button", { name: "Guardar ayudantía" }));
     await waitFor(() =>
       expect(notifications.error).toHaveBeenCalledWith(
-        "La ayudantía o el correo/código estudiantil ya está registrado.",
+        "Algunos datos no cumplen las reglas de la ayudantía. Revisa fechas, horarios y campos obligatorios.",
       ),
     );
     expect(screen.getByText("ana@example.test")).toBeDefined();
@@ -595,6 +631,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             optionsMock,
+            budgetMock,
             {
               request: { query: HISTORY, variables: () => true },
               result: {
@@ -656,6 +693,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             optionsMock,
+            budgetMock,
             {
               request: { query: HISTORY, variables: () => true },
               result: {

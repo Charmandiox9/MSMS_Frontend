@@ -9,6 +9,8 @@ import type {
   AssistantshipState,
   RegisterAssistantshipInput,
   AssistantshipScheduleInput,
+  AssistantshipTariffOption,
+  AssistantshipBudgetSummary,
 } from "./schema-types";
 export type { AssistantshipState } from "./schema-types";
 export type Assistantship = AssistantshipView;
@@ -32,6 +34,8 @@ export interface HistoryData {
 export interface OptionsData {
   assistantshipOptions: AssistantshipOptions;
 }
+export interface AssistantshipTariffsData { assistantshipTariffs: AssistantshipTariffOption[] }
+export interface AssistantshipBudgetSummaryData { assistantshipBudgetSummary: AssistantshipBudgetSummary }
 const fields = gql`
   fragment AssistantshipFields on AssistantshipView {
     id
@@ -55,6 +59,10 @@ const fields = gql`
     startsOn
     endsOn
     weeklyHours
+    tariffId
+    tariffName
+    tariffRateClp
+    estimatedAmountClp
     state
     schedules {
       weekday
@@ -160,6 +168,29 @@ export const ASSIGNMENTS: TypedDocumentNode<
       teacherName
     }
   }
+`;
+export const TARIFFS: TypedDocumentNode<AssistantshipTariffsData, { semesterId: string }> = gql`
+  query AssistantshipTariffs($semesterId: ID!) {
+    assistantshipTariffs(semesterId: $semesterId) { id semesterId name monthlyRateClp }
+  }
+`;
+export const ASSISTANTSHIP_BUDGET: TypedDocumentNode<AssistantshipBudgetSummaryData, { semesterId: string }> = gql`
+  query AssistantshipBudgetSummary($semesterId: ID!) {
+    assistantshipBudgetSummary(semesterId: $semesterId) {
+      semesterId semesterName allocatedAmountClp occupiedAmountClp percentage assistantships unpricedCount
+    }
+  }
+`;
+export const SAVE_TARIFF: TypedDocumentNode<
+  { saveAssistantshipTariff: AssistantshipTariffOption },
+  { input: import("./schema-types").SaveAssistantshipTariffInput }
+> = gql`
+  mutation SaveAssistantshipTariff($input: SaveAssistantshipTariffInput!) {
+    saveAssistantshipTariff(input: $input) { id semesterId name monthlyRateClp }
+  }
+`;
+export const DELETE_TARIFF: TypedDocumentNode<{ deleteAssistantshipTariff: boolean }, { id: string }> = gql`
+  mutation DeleteAssistantshipTariff($id: ID!) { deleteAssistantshipTariff(id: $id) }
 `;
 export const REGISTER: TypedDocumentNode<
   { registerAssistantship: Assistantship },
