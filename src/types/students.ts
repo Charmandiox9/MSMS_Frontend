@@ -14,7 +14,7 @@ export interface Student {
   givenNames?: string | null;
   rut?: string | null;
   personalEmail?: string | null;
-  admission?: number | null;
+  admission?: string | null;
   paternalSurname?: string | null;
   maternalSurname?: string | null;
   birthDate?: string | null;
