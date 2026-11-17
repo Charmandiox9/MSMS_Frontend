@@ -27,11 +27,18 @@ export default function StudentDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("StudentsPage");
-  const [name, setName] = useState(student?.name ?? "");
+  const [name, setName] = useState(student?.givenNames ?? student?.name ?? "");
   const [email, setEmail] = useState(student?.email ?? "");
+  const [rut, setRut] = useState(student?.rut ?? "");
+  const [personalEmail, setPersonalEmail] = useState(student?.personalEmail ?? "");
+  const [admission, setAdmission] = useState(student?.admission?.toString() ?? "");
+  const [paternalSurname, setPaternalSurname] = useState(student?.paternalSurname ?? "");
+  const [maternalSurname, setMaternalSurname] = useState(student?.maternalSurname ?? "");
+  const [birthDate, setBirthDate] = useState(student?.birthDate?.slice(0, 10) ?? "");
   const [catalog, setCatalog] = useState<CurrentCourseCatalog | null>(null);
   const [careers, setCareers] = useState<CareerOption[]>([]);
   const [curriculumVersionId, setCurriculumVersionId] = useState("");
+  const [careerId, setCareerId] = useState(student?.careerId ?? "");
   const [selected, setSelected] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -58,9 +65,16 @@ export default function StudentDialog({
               : [],
         );
         if (latest) {
-          setName(latest.name);
+          setName(latest.givenNames ?? latest.name);
           setEmail(latest.email);
+          setRut(latest.rut ?? "");
+          setPersonalEmail(latest.personalEmail ?? "");
+          setAdmission(latest.admission?.toString() ?? "");
+          setPaternalSurname(latest.paternalSurname ?? "");
+          setMaternalSurname(latest.maternalSurname ?? "");
+          setBirthDate(latest.birthDate?.slice(0, 10) ?? "");
           setCurriculumVersionId(latest.careerCurriculumVersionId ?? "");
+          setCareerId(latest.careerId ?? latest.career?.id ?? "");
         }
         setError(null);
       })
@@ -82,9 +96,17 @@ export default function StudentDialog({
       {
         method: student ? "PATCH" : "POST",
         body: JSON.stringify({
-          name: name.trim(),
+          name: [name.trim(), paternalSurname.trim(), maternalSurname.trim()].filter(Boolean).join(" "),
+          givenNames: name.trim(),
           email: email.trim(),
+          rut: rut.trim() || null,
+          personalEmail: personalEmail.trim() || null,
+          admission: admission ? Number(admission) : null,
+          paternalSurname: paternalSurname.trim() || null,
+          maternalSurname: maternalSurname.trim() || null,
+          birthDate: birthDate || null,
           careerCurriculumVersionId: curriculumVersionId || null,
+          careerId: careerId || null,
           ...(catalog.semester
             ? { semesterId: catalog.semester.id, nrcs: selected }
             : {}),
@@ -147,7 +169,7 @@ export default function StudentDialog({
       >
         <fieldset disabled={saving || !catalog} className="grid gap-4">
           <label className="text-sm font-semibold">
-            {t("name")}
+            {t("givenNames")}
             <input
               required
               maxLength={200}
@@ -156,6 +178,8 @@ export default function StudentDialog({
               className={fieldClass}
             />
           </label>
+          <label className="text-sm font-semibold">{t("paternalSurname")}<input maxLength={100} value={paternalSurname} onChange={(event) => setPaternalSurname(event.target.value)} className={fieldClass} /></label>
+          <label className="text-sm font-semibold">{t("maternalSurname")}<input maxLength={100} value={maternalSurname} onChange={(event) => setMaternalSurname(event.target.value)} className={fieldClass} /></label>
           <label className="text-sm font-semibold">
             {t("email")}
             <EmailInput
@@ -167,10 +191,24 @@ export default function StudentDialog({
               className={fieldClass}
             />
           </label>
+          <label className="text-sm font-semibold">{t("personalEmail")}<EmailInput maxLength={254} value={personalEmail} onChange={(event) => setPersonalEmail(event.target.value)} className={fieldClass} /></label>
+          <label className="text-sm font-semibold">{t("rut")}<input maxLength={20} value={rut} onChange={(event) => setRut(event.target.value)} className={fieldClass} /></label>
+          <label className="text-sm font-semibold">{t("admission")}<input inputMode="numeric" pattern="\\d{6}" maxLength={6} value={admission} onChange={(event) => setAdmission(event.target.value)} className={fieldClass} /></label>
+          <label className="text-sm font-semibold">{t("birthDate")}<input type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} className={fieldClass} /></label>
           <label className="text-sm font-semibold sm:col-span-2">
             {t("career")}
-            <select value={curriculumVersionId} onChange={(event) => setCurriculumVersionId(event.target.value)} className={fieldClass}>
+            <select value={careerId} onChange={(event) => { setCareerId(event.target.value); setCurriculumVersionId(""); }} className={fieldClass}>
               <option value="">{t("noCareer")}</option>
+              {careers.map((career) => <option key={career.id} value={career.id}>{career.code ? `${career.code} · ` : ""}{career.name}</option>)}
+            </select>
+              <span className="mt-3 block">{t("curriculum")}</span>
+            <select value={curriculumVersionId} onChange={(event) => {
+              const versionId = event.target.value;
+              setCurriculumVersionId(versionId);
+              const matchingCareer = careers.find((career) => career.curriculumVersions.some((version) => version.id === versionId));
+              if (matchingCareer) setCareerId(matchingCareer.id);
+            }} className={fieldClass}>
+              <option value="">{t("noCurriculum")}</option>
               {careers.flatMap((career) => career.curriculumVersions.map((version) => (
                 <option key={version.id} value={version.id} disabled={!career.isActive && version.id !== curriculumVersionId}>{career.name} · {t("cohortYear", { year: version.cohortYear })}</option>
               )))}

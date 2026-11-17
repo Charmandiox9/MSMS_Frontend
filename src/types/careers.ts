@@ -15,7 +15,7 @@ export interface CurriculumVersion {
 export interface Career {
   updatedAt: string;
   id: string;
-  code: string;
+  code: string | null;
   name: string;
   isActive: boolean;
   curriculumVersions: CurriculumVersion[];
@@ -23,7 +23,7 @@ export interface Career {
 
 export interface CareerOption {
   id: string;
-  code: string;
+  code: string | null;
   name: string;
   isActive: boolean;
   curriculumVersions: Pick<CurriculumVersion, "id" | "cohortYear">[];
@@ -50,6 +50,7 @@ export interface StudentProgress {
     id: string;
     name: string;
     email: string;
+    career: { id: string; code: string | null; name: string } | null;
     curriculumVersion: (CurriculumVersion & {
       career: Pick<Career, "id" | "code" | "name">;
     }) | null;

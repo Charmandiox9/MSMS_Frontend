@@ -341,12 +341,10 @@ export default function StudentsPage({
                       </ul>
                     </section>
                   )}
-                  {student.careerCurriculumVersion && (
+                  {(student.careerCurriculumVersion?.career ?? student.career) && (
                     <p className="text-xs text-muted-foreground md:col-span-3">
-                      {student.careerCurriculumVersion.career.name} ·{" "}
-                      {t("cohortYear", {
-                        year: student.careerCurriculumVersion.cohortYear,
-                      })}
+                      {student.careerCurriculumVersion?.career.name ?? student.career?.name}
+                      {student.careerCurriculumVersion && ` · ${t("cohortYear", { year: student.careerCurriculumVersion.cohortYear })}`}
                     </p>
                   )}
                   <div className="md:col-span-3">

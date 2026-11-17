@@ -185,7 +185,7 @@ describe("Estudiantes", () => {
     );
     const selected = await screen.findByLabelText(/Biología marina/);
     expect(selected).toHaveProperty("checked", true);
-    fireEvent.change(screen.getByLabelText("Nombre completo"), {
+    fireEvent.change(screen.getByLabelText("Nombre(s)"), {
       target: { value: "Ana Soto" },
     });
     fireEvent.change(screen.getByLabelText("Correo electrónico"), {
@@ -195,8 +195,16 @@ describe("Estudiantes", () => {
     await waitFor(() => expect(saved).toHaveBeenCalledOnce());
     expect(api.calls("POST /academic/students")[0].body).toEqual({
       careerCurriculumVersionId: null,
+      careerId: null,
+      givenNames: "Ana Soto",
       name: "Ana Soto",
       email: "ana@example.com",
+      rut: null,
+      personalEmail: null,
+      admission: null,
+      paternalSurname: null,
+      maternalSurname: null,
+      birthDate: null,
       semesterId: "semester",
       nrcs: ["10001"],
     });
@@ -233,7 +241,7 @@ describe("Estudiantes", () => {
       <StudentDialog student={null} onSaved={vi.fn()} onClose={vi.fn()} />,
     );
     await screen.findByText(/No hay semestre activo/);
-    fireEvent.change(screen.getByLabelText("Nombre completo"), {
+    fireEvent.change(screen.getByLabelText("Nombre(s)"), {
       target: { value: "Ana Soto" },
     });
     fireEvent.change(screen.getByLabelText("Correo electrónico"), {
@@ -245,8 +253,16 @@ describe("Estudiantes", () => {
     );
     expect(api.calls("POST /academic/students")[0].body).toEqual({
       careerCurriculumVersionId: null,
+      careerId: null,
+      givenNames: "Ana Soto",
       name: "Ana Soto",
       email: "ana@example.com",
+      rut: null,
+      personalEmail: null,
+      admission: null,
+      paternalSurname: null,
+      maternalSurname: null,
+      birthDate: null,
     });
   });
   it("envía el CSV y el semestre visible y comunica los resultados", async () => {
@@ -297,20 +313,26 @@ describe("Estudiantes", () => {
     );
     expect(saved).not.toHaveBeenCalled();
   });
-  it("sin semestre impide importar matrículas", async () => {
-    installFakeApi({
+  it("permite importar el padrón de estudiantes sin semestre activo", async () => {
+    const api = installFakeApi({
       "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok({ semester: null, courses: [] }),
+      "POST /academic/students/import-csv": ok({
+        importedStudents: 1,
+        createdStudents: 1,
+        addedEnrollments: 0,
+        semesterId: null,
+      }),
     });
     renderAs(<ImportStudentsDialog onSaved={vi.fn()} onClose={vi.fn()} />);
-    await screen.findByText("Activa un semestre antes de importar matrículas.");
-    expect(screen.getByLabelText("Archivo CSV")).toHaveProperty(
-      "disabled",
-      true,
-    );
-    expect(screen.getByRole("button", { name: "Importar CSV" })).toHaveProperty(
-      "disabled",
-      true,
-    );
+    fireEvent.change(await screen.findByLabelText("Archivo CSV"), {
+      target: { files: [new File([[
+        'codigo_carrera;carrera;ADMISION;RUT;NOMBRE;AP_PATERNO;AP_MATERNO;EMAIL_ESTUDIANTE',
+        '8506;Biología Marina;202610;12345678-9;Ana;Soto;Paz;ana@example.com',
+      ].join('\n')], "estudiantes.csv", { type: "text/csv" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Importar CSV" }));
+    await waitFor(() => expect(api.calls("POST /academic/students/import-csv")).toHaveLength(1));
+    expect(api.calls("POST /academic/students/import-csv")[0].body).not.toHaveProperty("semesterId");
   });
 });

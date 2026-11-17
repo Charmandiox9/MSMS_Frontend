@@ -121,7 +121,7 @@ function CareerEditor({
     setJob(null);
     const body =
       mode === "edit"
-        ? { code: code.trim(), name: name.trim() }
+        ? { code: code.trim() || null, name: name.trim() }
         : mode === "version-edit"
           ? { courses }
           : mode === "create" && curriculumSource === "csv"
@@ -142,7 +142,7 @@ function CareerEditor({
       >("/academic/imports/careers/commit", {
         method: "POST",
         body: JSON.stringify({
-          code: code.trim(),
+          ...(code.trim() ? { code: code.trim() } : {}),
           name: name.trim(),
           cohortYear: Number(cohortYear),
           courses: csvCourses,
@@ -170,7 +170,7 @@ function CareerEditor({
       method: mode === "edit" || mode === "version-edit" ? "PATCH" : "POST",
       body: JSON.stringify(
         mode === "create"
-          ? { ...body, code: code.trim(), name: name.trim() }
+          ? { ...body, ...(code.trim() ? { code: code.trim() } : { code: null }), name: name.trim() }
           : body,
       ),
     });
@@ -265,7 +265,6 @@ function CareerEditor({
             <label className="text-sm font-semibold">
               {t("code")}
               <input
-                required
                 maxLength={30}
                 value={code}
                 onChange={(event) => setCode(event.target.value.toUpperCase())}

@@ -11,6 +11,15 @@ export interface Student {
   id: string;
   name: string;
   email: string;
+  givenNames?: string | null;
+  rut?: string | null;
+  personalEmail?: string | null;
+  admission?: number | null;
+  paternalSurname?: string | null;
+  maternalSurname?: string | null;
+  birthDate?: string | null;
+  careerId?: string | null;
+  career?: { id: string; code: string | null; name: string } | null;
   careerCurriculumVersionId?: string | null;
   careerCurriculumVersion?: {
     id: string;
@@ -33,5 +42,5 @@ export interface StudentImportResult {
   importedStudents: number;
   createdStudents: number;
   addedEnrollments: number;
-  semesterId: string;
+  semesterId: string | null;
 }
