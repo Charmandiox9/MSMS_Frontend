@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
   Search,
@@ -390,9 +391,12 @@ export default function UsersPage() {
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary/10 text-primary">
                       {user.avatarUrl ? (
-                        <img
+                        <Image
                           src={user.avatarUrl}
                           alt=""
+                          width={40}
+                          height={40}
+                          unoptimized
                           className="h-full w-full object-cover"
                         />
                       ) : (
@@ -523,9 +527,12 @@ export default function UsersPage() {
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-primary/10 text-primary">
                   {roleTarget.avatarUrl ? (
-                    <img
+                    <Image
                       src={roleTarget.avatarUrl}
                       alt=""
+                      width={48}
+                      height={48}
+                      unoptimized
                       className="h-full w-full object-cover"
                     />
                   ) : (

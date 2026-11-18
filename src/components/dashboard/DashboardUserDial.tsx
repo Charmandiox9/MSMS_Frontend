@@ -1,9 +1,17 @@
 "use client";
 
 import { Home, LogOut, Moon, Sun, UserRound } from "lucide-react";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { logout, type ActiveSession } from "@/lib/auth";
@@ -70,7 +78,7 @@ export default function DashboardUserDial({
     router.refresh();
   };
 
-  const closeMenu = () => {
+  const closeMenu = useCallback(() => {
     setTooltip(null);
     if (!open) return;
 
@@ -110,7 +118,7 @@ export default function DashboardUserDial({
         complete: () => setOpen(false),
       });
     });
-  };
+  }, [open]);
 
   const openMenu = () => {
     if (!avatarRef.current) return;
@@ -201,6 +209,7 @@ export default function DashboardUserDial({
       ),
     },
   ];
+  const itemCount = items.length;
 
   useEffect(() => {
     if (!open || !triggerRect) return;
@@ -221,7 +230,7 @@ export default function DashboardUserDial({
           glowRef.current?.style.setProperty("opacity", "1");
           itemRefs.current.forEach((element, index) => {
             if (!element) return;
-            element.style.transform = getDialTransform(index, items.length);
+            element.style.transform = getDialTransform(index, itemCount);
             element.style.opacity = "1";
           });
           return;
@@ -243,8 +252,8 @@ export default function DashboardUserDial({
         itemRefs.current.forEach((element, index) => {
           if (!element) return;
           const step =
-            items.length > 1
-              ? (DIAL_END_ANGLE - DIAL_START_ANGLE) / (items.length - 1)
+            itemCount > 1
+              ? (DIAL_END_ANGLE - DIAL_START_ANGLE) / (itemCount - 1)
               : 0;
           const angle = ((DIAL_START_ANGLE + step * index) * Math.PI) / 180;
           anime({
@@ -272,12 +281,12 @@ export default function DashboardUserDial({
         itemRefs.current.forEach((element, index) => {
           if (!element) return;
           element.style.opacity = "1";
-          element.style.transform = getDialTransform(index, items.length);
+          element.style.transform = getDialTransform(index, itemCount);
         });
       });
 
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, triggerRect]);
+  }, [closeMenu, itemCount, open, triggerRect]);
 
   const avatar = (
     <div
@@ -285,9 +294,12 @@ export default function DashboardUserDial({
       className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-ocean-cyan to-primary text-sm font-black text-primary-foreground"
     >
       {session?.avatarUrl ? (
-        <img
+        <Image
           src={session.avatarUrl}
           alt=""
+          width={44}
+          height={44}
+          unoptimized
           className="h-full w-full object-cover"
           referrerPolicy="no-referrer"
         />
@@ -345,9 +357,12 @@ export default function DashboardUserDial({
               >
                 <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-ocean-cyan to-primary text-sm font-black text-primary-foreground">
                   {session?.avatarUrl ? (
-                    <img
+                    <Image
                       src={session.avatarUrl}
                       alt=""
+                      width={44}
+                      height={44}
+                      unoptimized
                       className="h-full w-full object-cover"
                       referrerPolicy="no-referrer"
                     />
