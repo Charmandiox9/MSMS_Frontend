@@ -225,15 +225,18 @@ export default function StudentDialog({
               className={fieldClass}
             />
           </label>
-          <label className="text-sm font-semibold">
-            {t("email")}
+          <div className="text-sm font-semibold">
+            <label htmlFor="student-email">{t("email")}</label>
             <EmailInput
+              id="student-email"
+              aria-describedby="student-email-help"
               maxLength={254}
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className={fieldClass}
             />
-          </label>
+            <span id="student-email-help" className="mt-1 block text-sm font-normal text-muted-foreground">{t("emailOptionalHelp")}</span>
+          </div>
           <label className="text-sm font-semibold">
             {t("personalEmail")}
             <EmailInput

@@ -15,7 +15,11 @@ import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import PaginationControls from "@/components/ui/PaginationControls";
 import SearchField from "@/components/ui/SearchField";
 import SearchHighlight from "@/components/ui/SearchHighlight";
-import { SkeletonStatus, TableSkeleton } from "@/components/ui/LoadingSkeletons";
+import FilterTabs from "@/components/ui/FilterTabs";
+import {
+  SkeletonStatus,
+  TableSkeleton,
+} from "@/components/ui/LoadingSkeletons";
 import Skeleton from "@/components/ui/Skeleton";
 import { useSearchQuery } from "@/hooks/useSearchQuery";
 import { apiFetch } from "@/lib/api";
@@ -24,19 +28,31 @@ import {
   academicSecondaryActionClass,
 } from "@/components/dashboard/academic/academicActionStyles";
 import TitulationProcessForm from "./TitulationProcessForm";
-import TitulationDocumentDrafts from "./TitulationDocumentDrafts";
-import TitulationAttachments from "./TitulationAttachments";
-import TitulationStageBadge from "./TitulationStageBadge";
+import TitulationRecordDetails from "./TitulationRecordDetails";
+import TitulationOutcomeBadge from "./TitulationOutcomeBadge";
 import type {
-  TitulationDocumentStatus,
   TitulationListItem,
   TitulationFilterOptions,
   TitulationPageResult,
   TitulationProcess,
   TitulationStage,
+  TitulationView,
+  TitulationOutcome,
 } from "./titulation-types";
 
 const PAGE_SIZE = 10;
+const VIEWS: readonly TitulationView[] = [
+  "REVIEW",
+  "ACTIVE",
+  "GRADUATED",
+  "ALL",
+];
+const OUTCOMES: readonly TitulationOutcome[] = [
+  "UNCONFIRMED",
+  "IN_PROGRESS",
+  "GRADUATED",
+  "NOT_GRADUATED",
+];
 const STAGES: readonly TitulationStage[] = [
   "UNCLASSIFIED",
   "INTAKE",
@@ -46,17 +62,6 @@ const STAGES: readonly TitulationStage[] = [
 ];
 const PERIOD_PATTERN = /^[1-9][0-9]{3}-S[12]$/;
 const CAREER_ID_PATTERN = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
-const DOCUMENT_FIELDS = [
-  ["defenseAnnexesStatus", "defenseAnnexes"],
-  ["thesisSummaryStatus", "thesisSummary"],
-  ["libraryFormStatus", "libraryForm"],
-  ["actaStatus", "acta"],
-  ["evaluationsStatus", "evaluations"],
-] as const satisfies readonly [
-  keyof TitulationListItem,
-  "defenseAnnexes" | "thesisSummary" | "libraryForm" | "acta" | "evaluations",
-][];
-
 function getInitialQuery(key: string, fallback: string): string {
   if (typeof window === "undefined") return fallback;
   return new URLSearchParams(window.location.search).get(key) ?? fallback;
@@ -83,6 +88,8 @@ function buildListBody(
   stage: string,
   careerId: string,
   period: string,
+  view: TitulationView,
+  outcome: string,
 ) {
   return JSON.stringify({
     page,
@@ -91,10 +98,14 @@ function buildListBody(
     ...(stage !== "ALL" ? { stage } : {}),
     ...(careerId !== "ALL" ? { careerId } : {}),
     ...(period !== "ALL" ? { period } : {}),
+    ...(view !== "ALL" ? { view } : {}),
+    ...(outcome !== "ALL" ? { outcome } : {}),
   });
 }
 
-function isTitulationFilterOptions(value: unknown): value is TitulationFilterOptions {
+function isTitulationFilterOptions(
+  value: unknown,
+): value is TitulationFilterOptions {
   if (typeof value !== "object" || value === null || Array.isArray(value))
     return false;
 
@@ -114,7 +125,14 @@ function isTitulationFilterOptions(value: unknown): value is TitulationFilterOpt
         typeof career.name === "string" &&
         career.name.length > 0,
     ) &&
-    typeof options.hasUndated === "boolean"
+    typeof options.hasUndated === "boolean" &&
+    typeof options.counts === "object" &&
+    options.counts !== null &&
+    VIEWS.every(
+      (view) =>
+        Number.isSafeInteger(options.counts?.[view]) &&
+        (options.counts?.[view] ?? -1) >= 0,
+    )
   );
 }
 
@@ -136,7 +154,10 @@ function FilterSelect({
   children: ReactNode;
 }) {
   return (
-    <label htmlFor={id} className="block min-w-0 text-sm font-semibold text-foreground">
+    <label
+      htmlFor={id}
+      className="block min-w-0 text-sm font-semibold text-foreground"
+    >
       {label}
       <select
         id={id}
@@ -161,27 +182,6 @@ function FilterFieldSkeleton() {
   );
 }
 
-function FieldValue({
-  label,
-  value,
-  missingValue,
-  query = "",
-}: {
-  label: string;
-  value: string | null;
-  missingValue: string;
-  query?: string;
-}) {
-  return (
-    <div className="min-w-0 rounded-xl border border-border bg-background p-3">
-      <dt className="text-xs font-semibold text-muted-foreground">{label}</dt>
-      <dd className="mt-1 break-words text-sm leading-relaxed text-foreground">
-        {value ? <SearchHighlight text={value} query={query} /> : missingValue}
-      </dd>
-    </div>
-  );
-}
-
 export default function TitulationWorkspace() {
   const t = useTranslations("TitulationPage");
   const locale = useLocale();
@@ -191,9 +191,22 @@ export default function TitulationWorkspace() {
     activeRole === "ACADEMIC_SECRETARY" ||
     activeRole === "TEACHING_SUPPORT_COORDINATOR";
   const [page, setPage] = useState(getInitialPage);
+  const [view, setView] = useState<TitulationView>(() => {
+    const initial = getInitialQuery("view", "ALL") as TitulationView;
+    return VIEWS.includes(initial) ? initial : "ALL";
+  });
+  const [outcome, setOutcome] = useState(() => {
+    const initial = getInitialQuery("outcome", "ALL");
+    return OUTCOMES.includes(initial as TitulationOutcome) ? initial : "ALL";
+  });
   const resetPage = useCallback(() => setPage(1), []);
-  const { input: searchInput, query: search, isWaiting, change: changeSearch, reset: resetSearch } =
-    useSearchQuery(resetPage);
+  const {
+    input: searchInput,
+    query: search,
+    isWaiting,
+    change: changeSearch,
+    reset: resetSearch,
+  } = useSearchQuery(resetPage);
   const [stage, setStage] = useState(() => {
     const initial = getInitialQuery("stage", "ALL");
     return initial === "ALL" || STAGES.includes(initial as TitulationStage)
@@ -208,23 +221,31 @@ export default function TitulationWorkspace() {
   });
   const [period, setPeriod] = useState(() => {
     const initial = getInitialQuery("period", "ALL");
-    return initial === "ALL" || initial === "UNRECORDED" || PERIOD_PATTERN.test(initial)
+    return initial === "ALL" ||
+      initial === "UNRECORDED" ||
+      PERIOD_PATTERN.test(initial)
       ? initial
       : "ALL";
   });
-  const [filterOptions, setFilterOptions] = useState<TitulationFilterOptions | null>(null);
+  const [filterOptions, setFilterOptions] =
+    useState<TitulationFilterOptions | null>(null);
   const [filterOptionsError, setFilterOptionsError] = useState(false);
   const [filterOptionsRetry, setFilterOptionsRetry] = useState(0);
   const [result, setResult] = useState<TitulationPageResult | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [linkedProcessId] = useState(() => {
+    const initial = getInitialQuery("processId", "");
+    return CAREER_ID_PATTERN.test(initial) ? initial : null;
+  });
+  const [selectedId, setSelectedId] = useState<string | null>(linkedProcessId);
   const [loadedDetail, setLoadedDetail] = useState<{
     key: string;
     process: TitulationProcess;
   } | null>(null);
   const [detailErrorKey, setDetailErrorKey] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
-  const [editingProcess, setEditingProcess] = useState<TitulationProcess | null>(null);
+  const [editingProcess, setEditingProcess] =
+    useState<TitulationProcess | null>(null);
   const filterCareerId =
     filterOptions &&
     careerId !== "ALL" &&
@@ -239,8 +260,10 @@ export default function TitulationWorkspace() {
         !filterOptions.periods.includes(period)))
       ? "ALL"
       : period;
-  const requestKey = `${page}|${search}|${stage}|${filterCareerId}|${filterPeriod}|${refreshKey}`;
-  const [completedRequestKey, setCompletedRequestKey] = useState<string | null>(null);
+  const requestKey = `${view}|${outcome}|${page}|${search}|${stage}|${filterCareerId}|${filterPeriod}|${refreshKey}`;
+  const [completedRequestKey, setCompletedRequestKey] = useState<string | null>(
+    null,
+  );
   const [loadErrorKey, setLoadErrorKey] = useState<string | null>(null);
   const selectedDetailKey = selectedId ? `${selectedId}|${refreshKey}` : "";
   const selectedProcess =
@@ -251,10 +274,15 @@ export default function TitulationWorkspace() {
     Boolean(selectedId) &&
     loadedDetail?.key !== selectedDetailKey &&
     detailErrorKey !== selectedDetailKey;
-  const detailError = Boolean(selectedId) && detailErrorKey === selectedDetailKey;
+  const detailError =
+    Boolean(selectedId) && detailErrorKey === selectedDetailKey;
   const filterOptionsLoading = filterOptions === null && !filterOptionsError;
 
-  function displayDefenseDate({ defenseDate, source, stage }: TitulationListItem) {
+  function displayDefenseDate({
+    defenseDate,
+    source,
+    stage,
+  }: TitulationListItem) {
     const historical = source === "LEGACY_ACCESS" || stage === "CLOSED";
     return formatDate(
       defenseDate,
@@ -266,6 +294,10 @@ export default function TitulationWorkspace() {
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.delete("q");
+    if (view !== "ALL") url.searchParams.set("view", view);
+    else url.searchParams.delete("view");
+    if (outcome !== "ALL") url.searchParams.set("outcome", outcome);
+    else url.searchParams.delete("outcome");
     if (stage !== "ALL") url.searchParams.set("stage", stage);
     else url.searchParams.delete("stage");
     if (page > 1) url.searchParams.set("page", String(page));
@@ -276,10 +308,18 @@ export default function TitulationWorkspace() {
     if (filterPeriod !== "ALL") url.searchParams.set("period", filterPeriod);
     else url.searchParams.delete("period");
     window.history.replaceState(window.history.state, "", url);
-  }, [filterCareerId, filterPeriod, page, stage]);
+  }, [filterCareerId, filterPeriod, page, stage, view, outcome]);
 
   useEffect(() => {
     const onPopState = () => {
+      const nextView = getInitialQuery("view", "ALL") as TitulationView;
+      setView(VIEWS.includes(nextView) ? nextView : "ALL");
+      const nextOutcome = getInitialQuery("outcome", "ALL");
+      setOutcome(
+        OUTCOMES.includes(nextOutcome as TitulationOutcome)
+          ? nextOutcome
+          : "ALL",
+      );
       const nextStage = getInitialQuery("stage", "ALL");
       const nextCareerId = getInitialQuery("careerId", "ALL");
       const nextPeriod = getInitialQuery("period", "ALL");
@@ -331,7 +371,15 @@ export default function TitulationWorkspace() {
     const controller = new AbortController();
     apiFetch<TitulationPageResult>("/academic/titulations/search", {
       method: "POST",
-      body: buildListBody(page, search, stage, filterCareerId, filterPeriod),
+      body: buildListBody(
+        page,
+        search,
+        stage,
+        filterCareerId,
+        filterPeriod,
+        view,
+        outcome,
+      ),
       cache: "no-store",
       signal: controller.signal,
     })
@@ -348,7 +396,9 @@ export default function TitulationWorkspace() {
         setLoadErrorKey(null);
         setCompletedRequestKey(requestKey);
         setSelectedId((current) =>
-          current && nextResult.items.some((item) => item.id === current)
+          current &&
+          (current === linkedProcessId ||
+            nextResult.items.some((item) => item.id === current))
             ? current
             : (nextResult.items[0]?.id ?? null),
         );
@@ -360,7 +410,17 @@ export default function TitulationWorkspace() {
         }
       });
     return () => controller.abort();
-  }, [filterCareerId, filterPeriod, page, requestKey, search, stage]);
+  }, [
+    filterCareerId,
+    filterPeriod,
+    page,
+    requestKey,
+    search,
+    stage,
+    view,
+    outcome,
+    linkedProcessId,
+  ]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -394,6 +454,8 @@ export default function TitulationWorkspace() {
     setEditingProcess(null);
     resetSearch();
     setStage("ALL");
+    setView("ALL");
+    setOutcome("ALL");
     setCareerId("ALL");
     setPeriod("ALL");
     setPage(1);
@@ -430,13 +492,38 @@ export default function TitulationWorkspace() {
         subtitle={t("subtitle")}
         actions={
           canManage ? (
-            <button type="button" onClick={openCreate} className={academicPrimaryActionClass}>
+            <button
+              type="button"
+              onClick={openCreate}
+              className={academicPrimaryActionClass}
+            >
               <Plus className="h-4 w-4" aria-hidden="true" />
               {t("createProcess")}
             </button>
           ) : undefined
         }
       />
+
+      <section aria-label={t("workflow.navigation")} className="space-y-3">
+        <FilterTabs
+          label={t("workflow.navigation")}
+          value={view}
+          options={VIEWS.map((value) => ({
+            value,
+            label: t(`views.${value}`),
+            count: filterOptions?.counts[value],
+          }))}
+          onChange={(value) => {
+            setView(value);
+            setOutcome("ALL");
+            setPage(1);
+            setSelectedId(null);
+          }}
+        />
+        <p className="max-w-prose text-base leading-relaxed text-muted-foreground">
+          {t(`viewHelp.${view}`)}
+        </p>
+      </section>
 
       <section
         aria-label={t("filters.title")}
@@ -451,7 +538,27 @@ export default function TitulationWorkspace() {
           maxLength={100}
           pending={isWaiting || (Boolean(search) && loading)}
         />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div
+          className={`grid gap-4 sm:grid-cols-2 ${view === "ALL" || view === "REVIEW" ? "xl:grid-cols-4" : "xl:grid-cols-3"}`}
+        >
+          {(view === "ALL" || view === "REVIEW") && (
+            <FilterSelect
+              id="titulation-outcome-filter"
+              label={t("workflow.outcome")}
+              value={outcome}
+              onChange={(event) => {
+                setOutcome(event.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="ALL">{t("workflow.allOutcomes")}</option>
+              {OUTCOMES.map((value) => (
+                <option key={value} value={value}>
+                  {t(`outcomes.${value}`)}
+                </option>
+              ))}
+            </FilterSelect>
+          )}
           <FilterSelect
             id="titulation-stage-filter"
             label={t("stageFilterLabel")}
@@ -500,7 +607,8 @@ export default function TitulationWorkspace() {
                 label={t("filters.period")}
                 value={filterPeriod}
                 disabled={
-                  filterOptions.periods.length === 0 && !filterOptions.hasUndated
+                  filterOptions.periods.length === 0 &&
+                  !filterOptions.hasUndated
                 }
                 descriptionId="titulation-period-help"
                 onChange={(event) => {
@@ -564,22 +672,32 @@ export default function TitulationWorkspace() {
           role="alert"
           className="flex flex-col gap-4 rounded-2xl border border-danger/30 bg-danger/10 p-5 sm:flex-row sm:items-center sm:justify-between"
         >
-          <p className="text-sm leading-relaxed text-foreground">{t("errors.load")}</p>
-          <button type="button" onClick={retryList} className={academicSecondaryActionClass}>
+          <p className="text-sm leading-relaxed text-foreground">
+            {t("errors.load")}
+          </p>
+          <button
+            type="button"
+            onClick={retryList}
+            className={academicSecondaryActionClass}
+          >
             <RefreshCw className="h-4 w-4" aria-hidden="true" />
             {t("retry")}
           </button>
         </section>
       ) : loading && !result?.total ? (
-        <TableSkeleton rows={4} columns={4} label={t("loading" )} />
+        <TableSkeleton rows={4} columns={4} label={t("loading")} />
       ) : result && result.total === 0 ? (
         <section className="rounded-2xl border border-border bg-card px-6 py-12 text-center shadow-sm">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
             <FileText className="h-5 w-5" aria-hidden="true" />
           </div>
-          <h2 className="mt-4 text-lg font-semibold text-foreground">{t("empty.title")}</h2>
+          <h2 className="mt-4 text-lg font-semibold text-foreground">
+            {t("empty.title")}
+          </h2>
           <p className="mx-auto mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">
             {search ||
+            view !== "ALL" ||
+            outcome !== "ALL" ||
             stage !== "ALL" ||
             filterCareerId !== "ALL" ||
             filterPeriod !== "ALL"
@@ -588,11 +706,13 @@ export default function TitulationWorkspace() {
           </p>
         </section>
       ) : (
-        <section className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]">
+        <section className="titulation-workspace-grid grid items-start gap-5">
           <div className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
             <div className="space-y-2 border-b border-border bg-muted/20 px-4 py-3">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-base font-semibold text-foreground">{t("casesTitle")}</h2>
+                <h2 className="text-base font-semibold text-foreground">
+                  {t("casesTitle")}
+                </h2>
                 <button
                   type="button"
                   onClick={retryList}
@@ -606,14 +726,22 @@ export default function TitulationWorkspace() {
                 <PaginationControls
                   page={displayedPage}
                   totalPages={totalPages}
-                  summary={<span role="status">{loading ? t("loading") : summary}</span>}
+                  summary={
+                    <span role="status">
+                      {loading ? t("loading") : summary}
+                    </span>
+                  }
                   onPageChange={setPage}
                   className="[&_button]:min-h-11 [&_button]:min-w-11"
                   showSinglePage
                 />
               </nav>
             </div>
-            <ul className="divide-y divide-border" aria-label={t("casesTitle")} aria-busy={loading}>
+            <ul
+              className="divide-y divide-border"
+              aria-label={t("casesTitle")}
+              aria-busy={loading}
+            >
               {items.map((item) => {
                 const isSelected = item.id === selectedId;
                 return (
@@ -621,7 +749,10 @@ export default function TitulationWorkspace() {
                     <button
                       type="button"
                       aria-pressed={isSelected}
-                      aria-label={t("selectCase", { id: item.reference, students: item.studentName })}
+                      aria-label={t("selectCase", {
+                        id: item.reference,
+                        students: item.studentName,
+                      })}
                       onClick={() => setSelectedId(item.id)}
                       className={`grid w-full gap-3 px-4 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center ${
                         isSelected ? "bg-primary/5" : "hover:bg-muted/30"
@@ -633,21 +764,48 @@ export default function TitulationWorkspace() {
                         </span>
                         <span className="min-w-0">
                           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span className="font-semibold text-foreground"><SearchHighlight text={item.studentName} query={search} /></span>
-                            <span className="text-xs font-medium text-muted-foreground"><SearchHighlight text={item.reference} query={search} /></span>
+                            <span className="font-semibold text-foreground">
+                              <SearchHighlight
+                                text={item.studentName}
+                                query={search}
+                              />
+                            </span>
+                            <span className="text-xs font-medium text-muted-foreground">
+                              <SearchHighlight
+                                text={item.reference}
+                                query={search}
+                              />
+                            </span>
                           </span>
                           <span className="mt-1 block line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                            {item.thesisTopic ? <SearchHighlight text={item.thesisTopic} query={search} /> : t("missingValue")}
+                            {item.thesisTopic ? (
+                              <SearchHighlight
+                                text={item.thesisTopic}
+                                query={search}
+                              />
+                            ) : (
+                              t("missingValue")
+                            )}
                           </span>
                           <span className="mt-1 block text-xs text-muted-foreground">
-                            <SearchHighlight text={item.careerName} query={search} /> · {item.degree || t("missingValue")}
+                            <SearchHighlight
+                              text={item.careerName}
+                              query={search}
+                            />{" "}
+                            · {item.degree || t("missingValue")}
                           </span>
                         </span>
                       </span>
                       <span className="flex flex-wrap items-center gap-2 sm:justify-end">
-                        <TitulationStageBadge stage={item.stage} label={t(`statuses.${item.stage}`)} />
+                        <TitulationOutcomeBadge
+                          outcome={item.outcome}
+                          label={t(`outcomes.${item.outcome}`)}
+                        />
                         <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+                          <CalendarDays
+                            className="h-3.5 w-3.5"
+                            aria-hidden="true"
+                          />
                           {displayDefenseDate(item)}
                         </span>
                       </span>
@@ -664,23 +822,39 @@ export default function TitulationWorkspace() {
           >
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-5 py-4">
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-primary">{t("detail.eyebrow")}</p>
-                <h2 id="titulation-detail-title" className="mt-1 text-lg font-semibold text-foreground">
+                <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                  {t("detail.eyebrow")}
+                </p>
+                <h2
+                  id="titulation-detail-title"
+                  className="mt-1 text-lg font-semibold text-foreground"
+                >
                   {t("detail.title")}
                 </h2>
                 {selectedSummary && (
-                  <p className="mt-1 break-all text-sm text-muted-foreground">{selectedSummary.reference}</p>
+                  <p className="mt-1 break-all text-sm text-muted-foreground">
+                    {selectedSummary.reference}
+                  </p>
                 )}
               </div>
               {canManage && selectedProcess && (
-                <button type="button" onClick={openEdit} className={academicSecondaryActionClass}>
+                <button
+                  type="button"
+                  onClick={openEdit}
+                  className={academicSecondaryActionClass}
+                >
                   {t("editProcess")}
                 </button>
               )}
             </div>
             <div className="space-y-5 p-5">
               {detailLoading ? (
-                <div role="status" aria-label={t("detail.loading")} aria-busy="true" className="space-y-3">
+                <div
+                  role="status"
+                  aria-label={t("detail.loading")}
+                  aria-busy="true"
+                  className="space-y-3"
+                >
                   <div className="h-12 animate-pulse rounded-xl bg-muted" />
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="h-16 animate-pulse rounded-xl bg-muted" />
@@ -691,81 +865,29 @@ export default function TitulationWorkspace() {
                 </div>
               ) : detailError ? (
                 <div role="alert" className="space-y-3">
-                  <p className="text-sm leading-relaxed text-muted-foreground">{t("detail.error")}</p>
-                  <button type="button" onClick={() => setRefreshKey((value) => value + 1)} className={academicSecondaryActionClass}>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {t("detail.error")}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setRefreshKey((value) => value + 1)}
+                    className={academicSecondaryActionClass}
+                  >
                     <RefreshCw className="h-4 w-4" aria-hidden="true" />
                     {t("retry")}
                   </button>
                 </div>
               ) : selectedProcess ? (
-                <>
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="font-semibold text-foreground"><SearchHighlight text={selectedProcess.studentName} query={search} /></p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                        {t(`sources.${selectedProcess.source}`)}
-                      </span>
-                      <TitulationStageBadge
-                        stage={selectedProcess.stage}
-                        label={t(`statuses.${selectedProcess.stage}`)}
-                      />
-                    </div>
-                  </div>
-                  <dl className="grid gap-3 sm:grid-cols-2">
-                    <FieldValue label={t("form.studentRut")} value={selectedProcess.studentRut} missingValue={t("missingValue")} query={search} />
-                    <FieldValue label={t("form.studentEmail")} value={selectedProcess.studentEmail} missingValue={t("missingValue")} query={search} />
-                    <FieldValue label={t("form.studentPhone")} value={selectedProcess.studentPhone} missingValue={t("missingValue")} />
-                    <FieldValue label={t("form.career")} value={selectedProcess.careerName} missingValue={t("missingValue")} query={search} />
-                    <FieldValue label={t("form.degree")} value={selectedProcess.degree} missingValue={t("missingValue")} />
-                    <FieldValue label={t("form.defenseDate")} value={displayDefenseDate(selectedProcess)} missingValue={t("missingValue")} />
-                    <div className="rounded-xl border border-border bg-background p-3 sm:col-span-2">
-                      <dt className="text-xs font-semibold text-muted-foreground">{t("form.thesisTopic")}</dt>
-                      <dd className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">{selectedProcess.thesisTopic ? <SearchHighlight text={selectedProcess.thesisTopic} query={search} /> : t("missingValue")}</dd>
-                    </div>
-                  </dl>
-                  <section aria-labelledby="titulation-committee-title">
-                    <h3 id="titulation-committee-title" className="text-sm font-semibold text-foreground">{t("committeeTitle")}</h3>
-                    <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-                      <FieldValue label={t("committeeRoles.guide")} value={selectedProcess.guideName} missingValue={t("missingValue")} query={search} />
-                      <FieldValue label={t("committeeRoles.coGuide")} value={selectedProcess.coGuideName} missingValue={t("missingValue")} query={search} />
-                      <FieldValue label={t("committeeRoles.reviewerOne")} value={selectedProcess.reviewerOneName} missingValue={t("missingValue")} query={search} />
-                      <FieldValue label={t("committeeRoles.reviewerTwo")} value={selectedProcess.reviewerTwoName} missingValue={t("missingValue")} query={search} />
-                    </dl>
-                  </section>
-                  <section aria-labelledby="titulation-documents-title">
-                    <h3 id="titulation-documents-title" className="text-sm font-semibold text-foreground">{t("documentsTitle")}</h3>
-                    <ul className="mt-3 divide-y divide-border rounded-xl border border-border">
-                      {DOCUMENT_FIELDS.map(([field, document]) => {
-                        const status = selectedProcess[field] as TitulationDocumentStatus;
-                        return (
-                          <li key={field} className="flex min-h-11 items-center justify-between gap-3 px-3 py-2">
-                            <span className="min-w-0 text-sm text-foreground">{t(`documents.${document}`)}</span>
-                            <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
-                              {t(`documentStatus.${status}`)}
-                            </span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t("documentsManualNote")}</p>
-                  </section>
-                  {canManage && (
-                    <TitulationAttachments
-                      key={`${selectedProcess.id}-attachments`}
-                      processId={selectedProcess.id}
-                    />
-                  )}
-                  {canManage && (
-                    <TitulationDocumentDrafts
-                      key={`${selectedProcess.id}-drafts`}
-                      processId={selectedProcess.id}
-                      reference={selectedProcess.reference}
-                      drafts={selectedProcess.documentDrafts ?? []}
-                    />
-                  )}
-                </>
+                <TitulationRecordDetails
+                  process={selectedProcess}
+                  query={search}
+                  defenseDate={displayDefenseDate(selectedProcess)}
+                  canManage={canManage}
+                />
               ) : (
-                <p className="text-sm leading-relaxed text-muted-foreground">{t("selectCasePrompt")}</p>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {t("selectCasePrompt")}
+                </p>
               )}
             </div>
           </aside>

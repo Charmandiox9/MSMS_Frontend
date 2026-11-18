@@ -1,5 +1,5 @@
 import { resolveApiBaseUrl } from './runtime-config';
-import { formatApiErrorMessage } from './api-error';
+import { ApiError, formatApiErrorMessage } from './api-error';
 
 async function requestApi(path: string, init?: RequestInit): Promise<Response> {
   const apiUrl = await resolveApiBaseUrl();
@@ -20,7 +20,7 @@ async function requestApi(path: string, init?: RequestInit): Promise<Response> {
 
   if (!response.ok) {
     const payload: unknown = await response.json().catch(() => null);
-    throw new Error(formatApiErrorMessage(payload));
+    throw new ApiError(formatApiErrorMessage(payload), response.status);
   }
 
   return response;

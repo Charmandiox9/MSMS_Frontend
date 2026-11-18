@@ -11,6 +11,9 @@ export type TitulationDocumentStatus =
   | "RECEIVED"
   | "PREPARED";
 
+export type TitulationOutcome = "UNCONFIRMED" | "IN_PROGRESS" | "GRADUATED" | "NOT_GRADUATED";
+export type TitulationView = "ALL" | "REVIEW" | "ACTIVE" | "GRADUATED";
+
 export type TitulationDataSource = "MANUAL" | "LEGACY_ACCESS";
 export type TitulationDocumentDraftKind =
   | "defense-annexes"
@@ -19,6 +22,8 @@ export type TitulationDocumentDraftKind =
 
 export interface TitulationProcess {
   id: string;
+  studentId: string | null;
+  student: { id: string; name: string; email: string | null; rut: string | null } | null;
   reference: string;
   studentName: string;
   studentRut: string | null;
@@ -34,6 +39,7 @@ export interface TitulationProcess {
   reviewerTwoName: string | null;
   defenseDate: string | null;
   stage: TitulationStage;
+  outcome: TitulationOutcome;
   source: TitulationDataSource;
   documentDrafts: TitulationDocumentDraftKind[];
   defenseAnnexesStatus: TitulationDocumentStatus;
@@ -57,6 +63,7 @@ export interface TitulationFilterOptions {
   periods: string[];
   careers: { id: string; name: string }[];
   hasUndated: boolean;
+  counts: Record<TitulationView, number>;
 }
 
 export interface TitulationListItem {
@@ -68,6 +75,7 @@ export interface TitulationListItem {
   careerName: string;
   defenseDate: string | null;
   stage: TitulationStage;
+  outcome: TitulationOutcome;
   source: TitulationDataSource;
   defenseAnnexesStatus: TitulationDocumentStatus;
   thesisSummaryStatus: TitulationDocumentStatus;
@@ -78,6 +86,7 @@ export interface TitulationListItem {
 }
 
 export interface TitulationFormValues {
+  studentId: string | null;
   studentName: string;
   studentRut: string;
   studentEmail: string;
@@ -91,6 +100,7 @@ export interface TitulationFormValues {
   reviewerTwoName: string;
   defenseDate: string;
   stage: TitulationStage;
+  outcome: TitulationOutcome;
   defenseAnnexesStatus: TitulationDocumentStatus;
   thesisSummaryStatus: TitulationDocumentStatus;
   libraryFormStatus: TitulationDocumentStatus;

@@ -1661,7 +1661,11 @@
     "assistantships": "Assistantship history ({count})",
     "assistantshipCourseNrc": "Course NRC: {nrc}",
     "assistantshipNrc": "Assistantship NRC: {nrc}",
-    "admissionHint": "Format YYYYSS: year (YYYY) + semester (SS). Example: 202610 = first semester of 2026; 202620 = second semester of 2026."
+    "admissionHint": "Format YYYYSS: year (YYYY) + semester (SS). Example: 202610 = first semester of 2026; 202620 = second semester of 2026.",
+    "emailUnrecorded": "No email recorded",
+    "titulations": "Graduation records",
+    "noTitulations": "No graduation records",
+    "emailOptionalHelp": "Optional"
   },
   "TitulationPage": {
     "eyebrow": "Student support",
@@ -1761,7 +1765,8 @@
     },
     "errors": {
       "load": "Records could not be loaded. Try again.",
-      "save": "The process could not be saved. Check the information and try again."
+      "save": "The process could not be saved. Check the information and try again.",
+      "identityConflict": "The RUT and email do not match the same student record, or the record changed. Review the academic record and save again."
     },
     "empty": {
       "title": "No records to show",
@@ -1831,7 +1836,47 @@
       "saveChanges": "Save changes",
       "create": "Register process"
     },
-    "close": "Close"
+    "close": "Close",
+    "workflow": {
+      "navigation": "Organize records",
+      "outcome": "Graduation status",
+      "allOutcomes": "All graduation statuses",
+      "missing": "{count, plural, one {# field to complete} other {# fields to complete}}",
+      "missingHelp": "Missing information can be completed later. It does not change the graduation status.",
+      "student": "Student information",
+      "linkedStudent": "Linked academic record: {name}",
+      "studentRecord": "View academic history",
+      "studentUnlinked": "The academic record still needs to be linked.",
+      "snapshotHelp": "These are the details recorded for this process. The academic record keeps the student’s current information.",
+      "thesis": "Thesis and committee",
+      "defense": "Defense",
+      "receivedFiles": "Received files",
+      "generateDocuments": "Generate Word documents",
+      "findStudent": "Find a registered student",
+      "findStudentHelp": "Search by name, RUT or email. If there is no academic record yet, enter the available details below.",
+      "changeStudent": "Choose another student",
+      "findStudentError": "The student search failed. Change the search to try again.",
+      "studentNotFound": "No matches. You can register the student using the available information.",
+      "studentWithoutIdentifiers": "No RUT or email recorded"
+    },
+    "views": {
+      "REVIEW": "To review",
+      "ACTIVE": "In progress",
+      "GRADUATED": "Graduates",
+      "ALL": "All records"
+    },
+    "viewHelp": {
+      "REVIEW": "Records with information or documentation to verify, including graduates with missing information.",
+      "ACTIVE": "Students currently completing their graduation process. Check the stage for their progress.",
+      "GRADUATED": "Graduates with their available information and documents. Missing dates can be added later.",
+      "ALL": "All graduation records, including historical records and processes closed without graduation."
+    },
+    "outcomes": {
+      "UNCONFIRMED": "Unconfirmed",
+      "IN_PROGRESS": "In progress",
+      "GRADUATED": "Graduated",
+      "NOT_GRADUATED": "Not graduated"
+    }
   },
   "HourlyPayments": {
     "rut": "RUT",

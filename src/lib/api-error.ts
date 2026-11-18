@@ -1,3 +1,10 @@
+export class ApiError extends Error {
+  constructor(message: string, public readonly status: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 function collectErrorMessages(value: unknown): string[] {
   if (typeof value === 'string') return value.trim() ? [value] : [];
   if (Array.isArray(value)) return value.flatMap(collectErrorMessages);

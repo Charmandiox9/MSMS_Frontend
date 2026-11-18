@@ -40,6 +40,7 @@ export default function StudentsPage({
   initialNrc?: string;
 }) {
   const t = useTranslations("StudentsPage");
+  const titulation = useTranslations("TitulationPage");
   const locale = useLocale();
   const { activeRole } = useActiveRole();
   const canManage =
@@ -357,7 +358,7 @@ export default function StudentsPage({
                         {student.name}
                       </h2>
                       <p className="break-all text-xs text-muted-foreground">
-                        {student.email}
+                        {student.email || t("emailUnrecorded")}
                       </p>
                     </div>
                   </div>
@@ -551,6 +552,11 @@ export default function StudentsPage({
               value: viewingStudent.admission?.slice(0, 4),
             },
             { label: t("admissionSemester"), value: viewingAdmissionTerm },
+            { label: t("titulations"), value: viewingStudent.titulationProcesses?.length ? (
+              <ul className="space-y-2">
+                {viewingStudent.titulationProcesses.map((process) => <li key={process.id}><Link href={`/dashboard/titulation?processId=${encodeURIComponent(process.id)}`} className="inline-flex min-h-11 items-center text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-primary">{process.degree || process.careerName} · {titulation(`outcomes.${process.outcome}`)}</Link></li>)}
+              </ul>
+            ) : t("noTitulations") },
           ]}
         />
       )}

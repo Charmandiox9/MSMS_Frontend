@@ -17,11 +17,13 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import FormModal from "@/components/ui/FormModal";
+import TitulationStudentPicker from "./TitulationStudentPicker";
 import {
   academicPrimaryActionClass,
   academicSecondaryActionClass,
 } from "@/components/dashboard/academic/academicActionStyles";
 import { apiFetch } from "@/lib/api";
+import { ApiError } from "@/lib/api-error";
 import { isValidChileanRut } from "@/lib/chilean-rut";
 import type { CareerOption } from "@/types/careers";
 import type {
@@ -29,6 +31,7 @@ import type {
   TitulationFormValues,
   TitulationProcess,
   TitulationStage,
+  TitulationOutcome,
 } from "./titulation-types";
 
 interface TitulationProcessFormProps {
@@ -54,6 +57,7 @@ const DOCUMENT_STATUSES: readonly TitulationDocumentStatus[] = [
 const PHONE_PATTERN = /^\+?[0-9().\s-]{8,24}$/;
 
 const EMPTY_VALUES: TitulationFormValues = {
+  studentId: null,
   studentName: "",
   studentRut: "",
   studentEmail: "",
@@ -67,6 +71,7 @@ const EMPTY_VALUES: TitulationFormValues = {
   reviewerTwoName: "",
   defenseDate: "",
   stage: "INTAKE",
+  outcome: "IN_PROGRESS",
   defenseAnnexesStatus: "PENDING",
   thesisSummaryStatus: "PENDING",
   libraryFormStatus: "PENDING",
@@ -74,9 +79,12 @@ const EMPTY_VALUES: TitulationFormValues = {
   evaluationsStatus: "PENDING",
 };
 
-function initialValues(process?: TitulationProcess | null): TitulationFormValues {
+function initialValues(
+  process?: TitulationProcess | null,
+): TitulationFormValues {
   if (!process) return EMPTY_VALUES;
   return {
+    studentId: process.studentId,
     studentName: process.studentName,
     studentRut: process.studentRut ?? "",
     studentEmail: process.studentEmail ?? "",
@@ -90,6 +98,7 @@ function initialValues(process?: TitulationProcess | null): TitulationFormValues
     reviewerTwoName: process.reviewerTwoName ?? "",
     defenseDate: process.defenseDate?.slice(0, 10) ?? "",
     stage: process.stage,
+    outcome: process.outcome,
     defenseAnnexesStatus: process.defenseAnnexesStatus,
     thesisSummaryStatus: process.thesisSummaryStatus,
     libraryFormStatus: process.libraryFormStatus,
@@ -143,7 +152,9 @@ function TextField({
       >
         {label}{" "}
         {required ? (
-          <span aria-hidden="true" className="text-danger">*</span>
+          <span aria-hidden="true" className="text-danger">
+            *
+          </span>
         ) : (
           <span className="font-normal text-muted-foreground">
             ({optionalLabel})
@@ -293,7 +304,7 @@ export default function TitulationProcessForm({
   const previousStepRef = useRef(step);
   const [values, setValues] = useState(() => initialValues(process));
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState(false);
+  const [saveError, setSaveError] = useState<"save" | "identityConflict" | null>(null);
   const [rutError, setRutError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [careerOptions, setCareerOptions] = useState<CareerOption[]>([]);
@@ -403,9 +414,10 @@ export default function TitulationProcessForm({
     }
     if (!formRef.current?.reportValidity()) return;
     setSaving(true);
-    setSaveError(false);
+    setSaveError(null);
 
     const payload = {
+      ...(!process && values.studentId ? { studentId: values.studentId } : {}),
       studentName: values.studentName,
       studentRut: values.studentRut.trim() || null,
       studentEmail: values.studentEmail.trim() || null,
@@ -421,6 +433,7 @@ export default function TitulationProcessForm({
       ...(process
         ? {
             stage: values.stage,
+            outcome: values.outcome,
             defenseAnnexesStatus: values.defenseAnnexesStatus,
             thesisSummaryStatus: values.thesisSummaryStatus,
             libraryFormStatus: values.libraryFormStatus,
@@ -441,8 +454,8 @@ export default function TitulationProcessForm({
         },
       );
       onSaved(saved);
-    } catch {
-      setSaveError(true);
+    } catch (cause: unknown) {
+      setSaveError(cause instanceof ApiError && cause.status === 409 ? "identityConflict" : "save");
     } finally {
       setSaving(false);
     }
@@ -532,7 +545,10 @@ export default function TitulationProcessForm({
                 htmlFor="titulation-career"
                 className="block text-sm font-semibold text-foreground"
               >
-                {t("form.career")} <span aria-hidden="true" className="text-danger">*</span>
+                {t("form.career")}{" "}
+                <span aria-hidden="true" className="text-danger">
+                  *
+                </span>
               </label>
               <select
                 id="titulation-career"
@@ -679,7 +695,10 @@ export default function TitulationProcessForm({
 
     if (!isEditing) {
       return (
-        <section className="space-y-4" aria-labelledby="titulation-pending-documents">
+        <section
+          className="space-y-4"
+          aria-labelledby="titulation-pending-documents"
+        >
           <div>
             <h3
               id="titulation-pending-documents"
@@ -692,23 +711,21 @@ export default function TitulationProcessForm({
             </p>
           </div>
           <ul className="divide-y divide-border rounded-2xl border border-border">
-            {([
-              "defenseAnnexes",
-              "thesisSummary",
-              "libraryForm",
-            ] as const).map((document) => (
-              <li
-                key={document}
-                className="flex min-h-12 items-center justify-between gap-3 px-4 py-3"
-              >
-                <span className="text-sm text-foreground">
-                {t(`documents.${document}`)}
-                </span>
-                <span className="shrink-0 text-sm text-muted-foreground">
-                  {t("documentStatus.PENDING")}
-                </span>
-              </li>
-            ))}
+            {(["defenseAnnexes", "thesisSummary", "libraryForm"] as const).map(
+              (document) => (
+                <li
+                  key={document}
+                  className="flex min-h-12 items-center justify-between gap-3 px-4 py-3"
+                >
+                  <span className="text-sm text-foreground">
+                    {t(`documents.${document}`)}
+                  </span>
+                  <span className="shrink-0 text-sm text-muted-foreground">
+                    {t("documentStatus.PENDING")}
+                  </span>
+                </li>
+              ),
+            )}
           </ul>
         </section>
       );
@@ -730,6 +747,19 @@ export default function TitulationProcessForm({
             options={STAGES}
             translate={(stage) => t(`statuses.${stage}`)}
             onChange={(value) => updateField("stage", value)}
+          />
+          <SelectField<TitulationOutcome>
+            id="titulation-outcome-edit"
+            label={t("workflow.outcome")}
+            value={values.outcome}
+            options={[
+              "UNCONFIRMED",
+              "IN_PROGRESS",
+              "GRADUATED",
+              "NOT_GRADUATED",
+            ]}
+            translate={(outcome) => t(`outcomes.${outcome}`)}
+            onChange={(value) => updateField("outcome", value)}
           />
           {(
             [
@@ -773,7 +803,8 @@ export default function TitulationProcessForm({
           className={academicPrimaryActionClass}
           disabled={
             step === 0 &&
-            (!values.careerId || (careerLoadState !== "ready" && !process?.careerId))
+            (!values.careerId ||
+              (careerLoadState !== "ready" && !process?.careerId))
           }
         >
           <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -866,10 +897,31 @@ export default function TitulationProcessForm({
             role="alert"
             className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger"
           >
-            {t("errors.save")}
+            {t(`errors.${saveError}`)}
           </p>
         )}
 
+        {step === 0 && !process && (
+          <TitulationStudentPicker
+            selectedName={values.studentId ? values.studentName : null}
+            onSelect={(student) => {
+              setValues((current) => ({
+                ...current,
+                studentId: student?.id ?? null,
+                studentName: student?.name ?? "",
+                studentRut: student?.rut ?? "",
+                studentEmail: student?.email ?? "",
+                careerId:
+                  student?.careerId &&
+                  availableCareers.some(
+                    (career) => career.id === student.careerId,
+                  )
+                    ? student.careerId
+                    : current.careerId,
+              }));
+            }}
+          />
+        )}
         {renderCurrentStep()}
       </form>
     </FormModal>

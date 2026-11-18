@@ -59,6 +59,12 @@ describe('apiFetch', () => {
     await expect(apiFetch('/users/u-1', { method: 'DELETE' })).resolves.toBeUndefined();
   });
 
+  it('preserves the conflict status so forms can give a corrective message', async () => {
+    installFakeApi({ 'POST /academic/titulations': () => ({ status: 409, body: { message: 'Identity conflict' } }) });
+    const { apiFetch } = await loadApi();
+    await expect(apiFetch('/academic/titulations', { method: 'POST', body: '{}' })).rejects.toMatchObject({ name: 'ApiError', status: 409, message: 'Identity conflict' });
+  });
+
   it('downloads only the expected file type with the session cookie', async () => {
     const contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     const mock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {

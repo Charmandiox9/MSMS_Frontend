@@ -27,6 +27,15 @@ export interface Student {
     career: { id: string; code: string; name: string };
   } | null;
   enrollments: StudentEnrollment[];
+  titulationProcesses?: {
+    id: string;
+    stage: import("@/components/dashboard/titulation/titulation-types").TitulationStage;
+    outcome: import("@/components/dashboard/titulation/titulation-types").TitulationOutcome;
+    careerName: string;
+    degree: string | null;
+    defenseDate: string | null;
+    createdAt: string;
+  }[];
   assistantships?: {
     id: string;
     course: { id: string; name: string; code: string | null };

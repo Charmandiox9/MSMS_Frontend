@@ -1741,7 +1741,11 @@
     "assistantships": "Historial de ayudantías ({count})",
     "assistantshipCourseNrc": "NRC de asignatura: {nrc}",
     "assistantshipNrc": "NRC de ayudantía: {nrc}",
-    "admissionHint": "Formato AAAASS: año (AAAA) + semestre (SS). Ejemplo: 202610 = primer semestre de 2026; 202620 = segundo semestre de 2026."
+    "admissionHint": "Formato AAAASS: año (AAAA) + semestre (SS). Ejemplo: 202610 = primer semestre de 2026; 202620 = segundo semestre de 2026.",
+    "emailUnrecorded": "Sin correo registrado",
+    "titulations": "Titulaciones",
+    "noTitulations": "Sin expedientes de titulación",
+    "emailOptionalHelp": "Opcional"
   },
   "TitulationPage": {
     "eyebrow": "Atención estudiantil",
@@ -1841,7 +1845,8 @@
     },
     "errors": {
       "load": "No fue posible cargar los expedientes. Intenta nuevamente.",
-      "save": "No fue posible guardar el proceso. Revisa los datos e inténtalo otra vez."
+      "save": "No fue posible guardar el proceso. Revisa los datos e inténtalo otra vez.",
+      "identityConflict": "El RUT y el correo no coinciden con una misma ficha de alumno, o sus datos cambiaron. Revisa la ficha académica y vuelve a guardar."
     },
     "empty": {
       "title": "No hay expedientes para mostrar",
@@ -1911,7 +1916,47 @@
       "saveChanges": "Guardar cambios",
       "create": "Registrar proceso"
     },
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "workflow": {
+      "navigation": "Organizar expedientes",
+      "outcome": "Situación de titulación",
+      "allOutcomes": "Todas las situaciones",
+      "missing": "{count, plural, one {# dato por completar} other {# datos por completar}}",
+      "missingHelp": "Los datos pendientes pueden completarse después. No cambian la situación de titulación.",
+      "student": "Antecedentes del alumno",
+      "linkedStudent": "Ficha académica vinculada: {name}",
+      "studentRecord": "Consultar trayectoria académica",
+      "studentUnlinked": "Vinculación con la ficha académica pendiente.",
+      "snapshotHelp": "Estos son los antecedentes del expediente. La ficha académica conserva los datos actuales del alumno.",
+      "thesis": "Tesis y comisión",
+      "defense": "Defensa",
+      "receivedFiles": "Archivos recibidos",
+      "generateDocuments": "Generar documentos Word",
+      "findStudent": "Buscar alumno registrado",
+      "findStudentHelp": "Busca por nombre, RUT o correo. Si aún no existe, completa sus antecedentes debajo.",
+      "changeStudent": "Elegir otro alumno",
+      "findStudentError": "No se pudo buscar al alumno. Vuelve a intentarlo cambiando la búsqueda.",
+      "studentNotFound": "Sin coincidencias. Puedes registrar al alumno con los datos disponibles.",
+      "studentWithoutIdentifiers": "Sin RUT ni correo registrado"
+    },
+    "views": {
+      "REVIEW": "Por revisar",
+      "ACTIVE": "En proceso",
+      "GRADUATED": "Titulados",
+      "ALL": "Todos"
+    },
+    "viewHelp": {
+      "REVIEW": "Expedientes con antecedentes o documentación por verificar. Incluye titulados con información pendiente.",
+      "ACTIVE": "Alumnos que están gestionando su titulación. Consulta la etapa para conocer su avance.",
+      "GRADUATED": "Alumnos titulados, con sus antecedentes y documentos disponibles. Las fechas faltantes se pueden completar después.",
+      "ALL": "Todos los expedientes de titulación, incluidos los históricos y los cerrados sin titulación."
+    },
+    "outcomes": {
+      "UNCONFIRMED": "Por confirmar",
+      "IN_PROGRESS": "En proceso",
+      "GRADUATED": "Titulado",
+      "NOT_GRADUATED": "Sin titulación"
+    }
   },
   "HourlyPayments": {
     "rut": "RUT",
