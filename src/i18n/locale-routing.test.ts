@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { NextRequest } from 'next/server';
-import middleware from '../middleware';
+import proxy from '../proxy';
 
 function resolvedLocale(cookie?: string) {
   const req = new NextRequest('https://marsys.test/fasol/marsys/login', {
     nextConfig: { basePath: '/fasol/marsys' },
     headers: { 'accept-language': 'en-US,en;q=0.9', ...(cookie ? { cookie } : {}) },
   });
-  const response = middleware(req);
+  const response = proxy(req);
   const rewrite = response.headers.get('x-middleware-rewrite');
   return rewrite ? new URL(rewrite).pathname : null;
 }

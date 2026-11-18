@@ -5,7 +5,7 @@ const intlMiddleware = vi.hoisted(() => vi.fn(() => new Response("intl")));
 vi.mock("next-intl/middleware", () => ({ default: () => intlMiddleware }));
 vi.mock("./i18n/routing", () => ({ routing: { defaultLocale: 'es' } }));
 
-import middleware, { config } from "./middleware";
+import proxy, { config } from "./proxy";
 
 function request(path: string, cookies: Record<string, string> = {}) {
   const req = new NextRequest(new URL(path, "https://marsys.test"));
@@ -33,7 +33,7 @@ describe("middleware", () => {
     ["/auth/callback", "/"],
     ["/auth/callback?route=/dashboard", "/"],
   ])("el callback de OAuth redirige %s a %s", (path, expected) => {
-    const response = middleware(request(path));
+      const response = proxy(request(path));
 
     expect(response.status).toBe(307);
     expect(location(response)).toBe(expected);
@@ -45,7 +45,7 @@ describe("middleware", () => {
     "/login",
     "javascript:alert(1)",
   ])("el callback no permite redirecciones abiertas (%s)", (route) => {
-    const response = middleware(
+    const response = proxy(
       request(`/auth/callback?route=${encodeURIComponent(route)}`),
     );
 
@@ -63,7 +63,7 @@ describe("middleware", () => {
   ])(
     "con cookie deja que la página verifique la sesión (%s, %s)",
     (cookies, path) => {
-      const response = middleware(request(path, cookies));
+      const response = proxy(request(path, cookies));
 
       expect(location(response)).toBeNull();
       expect(intlMiddleware).toHaveBeenCalledOnce();
@@ -71,7 +71,7 @@ describe("middleware", () => {
   );
 
   it("sin cookie deja pasar /login al middleware de idioma", () => {
-    const response = middleware(request("/es/login"));
+    const response = proxy(request("/es/login"));
 
     expect(intlMiddleware).toHaveBeenCalledTimes(1);
     expect(response.headers.get("location")).toBeNull();
@@ -90,7 +90,7 @@ describe("middleware", () => {
     const req = new NextRequest('https://marsys.test/fasol/marsys/auth/callback?route=/dashboard/justifications', {
       nextConfig: { basePath: '/fasol/marsys' },
     });
-    const result = middleware(req);
+    const result = proxy(req);
     expect(location(result)).toBe('/fasol/marsys/dashboard/justifications');
   });
 });

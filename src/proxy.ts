@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 
 const intlMiddleware = createMiddleware(routing);
 
-export default function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   if (pathname.includes("/auth/callback")) {
