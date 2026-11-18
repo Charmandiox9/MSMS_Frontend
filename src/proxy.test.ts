@@ -77,11 +77,23 @@ describe("middleware", () => {
     expect(response.headers.get("location")).toBeNull();
   });
 
+  it("usa el idioma inicial sin reconstruir la solicitud entrante", () => {
+    const req = request("/dashboard");
+    req.headers.set("accept-language", "en-US");
+
+    proxy(req);
+
+    expect(req.headers.get("accept-language")).toBe("es");
+    expect(intlMiddleware).toHaveBeenCalledWith(req);
+  });
+
   it("no intercepta la API ni los estáticos", () => {
-    const [, , catchAll] = config.matcher;
+    const catchAll = config.matcher[1];
     const pattern = new RegExp(`^${catchAll}$`);
 
     expect(pattern.test("/dashboard")).toBe(true);
+    expect(pattern.test("/es/dashboard")).toBe(false);
+    expect(pattern.test("/en/dashboard")).toBe(false);
     expect(pattern.test("/api/runtime-config")).toBe(false);
     expect(pattern.test("/_next/static/chunk.js")).toBe(false);
     expect(pattern.test("/favicon.ico")).toBe(false);
