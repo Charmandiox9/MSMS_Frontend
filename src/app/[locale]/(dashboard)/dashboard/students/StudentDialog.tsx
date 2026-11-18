@@ -93,7 +93,7 @@ export default function StudentDialog({
         );
         if (latest) {
           setName(latest.givenNames ?? latest.name);
-          setEmail(latest.email);
+          setEmail(latest.email ?? "");
           setRut(rutDigits(latest.rut ?? ""));
           setPersonalEmail(latest.personalEmail ?? "");
           setAdmission(latest.admission?.toString() ?? "");
@@ -127,7 +127,7 @@ export default function StudentDialog({
             .filter(Boolean)
             .join(" "),
           givenNames: name.trim(),
-          email: email.trim(),
+          email: email.trim() || null,
           rut: rut.trim() || null,
           personalEmail: personalEmail.trim() || null,
           admission: admission || null,
@@ -228,8 +228,6 @@ export default function StudentDialog({
           <label className="text-sm font-semibold">
             {t("email")}
             <EmailInput
-              required
-
               maxLength={254}
               value={email}
               onChange={(event) => setEmail(event.target.value)}

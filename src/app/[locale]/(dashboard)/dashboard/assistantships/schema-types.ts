@@ -106,7 +106,7 @@ export interface AssistantshipCareerOption {
 export interface AssistantshipStudentOption {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
   rut: string | null;
   careerCurriculumVersionId: string | null;
   careerId: string | null;

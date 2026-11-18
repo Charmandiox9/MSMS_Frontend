@@ -10,7 +10,7 @@ export interface StudentEnrollment {
 export interface Student {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
   givenNames?: string | null;
   rut?: string | null;
   personalEmail?: string | null;
