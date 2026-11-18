@@ -5,7 +5,7 @@ const record = {
   studentId: "22222222-2222-4222-8222-222222222222",
   reference: "TIT-2026-11111111",
   studentName: "Alumno Ficticio",
-  studentRut: "11111111-1",
+  studentRut: "11111111-2",
   studentEmail: null,
   studentPhone: null,
   careerId: "33333333-3333-4333-8333-333333333333",
@@ -32,7 +32,7 @@ const record = {
     id: "22222222-2222-4222-8222-222222222222",
     name: "Alumno Ficticio",
     email: null,
-    rut: "11111111-1",
+    rut: "11111111-2",
   },
 };
 
@@ -61,6 +61,9 @@ for (const locale of ["es", "en"] as const) {
           ? { width: 390, height: 844 }
           : { width: 1440, height: 1000 },
       );
+      await context.addCookies([
+        { name: "MARSYS_LOCALE", value: locale, url: "http://localhost:3210" },
+      ]);
       await page.route("**/api/**", async (route) => {
         const headers = {
           "Access-Control-Allow-Origin": "http://localhost:3210",
@@ -101,7 +104,7 @@ for (const locale of ["es", "en"] as const) {
         else body = {};
         await route.fulfill({ json: body, headers });
       });
-      await page.goto(`/${locale}/dashboard/titulation`);
+      await page.goto("/dashboard/titulation");
       const graduates = page.getByRole("button", {
         name: locale === "es" ? /^Titulados/ : /^Graduates/,
       });

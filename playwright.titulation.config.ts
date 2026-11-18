@@ -16,8 +16,8 @@ export default defineConfig({
   webServer: {
     command:
       process.env.PLAYWRIGHT_SKIP_BUILD === "1"
-        ? "npx next start --port 3210"
-        : "npx next build --webpack && npx next start --port 3210",
+        ? "node scripts/start-e2e-server.mjs"
+        : "npx next build --webpack && node scripts/start-e2e-server.mjs",
     url: "http://localhost:3210/api/runtime-config",
     timeout: 300_000,
     reuseExistingServer: false,
@@ -25,6 +25,8 @@ export default defineConfig({
       NEXT_PUBLIC_API_URL: "http://localhost:3999/api/graphql",
       NEXT_PUBLIC_BASE_PATH: "",
       NEXT_TELEMETRY_DISABLED: "1",
+      PORT: "3210",
+      HOSTNAME: "127.0.0.1",
     },
   },
 });
