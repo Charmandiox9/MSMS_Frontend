@@ -23,6 +23,7 @@ import {
 } from "@/components/dashboard/academic/academicActionStyles";
 import TitulationProcessForm from "./TitulationProcessForm";
 import TitulationDocumentDrafts from "./TitulationDocumentDrafts";
+import TitulationAttachments from "./TitulationAttachments";
 import TitulationStageBadge from "./TitulationStageBadge";
 import type {
   TitulationDocumentStatus,
@@ -506,8 +507,14 @@ export default function TitulationWorkspace() {
                     <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t("documentsManualNote")}</p>
                   </section>
                   {canManage && (
+                    <TitulationAttachments
+                      key={`${selectedProcess.id}-attachments`}
+                      processId={selectedProcess.id}
+                    />
+                  )}
+                  {canManage && (
                     <TitulationDocumentDrafts
-                      key={selectedProcess.id}
+                      key={`${selectedProcess.id}-drafts`}
                       processId={selectedProcess.id}
                       reference={selectedProcess.reference}
                       drafts={selectedProcess.documentDrafts ?? []}

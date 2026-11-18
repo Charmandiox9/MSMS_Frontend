@@ -77,6 +77,8 @@ describe("TitulationWorkspace", () => {
           },
         ]);
       }
+      if (path === "/academic/titulations/process-1/attachments")
+        return Promise.resolve([]);
       return Promise.resolve(detail);
     });
   });
