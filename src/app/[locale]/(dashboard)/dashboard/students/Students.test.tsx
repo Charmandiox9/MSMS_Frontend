@@ -87,6 +87,45 @@ describe("Estudiantes", () => {
     expect(screen.getByText("Biología marina · 2025-2")).toBeDefined();
     expect(screen.getByText("NRC de asignatura: 45678")).toBeDefined();
   });
+  it("distingue a las personas tituladas y muestra su carrera registrada", async () => {
+    const graduate: Student = {
+      ...student,
+      career: { id: "career-bm", code: "BM", name: "Biología Marina" },
+      titulationProcesses: [
+        {
+          id: "graduation-process",
+          stage: "UNCLASSIFIED",
+          outcome: "GRADUATED",
+          careerName: "Biología Marina",
+          degree: null,
+          defenseDate: null,
+          createdAt: "2026-11-18T12:00:00.000Z",
+        },
+      ],
+    };
+    installFakeApi({
+      "GET /academic/careers/options": ok([]),
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/students": ok({ ...response, items: [graduate] }),
+    });
+
+    renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
+
+    expect(await screen.findByText("Titulado")).toBeDefined();
+    expect(screen.getByText("Carrera: Biología Marina")).toBeDefined();
+  });
+  it("identifica los alumnos sin expediente sin inferir su situación académica", async () => {
+    installFakeApi({
+      "GET /academic/careers/options": ok([]),
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/students": ok(response),
+    });
+
+    renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
+
+    expect(await screen.findByText("Sin registro de titulación")).toBeDefined();
+    expect(screen.getByText("Sin carrera registrada")).toBeDefined();
+  });
   it("consulta estudiantes con filtros por NRC, búsqueda y paginación del backend", async () => {
     const api = installFakeApi({
       "GET /academic/careers/options": ok([]),
@@ -225,6 +264,11 @@ describe("Estudiantes", () => {
       "GET /academic/students": ok(response),
     });
     renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
+    expect(
+      await screen.findByRole("option", {
+        name: "Ingeniería Marina · Código: 8506",
+      }),
+    ).toBeDefined();
     fireEvent.change(
       await screen.findByLabelText("Buscar por RUT, nombre o correo"),
       {

@@ -6,6 +6,7 @@ import {
   BookOpen,
   ListChecks,
   ChevronDown,
+  CircleHelp,
   Eye,
   Plus,
   Pencil,
@@ -25,6 +26,8 @@ import ImportStudentsDialog from "./ImportStudentsDialog";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import AcademicDetailsDialog from "@/components/dashboard/academic/AcademicDetailsDialog";
 import AcademicImportButton from "@/components/dashboard/academic/AcademicImportButton";
+import TitulationOutcomeBadge from "@/components/dashboard/titulation/TitulationOutcomeBadge";
+import StatusBadge from "@/components/ui/StatusBadge";
 import {
   academicPrimaryActionClass,
   academicSecondaryActionClass,
@@ -223,8 +226,12 @@ export default function StudentsPage({
               <option value="">{t("allCareers")}</option>
               {careerOptions.map((career) => (
                 <option key={career.id} value={career.id}>
-                  {career.code ? `${career.code} · ` : ""}
-                  {career.name}
+                  {career.code
+                    ? t("careerOption", {
+                        name: career.name,
+                        code: career.code,
+                      })
+                    : career.name}
                 </option>
               ))}
             </select>
@@ -340,6 +347,12 @@ export default function StudentsPage({
             {result.items.map((student) => {
               const coursesExpanded = expandedCoursesStudentId === student.id;
               const coursesPanelId = `student-courses-${student.id}`;
+              const studentCareer =
+                student.careerCurriculumVersion?.career ?? student.career;
+              const titulationOutcome =
+                student.titulationProcesses?.find(
+                  (process) => process.outcome === "GRADUATED",
+                )?.outcome ?? student.titulationProcesses?.[0]?.outcome;
 
               return (
                 <li
@@ -354,11 +367,29 @@ export default function StudentsPage({
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
                         {t("studentColumn")}
                       </span>
-                      <h2 className="text-sm font-semibold text-foreground">
-                        {student.name}
-                      </h2>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-sm font-semibold text-foreground">
+                          {student.name}
+                        </h2>
+                        {titulationOutcome ? (
+                          <TitulationOutcomeBadge
+                            outcome={titulationOutcome}
+                            label={titulation(`outcomes.${titulationOutcome}`)}
+                          />
+                        ) : (
+                          <StatusBadge
+                            label={t("noTitulationRecord")}
+                            icon={CircleHelp}
+                          />
+                        )}
+                      </div>
                       <p className="break-all text-xs text-muted-foreground">
                         {student.email || t("emailUnrecorded")}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {studentCareer
+                          ? t("assignedCareer", { name: studentCareer.name })
+                          : t("noCareerRecorded")}
                       </p>
                     </div>
                   </div>

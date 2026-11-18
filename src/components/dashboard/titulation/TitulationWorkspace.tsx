@@ -7,12 +7,14 @@ import {
   FileText,
   Plus,
   RefreshCw,
+  Trash2,
   UserRound,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import PaginationControls from "@/components/ui/PaginationControls";
+import Modal from "@/components/ui/Modal";
 import SearchField from "@/components/ui/SearchField";
 import SearchHighlight from "@/components/ui/SearchHighlight";
 import FilterTabs from "@/components/ui/FilterTabs";
@@ -244,6 +246,10 @@ export default function TitulationWorkspace() {
   } | null>(null);
   const [detailErrorKey, setDetailErrorKey] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [deletingProcess, setDeletingProcess] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [editingProcess, setEditingProcess] =
     useState<TitulationProcess | null>(null);
   const filterCareerId =
@@ -474,6 +480,27 @@ export default function TitulationWorkspace() {
     setFormOpen(true);
   };
 
+  const deleteSelectedProcess = async () => {
+    if (!selectedProcess || deletingProcess) return;
+    setDeletingProcess(true);
+    setDeleteError(false);
+    try {
+      await apiFetch<{ success: boolean }>(
+        `/academic/titulations/${encodeURIComponent(selectedProcess.id)}`,
+        { method: "DELETE" },
+      );
+      setDeleteConfirmationOpen(false);
+      setLoadedDetail(null);
+      setSelectedId(null);
+      setDeleteSuccess(true);
+      setRefreshKey((value) => value + 1);
+    } catch {
+      setDeleteError(true);
+    } finally {
+      setDeletingProcess(false);
+    }
+  };
+
   const items = result?.items ?? [];
   const totalPages = Math.max(1, result?.totalPages ?? 1);
   const displayedPage = result?.page ?? page;
@@ -503,6 +530,14 @@ export default function TitulationWorkspace() {
           ) : undefined
         }
       />
+      {deleteSuccess && (
+        <p
+          role="status"
+          className="rounded-xl border border-success/30 bg-success/10 p-3 text-sm text-foreground"
+        >
+          {t("delete.success")}
+        </p>
+      )}
 
       <section aria-label={t("workflow.navigation")} className="space-y-3">
         <FilterTabs
@@ -838,13 +873,27 @@ export default function TitulationWorkspace() {
                 )}
               </div>
               {canManage && selectedProcess && (
-                <button
-                  type="button"
-                  onClick={openEdit}
-                  className={academicSecondaryActionClass}
-                >
-                  {t("editProcess")}
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={openEdit}
+                    className={academicSecondaryActionClass}
+                  >
+                    {t("editProcess")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeleteError(false);
+                      setDeleteSuccess(false);
+                      setDeleteConfirmationOpen(true);
+                    }}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-destructive/30 px-3 py-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    {t("deleteProcess")}
+                  </button>
+                </div>
               )}
             </div>
             <div className="space-y-5 p-5">
@@ -904,6 +953,55 @@ export default function TitulationWorkspace() {
           onSaved={handleSaved}
         />
       )}
+      <Modal
+        isOpen={deleteConfirmationOpen && selectedProcess !== null}
+        onClose={() => {
+          if (!deletingProcess) setDeleteConfirmationOpen(false);
+        }}
+        title={t("delete.title")}
+        description={
+          selectedProcess
+            ? t("delete.description", {
+                reference: selectedProcess.reference,
+                name: selectedProcess.studentName,
+              })
+            : undefined
+        }
+        closeLabel={t("close")}
+        closeOnBackdropClick={!deletingProcess}
+        closeOnEscape={!deletingProcess}
+        showCloseButton={!deletingProcess}
+        footer={
+          <>
+            <button
+              type="button"
+              disabled={deletingProcess}
+              onClick={() => setDeleteConfirmationOpen(false)}
+              className={academicSecondaryActionClass}
+            >
+              {t("delete.cancel")}
+            </button>
+            <button
+              type="button"
+              disabled={deletingProcess}
+              onClick={() => void deleteSelectedProcess()}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              {deletingProcess ? t("delete.pending") : t("delete.confirm")}
+            </button>
+          </>
+        }
+      >
+        {deleteError && (
+          <p
+            role="alert"
+            className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive"
+          >
+            {t("delete.error")}
+          </p>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -135,6 +135,54 @@ describe("TitulationWorkspace", () => {
     );
   });
 
+  it("requires confirmation before permanently deleting a process", async () => {
+    let deleted = false;
+    apiFetchMock.mockImplementation((path, init) => {
+      if (path === "/academic/titulations/filters")
+        return Promise.resolve(filterOptions);
+      if (path === "/academic/titulations/search")
+        return Promise.resolve(
+          deleted
+            ? { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 }
+            : pageResult,
+        );
+      if (init?.method === "DELETE") {
+        deleted = true;
+        return Promise.resolve({ success: true });
+      }
+      if (path.endsWith("/attachments")) return Promise.resolve([]);
+      return Promise.resolve(detail);
+    });
+    renderAs(<TitulationWorkspace />, ["ACADEMIC_SECRETARY"]);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Eliminar proceso" }),
+    );
+    const confirmation = screen.getByRole("dialog", {
+      name: "Eliminar proceso de titulación",
+    });
+    expect(
+      within(confirmation).getByText(/Esta acción no se puede deshacer/),
+    ).toBeDefined();
+    expect(
+      apiFetchMock.mock.calls.some(([, init]) => init?.method === "DELETE"),
+    ).toBe(false);
+
+    fireEvent.click(
+      within(confirmation).getByRole("button", {
+        name: "Eliminar proceso",
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        apiFetchMock.mock.calls.some(([, init]) => init?.method === "DELETE"),
+      ).toBe(true);
+    });
+    expect(await screen.findByText("El proceso se eliminó correctamente.")).toBeDefined();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
   it("keeps Word draft downloads unavailable to review-only roles", async () => {
     renderAs(<TitulationWorkspace />, ["ACADEMIC_PROCESS_ANALYST"]);
 

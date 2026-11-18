@@ -1668,7 +1668,11 @@
     "emailUnrecorded": "No email recorded",
     "titulations": "Graduation records",
     "noTitulations": "No graduation records",
-    "emailOptionalHelp": "Optional"
+    "emailOptionalHelp": "Optional",
+    "careerOption": "{name} · Code: {code}",
+    "assignedCareer": "Career: {name}",
+    "noCareerRecorded": "No career recorded",
+    "noTitulationRecord": "No graduation record"
   },
   "TitulationPage": {
     "eyebrow": "Student support",
@@ -1879,6 +1883,16 @@
       "IN_PROGRESS": "In progress",
       "GRADUATED": "Graduated",
       "NOT_GRADUATED": "Not graduated"
+    },
+    "deleteProcess": "Delete process",
+    "delete": {
+      "title": "Delete graduation process",
+      "description": "Process {reference} for {name} and its attachments will be permanently deleted. This action cannot be undone.",
+      "confirm": "Delete process",
+      "cancel": "Keep process",
+      "pending": "Deleting process…",
+      "error": "The process could not be deleted. Try again.",
+      "success": "The process was deleted."
     }
   },
   "HourlyPayments": {

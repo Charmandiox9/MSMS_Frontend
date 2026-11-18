@@ -1748,7 +1748,11 @@
     "emailUnrecorded": "Sin correo registrado",
     "titulations": "Titulaciones",
     "noTitulations": "Sin expedientes de titulación",
-    "emailOptionalHelp": "Opcional"
+    "emailOptionalHelp": "Opcional",
+    "careerOption": "{name} · Código: {code}",
+    "assignedCareer": "Carrera: {name}",
+    "noCareerRecorded": "Sin carrera registrada",
+    "noTitulationRecord": "Sin registro de titulación"
   },
   "TitulationPage": {
     "eyebrow": "Atención estudiantil",
@@ -1959,6 +1963,16 @@
       "IN_PROGRESS": "En proceso",
       "GRADUATED": "Titulado",
       "NOT_GRADUATED": "Sin titulación"
+    },
+    "deleteProcess": "Eliminar proceso",
+    "delete": {
+      "title": "Eliminar proceso de titulación",
+      "description": "Se eliminará definitivamente el proceso {reference} de {name}, incluidos sus archivos adjuntos. Esta acción no se puede deshacer.",
+      "confirm": "Eliminar proceso",
+      "cancel": "Conservar proceso",
+      "pending": "Eliminando proceso…",
+      "error": "No se pudo eliminar el proceso. Inténtalo nuevamente.",
+      "success": "El proceso se eliminó correctamente."
     }
   },
   "HourlyPayments": {
