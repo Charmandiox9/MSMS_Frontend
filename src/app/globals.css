@@ -24,6 +24,10 @@
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
 
+  --success: #047857;
+  --warning: #92400e;
+  --info: #1d4ed8;
+
   /* Secundario: Agua Marina (teal-600) */
   --secondary: #0d9488;
   --secondary-foreground: #ffffff;
@@ -62,6 +66,10 @@
   --destructive: #f87171;
   --destructive-foreground: #450a0a;
 
+  --success: #5eead4;
+  --warning: #fcd34d;
+  --info: #93c5fd;
+
   /* Secundario en dark: Teal */
   --secondary: #2dd4bf;
   --secondary-foreground: #022c22;
@@ -88,6 +96,11 @@
 
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-danger: var(--destructive);
   
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -104,6 +117,13 @@
   --font-mono: var(--font-geist-mono);
 
   --ease-premium: cubic-bezier(0.23, 1, 0.32, 1);
+  --titulation-workspace-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+}
+
+.titulation-workspace-grid {
+  @variant xl {
+    grid-template-columns: var(--titulation-workspace-columns);
+  }
 }
 
 body {
