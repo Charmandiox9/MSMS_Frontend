@@ -1827,7 +1827,17 @@
     },
     "missingValue": "Por completar",
     "filters": {
-      "title": "Filtros de expedientes"
+      "title": "Filtros de expedientes",
+      "career": "Carrera",
+      "allCareers": "Todas las carreras",
+      "period": "Semestre y año de defensa",
+      "allPeriods": "Todos los períodos",
+      "periodOption": "Semestre {semester} de {year}",
+      "undated": "Sin fecha registrada",
+      "periodHelp": "Semestre 1: enero a junio; semestre 2: julio a diciembre. Los expedientes sin fecha se filtran por separado.",
+      "loading": "Cargando opciones de filtro",
+      "loadError": "No se pudieron cargar las opciones de filtro.",
+      "retry": "Volver a cargar filtros"
     },
     "errors": {
       "load": "No fue posible cargar los expedientes. Intenta nuevamente.",
@@ -1836,7 +1846,7 @@
     "empty": {
       "title": "No hay expedientes para mostrar",
       "description": "Cuando registres un proceso de titulación, aparecerá aquí para su seguimiento.",
-      "noMatches": "No hay expedientes que coincidan con la búsqueda o la etapa seleccionada."
+      "noMatches": "No hay expedientes que coincidan con la búsqueda o los filtros seleccionados."
     },
     "detail": {
       "eyebrow": "Expediente seleccionado",

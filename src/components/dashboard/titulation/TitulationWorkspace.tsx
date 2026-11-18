@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ChangeEventHandler, ReactNode } from "react";
 import {
   CalendarDays,
   FileText,
@@ -14,7 +15,8 @@ import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import PaginationControls from "@/components/ui/PaginationControls";
 import SearchField from "@/components/ui/SearchField";
 import SearchHighlight from "@/components/ui/SearchHighlight";
-import { TableSkeleton } from "@/components/ui/LoadingSkeletons";
+import { SkeletonStatus, TableSkeleton } from "@/components/ui/LoadingSkeletons";
+import Skeleton from "@/components/ui/Skeleton";
 import { useSearchQuery } from "@/hooks/useSearchQuery";
 import { apiFetch } from "@/lib/api";
 import {
@@ -28,6 +30,7 @@ import TitulationStageBadge from "./TitulationStageBadge";
 import type {
   TitulationDocumentStatus,
   TitulationListItem,
+  TitulationFilterOptions,
   TitulationPageResult,
   TitulationProcess,
   TitulationStage,
@@ -41,6 +44,8 @@ const STAGES: readonly TitulationStage[] = [
   "DEFENSE",
   "CLOSED",
 ];
+const PERIOD_PATTERN = /^[1-9][0-9]{3}-S[12]$/;
+const CAREER_ID_PATTERN = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 const DOCUMENT_FIELDS = [
   ["defenseAnnexesStatus", "defenseAnnexes"],
   ["thesisSummaryStatus", "thesisSummary"],
@@ -72,13 +77,88 @@ function formatDate(value: string | null, locale: string, fallback: string) {
   }).format(date);
 }
 
-function buildListBody(page: number, search: string, stage: string) {
+function buildListBody(
+  page: number,
+  search: string,
+  stage: string,
+  careerId: string,
+  period: string,
+) {
   return JSON.stringify({
     page,
     pageSize: PAGE_SIZE,
     ...(search ? { search } : {}),
     ...(stage !== "ALL" ? { stage } : {}),
+    ...(careerId !== "ALL" ? { careerId } : {}),
+    ...(period !== "ALL" ? { period } : {}),
   });
+}
+
+function isTitulationFilterOptions(value: unknown): value is TitulationFilterOptions {
+  if (typeof value !== "object" || value === null || Array.isArray(value))
+    return false;
+
+  const options = value as Partial<TitulationFilterOptions>;
+  return (
+    Array.isArray(options.periods) &&
+    options.periods.every(
+      (period) => typeof period === "string" && PERIOD_PATTERN.test(period),
+    ) &&
+    Array.isArray(options.careers) &&
+    options.careers.every(
+      (career) =>
+        typeof career === "object" &&
+        career !== null &&
+        typeof career.id === "string" &&
+        CAREER_ID_PATTERN.test(career.id) &&
+        typeof career.name === "string" &&
+        career.name.length > 0,
+    ) &&
+    typeof options.hasUndated === "boolean"
+  );
+}
+
+function FilterSelect({
+  id,
+  label,
+  value,
+  onChange,
+  disabled = false,
+  descriptionId,
+  children,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: ChangeEventHandler<HTMLSelectElement>;
+  disabled?: boolean;
+  descriptionId?: string;
+  children: ReactNode;
+}) {
+  return (
+    <label htmlFor={id} className="block min-w-0 text-sm font-semibold text-foreground">
+      {label}
+      <select
+        id={id}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        aria-describedby={descriptionId}
+        className="mt-1.5 min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-base font-normal text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {children}
+      </select>
+    </label>
+  );
+}
+
+function FilterFieldSkeleton() {
+  return (
+    <div className="space-y-2">
+      <Skeleton className="h-4 w-28" />
+      <Skeleton className="h-11 w-full rounded-xl" />
+    </div>
+  );
 }
 
 function FieldValue({
@@ -120,6 +200,21 @@ export default function TitulationWorkspace() {
       ? initial
       : "ALL";
   });
+  const [careerId, setCareerId] = useState(() => {
+    const initial = getInitialQuery("careerId", "ALL");
+    return initial === "ALL" || CAREER_ID_PATTERN.test(initial)
+      ? initial
+      : "ALL";
+  });
+  const [period, setPeriod] = useState(() => {
+    const initial = getInitialQuery("period", "ALL");
+    return initial === "ALL" || initial === "UNRECORDED" || PERIOD_PATTERN.test(initial)
+      ? initial
+      : "ALL";
+  });
+  const [filterOptions, setFilterOptions] = useState<TitulationFilterOptions | null>(null);
+  const [filterOptionsError, setFilterOptionsError] = useState(false);
+  const [filterOptionsRetry, setFilterOptionsRetry] = useState(0);
   const [result, setResult] = useState<TitulationPageResult | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -130,7 +225,21 @@ export default function TitulationWorkspace() {
   const [detailErrorKey, setDetailErrorKey] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [editingProcess, setEditingProcess] = useState<TitulationProcess | null>(null);
-  const requestKey = `${page}|${search}|${stage}|${refreshKey}`;
+  const filterCareerId =
+    filterOptions &&
+    careerId !== "ALL" &&
+    !filterOptions.careers.some((career) => career.id === careerId)
+      ? "ALL"
+      : careerId;
+  const filterPeriod =
+    filterOptions &&
+    ((period === "UNRECORDED" && !filterOptions.hasUndated) ||
+      (period !== "ALL" &&
+        period !== "UNRECORDED" &&
+        !filterOptions.periods.includes(period)))
+      ? "ALL"
+      : period;
+  const requestKey = `${page}|${search}|${stage}|${filterCareerId}|${filterPeriod}|${refreshKey}`;
   const [completedRequestKey, setCompletedRequestKey] = useState<string | null>(null);
   const [loadErrorKey, setLoadErrorKey] = useState<string | null>(null);
   const selectedDetailKey = selectedId ? `${selectedId}|${refreshKey}` : "";
@@ -143,6 +252,7 @@ export default function TitulationWorkspace() {
     loadedDetail?.key !== selectedDetailKey &&
     detailErrorKey !== selectedDetailKey;
   const detailError = Boolean(selectedId) && detailErrorKey === selectedDetailKey;
+  const filterOptionsLoading = filterOptions === null && !filterOptionsError;
 
   function displayDefenseDate({ defenseDate, source, stage }: TitulationListItem) {
     const historical = source === "LEGACY_ACCESS" || stage === "CLOSED";
@@ -160,17 +270,36 @@ export default function TitulationWorkspace() {
     else url.searchParams.delete("stage");
     if (page > 1) url.searchParams.set("page", String(page));
     else url.searchParams.delete("page");
+    if (filterCareerId !== "ALL")
+      url.searchParams.set("careerId", filterCareerId);
+    else url.searchParams.delete("careerId");
+    if (filterPeriod !== "ALL") url.searchParams.set("period", filterPeriod);
+    else url.searchParams.delete("period");
     window.history.replaceState(window.history.state, "", url);
-  }, [page, stage]);
+  }, [filterCareerId, filterPeriod, page, stage]);
 
   useEffect(() => {
     const onPopState = () => {
       const nextStage = getInitialQuery("stage", "ALL");
+      const nextCareerId = getInitialQuery("careerId", "ALL");
+      const nextPeriod = getInitialQuery("period", "ALL");
       const nextPage = getInitialPage();
       resetSearch();
       setStage(
         nextStage === "ALL" || STAGES.includes(nextStage as TitulationStage)
           ? nextStage
+          : "ALL",
+      );
+      setCareerId(
+        nextCareerId === "ALL" || CAREER_ID_PATTERN.test(nextCareerId)
+          ? nextCareerId
+          : "ALL",
+      );
+      setPeriod(
+        nextPeriod === "ALL" ||
+          nextPeriod === "UNRECORDED" ||
+          PERIOD_PATTERN.test(nextPeriod)
+          ? nextPeriod
           : "ALL",
       );
       setPage(nextPage);
@@ -181,9 +310,28 @@ export default function TitulationWorkspace() {
 
   useEffect(() => {
     const controller = new AbortController();
+    apiFetch<unknown>("/academic/titulations/filters", {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (controller.signal.aborted) return;
+        if (!isTitulationFilterOptions(response))
+          throw new Error("Invalid titulation filters response");
+        setFilterOptions(response);
+        setFilterOptionsError(false);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setFilterOptionsError(true);
+      });
+    return () => controller.abort();
+  }, [filterOptionsRetry, refreshKey]);
+
+  useEffect(() => {
+    const controller = new AbortController();
     apiFetch<TitulationPageResult>("/academic/titulations/search", {
       method: "POST",
-      body: buildListBody(page, search, stage),
+      body: buildListBody(page, search, stage, filterCareerId, filterPeriod),
       cache: "no-store",
       signal: controller.signal,
     })
@@ -212,7 +360,7 @@ export default function TitulationWorkspace() {
         }
       });
     return () => controller.abort();
-  }, [page, requestKey, search, stage]);
+  }, [filterCareerId, filterPeriod, page, requestKey, search, stage]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -246,6 +394,8 @@ export default function TitulationWorkspace() {
     setEditingProcess(null);
     resetSearch();
     setStage("ALL");
+    setCareerId("ALL");
+    setPeriod("ALL");
     setPage(1);
     setSelectedId(saved.id);
     setRefreshKey((value) => value + 1);
@@ -290,7 +440,7 @@ export default function TitulationWorkspace() {
 
       <section
         aria-label={t("filters.title")}
-        className="grid gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm md:grid-cols-[minmax(0,1fr)_15rem] md:items-start"
+        className="space-y-4 rounded-2xl border border-border bg-card p-4 shadow-sm"
       >
         <SearchField
           label={t("searchLabel")}
@@ -301,15 +451,15 @@ export default function TitulationWorkspace() {
           maxLength={100}
           pending={isWaiting || (Boolean(search) && loading)}
         />
-        <label className="block min-w-0 text-sm font-semibold text-foreground">
-          {t("stageFilterLabel")}
-          <select
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <FilterSelect
+            id="titulation-stage-filter"
+            label={t("stageFilterLabel")}
             value={stage}
             onChange={(event) => {
               setStage(event.target.value);
               setPage(1);
             }}
-            className="mt-1.5 min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-base font-normal text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <option value="ALL">{t("allStages")}</option>
             {STAGES.map((value) => (
@@ -317,8 +467,96 @@ export default function TitulationWorkspace() {
                 {t(`statuses.${value}`)}
               </option>
             ))}
-          </select>
-        </label>
+          </FilterSelect>
+          {filterOptionsLoading ? (
+            <SkeletonStatus
+              label={t("filters.loading")}
+              className="grid gap-4 sm:col-span-2 sm:grid-cols-2"
+            >
+              <FilterFieldSkeleton />
+              <FilterFieldSkeleton />
+            </SkeletonStatus>
+          ) : filterOptions ? (
+            <>
+              <FilterSelect
+                id="titulation-career-filter"
+                label={t("filters.career")}
+                value={filterCareerId}
+                disabled={filterOptions.careers.length === 0}
+                onChange={(event) => {
+                  setCareerId(event.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="ALL">{t("filters.allCareers")}</option>
+                {filterOptions.careers.map((career) => (
+                  <option key={career.id} value={career.id}>
+                    {career.name}
+                  </option>
+                ))}
+              </FilterSelect>
+              <FilterSelect
+                id="titulation-period-filter"
+                label={t("filters.period")}
+                value={filterPeriod}
+                disabled={
+                  filterOptions.periods.length === 0 && !filterOptions.hasUndated
+                }
+                descriptionId="titulation-period-help"
+                onChange={(event) => {
+                  setPeriod(event.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="ALL">{t("filters.allPeriods")}</option>
+                {filterOptions.periods.map((value) => {
+                  const match = /^(\d{4})-S([12])$/.exec(value);
+                  if (!match) return null;
+                  return (
+                    <option key={value} value={value}>
+                      {t("filters.periodOption", {
+                        year: match[1],
+                        semester: match[2],
+                      })}
+                    </option>
+                  );
+                })}
+                {filterOptions.hasUndated && (
+                  <option value="UNRECORDED">{t("filters.undated")}</option>
+                )}
+              </FilterSelect>
+            </>
+          ) : null}
+        </div>
+        {filterOptions && (
+          <p
+            id="titulation-period-help"
+            className="text-sm leading-relaxed text-muted-foreground"
+          >
+            {t("filters.periodHelp")}
+          </p>
+        )}
+        {filterOptionsError && (
+          <div
+            role="alert"
+            className="flex flex-col gap-3 rounded-xl border border-danger/30 bg-danger/10 p-3 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <p className="text-sm leading-relaxed text-foreground">
+              {t("filters.loadError")}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setFilterOptionsError(false);
+                setFilterOptionsRetry((value) => value + 1);
+              }}
+              className={academicSecondaryActionClass}
+            >
+              <RefreshCw className="h-4 w-4" aria-hidden="true" />
+              {t("filters.retry")}
+            </button>
+          </div>
+        )}
       </section>
 
       {loadError ? (
@@ -341,7 +579,12 @@ export default function TitulationWorkspace() {
           </div>
           <h2 className="mt-4 text-lg font-semibold text-foreground">{t("empty.title")}</h2>
           <p className="mx-auto mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">
-            {search || stage !== "ALL" ? t("empty.noMatches") : t("empty.description")}
+            {search ||
+            stage !== "ALL" ||
+            filterCareerId !== "ALL" ||
+            filterPeriod !== "ALL"
+              ? t("empty.noMatches")
+              : t("empty.description")}
           </p>
         </section>
       ) : (

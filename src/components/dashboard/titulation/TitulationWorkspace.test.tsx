@@ -44,6 +44,14 @@ const pageResult: TitulationPageResult = {
   totalPages: 1,
 };
 
+const filterOptions = {
+  periods: ["2026-S2", "2026-S1", "2025-S2"],
+  careers: [
+    { id: "11111111-1111-4111-8111-111111111111", name: "Biología Marina" },
+  ],
+  hasUndated: true,
+};
+
 const detail: TitulationProcess = {
   ...listItem,
   documentDrafts: ["thesis-summary"],
@@ -66,6 +74,8 @@ describe("TitulationWorkspace", () => {
     downloadBlobMock.mockReset();
     apiFetchMock.mockImplementation((path: string) => {
       if (path === "/academic/titulations/search") return Promise.resolve(pageResult);
+      if (path === "/academic/titulations/filters")
+        return Promise.resolve(filterOptions);
       if (path === "/academic/careers/options") {
         return Promise.resolve([
           {
@@ -135,15 +145,21 @@ describe("TitulationWorkspace", () => {
     ["MANUAL", "INTAKE", "Fecha de defensa por confirmar"],
   ] as const)("shows the expected missing date for %s in %s", async (source, stage, label) => {
     const record = { ...listItem, defenseDate: null, source, stage };
-    apiFetchMock.mockImplementation((path) =>
-      Promise.resolve(path.endsWith("/search")
-        ? { ...pageResult, items: [record] }
-        : { ...detail, ...record }),
-    );
+    apiFetchMock.mockImplementation((path) => {
+      if (path === "/academic/titulations/filters")
+        return Promise.resolve(filterOptions);
+      return Promise.resolve(
+        path.endsWith("/search")
+          ? { ...pageResult, items: [record] }
+          : { ...detail, ...record },
+      );
+    });
     renderAs(<TitulationWorkspace />, ["ACADEMIC_SECRETARY"]);
 
     await screen.findByText("12.345.678-5");
-    expect(screen.getAllByText(label)).toHaveLength(2);
+    expect(screen.getAllByText(label)).toHaveLength(
+      label === "Sin fecha registrada" ? 3 : 2,
+    );
   });
 
   it("keeps the linked page and shows pagination above the current records", async () => {
@@ -155,6 +171,8 @@ describe("TitulationWorkspace", () => {
     }));
     const requestedPages: number[] = [];
     apiFetchMock.mockImplementation((path, init) => {
+      if (path === "/academic/titulations/filters")
+        return Promise.resolve(filterOptions);
       if (path !== "/academic/titulations/search") return Promise.resolve(detail);
       const { page, pageSize } = JSON.parse(String(init?.body)) as Pick<
         TitulationPageResult,
@@ -198,9 +216,11 @@ describe("TitulationWorkspace", () => {
 
   it("shows one registration action when there are no records", async () => {
     apiFetchMock.mockImplementation((path: string) =>
-      path === "/academic/titulations/search"
-        ? Promise.resolve({ items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 })
-        : Promise.resolve(detail),
+      path === "/academic/titulations/filters"
+        ? Promise.resolve(filterOptions)
+        : path === "/academic/titulations/search"
+          ? Promise.resolve({ items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 })
+          : Promise.resolve(detail),
     );
     renderAs(<TitulationWorkspace />, ["ACADEMIC_SECRETARY"]);
 
@@ -210,7 +230,7 @@ describe("TitulationWorkspace", () => {
     expect(screen.getAllByRole("button", { name: "Registrar proceso" })).toHaveLength(1);
   });
 
-  it("passes the search text and stage filter to the API", async () => {
+  it("passes search, stage, career and defense period filters to the API", async () => {
     renderAs(<TitulationWorkspace />, ["ACADEMIC_SECRETARY"]);
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Buscar expediente" }), {
@@ -229,6 +249,13 @@ describe("TitulationWorkspace", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Etapa del proceso" }), {
       target: { value: "DEFENSE" },
     });
+    fireEvent.change(screen.getByRole("combobox", { name: "Carrera" }), {
+      target: { value: "11111111-1111-4111-8111-111111111111" },
+    });
+    fireEvent.change(
+      screen.getByRole("combobox", { name: "Semestre y año de defensa" }),
+      { target: { value: "2026-S1" } },
+    );
     await waitFor(() =>
       expect(apiFetchMock).toHaveBeenCalledWith(
         "/academic/titulations/search",
@@ -237,6 +264,44 @@ describe("TitulationWorkspace", () => {
         }),
       ),
     );
+    await waitFor(() =>
+      expect(apiFetchMock).toHaveBeenCalledWith(
+        "/academic/titulations/search",
+        expect.objectContaining({
+          body: expect.stringContaining('"careerId":"11111111-1111-4111-8111-111111111111"'),
+        }),
+      ),
+    );
+    await waitFor(() =>
+      expect(apiFetchMock).toHaveBeenCalledWith(
+        "/academic/titulations/search",
+        expect.objectContaining({
+          body: expect.stringContaining('"period":"2026-S1"'),
+        }),
+      ),
+    );
+    expect(window.location.search).toContain("stage=DEFENSE");
+    expect(window.location.search).toContain("careerId=11111111-1111-4111-8111-111111111111");
+    expect(window.location.search).toContain("period=2026-S1");
+  });
+
+  it("filters records with no recorded defense date", async () => {
+    renderAs(<TitulationWorkspace />, ["ACADEMIC_SECRETARY"]);
+
+    fireEvent.change(
+      await screen.findByRole("combobox", { name: "Semestre y año de defensa" }),
+      { target: { value: "UNRECORDED" } },
+    );
+
+    await waitFor(() =>
+      expect(apiFetchMock).toHaveBeenCalledWith(
+        "/academic/titulations/search",
+        expect.objectContaining({
+          body: expect.stringContaining('"period":"UNRECORDED"'),
+        }),
+      ),
+    );
+    expect(window.location.search).toContain("period=UNRECORDED");
   });
 
   it("debounces typing, highlights the original spelling, and clears immediately", async () => {

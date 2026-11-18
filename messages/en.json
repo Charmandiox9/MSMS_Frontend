@@ -1747,7 +1747,17 @@
     },
     "missingValue": "To be completed",
     "filters": {
-      "title": "Record filters"
+      "title": "Record filters",
+      "career": "Career",
+      "allCareers": "All careers",
+      "period": "Defense semester and year",
+      "allPeriods": "All periods",
+      "periodOption": "Semester {semester}, {year}",
+      "undated": "No date recorded",
+      "periodHelp": "Semester 1 covers January to June; semester 2 covers July to December. Records without a date can be filtered separately.",
+      "loading": "Loading filter options",
+      "loadError": "Filter options could not be loaded.",
+      "retry": "Reload filters"
     },
     "errors": {
       "load": "Records could not be loaded. Try again.",
@@ -1756,7 +1766,7 @@
     "empty": {
       "title": "No records to show",
       "description": "Registered graduation processes will appear here for follow-up.",
-      "noMatches": "No records match the search or selected stage."
+      "noMatches": "No records match the search or selected filters."
     },
     "detail": {
       "eyebrow": "Selected record",

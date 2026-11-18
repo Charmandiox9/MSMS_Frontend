@@ -53,6 +53,12 @@ export interface TitulationPageResult {
   totalPages: number;
 }
 
+export interface TitulationFilterOptions {
+  periods: string[];
+  careers: { id: string; name: string }[];
+  hasUndated: boolean;
+}
+
 export interface TitulationListItem {
   id: string;
   reference: string;
