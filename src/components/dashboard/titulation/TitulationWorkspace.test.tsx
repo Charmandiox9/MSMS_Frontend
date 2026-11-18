@@ -290,6 +290,7 @@ describe("TitulationWorkspace", () => {
     const dialog = screen.getByRole("dialog");
     await within(dialog).findByRole("option", { name: "Biología Marina" });
     expect(dialog.querySelectorAll("input[placeholder], textarea[placeholder]")).toHaveLength(0);
+    expect(within(dialog).getByText("Elige la carrera correspondiente.")).toBeDefined();
     expect(within(dialog).getByText("Nombre Ficticio")).toBeDefined();
     expect(within(dialog).getByText("11.111.111-1")).toBeDefined();
     expect(within(dialog).getByText("estudiante@example.com")).toBeDefined();

@@ -541,6 +541,7 @@ export default function TitulationProcessForm({
                 disabled={
                   careerLoadState !== "ready" || availableCareers.length === 0
                 }
+                aria-describedby="titulation-career-help"
                 onChange={(event) => {
                   updateField("careerId", event.target.value);
                 }}
@@ -553,6 +554,12 @@ export default function TitulationProcessForm({
                   </option>
                 ))}
               </select>
+              <p
+                id="titulation-career-help"
+                className="mt-1.5 text-sm leading-relaxed text-muted-foreground"
+              >
+                {t("form.careerHelp")}
+              </p>
               {careerLoadState === "loading" && (
                 <p
                   id="titulation-career-status"

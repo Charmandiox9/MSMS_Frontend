@@ -1838,6 +1838,7 @@
       "phoneInvalid": "Revisa el teléfono: usa entre 8 y 24 caracteres numéricos y separadores permitidos.",
       "career": "Carrera",
       "careerPlaceholder": "Selecciona una carrera del catálogo",
+      "careerHelp": "Elige la carrera correspondiente.",
       "careersLoading": "Cargando carreras disponibles…",
       "careersError": "No fue posible cargar las carreras.",
       "careersEmpty": "No hay carreras activas disponibles.",

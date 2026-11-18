@@ -1758,6 +1758,7 @@
       "phoneInvalid": "Check the phone number. Use 8 to 24 characters with digits and the allowed separators.",
       "career": "Career",
       "careerPlaceholder": "Select a career from the catalog",
+      "careerHelp": "Choose the student's career.",
       "careersLoading": "Loading available careers…",
       "careersError": "Careers could not be loaded.",
       "careersEmpty": "No active careers are available.",
