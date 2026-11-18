@@ -436,6 +436,10 @@
       "OTHER": "Other reason"
     }
   },
+  "SearchField": {
+    "clear": "Clear search",
+    "searching": "Searching…"
+  },
   "Pagination": {
     "summary": "Page {page} of {totalPages} · {total} records",
     "previous": "Previous page",
