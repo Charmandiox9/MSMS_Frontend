@@ -11,32 +11,24 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations('TermsAcceptance');
-  const [document, setDocument] = useState<TermsDocument | null>(null);
-  const [required, setRequired] = useState(false);
-  const [checked, setChecked] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [retry, setRetry] = useState(0);
+  const requestKey = `${locale}:${retry}`;
+  const [gateState, setGateState] = useState<{
+    requestKey: string;
+    document: TermsDocument | null;
+    required: boolean;
+    error: boolean;
+  } | null>(null);
+  const currentGateState =
+    gateState?.requestKey === requestKey ? gateState : null;
+  const document = currentGateState?.document ?? null;
+  const required = currentGateState?.required ?? false;
+  const loading = currentGateState === null;
+  const error = currentGateState?.error ?? false;
+  const [checkedDocument, setCheckedDocument] = useState<string | null>(null);
+  const confirmationKey = `${requestKey}:${document?.version ?? ''}`;
+  const checked = checkedDocument === confirmationKey;
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(false);
-
-  const loadStatus = async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const status = await getTermsStatus();
-      if (status.accepted) {
-        setRequired(false);
-        setLoading(false);
-        return;
-      }
-      const current = await getCurrentTerms(locale);
-      setDocument(current);
-      setRequired(true);
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleExit = async () => {
     await logout().catch(() => undefined);
@@ -45,18 +37,39 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
   };
 
   useEffect(() => {
+    let active = true;
+    const loadStatus = async () => {
+      try {
+        const status = await getTermsStatus();
+        if (!active) return;
+        if (status.accepted) {
+          setGateState({ requestKey, document: null, required: false, error: false });
+          return;
+        }
+        const current = await getCurrentTerms(locale);
+        if (active) {
+          setGateState({ requestKey, document: current, required: true, error: false });
+        }
+      } catch {
+        if (active) {
+          setGateState({ requestKey, document: null, required: false, error: true });
+        }
+      }
+    };
     void loadStatus();
-  }, [locale]);
+    return () => {
+      active = false;
+    };
+  }, [locale, requestKey]);
 
   const handleAccept = async () => {
     if (!document || !checked) return;
     setSaving(true);
-    setError(false);
     try {
       await acceptCurrentTerms(document.version, locale);
-      setRequired(false);
+      setGateState({ requestKey, document, required: false, error: false });
     } catch {
-      setError(true);
+      setGateState({ requestKey, document, required: true, error: true });
     } finally {
       setSaving(false);
     }
@@ -69,7 +82,7 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
         <h1 className="text-2xl font-bold text-foreground">{t('loadErrorTitle')}</h1>
         <p className="text-muted-foreground">{t('loadError')}</p>
         <div className="flex flex-wrap items-center gap-3">
-          <button type="button" onClick={() => void loadStatus()} className="w-fit rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground">{t('retry')}</button>
+          <button type="button" onClick={() => setRetry((count) => count + 1)} className="w-fit rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground">{t('retry')}</button>
           <button type="button" onClick={() => void handleExit()} className="w-fit rounded-xl border border-border px-5 py-3 font-semibold text-foreground">{t('logout')}</button>
           <Link href="/privacy" className="text-sm font-medium text-primary underline underline-offset-4">{t('privacyLink')}</Link>
         </div>
@@ -84,7 +97,7 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
         <header className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t('eyebrow')}</p>
           <h1 className="text-3xl font-bold tracking-tight">{document.title}</h1>
-          <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-foreground">{document.notice}</p>
+          <p className="rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm leading-6 text-foreground">{document.notice}</p>
           <p className="text-sm text-muted-foreground">{t('version', { version: document.version })}</p>
         </header>
 
@@ -99,7 +112,7 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
 
         <div className="space-y-5 border-t border-border pt-6">
           <label className="flex cursor-pointer items-start gap-3 text-sm leading-6">
-            <input type="checkbox" checked={checked} onChange={(event) => setChecked(event.target.checked)} className="mt-1 h-4 w-4 accent-primary" />
+            <input type="checkbox" checked={checked} onChange={(event) => setCheckedDocument(event.target.checked ? confirmationKey : null)} className="mt-1 h-4 w-4 accent-primary" />
             <span>{t('confirmation')}</span>
           </label>
           <p className="text-sm text-muted-foreground">{t('privacySeparate')} <Link href="/privacy" className="font-medium text-primary underline underline-offset-4">{t('privacyLink')}</Link></p>

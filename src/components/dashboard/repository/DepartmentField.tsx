@@ -16,22 +16,26 @@ export default function DepartmentField({
 }) {
   const t = useTranslations("DepartmentField");
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [requestState, setRequestState] = useState<{
+    retry: number;
+    status: "success" | "error";
+  } | null>(null);
+  const currentRequestState =
+    requestState?.retry === retry ? requestState : null;
+  const loading = currentRequestState === null;
+  const error = currentRequestState?.status === "error";
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(false);
     apiFetch<Department[]>("/academic/careers/options")
       .then((rows) => {
-        if (active) setDepartments(rows);
+        if (active) {
+          setDepartments(rows);
+          setRequestState({ retry, status: "success" });
+        }
       })
       .catch(() => {
-        if (active) setError(true);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+        if (active) setRequestState({ retry, status: "error" });
       });
     return () => {
       active = false;
