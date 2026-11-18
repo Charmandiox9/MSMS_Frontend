@@ -1310,6 +1310,7 @@
       "studentRut": "RUT",
       "studentFullName": "Full name",
       "studentEmail": "Email address",
+      "studentCode": "Student code",
       "noStudentCareer": "No degree program registered",
       "hours": "Weekly hours",
       "approvedOn": "Course completion date",

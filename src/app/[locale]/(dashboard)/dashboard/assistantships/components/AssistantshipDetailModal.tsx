@@ -139,11 +139,11 @@ export default function AssistantshipDetailModal({
             </div>
             <div className="space-y-2 text-sm">
               <div>
-                <p className="text-xs text-muted-foreground">{t("form.name")}</p>
+                <p className="text-xs text-muted-foreground">{t("form.studentFullName")}</p>
                 <p className="font-semibold text-foreground">{item.assistantName}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">{t("form.email")}</p>
+                <p className="text-xs text-muted-foreground">{t("form.studentEmail")}</p>
                 <p className="font-mono text-xs text-foreground flex items-center gap-1.5 break-all">
                   <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" aria-hidden="true" />
                   {item.assistantEmail}

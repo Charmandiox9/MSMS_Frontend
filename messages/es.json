@@ -1310,6 +1310,7 @@
       "studentRut": "RUT",
       "studentFullName": "Nombre completo",
       "studentEmail": "Correo electrónico",
+      "studentCode": "Código de estudiante",
       "noStudentCareer": "Sin carrera registrada",
       "hours": "Horas semanales",
       "approvedOn": "Fecha de aprobación",

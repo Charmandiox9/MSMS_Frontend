@@ -143,7 +143,7 @@ export function AssistantshipsWorkspace({
     if (!page?.items?.length) return;
     const headers = [
       t("table.assistant"),
-      t("form.email"),
+      t("form.studentEmail"),
       t("form.studentCode"),
       t("table.course"),
       "Código Asignatura",

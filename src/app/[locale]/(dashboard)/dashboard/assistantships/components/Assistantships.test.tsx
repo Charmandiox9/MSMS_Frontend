@@ -355,9 +355,14 @@ describe("assistantship management", { timeout: 15000 }, () => {
       startsOn: "2025-08-01",
       endsOn: "2025-12-31",
     };
-    const result = vi.fn((_variables: { input: Record<string, unknown> }) => ({
-      data: { registerAssistantship: { ...item, semesterId: past.id } },
-    }));
+    const result = vi.fn(
+      (variables: { input: Record<string, unknown> }) => {
+        void variables;
+        return {
+          data: { registerAssistantship: { ...item, semesterId: past.id } },
+        };
+      },
+    );
     const onRegistered = vi.fn();
     render(
       <NextIntlClientProvider locale="es" messages={messages}>
