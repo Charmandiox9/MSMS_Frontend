@@ -9,9 +9,9 @@ import {
   CalendarDays,
   type LucideIcon,
 } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from '@/i18n/routing';
 import { useActiveRole } from '@/context/ActiveRoleContext';
 import RoleBadge from '@/components/dashboard/RoleBadge';
 import type { UserRoleCode } from '@/types/auth';
@@ -25,7 +25,6 @@ const ROLE_ICONS: Record<UserRoleCode, LucideIcon> = {
 };
 
 export default function RoleSwitcher() {
-  const locale = useLocale();
   const router = useRouter();
   const t = useTranslations('DashboardNav');
   const tRoles = useTranslations('DashboardNav.roles');
@@ -111,7 +110,7 @@ export default function RoleSwitcher() {
                   onClick={() => {
                     setActiveRole(role);
                     setOpen(false);
-                    router.replace(`/${locale}/dashboard`);
+                    router.replace('/dashboard');
                   }}
                   className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
                     isSelected

@@ -8,10 +8,7 @@ import { useActiveRole } from '@/context/ActiveRoleContext';
 // Referencia estable, como el router real de Next.
 const router = vi.hoisted(() => ({ replace: vi.fn() }));
 const { replace } = router;
-vi.mock('next/navigation', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('next/navigation')>()),
-  useRouter: () => router,
-}));
+vi.mock('@/i18n/routing', () => ({ useRouter: () => router }));
 vi.mock('@/components/dashboard/DashboardSidebar', () => ({ default: () => <nav>sidebar</nav> }));
 vi.mock('@/components/dashboard/DashboardHeader', () => ({ default: () => <header>header</header> }));
 
@@ -63,7 +60,7 @@ describe('DashboardLayout (sesión)', () => {
     installFakeApi({ 'GET /auth/session': () => ({ status: 401, body: { message: 'Unauthorized' } }) });
     renderLayout();
 
-    await waitFor(() => expect(replace).toHaveBeenCalledWith('/es/login'));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith('/login'));
     expect(screen.queryByText(/rol:/)).toBeNull();
     expect(screen.queryByText('sidebar')).toBeNull();
   });
@@ -76,7 +73,7 @@ describe('DashboardLayout (sesión)', () => {
     });
     renderLayout();
 
-    await waitFor(() => expect(replace).toHaveBeenCalledWith('/es/login'));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith('/login'));
     expect(api.requests.map((request) => `${request.method} ${request.path}`)).toEqual([
       'GET /auth/session',
       'POST /auth/logout',
@@ -88,7 +85,7 @@ describe('DashboardLayout (sesión)', () => {
     api.on('GET /auth/session', () => Promise.reject(new TypeError('Failed to fetch')));
     renderLayout();
 
-    await waitFor(() => expect(replace).toHaveBeenCalledWith('/es/login'));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith('/login'));
   });
 
   it('con sesión renderiza el dashboard con el rol activo', async () => {

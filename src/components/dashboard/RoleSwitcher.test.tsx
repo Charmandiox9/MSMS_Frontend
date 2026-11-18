@@ -19,7 +19,7 @@ vi.mock('next-intl', () => ({
 
 const replace = vi.fn();
 
-vi.mock('next/navigation', () => ({
+vi.mock('@/i18n/routing', () => ({
   useRouter: () => ({ replace }),
 }));
 
@@ -51,7 +51,7 @@ describe('RoleSwitcher component', () => {
     expect(screen.getByText('Roles asignados')).toBeDefined();
 
     fireEvent.click(screen.getByRole('option', { name: /apoyo docente/i }));
-    expect(replace).toHaveBeenCalledWith('/es/dashboard');
+    expect(replace).toHaveBeenCalledWith('/dashboard');
   });
 
   it('should render only badge when user has a single role', () => {

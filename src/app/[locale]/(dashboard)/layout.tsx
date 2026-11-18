@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { ActiveRoleProvider, useActiveRole } from "@/context/ActiveRoleContext";
@@ -44,7 +44,6 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const locale = useLocale();
   const t = useTranslations("Dashboard");
   const router = useRouter();
   const [session, setSession] = useState<ActiveSession | null>(null);
@@ -64,14 +63,14 @@ export default function DashboardLayout({
         // el middleware la vería y devolvería /login → /dashboard. El logout del backend
         // es público y la borra aunque la sesión ya no sea válida.
         await logout().catch(() => undefined);
-        if (mounted) router.replace(`/${locale}/login`);
+        if (mounted) router.replace("/login");
       }
     });
 
     return () => {
       mounted = false;
     };
-  }, [locale, router]);
+  }, [router]);
 
   if (isLoading || !session) {
     return <DashboardShellSkeleton label={t("sessionChecking")} />;

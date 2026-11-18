@@ -105,6 +105,7 @@ for (const locale of ["es", "en"] as const) {
         await route.fulfill({ json: body, headers });
       });
       await page.goto("/dashboard/titulation");
+      await expect(page).toHaveURL(/\/dashboard\/titulation(?:\?.*)?$/);
       const graduates = page.getByRole("button", {
         name: locale === "es" ? /^Titulados/ : /^Graduates/,
       });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { NextRequest } from 'next/server';
 import proxy from '../proxy';
+import { getPathname } from './routing';
 
 function resolvedLocale(cookie?: string) {
   const req = new NextRequest('https://marsys.test/fasol/marsys/login', {
@@ -13,6 +14,13 @@ function resolvedLocale(cookie?: string) {
 }
 
 describe('MARSYS language selection under a shared domain', () => {
+  it.each(['es', 'en'] as const)(
+    'generates %s routes without a locale prefix',
+    (locale) => {
+      expect(getPathname({ href: '/dashboard', locale })).toBe('/dashboard');
+    },
+  );
+
   it('starts in Spanish even when the browser prefers English', () => {
     expect(resolvedLocale()).toBe('/fasol/marsys/es/login');
   });
