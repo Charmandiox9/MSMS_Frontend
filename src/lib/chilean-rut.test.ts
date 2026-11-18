@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { formatChileanRut, normalizeChileanRut } from "./chilean-rut";
+import {
+  formatChileanRut,
+  isValidChileanRut,
+  normalizeChileanRut,
+} from "./chilean-rut";
 
 describe("formato de RUT chileno", () => {
   it("aplica separadores y dígito verificador al completar ocho dígitos base", () => {
@@ -17,5 +21,14 @@ describe("formato de RUT chileno", () => {
 
   it("envía el RUT sin separadores visuales", () => {
     expect(normalizeChileanRut("21.493.398-5")).toBe("21493398-5");
+  });
+
+  it("valida el dígito verificador con y sin formato", () => {
+    expect(isValidChileanRut("12.345.678-5")).toBe(true);
+    expect(isValidChileanRut("214933985")).toBe(true);
+    expect(isValidChileanRut("11.111.111-1")).toBe(true);
+    expect(isValidChileanRut("99.999.999-9")).toBe(true);
+    expect(isValidChileanRut("12.345.678-0")).toBe(false);
+    expect(isValidChileanRut("texto")).toBe(false);
   });
 });

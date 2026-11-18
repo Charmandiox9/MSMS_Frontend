@@ -1739,6 +1739,144 @@
     "assistantshipNrc": "NRC de ayudantía: {nrc}",
     "admissionHint": "Formato AAAASS: año (AAAA) + semestre (SS). Ejemplo: 202610 = primer semestre de 2026; 202620 = segundo semestre de 2026."
   },
+  "TitulationPage": {
+    "eyebrow": "Atención estudiantil",
+    "title": "Titulaciones",
+    "subtitle": "Registra y consulta los antecedentes, la defensa y el cierre de cada proceso de titulación.",
+    "createProcess": "Registrar proceso",
+    "editProcess": "Editar proceso",
+    "refresh": "Actualizar expedientes",
+    "retry": "Reintentar",
+    "loading": "Cargando expedientes",
+    "searchLabel": "Buscar expediente",
+    "searchPlaceholder": "Nombre, RUT, correo, tema o folio",
+    "searchHelp": "Busca por folio, nombre, RUT, correo, tema, carrera o integrantes del equipo académico.",
+    "stageFilterLabel": "Etapa del proceso",
+    "allStages": "Todas las etapas",
+    "casesTitle": "Expedientes de titulación",
+    "selectCase": "Seleccionar expediente {id} de {students}",
+    "selectCasePrompt": "Selecciona un expediente para consultar sus antecedentes.",
+    "defenseDatePending": "Fecha de defensa por confirmar",
+    "defenseDateUnrecorded": "Sin fecha registrada",
+    "committeeTitle": "Equipo académico",
+    "committeeRoles": {
+      "guide": "Profesor guía",
+      "coGuide": "Profesor co-guía",
+      "reviewerOne": "Profesor corrector 1",
+      "reviewerTwo": "Profesor corrector 2"
+    },
+    "documentsTitle": "Estado de los documentos",
+    "documentsManualNote": "Actualiza estos estados al comprobar la recepción o preparación de cada documento.",
+    "drafts": {
+      "title": "Borradores de Word",
+      "description": "Se completan con los datos del expediente que caben en la plantilla. Revisa los campos en blanco y completa el resumen, las autorizaciones y las firmas que correspondan en Word.",
+      "defense-annexes": "Descargar anexos de defensa (.docx)",
+      "thesis-summary": "Descargar Anexo B (.docx)",
+      "library-authorization": "Descargar formulario de Biblioteca (.docx)",
+      "downloading": "Preparando borrador…",
+      "error": "No se pudo descargar el borrador. Intenta nuevamente."
+    },
+    "documents": {
+      "defenseAnnexes": "Anexos para el acta",
+      "thesisSummary": "Resumen de tesis (Anexo B)",
+      "libraryForm": "Formulario de Biblioteca",
+      "acta": "Acta de titulación",
+      "evaluations": "Evaluaciones de manuscrito y defensa oral"
+    },
+    "documentStatus": {
+      "UNVERIFIED": "No verificado",
+      "PENDING": "Pendiente",
+      "RECEIVED": "Recibido",
+      "PREPARED": "Preparado"
+    },
+    "statuses": {
+      "UNCLASSIFIED": "Sin clasificar",
+      "INTAKE": "Recepción de antecedentes",
+      "REVIEW": "Revisión y preparación",
+      "DEFENSE": "Defensa y evaluación",
+      "CLOSED": "Cerrado"
+    },
+    "sources": {
+      "MANUAL": "Registro manual",
+      "LEGACY_ACCESS": "Importado de base histórica"
+    },
+    "missingValue": "Por completar",
+    "filters": {
+      "title": "Filtros de expedientes"
+    },
+    "errors": {
+      "load": "No fue posible cargar los expedientes. Intenta nuevamente.",
+      "save": "No fue posible guardar el proceso. Revisa los datos e inténtalo otra vez."
+    },
+    "empty": {
+      "title": "No hay expedientes para mostrar",
+      "description": "Cuando registres un proceso de titulación, aparecerá aquí para su seguimiento.",
+      "noMatches": "No hay expedientes que coincidan con la búsqueda o la etapa seleccionada."
+    },
+    "detail": {
+      "eyebrow": "Expediente seleccionado",
+      "title": "Detalle del proceso",
+      "loading": "Cargando detalle del proceso",
+      "error": "No fue posible cargar el detalle. Puedes volver a intentarlo."
+    },
+    "pagination": {
+      "label": "Paginación de expedientes",
+      "summary": "{first, number}–{last, number} de {total, plural, one {# expediente} other {# expedientes}}"
+    },
+    "form": {
+      "requirementsHelp": "El nombre y la carrera son obligatorios. Los demás antecedentes pueden completarse después.",
+      "optional": "opcional",
+      "studentName": "Nombre completo del estudiante",
+      "studentNameHelp": "Nombre Ficticio",
+      "studentRut": "RUT del estudiante",
+      "rutHelp": "11.111.111-1",
+      "rutInvalid": "Revisa el RUT: el formato o el dígito verificador no son válidos.",
+      "studentEmail": "Correo electrónico",
+      "emailHelp": "estudiante@example.com",
+      "studentPhone": "Teléfono",
+      "phoneHelp": "+56 9 0000 0000",
+      "phoneInvalid": "Revisa el teléfono: usa entre 8 y 24 caracteres numéricos y separadores permitidos.",
+      "career": "Carrera",
+      "careerPlaceholder": "Selecciona una carrera del catálogo",
+      "careersLoading": "Cargando carreras disponibles…",
+      "careersError": "No fue posible cargar las carreras.",
+      "careersEmpty": "No hay carreras activas disponibles.",
+      "degree": "Título al que opta",
+      "degreeHelp": "Título Ficticio",
+      "thesisTopic": "Tema de tesis",
+      "thesisTopicHelp": "Tema de tesis ficticio",
+      "guide": "Profesor guía",
+      "academicMemberHelp": "Docente Ficticio",
+      "coGuide": "Profesor co-guía",
+      "reviewerOne": "Profesor corrector 1",
+      "reviewerTwo": "Profesor corrector 2",
+      "defenseDate": "Fecha de defensa",
+      "defenseDateHelp": "31/12/2999",
+      "stage": "Etapa del proceso"
+    },
+    "wizard": {
+      "eyebrow": "Registro académico",
+      "title": "Registrar proceso de titulación",
+      "editTitle": "Editar proceso de titulación",
+      "description": "Completa los antecedentes disponibles. Los datos personales se usarán para gestionar este proceso académico.",
+      "progressLabel": "Avance del formulario de titulación",
+      "stepCount": "Paso {current} de {total}",
+      "steps": {
+        "identity": "Estudiante y carrera",
+        "committee": "Tesis y equipo",
+        "documents": "Seguimiento documental"
+      },
+      "documentsTitle": "Documentos del proceso",
+      "documentsHelp": "Marca el estado que corresponda a cada antecedente. El sistema todavía no almacena archivos.",
+      "cancel": "Cancelar",
+      "back": "Anterior",
+      "continue": "Continuar",
+      "saving": "Guardando",
+      "saveChanges": "Guardar cambios",
+      "create": "Registrar proceso"
+    },
+    "close": "Cerrar"
+  },
   "HourlyPayments": {
     "rut": "RUT",
     "rutPlaceholder": "12.345.678-9",

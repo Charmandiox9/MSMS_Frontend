@@ -1659,6 +1659,144 @@
     "assistantshipNrc": "Assistantship NRC: {nrc}",
     "admissionHint": "Format YYYYSS: year (YYYY) + semester (SS). Example: 202610 = first semester of 2026; 202620 = second semester of 2026."
   },
+  "TitulationPage": {
+    "eyebrow": "Student support",
+    "title": "Graduation processes",
+    "subtitle": "Register and review the records, defense, and closure of each graduation process.",
+    "createProcess": "Register process",
+    "editProcess": "Edit process",
+    "refresh": "Refresh records",
+    "retry": "Try again",
+    "loading": "Loading records",
+    "searchLabel": "Search records",
+    "searchPlaceholder": "Name, RUT, email, topic, or reference",
+    "searchHelp": "Search by reference, name, RUT, email, topic, career, or academic committee member.",
+    "stageFilterLabel": "Process stage",
+    "allStages": "All stages",
+    "casesTitle": "Graduation records",
+    "selectCase": "Select record {id} for {students}",
+    "selectCasePrompt": "Select a record to review its information.",
+    "defenseDatePending": "Defense date to be confirmed",
+    "defenseDateUnrecorded": "No defense date recorded",
+    "committeeTitle": "Academic committee",
+    "committeeRoles": {
+      "guide": "Thesis supervisor",
+      "coGuide": "Co-supervisor",
+      "reviewerOne": "Reviewer 1",
+      "reviewerTwo": "Reviewer 2"
+    },
+    "documentsTitle": "Document status",
+    "documentsManualNote": "Update these statuses when you verify each document has been received or prepared.",
+    "drafts": {
+      "title": "Word drafts",
+      "description": "Drafts use record details that fit the template. Review the blanks and complete the summary, authorizations, and signatures as needed in Word.",
+      "defense-annexes": "Download defense annexes (.docx)",
+      "thesis-summary": "Download Annex B (.docx)",
+      "library-authorization": "Download library form (.docx)",
+      "downloading": "Preparing draft…",
+      "error": "The draft could not be downloaded. Please try again."
+    },
+    "documents": {
+      "defenseAnnexes": "Defense annexes",
+      "thesisSummary": "Thesis summary (Annex B)",
+      "libraryForm": "Library form",
+      "acta": "Graduation minutes",
+      "evaluations": "Manuscript and oral defense evaluations"
+    },
+    "documentStatus": {
+      "UNVERIFIED": "Unverified",
+      "PENDING": "Pending",
+      "RECEIVED": "Received",
+      "PREPARED": "Prepared"
+    },
+    "statuses": {
+      "UNCLASSIFIED": "Unclassified",
+      "INTAKE": "Collecting records",
+      "REVIEW": "Review and preparation",
+      "DEFENSE": "Defense and evaluation",
+      "CLOSED": "Closed"
+    },
+    "sources": {
+      "MANUAL": "Manual entry",
+      "LEGACY_ACCESS": "Imported from legacy database"
+    },
+    "missingValue": "To be completed",
+    "filters": {
+      "title": "Record filters"
+    },
+    "errors": {
+      "load": "Records could not be loaded. Try again.",
+      "save": "The process could not be saved. Check the information and try again."
+    },
+    "empty": {
+      "title": "No records to show",
+      "description": "Registered graduation processes will appear here for follow-up.",
+      "noMatches": "No records match the search or selected stage."
+    },
+    "detail": {
+      "eyebrow": "Selected record",
+      "title": "Process details",
+      "loading": "Loading process details",
+      "error": "The details could not be loaded. You can try again."
+    },
+    "pagination": {
+      "label": "Record pagination",
+      "summary": "{first, number}–{last, number} of {total, plural, one {# record} other {# records}}"
+    },
+    "form": {
+      "requirementsHelp": "Student name and career are required. Other records can be completed later.",
+      "optional": "optional",
+      "studentName": "Student full name",
+      "studentNameHelp": "Fictional Name",
+      "studentRut": "Student RUT",
+      "rutHelp": "11.111.111-1",
+      "rutInvalid": "Check the RUT format and check digit.",
+      "studentEmail": "Email address",
+      "emailHelp": "student@example.com",
+      "studentPhone": "Phone",
+      "phoneHelp": "+56 9 0000 0000",
+      "phoneInvalid": "Check the phone number. Use 8 to 24 characters with digits and the allowed separators.",
+      "career": "Career",
+      "careerPlaceholder": "Select a career from the catalog",
+      "careersLoading": "Loading available careers…",
+      "careersError": "Careers could not be loaded.",
+      "careersEmpty": "No active careers are available.",
+      "degree": "Degree sought",
+      "degreeHelp": "Fictional Degree",
+      "thesisTopic": "Thesis topic",
+      "thesisTopicHelp": "Fictional thesis topic",
+      "guide": "Thesis supervisor",
+      "academicMemberHelp": "Fictional Faculty Member",
+      "coGuide": "Co-supervisor",
+      "reviewerOne": "Reviewer 1",
+      "reviewerTwo": "Reviewer 2",
+      "defenseDate": "Defense date",
+      "defenseDateHelp": "12/31/2999",
+      "stage": "Process stage"
+    },
+    "wizard": {
+      "eyebrow": "Academic record",
+      "title": "Register graduation process",
+      "editTitle": "Edit graduation process",
+      "description": "Enter the information available. Personal data will be used to manage this academic process.",
+      "progressLabel": "Graduation process form progress",
+      "stepCount": "Step {current} of {total}",
+      "steps": {
+        "identity": "Student and career",
+        "committee": "Thesis and committee",
+        "documents": "Document tracking"
+      },
+      "documentsTitle": "Process documents",
+      "documentsHelp": "Choose the current status for each record. Files are not stored in the system yet.",
+      "cancel": "Cancel",
+      "back": "Back",
+      "continue": "Continue",
+      "saving": "Saving",
+      "saveChanges": "Save changes",
+      "create": "Register process"
+    },
+    "close": "Close"
+  },
   "HourlyPayments": {
     "rut": "RUT",
     "rutPlaceholder": "12.345.678-9",
