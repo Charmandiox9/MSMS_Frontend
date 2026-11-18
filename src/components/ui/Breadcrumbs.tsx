@@ -21,6 +21,10 @@ const ROUTE_NAME_MAP: Record<string, string> = {
   research: 'research',
   'research-outputs': 'researchOutputs',
   students: 'students',
+  careers: 'careers',
+  progress: 'studentProgress',
+  profile: 'profile',
+  'academic-information': 'academicInformation',
   'assistantship-history': 'assistantships',
   assistantships: 'assistantships',
   titulation: 'titulation',
@@ -32,6 +36,8 @@ const ROUTE_NAME_MAP: Record<string, string> = {
   settings: 'settings',
 };
 
+const RESOURCE_ID_PATTERN = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+
 export default function Breadcrumbs({ className = '' }: BreadcrumbsProps) {
   const t = useTranslations('DashboardNav');
   const pathname = usePathname();
@@ -42,7 +48,7 @@ export default function Breadcrumbs({ className = '' }: BreadcrumbsProps) {
 
   if (rawSegments.length <= 1) {
     return (
-      <nav aria-label="Breadcrumb" className={`flex items-center text-xs font-medium ${className}`}>
+      <nav aria-label={t('breadcrumb')} className={`flex items-center text-xs font-medium ${className}`}>
         <ol className="flex items-center space-x-1.5 overflow-hidden">
           <li className="flex items-center space-x-1.5">
             <Home className="h-3.5 w-3.5 text-ocean-cyan shrink-0" aria-hidden="true" />
@@ -57,23 +63,20 @@ export default function Breadcrumbs({ className = '' }: BreadcrumbsProps) {
 
   const subSegments = rawSegments[0] === 'dashboard' ? rawSegments.slice(1) : rawSegments;
 
-  const allCrumbs = subSegments.map((segment, index) => {
+  const allCrumbs = subSegments.flatMap((segment, index) => {
+    if (RESOURCE_ID_PATTERN.test(segment)) return [];
     const href = `/dashboard/${subSegments.slice(0, index + 1).join('/')}`;
-    const mappedKey = ROUTE_NAME_MAP[segment] ?? segment;
-    let label = segment;
+    const mappedKey = ROUTE_NAME_MAP[segment];
+    const label = mappedKey && t.has(mappedKey) ? t(mappedKey) : segment;
 
-    try {
-      label = t(mappedKey as Parameters<typeof t>[0]);
-    } catch {
-      label = segment;
-    }
-
-    return {
-      segment,
-      href,
-      label,
-      isLast: index === subSegments.length - 1,
-    };
+    return [
+      {
+        segment,
+        href,
+        label,
+        isLast: index === subSegments.length - 1,
+      },
+    ];
   });
 
   const visibleCrumbs = allCrumbs.filter((crumb) => {
@@ -83,7 +86,7 @@ export default function Breadcrumbs({ className = '' }: BreadcrumbsProps) {
   });
 
   return (
-    <nav aria-label="Breadcrumb" className={`flex items-center text-xs font-medium ${className}`}>
+    <nav aria-label={t('breadcrumb')} className={`flex items-center text-xs font-medium ${className}`}>
       <ol className="flex items-center space-x-1.5 overflow-hidden">
         <li>
           <Link

@@ -16,7 +16,7 @@ vi.mock('@/i18n/routing', () => ({
 }));
 
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => {
+  useTranslations: () => {
     const translations: Record<string, string> = {
       dashboard: 'Dashboard',
       users: 'Usuarios',
@@ -25,8 +25,11 @@ vi.mock('next-intl', () => ({
       audit: 'Auditoría',
       privacyRequests: 'Solicitudes de privacidad',
       researchOutputs: 'Resultados de investigación',
+      breadcrumb: 'Breadcrumb',
+      students: 'Estudiantes',
+      studentProgress: 'Historial académico',
     };
-    return translations[key] ?? key;
+    return Object.assign((key: string) => translations[key] ?? key, { has: (key: string) => key in translations });
   },
 }));
 
@@ -101,5 +104,13 @@ describe('Breadcrumbs component', () => {
     expect(screen.getByText('Gestión de justificaciones')).toBeDefined();
     // Should NOT expose or leak Justificaciones (which ACADEMIC_SECRETARY has no access to)
     expect(screen.queryByText('Justificaciones')).toBeNull();
+  });
+
+  it('omits resource IDs and retains the student list link on academic history routes', () => {
+    mockPathname = '/dashboard/students/11111111-1111-4111-8111-111111111111/progress';
+    renderWithRole('ACADEMIC_SECRETARY');
+    expect(screen.getByRole('link', { name: 'Estudiantes' }).getAttribute('href')).toBe('/dashboard/students');
+    expect(screen.queryByText('11111111-1111-4111-8111-111111111111')).toBeNull();
+    expect(screen.getByText('Historial académico').getAttribute('aria-current')).toBe('page');
   });
 });

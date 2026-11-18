@@ -281,7 +281,9 @@
     "switchToLight": "Use light mode",
     "switchToDark": "Use dark mode",
     "switchToEnglish": "Switch to English",
-    "switchToSpanish": "Switch to Spanish"
+    "switchToSpanish": "Switch to Spanish",
+    "breadcrumb": "Breadcrumb",
+    "studentProgress": "Academic history"
   },
   "JustificationsPage": {
     "eyebrow": "Teaching support",
