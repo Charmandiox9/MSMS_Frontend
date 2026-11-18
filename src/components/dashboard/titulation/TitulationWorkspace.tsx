@@ -509,6 +509,7 @@ export default function TitulationWorkspace() {
                     <TitulationDocumentDrafts
                       key={selectedProcess.id}
                       processId={selectedProcess.id}
+                      reference={selectedProcess.reference}
                       drafts={selectedProcess.documentDrafts ?? []}
                     />
                   )}

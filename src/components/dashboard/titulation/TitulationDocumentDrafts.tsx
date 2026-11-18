@@ -8,14 +8,20 @@ import { apiFetchFile } from "@/lib/api";
 import { downloadBlob } from "@/lib/download";
 import type { TitulationDocumentDraftKind } from "./titulation-types";
 
-const WORD_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const WORD_MIME =
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 interface TitulationDocumentDraftsProps {
   processId: string;
+  reference: string;
   drafts: readonly TitulationDocumentDraftKind[];
 }
 
-export default function TitulationDocumentDrafts({ processId, drafts }: TitulationDocumentDraftsProps) {
+export default function TitulationDocumentDrafts({
+  processId,
+  reference,
+  drafts,
+}: TitulationDocumentDraftsProps) {
   const t = useTranslations("TitulationPage.drafts");
   const headingId = useId();
   const [downloading, setDownloading] = useState<TitulationDocumentDraftKind | null>(null);
@@ -31,7 +37,10 @@ export default function TitulationDocumentDrafts({ processId, drafts }: Titulati
         `/academic/titulations/${encodeURIComponent(processId)}/documents/${kind}`,
         WORD_MIME,
       );
-      downloadBlob(`${kind}-draft.docx`, file);
+      const safeReference = reference
+        .replace(/[^a-zA-Z0-9-]/g, "")
+        .toUpperCase();
+      downloadBlob(`${safeReference}-${kind}.docx`, file);
     } catch {
       setDownloadError(true);
     } finally {
@@ -41,8 +50,12 @@ export default function TitulationDocumentDrafts({ processId, drafts }: Titulati
 
   return (
     <section className="space-y-3" aria-labelledby={headingId}>
-      <h3 id={headingId} className="text-sm font-semibold text-foreground">{t("title")}</h3>
-      <p className="text-sm leading-relaxed text-muted-foreground">{t("description")}</p>
+      <h3 id={headingId} className="text-sm font-semibold text-foreground">
+        {t("title")}
+      </h3>
+      <p className="text-sm leading-relaxed text-muted-foreground">
+        {t("description")}
+      </p>
       <ul className="space-y-2">
         {drafts.map((kind) => (
           <li key={kind}>

@@ -88,7 +88,12 @@ describe("TitulationWorkspace", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: "Descargar Anexo B (.docx)" }));
 
-    await waitFor(() => expect(downloadBlobMock).toHaveBeenCalledWith("thesis-summary-draft.docx", file));
+    await waitFor(() =>
+      expect(downloadBlobMock).toHaveBeenCalledWith(
+        "TIT-2026-1234ABCD-thesis-summary.docx",
+        file,
+      ),
+    );
     expect(apiFetchFileMock).toHaveBeenCalledWith(
       "/academic/titulations/process-1/documents/thesis-summary",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
