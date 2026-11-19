@@ -18,6 +18,7 @@ export interface Career {
   code: string | null;
   name: string;
   isActive: boolean;
+  department?: { id: string; name: string } | null;
   curriculumVersions: CurriculumVersion[];
 }
 

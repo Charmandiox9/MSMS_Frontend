@@ -1,5 +1,5 @@
-import CareersPage from '@/components/dashboard/CareersPage';
+import AcademicCatalog from './AcademicCatalog';
 
 export default function CareersRoute() {
-  return <CareersPage />;
+  return <AcademicCatalog />;
 }

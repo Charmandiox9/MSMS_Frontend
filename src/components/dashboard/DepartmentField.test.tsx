@@ -4,10 +4,10 @@ import { renderAs } from "@/test/render";
 import { installFakeApi, ok } from "@/test/fake-api";
 import DepartmentField from "./DepartmentField";
 afterEach(() => vi.unstubAllGlobals());
-it("loads persisted careers and allows assigning or clearing a department", async () => {
+it("loads the department catalog and allows assigning or clearing a department", async () => {
   installFakeApi({
-    "GET /academic/careers/options": ok([
-      { id: "career", name: "Biología Marina" },
+    "GET /academic/departments/options": ok([
+      { id: "department", name: "Biología Marina" },
     ]),
   });
   const change = vi.fn();
@@ -16,9 +16,9 @@ it("loads persisted careers and allows assigning or clearing a department", asyn
   ]);
   await screen.findByRole("option", { name: "Biología Marina" });
   fireEvent.change(screen.getByLabelText("Departamento"), {
-    target: { value: "career" },
+    target: { value: "department" },
   });
-  expect(change).toHaveBeenLastCalledWith("career");
+  expect(change).toHaveBeenLastCalledWith("department");
   fireEvent.change(screen.getByLabelText("Departamento"), {
     target: { value: "" },
   });

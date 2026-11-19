@@ -9,6 +9,7 @@ import { apiFetch } from "@/lib/api";
 import FormModal from "@/components/ui/FormModal";
 import CurriculumViewer from "./CurriculumViewer";
 import CareerDeleteDialog from "./CareerDeleteDialog";
+import DepartmentField from "./DepartmentField";
 import { PageSkeleton } from "@/components/ui/LoadingSkeletons";
 import type { Career, CourseOption } from "@/types/careers";
 import {
@@ -44,6 +45,8 @@ function CareerEditor({
   const t = useTranslations("CareersPage");
   const [code, setCode] = useState(career?.code ?? "");
   const [name, setName] = useState(career?.name ?? "");
+  const initialDepartmentId = career?.department?.id ?? "";
+  const [departmentId, setDepartmentId] = useState(initialDepartmentId);
   const [cohortYear, setCohortYear] = useState(
     String(version?.cohortYear ?? new Date().getFullYear()),
   );
@@ -121,7 +124,11 @@ function CareerEditor({
     setJob(null);
     const body =
       mode === "edit"
-        ? { code: code.trim() || null, name: name.trim() }
+        ? {
+            code: code.trim() || null,
+            name: name.trim(),
+            ...(departmentId === initialDepartmentId ? {} : { departmentId: departmentId || null }),
+          }
         : mode === "version-edit"
           ? { courses }
           : mode === "create" && curriculumSource === "csv"
@@ -144,6 +151,7 @@ function CareerEditor({
         body: JSON.stringify({
           ...(code.trim() ? { code: code.trim() } : {}),
           name: name.trim(),
+          departmentId: departmentId || null,
           cohortYear: Number(cohortYear),
           courses: csvCourses,
         }),
@@ -170,7 +178,7 @@ function CareerEditor({
       method: mode === "edit" || mode === "version-edit" ? "PATCH" : "POST",
       body: JSON.stringify(
         mode === "create"
-          ? { ...body, ...(code.trim() ? { code: code.trim() } : { code: null }), name: name.trim() }
+          ? { ...body, code: code.trim() || null, name: name.trim(), departmentId: departmentId || null }
           : body,
       ),
     });
@@ -283,6 +291,9 @@ function CareerEditor({
             </label>
           </div>
         )}
+        {(mode === "create" || mode === "edit") && (
+          <DepartmentField value={departmentId} onChange={setDepartmentId} disabled={saving} />
+        )}
         {mode !== "edit" && (
           <>
             {mode !== "version-edit" && (
@@ -378,20 +389,23 @@ function CareerEditor({
                 </div>
               ) : (
                 <>
-                  <div className="grid gap-2 sm:grid-cols-[1fr_120px_auto]">
-                    <select
-                      value={courseId}
-                      onChange={(event) => setCourseId(event.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="">{t("selectCourse")}</option>
-                      {courseOptions.map((course) => (
-                        <option key={course.id} value={course.id}>
-                          {course.code ? `${course.code} · ` : ""}
-                          {course.name}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="grid items-end gap-2 sm:grid-cols-[1fr_120px_auto]">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      {t("courseField")}
+                      <select
+                        value={courseId}
+                        onChange={(event) => setCourseId(event.target.value)}
+                        className={inputClass}
+                      >
+                        <option value="">{t("selectCourse")}</option>
+                        {courseOptions.map((course) => (
+                          <option key={course.id} value={course.id}>
+                            {course.code ? `${course.code} · ` : ""}
+                            {course.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                     <label className="text-xs font-semibold text-muted-foreground">
                       {t("termNumber")}
                       <input
@@ -771,12 +785,7 @@ export default function CareersPage() {
     <div className="space-y-6">
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-primary">
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">
-            {t("title")}
-          </h1>
+          <h2 className="text-xl font-bold tracking-tight text-foreground">{t("sectionTitle")}</h2>
           <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
             {t("subtitle")}
           </p>
@@ -824,15 +833,17 @@ export default function CareersPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <GraduationCap className="h-5 w-5 text-primary" />
-                    <h2 className="text-lg font-bold text-foreground">
+                    <h3 className="text-lg font-bold text-foreground">
                       {career.name}
-                    </h2>
-                    <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
-                      {career.code}
-                    </span>
+                    </h3>
+                    {career.code && (
+                      <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                        {career.code}
+                      </span>
+                    )}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {t(career.isActive ? "active" : "inactive")}
+                    {career.department?.name ?? t("noDepartment")} · {t(career.isActive ? "active" : "inactive")}
                   </p>
                 </div>
                 {canManage && (
@@ -870,9 +881,9 @@ export default function CareersPage() {
                     className="rounded-xl border border-border/70 bg-background/60 p-3"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <h3 className="text-sm font-bold text-foreground">
+                      <h4 className="text-sm font-bold text-foreground">
                         {t("cohort", { year: version.cohortYear })}
-                      </h3>
+                      </h4>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">
                           {t("courseCount", { count: version.courses.length })}

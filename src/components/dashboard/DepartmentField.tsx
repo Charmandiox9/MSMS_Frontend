@@ -1,8 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api";
-import { fieldClass } from "./repository-fields";
 
 type Department = { id: string; name: string };
 export default function DepartmentField({
@@ -15,6 +14,7 @@ export default function DepartmentField({
   disabled?: boolean;
 }) {
   const t = useTranslations("DepartmentField");
+  const id = useId();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [retry, setRetry] = useState(0);
   const [requestState, setRequestState] = useState<{
@@ -27,7 +27,7 @@ export default function DepartmentField({
   const error = currentRequestState?.status === "error";
   useEffect(() => {
     let active = true;
-    apiFetch<Department[]>("/academic/careers/options")
+    apiFetch<Department[]>("/academic/departments/options")
       .then((rows) => {
         if (active) {
           setDepartments(rows);
@@ -43,23 +43,32 @@ export default function DepartmentField({
   }, [retry]);
   return (
     <div>
-      <label className="block text-sm font-medium">
+      <label htmlFor={id} className="block text-sm font-medium">
         {t("label")}
-        <select
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          disabled={disabled || loading || error}
-          className={fieldClass}
-        >
-          <option value="">{t(loading ? "loading" : "unassigned")}</option>
-          {departments.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
       </label>
-      <p className="mt-1 text-xs text-muted-foreground">{t("hint")}</p>
+      <p id={`${id}-hint`} className="mt-1 text-xs text-muted-foreground">
+        {t(
+          currentRequestState?.status === "success" && departments.length === 0
+            ? "empty"
+            : "hint",
+        )}
+      </p>
+      <select
+        id={id}
+        name="departmentId"
+        aria-describedby={`${id}-hint`}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        disabled={disabled || loading || error}
+        className="mt-1 min-h-12 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
+      >
+        <option value="">{t(loading ? "loading" : "unassigned")}</option>
+        {departments.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.name}
+          </option>
+        ))}
+      </select>
       {error && (
         <p role="alert" className="mt-2 text-sm text-destructive">
           {t("error")}{" "}
