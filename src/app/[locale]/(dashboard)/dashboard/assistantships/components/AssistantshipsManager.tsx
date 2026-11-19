@@ -34,6 +34,8 @@ import AssistantshipsTable from "./AssistantshipsTable";
 import AssistantshipDetailModal from "./AssistantshipDetailModal";
 import RegisterAssistantshipDialog from "./RegisterAssistantshipDialog";
 import AssistantshipTariffsDialog from "./AssistantshipTariffsDialog";
+import AssistantshipApplicationsDialog from "./AssistantshipApplicationsDialog";
+import type { ApplicationDetail } from "../applications";
 
 function createClient() {
   return new ApolloClient({
@@ -94,6 +96,9 @@ export function AssistantshipsWorkspace({
   const [detailItem, setDetailItem] = useState<Assistantship | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [tariffSemesterId, setTariffSemesterId] = useState<string | null>(null);
+  const [applicationsOpen, setApplicationsOpen] = useState(false);
+  const [registrationApplication, setRegistrationApplication] = useState<ApplicationDetail | null>(null);
+  const applicationsText = useTranslations("AssistantshipApplications");
   const format = useFormatter();
 
   const options = useQuery(OPTIONS, { fetchPolicy: "network-only" });
@@ -229,6 +234,12 @@ export function AssistantshipsWorkspace({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
+          {!readOnly && (
+            <button type="button" className={buttonClass} onClick={() => setApplicationsOpen(true)}>
+              <ClipboardList aria-hidden="true" className="size-4" />
+              {applicationsText("title")}
+            </button>
+          )}
           {!readOnly && budgetSemesterId && (
             <button
               type="button"
@@ -246,6 +257,7 @@ export function AssistantshipsWorkspace({
               disabled={!options.data || failed}
               onClick={() => {
                 setEditing(null);
+                setRegistrationApplication(null);
                 setDialogOpen(true);
               }}
             >
@@ -532,17 +544,31 @@ export function AssistantshipsWorkspace({
         />
       )}
 
-      {dialogOpen && options.data && (
+      {!readOnly && applicationsOpen && (
+        <AssistantshipApplicationsDialog
+          onClose={() => setApplicationsOpen(false)}
+          canComplete={Boolean(options.data?.assistantshipOptions.semesters.length)}
+          onComplete={(application) => {
+            setApplicationsOpen(false);
+            setEditing(null);
+            setRegistrationApplication(application);
+            setDialogOpen(true);
+          }}
+        />
+      )}
+      {!readOnly && dialogOpen && options.data && (
         <RegisterAssistantshipDialog
-          key={editing?.id ?? "new"}
+          key={editing?.id ?? registrationApplication?.id ?? "new"}
           initialRecord={editing ?? undefined}
+          application={registrationApplication ?? undefined}
           semesters={options.data.assistantshipOptions.semesters}
           careers={options.data.assistantshipOptions.careers}
           blocks={options.data.assistantshipOptions.blocks}
-          initialSemesterId={filters.semesterId}
-          onClose={() => setDialogOpen(false)}
+          initialSemesterId={registrationApplication ? undefined : filters.semesterId}
+          onClose={() => { setDialogOpen(false); setRegistrationApplication(null); }}
           onRegistered={(semesterId) => {
             setDialogOpen(false);
+            setRegistrationApplication(null);
             setSearch("");
             setFilters({ semesterId, search: "", page: 1, pageSize: 20 });
             void history

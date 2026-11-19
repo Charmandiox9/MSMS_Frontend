@@ -144,6 +144,7 @@ export interface SaveAssistantshipTariffInput {
 }
 
 export interface RegisterAssistantshipInput {
+  applicationId?: string | null;
   assistantshipNrc: string;
   teachingAssignmentId?: string | null;
   semesterId: string;

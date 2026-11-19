@@ -19,6 +19,7 @@ import {
   type SemesterOption,
 } from "../graphql";
 import { assistantshipErrorKey } from "../errors";
+import type { ApplicationDetail } from "../applications";
 import { buttonClass, Field, inputClass } from "./controls";
 import StudentIdentityFields, {
   useAssistantshipStudent,
@@ -35,6 +36,7 @@ export default function RegisterAssistantshipDialog({
   blocks,
   initialRecord,
   initialSemesterId,
+  application,
   onClose,
   onRegistered,
 }: {
@@ -43,10 +45,12 @@ export default function RegisterAssistantshipDialog({
   blocks: AssistantshipBlockOption[];
   initialRecord?: Assistantship;
   initialSemesterId?: string;
+  application?: ApplicationDetail;
   onClose: () => void;
   onRegistered: (semesterId: string) => void;
 }) {
   const t = useTranslations("AssistantshipsPage");
+  const applicationsText = useTranslations("AssistantshipApplications");
   const savingRef = useRef(false);
   const [semesterId, setSemesterId] = useState(
     initialRecord?.semesterId ??
@@ -63,7 +67,12 @@ export default function RegisterAssistantshipDialog({
   );
   const [courseId, setCourseId] = useState(initialRecord?.courseId ?? "");
   const [tariffId, setTariffId] = useState(initialRecord?.tariffId ?? "");
-  const identity = useAssistantshipStudent(initialRecord);
+  const identity = useAssistantshipStudent(
+    initialRecord ?? (application ? {
+      assistantEmail: application.student?.email ?? application.studentEmail,
+      studentId: application.student?.id ?? null,
+    } : undefined),
+  );
   const { student, lookupReady } = identity;
   const careerId = selectedCareerId || student?.careerId || "";
   const effectiveBlocks = [
@@ -131,6 +140,7 @@ export default function RegisterAssistantshipDialog({
     const form = new FormData(event.currentTarget);
     const text = (key: string) => String(form.get(key) ?? "").trim();
     const input: Registration = {
+      ...(application ? { applicationId: application.id } : {}),
       semesterId,
       teachingAssignmentId: historical
         ? initialRecord?.semesterId === semesterId &&
@@ -262,6 +272,11 @@ export default function RegisterAssistantshipDialog({
         onSubmit={(event) => void submit(event)}
         className={`space-y-6 ${busy ? "pointer-events-none opacity-60" : ""}`}
       >
+        {application && (
+          <p className="rounded-xl border border-border bg-muted p-3 text-sm">
+            {applicationsText("completionContext", { name: application.name, subject: application.subject })}
+          </p>
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t("form.semester")} htmlFor="register-semester">
             <select
@@ -455,7 +470,11 @@ export default function RegisterAssistantshipDialog({
             <input
               id="register-approval"
               name="approvedOn"
-              defaultValue={initialRecord?.approvedOn}
+              defaultValue={initialRecord?.approvedOn ?? (application?.reviewedAt
+                ? new Intl.DateTimeFormat("en-CA", {
+                    timeZone: "America/Santiago", year: "numeric", month: "2-digit", day: "2-digit",
+                  }).format(new Date(application.reviewedAt))
+                : undefined)}
               type="date"
               className={inputClass}
               required
@@ -469,7 +488,7 @@ export default function RegisterAssistantshipDialog({
               type="date"
               min={semester?.startsOn}
               max={semester?.endsOn}
-              defaultValue={initialRecord?.startsOn ?? semester?.startsOn}
+              defaultValue={initialRecord?.startsOn ?? (application ? undefined : semester?.startsOn)}
               className={inputClass}
               required
             />

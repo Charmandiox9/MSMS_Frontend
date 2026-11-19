@@ -18,7 +18,7 @@ const formatRut = (value: string) => {
   return `${body}-${digits.slice(-1)}`;
 };
 
-export function useAssistantshipStudent(initialRecord?: Assistantship) {
+export function useAssistantshipStudent(initialRecord?: Pick<Assistantship, "assistantEmail" | "studentId">) {
   const [search, setSearch] = useState(initialRecord?.assistantEmail ?? "");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState(
