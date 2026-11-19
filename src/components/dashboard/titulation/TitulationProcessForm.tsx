@@ -26,6 +26,7 @@ import { apiFetch } from "@/lib/api";
 import { ApiError } from "@/lib/api-error";
 import { isValidChileanRut } from "@/lib/chilean-rut";
 import type { CareerOption } from "@/types/careers";
+import { getCareerDegreeOptions } from "./career-degree-options";
 import type {
   TitulationDocumentStatus,
   TitulationFormValues,
@@ -354,11 +355,41 @@ export default function TitulationProcessForm({
     ...careerOptions.filter((career) => career.isActive),
     ...(currentCareer ? [currentCareer] : []),
   ].sort((left, right) => left.name.localeCompare(right.name));
+  const selectedCareer = availableCareers.find(
+    (career) => career.id === values.careerId,
+  );
+  const configuredDegreeOptions = getCareerDegreeOptions(selectedCareer?.code);
+  const hasUnlistedDegree =
+    Boolean(values.degree) && !configuredDegreeOptions.includes(values.degree);
+  const degreeOptions = hasUnlistedDegree
+    ? [...configuredDegreeOptions, values.degree]
+    : configuredDegreeOptions;
+  const degreeHelp = hasUnlistedDegree
+    ? t("form.degreeLegacyHelp")
+    : !values.careerId
+      ? t("form.degreeCareerRequired")
+      : configuredDegreeOptions.length === 0
+        ? t("form.degreeUnavailable")
+        : t("form.degreeHelp");
 
   const updateField = <Key extends keyof TitulationFormValues>(
     field: Key,
     value: TitulationFormValues[Key],
   ) => setValues((current) => ({ ...current, [field]: value }));
+
+  const updateCareer = (careerId: string) => {
+    const career = availableCareers.find((option) => option.id === careerId);
+    const nextDegreeOptions = getCareerDegreeOptions(career?.code);
+
+    setValues((current) => {
+      if (current.careerId === careerId) return current;
+      return {
+        ...current,
+        careerId,
+        degree: nextDegreeOptions.includes(current.degree) ? current.degree : "",
+      };
+    });
+  };
 
   const validateRutInput = (input = rutInputRef.current) => {
     if (!input) return true;
@@ -558,9 +589,7 @@ export default function TitulationProcessForm({
                   careerLoadState !== "ready" || availableCareers.length === 0
                 }
                 aria-describedby="titulation-career-help"
-                onChange={(event) => {
-                  updateField("careerId", event.target.value);
-                }}
+                onChange={(event) => updateCareer(event.target.value)}
                 className="mt-1.5 min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-base font-normal text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 <option value="">{t("form.careerPlaceholder")}</option>
@@ -615,15 +644,43 @@ export default function TitulationProcessForm({
                 </p>
               )}
             </div>
-            <TextField
-              id="titulation-degree"
-              label={t("form.degree")}
-              value={values.degree}
-              onChange={(value) => updateField("degree", value)}
-              maxLength={160}
-              optionalLabel={t("form.optional")}
-              help={t("form.degreeHelp")}
-            />
+            <div className="min-w-0">
+              <label
+                htmlFor="titulation-degree"
+                className="block text-sm font-semibold text-foreground"
+              >
+                {t("form.degree")}{" "}
+                <span className="font-normal text-muted-foreground">
+                  ({t("form.optional")})
+                </span>
+              </label>
+              <select
+                id="titulation-degree"
+                value={values.degree}
+                disabled={degreeOptions.length === 0}
+                aria-describedby="titulation-degree-help"
+                onChange={(event) => updateField("degree", event.target.value)}
+                className="mt-1.5 min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-base font-normal text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                <option value="">{t("form.degreePlaceholder")}</option>
+                {configuredDegreeOptions.map((degree) => (
+                  <option key={degree} value={degree}>
+                    {degree}
+                  </option>
+                ))}
+                {hasUnlistedDegree && (
+                  <option value={values.degree}>
+                    {t("form.degreeLegacyOption", { degree: values.degree })}
+                  </option>
+                )}
+              </select>
+              <p
+                id="titulation-degree-help"
+                className="mt-1.5 text-sm leading-relaxed text-muted-foreground"
+              >
+                {degreeHelp}
+              </p>
+            </div>
           </fieldset>
         </div>
       );

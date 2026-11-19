@@ -105,6 +105,20 @@ describe("TitulationWorkspace", () => {
             isActive: true,
             curriculumVersions: [],
           },
+          {
+            id: "career-aquaculture",
+            code: "IA",
+            name: "Ingeniería en Acuicultura",
+            isActive: true,
+            curriculumVersions: [],
+          },
+          {
+            id: "career-risk-prevention",
+            code: "8506",
+            name: "Ingeniería en Prevención de Riesgos y Medioambiente",
+            isActive: true,
+            curriculumVersions: [],
+          },
         ]);
       }
       if (path === "/academic/titulations/process-1/attachments")
@@ -454,6 +468,9 @@ describe("TitulationWorkspace", () => {
     fireEvent.change(within(dialog).getByLabelText(/Carrera/), {
       target: { value: "career-biology-marine" },
     });
+    expect(
+      within(dialog).getByLabelText(/Título al que opta/),
+    ).toHaveProperty("value", "Biólogo Marino");
     fireEvent.click(within(dialog).getByRole("button", { name: "Continuar" }));
     fireEvent.click(within(dialog).getByRole("button", { name: "Continuar" }));
     fireEvent.change(within(dialog).getByLabelText("Situación de titulación"), {
@@ -557,7 +574,11 @@ describe("TitulationWorkspace", () => {
     expect(within(dialog).getByText("11.111.111-1")).toBeDefined();
     expect(within(dialog).getByText("estudiante@example.com")).toBeDefined();
     expect(within(dialog).getByText("+56 9 0000 0000")).toBeDefined();
-    expect(within(dialog).getByText("Título Ficticio")).toBeDefined();
+    expect(
+      within(dialog).getByText(
+        "Selecciona una carrera para ver sus títulos profesionales.",
+      ),
+    ).toBeDefined();
 
     fireEvent.change(
       within(dialog).getByLabelText(/Nombre completo del estudiante/),
@@ -575,6 +596,59 @@ describe("TitulationWorkspace", () => {
     ).toHaveLength(0);
     expect(within(dialog).getByText("Tema de tesis ficticio")).toBeDefined();
     expect(within(dialog).getAllByText("Docente Ficticio")).toHaveLength(4);
+  });
+
+  it("loads masculine and feminine professional title options for the selected career", async () => {
+    renderAs(<TitulationWorkspace />, ["ACADEMIC_SECRETARY"]);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Registrar proceso" }),
+    );
+
+    const dialog = screen.getByRole("dialog");
+    await within(dialog).findByRole("option", { name: "Biología Marina" });
+    const careerSelect = within(dialog).getByLabelText(/Carrera/);
+    const degreeSelect = within(dialog).getByLabelText(/Título al que opta/);
+
+    fireEvent.change(careerSelect, {
+      target: { value: "career-biology-marine" },
+    });
+    expect(degreeSelect).toHaveProperty("value", "");
+    expect(
+      within(degreeSelect).getByRole("option", { name: "Biólogo Marino" }),
+    ).toBeDefined();
+    expect(
+      within(degreeSelect).getByRole("option", { name: "Bióloga Marina" }),
+    ).toBeDefined();
+    fireEvent.change(degreeSelect, { target: { value: "Bióloga Marina" } });
+
+    fireEvent.change(careerSelect, {
+      target: { value: "career-aquaculture" },
+    });
+    expect(degreeSelect).toHaveProperty("value", "");
+    expect(
+      within(degreeSelect).getByRole("option", {
+        name: "Ingeniero en Acuicultura",
+      }),
+    ).toBeDefined();
+    expect(
+      within(degreeSelect).getByRole("option", {
+        name: "Ingeniera en Acuicultura",
+      }),
+    ).toBeDefined();
+
+    fireEvent.change(careerSelect, {
+      target: { value: "career-risk-prevention" },
+    });
+    expect(
+      within(degreeSelect).getByRole("option", {
+        name: "Ingeniero en Prevención de Riesgos y Medioambiente",
+      }),
+    ).toBeDefined();
+    expect(
+      within(degreeSelect).getByRole("option", {
+        name: "Ingeniera en Prevención de Riesgos y Medioambiente",
+      }),
+    ).toBeDefined();
   });
 
   it("sends the completed form to the API without create-only status fields", async () => {
@@ -625,6 +699,7 @@ describe("TitulationWorkspace", () => {
     const createCall = apiFetchMock.mock.calls.find(
       ([path]) => path === "/academic/titulations",
     );
+    expect(createCall?.[1]?.body).toContain('"degree":"Biólogo Marino"');
     const payload: unknown = JSON.parse(createCall?.[1]?.body as string);
     expect(payload).not.toHaveProperty("stage");
     expect(payload).not.toHaveProperty("actaStatus");
