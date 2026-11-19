@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 import QuickActionCard from "@/components/dashboard/widgets/QuickActionCard";
 import WidgetCard from "@/components/dashboard/widgets/WidgetCard";
 import RoleDashboardStats from "@/components/dashboard/RoleDashboardStats";
+import SemesterBudgetAlerts from "@/components/dashboard/SemesterBudgetAlerts";
 
 export default function AcademicProcessAnalystDashboard() {
   const t = useTranslations("DashboardViews.academicProcessAnalyst");
@@ -23,6 +24,8 @@ export default function AcademicProcessAnalystDashboard() {
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
+
+      <SemesterBudgetAlerts variant="section" />
 
       <RoleDashboardStats
         endpoint="/dashboard/academic-process-analyst"

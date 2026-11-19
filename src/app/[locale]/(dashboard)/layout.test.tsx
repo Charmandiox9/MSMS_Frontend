@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import type { ComponentProps } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DashboardLayout from './layout';
 import { IntlProvider } from '@/test/render';
@@ -8,9 +9,14 @@ import { useActiveRole } from '@/context/ActiveRoleContext';
 // Referencia estable, como el router real de Next.
 const router = vi.hoisted(() => ({ replace: vi.fn() }));
 const { replace } = router;
-vi.mock('@/i18n/routing', () => ({ useRouter: () => router }));
-vi.mock('@/components/dashboard/DashboardSidebar', () => ({ default: () => <nav>sidebar</nav> }));
-vi.mock('@/components/dashboard/DashboardHeader', () => ({ default: () => <header>header</header> }));
+vi.mock('@/i18n/routing', () => ({
+  useRouter: () => router,
+  usePathname: () => '/dashboard',
+  Link: (props: ComponentProps<'a'>) => <a {...props} />,
+}));
+vi.mock('@/components/dashboard/DashboardAccountMenu', () => ({
+  default: () => <button type="button">Cuenta</button>,
+}));
 
 function ActiveRole() {
   return <p>rol:{useActiveRole().activeRole}</p>;
@@ -62,7 +68,7 @@ describe('DashboardLayout (sesión)', () => {
 
     await waitFor(() => expect(replace).toHaveBeenCalledWith('/login'));
     expect(screen.queryByText(/rol:/)).toBeNull();
-    expect(screen.queryByText('sidebar')).toBeNull();
+    expect(screen.queryByRole('navigation', { name: 'Navegación principal' })).toBeNull();
   });
 
   it('si la sesión es inválida, limpia la cookie antes de ir al login', async () => {
@@ -95,9 +101,45 @@ describe('DashboardLayout (sesión)', () => {
     renderLayout();
 
     expect(await screen.findByText('rol:ACADEMIC_SECRETARY')).toBeDefined();
-    expect(screen.getByText('sidebar')).toBeDefined();
-    expect(screen.getByRole('main')).toBeDefined();
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
+    expect(within(navigation).getByRole('link', { current: 'page' }).getAttribute('href')).toBe('/dashboard');
+    expect(within(navigation).queryByRole('link', { name: 'Usuarios' })).toBeNull();
+    expect(screen.getByRole('main').closest('.dashboard-workspace')).not.toBeNull();
+    expect(screen.getByRole('link', { name: 'Saltar al contenido' }).getAttribute('href')).toBe('#dashboard-main');
+    expect(within(screen.getByRole('banner')).getByText('Secretario docente')).toBeDefined();
+    expect(screen.queryByRole('button', { name: 'Cambiar rol activo' })).toBeNull();
     expect(replace).not.toHaveBeenCalled();
+  });
+
+  it('abre la navegación móvil como diálogo y devuelve el foco al cerrar', async () => {
+    installAuthenticatedApi({
+      'GET /auth/session': () => ({ body: { email: 'ana@ucn.cl', roles: ['TEACHING_SUPPORT_COORDINATOR'] } }),
+    });
+    renderLayout();
+
+    const trigger = await screen.findByRole('button', { name: 'Abrir menú' });
+    const mobileDialog = document.getElementById(trigger.getAttribute('aria-controls') ?? '');
+    if (!(mobileDialog instanceof HTMLDialogElement)) throw new Error('No se encontró el diálogo móvil');
+    mobileDialog.showModal = () => { mobileDialog.open = true; };
+    mobileDialog.close = () => {
+      mobileDialog.open = false;
+      fireEvent(mobileDialog, new Event('close'));
+    };
+    trigger.focus();
+    fireEvent.click(trigger);
+
+    const dialog = screen.getByRole('dialog', { name: 'Navegación principal' });
+    expect(dialog.getAttribute('id')).toBe(trigger.getAttribute('aria-controls'));
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(within(dialog).getByRole('button', { name: 'Cuenta' })).toBeDefined();
+
+    const close = within(dialog).getByRole('button', { name: 'Cerrar menú' });
+    close.focus();
+    fireEvent.click(close);
+
+    await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
   });
 
   it('ignora un rol guardado que la sesión ya no tiene', async () => {

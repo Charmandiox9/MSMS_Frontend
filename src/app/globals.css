@@ -79,6 +79,61 @@
   --accent-foreground: #451a03;
 }
 
+:is(.dashboard-workspace, body:has(.dashboard-workspace)) {
+  --background: #eef3f5;
+  --foreground: #142b41;
+  --card: #ffffff;
+  --card-foreground: var(--foreground);
+  --muted: #f5f8f9;
+  --muted-foreground: #526978;
+  --border: #d8e2e8;
+  --control: #768b97;
+  --focus: #0a6b75;
+  --primary: #075e66;
+  --primary-foreground: #ffffff;
+  --selection: #dfefee;
+  --accent: var(--selection);
+  --accent-foreground: var(--primary);
+  --success: #176246;
+  --success-surface: #e5f2e9;
+  --warning: #824a13;
+  --warning-surface: #f9efdb;
+  --destructive: #9a303c;
+  --destructive-foreground: #ffffff;
+  --danger-surface: #fbecef;
+  --info: #234f88;
+  --info-surface: #e9f0fa;
+  --secondary: var(--success);
+  --secondary-foreground: #ffffff;
+  --ucn-navy: #122c43;
+  --ocean-cyan: var(--primary);
+}
+
+:is(.dark, [data-theme="dark"]) :is(.dashboard-workspace, body:has(.dashboard-workspace)) {
+  --background: #1b1c1e;
+  --foreground: #f2f1f0;
+  --card: #242527;
+  --muted: #2d2e30;
+  --muted-foreground: #babbc0;
+  --border: #414246;
+  --control: #84858a;
+  --focus: #ddcef9;
+  --primary: #c9b9ea;
+  --primary-foreground: #24202b;
+  --selection: #393340;
+  --success: #b9d8be;
+  --success-surface: #2b392f;
+  --warning: #edcb95;
+  --warning-surface: #3c342a;
+  --destructive: #edbcbf;
+  --destructive-foreground: #3c2629;
+  --danger-surface: #423034;
+  --info: #b0d4e2;
+  --info-surface: #27373d;
+  --secondary-foreground: #213127;
+  --ucn-navy: #303133;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -90,6 +145,9 @@
   --color-muted-foreground: var(--muted-foreground);
 
   --color-border: var(--border);
+  --color-control: var(--control, var(--border));
+  --color-focus: var(--focus, var(--primary));
+  --color-selection: var(--selection, var(--muted));
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
@@ -98,9 +156,13 @@
   --color-destructive-foreground: var(--destructive-foreground);
 
   --color-success: var(--success);
+  --color-success-surface: var(--success-surface, var(--card));
   --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface, var(--card));
   --color-info: var(--info);
+  --color-info-surface: var(--info-surface, var(--card));
   --color-danger: var(--destructive);
+  --color-danger-surface: var(--danger-surface, var(--card));
   
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);

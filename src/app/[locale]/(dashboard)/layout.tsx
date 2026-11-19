@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -10,28 +10,79 @@ import { getActiveSession, logout, type ActiveSession } from "@/lib/auth";
 import { DashboardShellSkeleton } from "@/components/ui/LoadingSkeletons";
 import TermsAcceptanceGate from "@/components/legal/TermsAcceptanceGate";
 
+const DESKTOP_BREAKPOINT = "(min-width: 48rem)";
+
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const t = useTranslations("DashboardNav");
   const [mobileOpen, setMobileOpen] = useState(false);
   const { activeRole, session } = useActiveRole();
+  const mobileDialogId = useId();
+  const mobileDialogRef = useRef<HTMLDialogElement>(null);
+  const menuTriggerRef = useRef<HTMLButtonElement>(null);
+
+  function openMobileMenu() {
+    const dialog = mobileDialogRef.current;
+    if (!dialog || dialog.open || window.matchMedia(DESKTOP_BREAKPOINT).matches) return;
+
+    dialog.showModal();
+    setMobileOpen(true);
+  }
+
+  function requestMobileClose() {
+    mobileDialogRef.current?.close();
+  }
+
+  function handleMobileClosed() {
+    setMobileOpen(false);
+    if (!window.matchMedia(DESKTOP_BREAKPOINT).matches) {
+      menuTriggerRef.current?.focus({ preventScroll: true });
+    }
+  }
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const rootStyle = document.documentElement.style;
+    const previousOverflow = rootStyle.overflow;
+    const desktop = window.matchMedia(DESKTOP_BREAKPOINT);
+    const closeAtDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) mobileDialogRef.current?.close();
+    };
+    rootStyle.overflow = "hidden";
+    desktop.addEventListener("change", closeAtDesktop);
+
+    return () => {
+      rootStyle.overflow = previousOverflow;
+      desktop.removeEventListener("change", closeAtDesktop);
+    };
+  }, [mobileOpen]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="dashboard-workspace flex min-h-screen bg-background text-foreground">
+      <a
+        href="#dashboard-main"
+        className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-4 focus:py-3 focus:text-primary focus:ring-2 focus:ring-focus"
+      >
+        {t("skipToContent")}
+      </a>
       <DashboardSidebar
-        collapsed={collapsed}
-        onCollapsedChange={setCollapsed}
-        mobileOpen={mobileOpen}
-        onMobileOpenChange={setMobileOpen}
         activeRole={activeRole}
         session={session}
+        mobileOpen={mobileOpen}
+        mobileDialogId={mobileDialogId}
+        mobileDialogRef={mobileDialogRef}
+        onMobileCloseRequest={requestMobileClose}
+        onMobileClosed={handleMobileClosed}
       />
-      <div
-        className={`flex min-h-screen flex-col transition-[margin] duration-300 ${
-          collapsed ? "md:ml-20" : "md:ml-72"
-        }`}
-      >
-        <DashboardHeader onMenuToggle={() => setMobileOpen(true)} />
-        <main className="flex-1 p-5 md:p-8">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <DashboardHeader
+          activeRole={activeRole}
+          mobileOpen={mobileOpen}
+          mobileDialogId={mobileDialogId}
+          menuTriggerRef={menuTriggerRef}
+          onMenuOpen={openMobileMenu}
+        />
+        <main id="dashboard-main" tabIndex={-1} className="flex-1 scroll-mt-16 p-4 md:p-8">
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>
@@ -73,7 +124,11 @@ export default function DashboardLayout({
   }, [router]);
 
   if (isLoading || !session) {
-    return <DashboardShellSkeleton label={t("sessionChecking")} />;
+    return (
+      <div className="dashboard-workspace min-h-screen bg-background text-foreground">
+        <DashboardShellSkeleton label={t("sessionChecking")} />
+      </div>
+    );
   }
 
   return (

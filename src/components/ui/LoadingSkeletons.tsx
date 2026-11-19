@@ -228,26 +228,36 @@ export function PageSkeleton({ label }: { label?: string }) {
 
 export function DashboardShellSkeleton({ label }: { label?: string }) {
   return (
-    <div className="min-h-screen bg-background text-foreground lg:flex">
+    <div className="flex min-h-screen bg-background text-foreground">
       <aside
         aria-hidden="true"
-        className="hidden w-64 shrink-0 space-y-6 border-r border-border bg-card p-6 lg:block"
+        className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col self-start border-e border-border bg-muted md:flex xl:w-72"
       >
-        <Skeleton className="h-10 w-36" />
-        {Array.from({ length: 7 }, (_, index) => (
-          <Skeleton key={index} className="h-10 w-full" />
-        ))}
+        <div className="flex min-h-17 shrink-0 items-center border-b border-border px-5">
+          <Skeleton className="h-8 w-32" />
+        </div>
+        <div className="min-h-0 flex-1 space-y-3 overflow-hidden px-3 py-4">
+          {Array.from({ length: 7 }, (_, index) => (
+            <Skeleton key={index} className="h-9 w-full" />
+          ))}
+        </div>
+        <div className="shrink-0 border-t border-border p-3">
+          <Skeleton className="h-11 w-full" />
+        </div>
       </aside>
-      <div className="min-w-0 flex-1">
+      <div className="flex min-w-0 flex-1 flex-col">
         <div
           aria-hidden="true"
-          className="flex h-20 items-center justify-between border-b border-border bg-card px-6"
+          className="flex min-h-14 items-center gap-2 border-b border-border bg-card px-4 py-1 md:px-8"
         >
-          <Skeleton className="h-6 w-36" />
-          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="size-11 shrink-0 md:hidden" />
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="ms-auto h-4 w-24 md:hidden" />
         </div>
-        <main className="p-5 md:p-8">
-          <PageSkeleton label={label} />
+        <main className="flex-1 p-4 md:p-8">
+          <div className="mx-auto max-w-7xl">
+            <PageSkeleton label={label} />
+          </div>
         </main>
       </div>
     </div>

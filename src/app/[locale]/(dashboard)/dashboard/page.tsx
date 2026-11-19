@@ -21,8 +21,7 @@ export default function DashboardPage() {
       dashboard = <AcademicSecretaryDashboard />;
       break;
     case 'ACADEMIC_PROCESS_ANALYST':
-      dashboard = <AcademicProcessAnalystDashboard />;
-      break;
+      return <AcademicProcessAnalystDashboard />;
     case 'TEACHING_SUPPORT_COORDINATOR':
       dashboard = <TeachingSupportCoordinatorDashboard />;
       break;
