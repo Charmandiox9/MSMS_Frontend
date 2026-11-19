@@ -8,6 +8,7 @@ export interface AssistantshipScheduleView {
 }
 
 export interface AssistantshipView {
+  scheduleNotificationSent: boolean | null;
   id: string;
   teachingAssignmentId: string | null;
   studentId: string | null;
@@ -144,6 +145,7 @@ export interface SaveAssistantshipTariffInput {
 }
 
 export interface RegisterAssistantshipInput {
+  notifySchedule?: boolean | null;
   applicationId?: string | null;
   assistantshipNrc: string;
   teachingAssignmentId?: string | null;

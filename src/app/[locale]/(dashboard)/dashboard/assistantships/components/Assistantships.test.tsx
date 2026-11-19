@@ -39,13 +39,13 @@ vi.mock("sonner", () => ({
       promise: Promise<unknown>,
       options: {
         loading: string;
-        success: string;
+        success: string | ((value: unknown) => string);
         error: (error: unknown) => string;
       },
     ) => {
       notifications.pending(options.loading);
       void promise.then(
-        () => notifications.success(options.success),
+        (value) => notifications.success(typeof options.success === "function" ? options.success(value) : options.success),
         (error: unknown) => notifications.error(options.error(error)),
       );
       return 123;
@@ -444,7 +444,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
     fireEvent.change(screen.getByLabelText("Bloque horario"), {
       target: { value: "A" },
     });
-    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Confirmo que el estudiante/ }));
     fireEvent.click(screen.getByRole("button", { name: "Guardar ayudantía" }));
     await waitFor(() => expect(onRegistered).toHaveBeenCalledWith("past"));
     expect(result).toHaveBeenCalledWith(
@@ -519,12 +519,12 @@ describe("assistantship management", { timeout: 15000 }, () => {
     fireEvent.change(screen.getByLabelText("Fecha de aprobación"), {
       target: { value: "2026-07-01" },
     });
-    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Confirmo que el estudiante/ }));
   };
 
   it("keeps the modal open while saving and closes only after the mutation succeeds", async () => {
     const onRegistered = vi.fn();
-    const result = vi.fn(() => ({ data: { registerAssistantship: item } }));
+    const result = vi.fn(() => ({ data: { registerAssistantship: { ...item, scheduleNotificationSent: true } } }));
     render(
       <NextIntlClientProvider locale="es" messages={messages}>
         <MockedProvider
@@ -549,6 +549,11 @@ describe("assistantship management", { timeout: 15000 }, () => {
       </NextIntlClientProvider>,
     );
     await fillRegistration();
+    expect(screen.getByLabelText("Inicio", { exact: true })).toHaveProperty("value", "2026-08-08");
+    expect(screen.getByLabelText("Término", { exact: true })).toHaveProperty("value", "2026-12-24");
+    const scheduleEmail = screen.getByRole("checkbox", { name: /Notificar al estudiante.*horario/ });
+    expect(scheduleEmail).toHaveProperty("checked", false);
+    fireEvent.click(scheduleEmail);
     fireEvent.click(screen.getByRole("button", { name: "Agregar horario" }));
     expect(
       screen.getByRole("option", { name: "A · 08:10–09:40" }),
@@ -573,12 +578,13 @@ describe("assistantship management", { timeout: 15000 }, () => {
           studentId: "student",
           weeklyHours: 4,
           approvalConfirmed: true,
+          notifySchedule: true,
           schedules: [{ weekday: 1, startsAtMinute: 1290, endsAtMinute: 1380 }],
         }),
       }),
     );
     expect(notifications.success).toHaveBeenCalledWith(
-      "Ayudantía registrada correctamente.",
+      "Ayudantía registrada y confirmación de horario enviada.",
     );
   });
 

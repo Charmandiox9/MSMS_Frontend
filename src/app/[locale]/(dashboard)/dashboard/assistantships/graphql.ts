@@ -13,7 +13,7 @@ import type {
   AssistantshipBudgetSummary,
 } from "./schema-types";
 export type { AssistantshipState } from "./schema-types";
-export type Assistantship = AssistantshipView;
+export type Assistantship = Omit<AssistantshipView, "scheduleNotificationSent">;
 export type Schedule = AssistantshipScheduleView;
 export type SemesterOption = AssistantshipSemesterOption;
 export type AssignmentOption = AssistantshipAssignmentOption;
@@ -193,12 +193,13 @@ export const DELETE_TARIFF: TypedDocumentNode<{ deleteAssistantshipTariff: boole
   mutation DeleteAssistantshipTariff($id: ID!) { deleteAssistantshipTariff(id: $id) }
 `;
 export const REGISTER: TypedDocumentNode<
-  { registerAssistantship: Assistantship },
+  { registerAssistantship: Assistantship & { scheduleNotificationSent?: boolean | null } },
   { input: Registration }
 > = gql`
   mutation RegisterAssistantship($input: RegisterAssistantshipInput!) {
     registerAssistantship(input: $input) {
       ...AssistantshipFields
+      scheduleNotificationSent
     }
   }
   ${fields}

@@ -30,6 +30,12 @@ import type {
   AssistantshipBlockOption,
 } from "../schema-types";
 
+function offsetDate(value: string, days: number) {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
 export default function RegisterAssistantshipDialog({
   semesters,
   careers = [],
@@ -107,6 +113,10 @@ export default function RegisterAssistantshipDialog({
     })),
   );
   const semester = semesters.find((item) => item.id === semesterId);
+  const suggestedStart = semester && offsetDate(semester.startsOn, 7);
+  const suggestedEnd = semester && offsetDate(semester.endsOn, -7);
+  const hasSuggestedPeriod = Boolean(suggestedStart && suggestedEnd && suggestedStart <= suggestedEnd);
+  const existingPeriod = initialRecord?.semesterId === semesterId ? initialRecord : undefined;
   const historical = !!semester && !semester.isActive;
   const availableSemesters = semesters.filter(
     (item) =>
@@ -173,12 +183,16 @@ export default function RegisterAssistantshipDialog({
     };
     savingRef.current = true;
     try {
-      const operation: Promise<unknown> = initialRecord
-        ? update({ variables: { id: initialRecord.id, input } })
-        : register({ variables: { input } });
+      const notifySchedule = !initialRecord && form.get("notifySchedule") === "on";
+      const operation = initialRecord
+        ? update({ variables: { id: initialRecord.id, input } }).then(() => null)
+        : register({ variables: { input: { ...input, ...(notifySchedule ? { notifySchedule } : {}) } } })
+            .then(({ data }) => data?.registerAssistantship.scheduleNotificationSent);
       toast.promise(operation, {
         loading: t("form.saving"),
-        success: t(initialRecord ? "form.updated" : "form.success"),
+        success: (sent) => t(initialRecord ? "form.updated" : !notifySchedule
+          ? "form.success"
+          : sent === true ? "form.scheduleEmailSent" : "form.scheduleEmailFailed"),
         error: (error: unknown) => t(`errors.${assistantshipErrorKey(error)}`),
       });
       await operation;
@@ -470,11 +484,7 @@ export default function RegisterAssistantshipDialog({
             <input
               id="register-approval"
               name="approvedOn"
-              defaultValue={initialRecord?.approvedOn ?? (application?.reviewedAt
-                ? new Intl.DateTimeFormat("en-CA", {
-                    timeZone: "America/Santiago", year: "numeric", month: "2-digit", day: "2-digit",
-                  }).format(new Date(application.reviewedAt))
-                : undefined)}
+              defaultValue={initialRecord?.approvedOn}
               type="date"
               className={inputClass}
               required
@@ -488,7 +498,7 @@ export default function RegisterAssistantshipDialog({
               type="date"
               min={semester?.startsOn}
               max={semester?.endsOn}
-              defaultValue={initialRecord?.startsOn ?? (application ? undefined : semester?.startsOn)}
+              defaultValue={existingPeriod ? existingPeriod.startsOn : hasSuggestedPeriod ? suggestedStart : undefined}
               className={inputClass}
               required
             />
@@ -501,7 +511,7 @@ export default function RegisterAssistantshipDialog({
               type="date"
               min={semester?.startsOn}
               max={semester?.endsOn}
-              defaultValue={initialRecord?.endsOn ?? semester?.endsOn}
+              defaultValue={existingPeriod ? existingPeriod.endsOn ?? semester?.endsOn : hasSuggestedPeriod ? suggestedEnd : undefined}
               className={inputClass}
               required
             />
@@ -524,6 +534,12 @@ export default function RegisterAssistantshipDialog({
           onChange={setSchedules}
           blocks={effectiveBlocks}
         />
+        {!initialRecord && (
+          <label className="flex min-h-11 items-center gap-3 rounded-xl border border-border px-3 py-2 text-sm">
+            <input type="checkbox" name="notifySchedule" className="size-4 shrink-0 accent-primary" />
+            {t("form.notifySchedule")}
+          </label>
+        )}
       </form>
     </FormModal>
   );
