@@ -1,267 +1,224 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
-import { CalendarDays, CheckCircle2, Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { CalendarDays, Plus } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
 import { CardsSkeleton, PageSkeleton } from "@/components/ui/LoadingSkeletons";
+import SemesterEditor, { type Semester } from "./SemesterEditor";
 import SemesterBudgetDialog from "./SemesterBudgetDialog";
+import SemesterBudgetSummary from "./SemesterBudgetSummary";
 
-type Semester = {
-  id: string;
-  name: string;
-  startsOn: string;
-  endsOn: string;
-  isActive: boolean;
-};
+const secondaryButton =
+  "min-h-11 rounded-lg border border-border px-3 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export default function SettingsPage() {
   const t = useTranslations("SemesterSettingsPage");
+  const format = useFormatter();
   const { activeRole } = useActiveRole();
-  const [semesters, setSemesters] = useState<Semester[]>([]);
-  const [name, setName] = useState("");
-  const [startsOn, setStartsOn] = useState("");
-  const [endsOn, setEndsOn] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [budgetSemester, setBudgetSemester] = useState<Semester | null>(null);
-
-  const [reloadKey, setReloadKey] = useState(0);
   const canManage =
     activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY";
-  const loadErrorMessage = t("errors.load");
+  const [semesters, setSemesters] = useState<Semester[] | "error" | null>(null);
+  const [reload, setReload] = useState(0);
+  const [budgetRevision, setBudgetRevision] = useState(0);
+  const [editor, setEditor] = useState<{ semester: Semester | null } | null>(
+    null,
+  );
+  const [budgetSemester, setBudgetSemester] = useState<Semester | null>(null);
 
-  // Carga al entrar y cada vez que `reloadKey` cambia (tras activar un semestre).
   useEffect(() => {
     if (!canManage) return;
-    let active = true;
+    let current = true;
     apiFetch<Semester[]>("/academic/semesters")
       .then((data) => {
-        if (active) {
-          setSemesters(data);
-          setError(null);
-        }
+        if (current) setSemesters(data);
       })
-      .catch((cause: unknown) => {
-        if (!active) return;
-        const message =
-          cause instanceof Error ? cause.message : loadErrorMessage;
-        setError(message);
-        toast.error(message);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+      .catch(() => {
+        if (current) setSemesters("error");
       });
     return () => {
-      active = false;
+      current = false;
     };
-  }, [canManage, loadErrorMessage, reloadKey]);
-
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSaving(true);
-    setError(null);
-
-    try {
-      await apiFetch<Semester>(
-        editingId
-          ? `/academic/semesters/${editingId}`
-          : "/academic/semesters/activate",
-        {
-          method: editingId ? "PATCH" : "POST",
-          body: JSON.stringify({ name, startsOn, endsOn }),
-        },
-      );
-      toast.success(t(editingId ? "updated" : "success", { name }));
-      setEditingId(null);
-      setName("");
-      setStartsOn("");
-      setEndsOn("");
-      setLoading(true);
-      setReloadKey((key) => key + 1);
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : t("errors.save");
-      setError(message);
-      toast.error(message);
-    } finally {
-      setSaving(false);
-    }
-  };
+  }, [canManage, reload]);
 
   if (activeRole === null) return <PageSkeleton />;
-  if (activeRole !== "SYSTEM_ADMIN" && activeRole !== "ACADEMIC_SECRETARY")
+  if (!canManage)
     return (
-      <div className="py-16 text-center text-sm text-muted-foreground">
+      <p className="py-16 text-center text-sm text-muted-foreground">
         {t("errors.access")}
-      </div>
+      </p>
     );
 
+  const active = Array.isArray(semesters)
+    ? semesters.find((semester) => semester.isActive)
+    : undefined;
+  const history = Array.isArray(semesters)
+    ? semesters.filter((semester) => !semester.isActive)
+    : [];
+  const date = (value: string) =>
+    format.dateTime(new Date(value), { dateStyle: "medium", timeZone: "UTC" });
+  const period = ({ startsOn, endsOn }: Semester) =>
+    t("period", { start: date(startsOn), end: date(endsOn) });
+  const refresh = () => {
+    setReload((key) => key + 1);
+  };
+
   return (
-    <div className="max-w-5xl space-y-8">
-      <header>
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-          {t("eyebrow")}
-        </p>
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">
-          {t("title")}
-        </h1>
-        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-          {t("subtitle")}
-        </p>
+    <div className="max-w-6xl space-y-6">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-foreground md:text-3xl">
+            {t("title")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
+        </div>
+        <button
+          type="button"
+          disabled={semesters === null}
+          onClick={() => setEditor({ semester: null })}
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-3.5 text-sm font-bold text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-50"
+        >
+          <Plus aria-hidden="true" className="size-4" />
+          {t("activate")}
+        </button>
       </header>
-      {error && (
+
+      {semesters === null && <CardsSkeleton count={2} />}
+      {semesters === "error" && (
         <div
           role="alert"
-          className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+          className="flex flex-wrap items-center gap-x-3 rounded-xl border border-destructive/30 px-4 py-2 text-sm text-destructive"
         >
-          {error}
+          {t("errors.load")}
+          <button
+            type="button"
+            onClick={() => {
+              setSemesters(null);
+              refresh();
+            }}
+            className="min-h-11 font-semibold underline"
+          >
+            {t("retry")}
+          </button>
         </div>
       )}
-      <section className="rounded-3xl border border-border bg-card p-5 shadow-sm md:p-6">
-        <form
-          aria-busy={saving}
-          onSubmit={submit}
-          className="grid gap-4 md:grid-cols-2"
-        >
-          <h2 className="text-lg font-bold text-foreground md:col-span-2">
-            {t(editingId ? "edit" : "activate")}
-          </h2>
-          <label className="md:col-span-2">
-            <span className="text-sm font-bold text-foreground">
-              {t("name")}
-            </span>
-            <input
-              required
-              maxLength={100}
-              disabled={saving || loading}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder={t("namePlaceholder")}
-              className="mt-2 h-11 w-full rounded-2xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary"
-            />
-          </label>
-          <label>
-            <span className="text-sm font-bold text-foreground">
-              {t("startsOn")}
-            </span>
-            <input
-              required
-              type="date"
-              disabled={saving || loading}
-              value={startsOn}
-              onChange={(event) => setStartsOn(event.target.value)}
-              className="mt-2 h-11 w-full rounded-2xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary"
-            />
-          </label>
-          <label>
-            <span className="text-sm font-bold text-foreground">
-              {t("endsOn")}
-            </span>
-            <input
-              required
-              type="date"
-              disabled={saving || loading}
-              value={endsOn}
-              onChange={(event) => setEndsOn(event.target.value)}
-              className="mt-2 h-11 w-full rounded-2xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary"
-            />
-          </label>
-          <div className="flex flex-wrap gap-3 md:col-span-2">
-            {editingId && (
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => {
-                  setEditingId(null);
-                  setName("");
-                  setStartsOn("");
-                  setEndsOn("");
-                }}
-                className="min-h-11 rounded-xl border border-border px-4 text-sm font-semibold focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                {t("cancel")}
-              </button>
-            )}
-            <button
-              type="submit"
-              disabled={saving || loading}
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-60"
-            >
-              {saving ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <CheckCircle2 className="h-4 w-4" />
-              )}
-              {saving ? t("saving") : t(editingId ? "saveChanges" : "activate")}
-            </button>
-          </div>
-        </form>
-      </section>
-      <section className="rounded-3xl border border-border bg-card p-5 shadow-sm md:p-6">
-        <div className="flex items-center gap-3">
-          <CalendarDays className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-black text-foreground">{t("history")}</h2>
-        </div>
-        {loading ? (
-          <CardsSkeleton count={4} grid className="mt-5" />
-        ) : semesters.length === 0 ? (
-          <p className="mt-5 text-sm text-muted-foreground">{t("empty")}</p>
-        ) : (
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {semesters.map((semester) => (
-              <div
-                key={semester.id}
-                className={`rounded-2xl border p-4 ${semester.isActive ? "border-primary/40 bg-primary/5" : "border-border"}`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-bold text-foreground">{semester.name}</p>
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${semester.isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
-                  >
-                    {semester.isActive ? t("active") : t("inactive")}
-                  </span>
-                </div>
-                {semester.isActive && (
-                  <button
-                    type="button"
-                    disabled={saving || loading}
-                    onClick={() => {
-                      setEditingId(semester.id);
-                      setName(semester.name);
-                      setStartsOn(semester.startsOn.slice(0, 10));
-                      setEndsOn(semester.endsOn.slice(0, 10));
-                    }}
-                    className="mt-3 min-h-11 rounded-xl border border-border px-3 text-sm font-semibold text-primary focus-visible:ring-2 focus-visible:ring-primary"
-                  >
-                    {t("edit")}
-                  </button>
+      {Array.isArray(semesters) && (
+        <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
+          <section
+            aria-labelledby="active-semester-title"
+            className="min-w-0 rounded-2xl border border-border bg-card"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5">
+              <div className="min-w-0">
+                <h2
+                  id="active-semester-title"
+                  className="text-sm font-semibold text-muted-foreground"
+                >
+                  {t("activeTitle")}
+                </h2>
+                {active ? (
+                  <>
+                    <p className="mt-1 wrap-anywhere text-2xl font-bold tracking-tight text-foreground">
+                      {active.name}
+                    </p>
+                    <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                      <CalendarDays
+                        aria-hidden="true"
+                        className="size-4 shrink-0"
+                      />
+                      {period(active)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-2 text-sm text-foreground">
+                    {t("noActive")}
+                  </p>
                 )}
+              </div>
+              {active && (
                 <button
                   type="button"
-                  onClick={() => setBudgetSemester(semester)}
-                  className="mt-3 ml-2 min-h-11 rounded-xl border border-border px-3 text-sm font-semibold text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                  onClick={() => setEditor({ semester: active })}
+                  className={secondaryButton}
                 >
-                  {t("configureBudget")}
+                  {t("edit")}
                 </button>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {semester.startsOn.slice(0, 10)} —{" "}
-                  {semester.endsOn.slice(0, 10)}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+              )}
+            </div>
+            {active && (
+              <SemesterBudgetSummary
+                key={active.id}
+                semesterId={active.id}
+                revision={budgetRevision}
+                onConfigure={() => setBudgetSemester(active)}
+              />
+            )}
+          </section>
+
+          <section
+            aria-labelledby="semester-history-title"
+            className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card"
+          >
+            <h2
+              id="semester-history-title"
+              className="px-4 pt-4 text-base font-bold text-foreground sm:px-5"
+            >
+              {t("history")}
+            </h2>
+            {history.length ? (
+              <ul className="mt-2 divide-y divide-border">
+                {history.map((semester) => (
+                  <li
+                    key={semester.id}
+                    className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-2.5 sm:px-5"
+                  >
+                    <div className="min-w-0">
+                      <p className="wrap-anywhere text-sm font-semibold text-foreground">
+                        {semester.name}
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {period(semester)}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBudgetSemester(semester)}
+                      aria-label={t("configureHistoryBudget", {
+                        name: semester.name,
+                      })}
+                      className={secondaryButton}
+                    >
+                      {t("historyBudget")}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="px-4 pb-4 pt-2 text-sm text-muted-foreground sm:px-5">
+                {t(active ? "emptyHistory" : "empty")}
+              </p>
+            )}
+          </section>
+        </div>
+      )}
+
+      {editor && (
+        <SemesterEditor
+          semester={editor.semester}
+          onClose={() => setEditor(null)}
+          onSaved={refresh}
+        />
+      )}
       {budgetSemester && (
         <SemesterBudgetDialog
           semesterId={budgetSemester.id}
           semesterName={budgetSemester.name}
           onClose={() => setBudgetSemester(null)}
+          onSaved={() => {
+            if (budgetSemester.id === active?.id)
+              setBudgetRevision((revision) => revision + 1);
+          }}
         />
       )}
     </div>

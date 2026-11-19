@@ -10,14 +10,14 @@ import { apiFetch } from "@/lib/api";
 type RoleOption = { code: string; name: string };
 type Allocation = { code?: "HOURLY_TEACHERS" | "ASSISTANTSHIPS" | null; name: string; amountClp: number };
 type Threshold = { percentage: number; roleCodes: string[] };
-type BudgetData = {
+export type BudgetData = {
   totalAmountClp: number;
   allocations: Allocation[];
   thresholds: Threshold[];
   roleOptions: RoleOption[];
 };
 
-type Props = { semesterId: string; semesterName: string; onClose: () => void };
+type Props = { semesterId: string; semesterName: string; onClose: () => void; onSaved?: () => void };
 const field = "mt-1 h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground";
 const MAX_CLP = 1_000_000_000_000;
 
@@ -30,7 +30,7 @@ function formatClp(value: number, locale: string): string {
   return new Intl.NumberFormat(locale === "es" ? "es-CL" : "en-US", { maximumFractionDigits: 0 }).format(value);
 }
 
-export default function SemesterBudgetDialog({ semesterId, semesterName, onClose }: Props) {
+export default function SemesterBudgetDialog({ semesterId, semesterName, onClose, onSaved }: Props) {
   const t = useTranslations("SemesterBudgetDialog");
   const locale = useLocale();
   const [budget, setBudget] = useState<BudgetData | null>(null);
@@ -65,7 +65,7 @@ export default function SemesterBudgetDialog({ semesterId, semesterName, onClose
   const updateThreshold = (index: number, changes: Partial<Threshold>) => setBudget((current) => current ? ({ ...current, thresholds: current.thresholds.map((item, i) => i === index ? { ...item, ...changes } : item) }) : current);
 
   const save = async () => {
-    if (!budget) return;
+    if (!budget || saving) return;
     if (Number(budget.totalAmountClp) < 1 || Number(budget.totalAmountClp) > MAX_CLP) {
       setError(t("totalError"));
       return;
@@ -92,17 +92,20 @@ export default function SemesterBudgetDialog({ semesterId, semesterName, onClose
     const operation = apiFetch<BudgetData>(`/academic/semesters/${semesterId}/budget`, {
       method: "PUT",
       body: JSON.stringify(payload),
-    }).then((updated) => { setBudget(updated); onClose(); });
+    });
+    toast.promise(operation, { loading: t("saving"), success: t("saved"), error: (cause) => cause instanceof Error ? cause.message : t("saveError") });
     try {
-      await toast.promise(operation, { loading: t("saving"), success: t("saved"), error: (cause) => cause instanceof Error ? cause.message : t("saveError") });
+      await operation;
+      onSaved?.();
+      onClose();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t("saveError"));
     } finally { setSaving(false); }
   };
 
-  return <Modal isOpen onClose={onClose} size="4xl" closeLabel={t("close")} title={t("title")} description={t("description", { semester: semesterName })}
-    footer={<><button type="button" onClick={onClose} className="min-h-10 rounded-xl border border-border px-4 text-sm font-semibold">{t("cancel")}</button><button type="button" disabled={loading || saving || !budget} onClick={save} className="min-h-10 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground disabled:opacity-50">{saving ? t("saving") : t("save")}</button></>}>
-    {loading ? <p className="py-8 text-sm text-muted-foreground">{t("loading")}</p> : error && !budget ? <p role="alert" className="text-sm text-destructive">{error}</p> : budget && <div className="max-h-[65vh] space-y-6 overflow-y-auto pr-1">
+  return <Modal isOpen onClose={() => { if (!saving) onClose(); }} closeOnEscape={!saving} closeOnBackdropClick={!saving} size="2xl" closeLabel={t("close")} title={t("title")} description={t("description", { semester: semesterName })}
+    footer={<><button type="button" onClick={onClose} disabled={saving} className="min-h-11 rounded-xl border border-border px-4 text-sm font-semibold">{t("cancel")}</button><button type="button" disabled={loading || saving || !budget} onClick={save} className="min-h-11 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground disabled:opacity-50">{saving ? t("saving") : t("save")}</button></>}>
+    {loading ? <p role="status" className="py-5 text-sm text-muted-foreground">{t("loading")}</p> : error && !budget ? <p role="alert" className="text-sm text-destructive">{error}</p> : budget && <div className="space-y-5">
       {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
       <label className="block text-sm font-semibold">{t("total")}<input className={field} type="text" inputMode="numeric" autoComplete="off" value={formatClp(Number(budget.totalAmountClp) || 0, locale)} onChange={(e) => setBudget({ ...budget, totalAmountClp: Math.min(parseClp(e.target.value), MAX_CLP) })} /></label>
       <section className="space-y-3"><div className="flex items-center justify-between"><h3 className="font-bold">{t("allocations")}</h3><span className="text-xs text-muted-foreground">{t("allocated", { amount: currency.format(allocated), remaining: currency.format(Number(budget.totalAmountClp) - allocated) })}</span></div>
