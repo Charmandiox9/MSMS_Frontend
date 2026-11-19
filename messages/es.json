@@ -223,7 +223,41 @@
     "quickActions": "Acciones Rápidas",
     "action1": "Mis Proyectos",
     "action2": "Ver Perfil",
-    "metricsError": "No se pudieron cargar los indicadores. Intenta recargar la página."
+    "metricsError": "No se pudieron cargar los indicadores.",
+    "retry": "Reintentar",
+    "groups": {
+      "attention": "Por atender",
+      "semester": "Actividad del semestre",
+      "general": "Resumen general"
+    },
+    "semesterLoading": "Consultando semestre activo…",
+    "semesterError": "No se pudo consultar el semestre activo.",
+    "semesterEmpty": "No hay un semestre activo.",
+    "semesterPeriod": "{name} · {start} al {end}"
+  },
+  "AnalystBudget": {
+    "title": "Presupuesto del semestre activo",
+    "loading": "Cargando presupuesto del semestre…",
+    "error": "No se pudo cargar el presupuesto.",
+    "retry": "Reintentar",
+    "noSemester": "No hay un semestre activo.",
+    "noBudget": "El semestre activo aún no tiene presupuesto configurado.",
+    "total": "Presupuesto total",
+    "allocated": "Asignado",
+    "unallocated": "Por asignar",
+    "estimated": "Compromiso estimado",
+    "estimateNote": "Las estimaciones se calculan con los contratos de profesores por hora y las tarifas de ayudantía.",
+    "unpriced": "{count, plural, one {# ayudantía sin tarifa u horas registradas queda fuera de la estimación.} other {# ayudantías sin tarifa u horas registradas quedan fuera de la estimación.}}",
+    "categoryTitle": "Asignaciones por categoría",
+    "category": "Categoría",
+    "untracked": "Sin estimación",
+    "noAllocations": "Aún no hay asignaciones por categoría.",
+    "monthlyTitle": "Compromisos estimados por mes",
+    "month": "Mes",
+    "hourly": "Profesores por hora",
+    "assistantships": "Ayudantías",
+    "accumulated": "Acumulado",
+    "noCommitments": "Aún no hay compromisos valorizados para el semestre."
   },
   "DashboardNav": {
     "dashboard": "Inicio",
@@ -288,8 +322,7 @@
     "groups": {
       "studentSupport": "Atención estudiantil",
       "academicInformation": "Información académica",
-      "research": "Investigación",
-      "administration": "Administración"
+      "research": "Investigación"
     },
     "switchToLight": "Usar modo claro",
     "switchToDark": "Usar modo oscuro",
@@ -726,6 +759,7 @@
     "systemAdmin": {
       "title": "Panel de Administración del Sistema",
       "subtitle": "Supervisión global de usuarios, roles, seguridad y cumplimiento normativo.",
+      "metricsTitle": "Cuentas y permisos",
       "actionsTitle": "Acciones de Administración",
       "actionsSubtitle": "Accesos directos para la gestión global de la plataforma",
       "stats": {
@@ -761,6 +795,7 @@
     "academicSecretary": {
       "title": "Panel de Secretaría Docente",
       "subtitle": "Gestión de información académica, expedientes y repositorio documental.",
+      "metricsTitle": "Docencia del semestre",
       "actionsTitle": "Gestión de Secretaría",
       "actionsSubtitle": "Operaciones principales sobre repositorios y documentación",
       "noticesTitle": "Avisos Institucionales",
@@ -786,15 +821,16 @@
         "assistantsDesc": "Ayudantes activos del semestre"
       },
       "actions": {
-        "academicInfo": "Repositorio Académico",
-        "academicInfoDesc": "Consulta y actualización de antecedentes curriculares y docentes.",
-        "records": "Gestión Documental",
-        "recordsDesc": "Revisión y validación de actas y constancias académicas."
+        "academicInfo": "Departamentos y carreras",
+        "academicInfoDesc": "Gestiona carreras, departamentos y mallas por cohorte.",
+        "records": "Estudiantes y matrículas",
+        "recordsDesc": "Consulta expedientes y gestiona matrículas del semestre."
       }
     },
     "academicProcessAnalyst": {
       "title": "Panel de Análisis de Procesos Académicos",
-      "subtitle": "Monitoreo consolidado de indicadores curriculares, justificaciones y titulación.",
+      "subtitle": "Seguimiento del presupuesto, los resultados de investigación y los indicadores académicos.",
+      "metricsTitle": "Actividad de investigación",
       "actionsTitle": "Herramientas Analíticas",
       "actionsSubtitle": "Acceso directo a generación de reportes y seguimiento",
       "distributionTitle": "Distribución Curricular",
@@ -805,6 +841,12 @@
         "riskPrevention": "Ing. Prevención de Riesgos"
       },
       "stats": {
+        "projects": "Proyectos",
+        "projectsDesc": "Total registrado en el repositorio",
+        "research": "Investigaciones",
+        "researchDesc": "Total registrado en el repositorio",
+        "outputs": "Resultados académicos",
+        "outputsDesc": "Publicaciones y otros resultados registrados",
         "teachers": "Docentes Activos",
         "teachersDesc": "Con asignaciones en el semestre activo",
         "courses": "Asignaturas Activas",
@@ -821,13 +863,26 @@
       "actions": {
         "reports": "Generar Reportes",
         "reportsDesc": "Crear y exportar reportes analíticos con indicadores oficiales.",
+        "charts": "Gráficos académicos",
+        "chartsDesc": "Explora tendencias y distribuciones con filtros.",
         "titulation": "Consultar Titulaciones",
         "titulationDesc": "Monitorear estados de avance y antecedentes de procesos de título."
       }
     },
+    "privacyOfficer": {
+      "title": "Panel de Privacidad",
+      "subtitle": "Seguimiento de solicitudes de derechos de datos personales y sus plazos.",
+      "metricsTitle": "Solicitudes de datos personales",
+      "pending": "Solicitudes abiertas",
+      "pendingDesc": "Recibidas, en verificación o en curso",
+      "overdue": "Plazos vencidos",
+      "overdueDesc": "Solicitudes abiertas que superaron su plazo vigente"
+    },
     "teachingSupportCoordinator": {
       "title": "Panel de Coordinación de Apoyo Docente",
       "subtitle": "Supervisión de justificaciones, carga académica, horarios y ayudantías.",
+      "inboxTitle": "Justificaciones por atender",
+      "metricsTitle": "Apoyo docente del semestre",
       "actionsTitle": "Acciones de Apoyo Docente",
       "actionsSubtitle": "Carga de antecedentes y coordinación de actividades",
       "tasksTitle": "Tareas Prioritarias",
@@ -846,8 +901,8 @@
         "unreadInboxDesc": "Enviadas desde el formulario",
         "activeAssignments": "Asignaciones Docentes",
         "activeAssignmentsDesc": "En el semestre activo",
-        "schedules": "Horarios Validados",
-        "schedulesDesc": "Horarios coordinados",
+        "schedules": "Horarios registrados",
+        "schedulesDesc": "Bloques del semestre activo",
         "schedulesTrend": "Sin topes",
         "titulations": "Titulaciones en Proceso",
         "titulationsDesc": "Defensas calendarizadas",

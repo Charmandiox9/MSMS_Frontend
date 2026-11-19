@@ -223,7 +223,41 @@
     "quickActions": "Quick Actions",
     "action1": "My Projects",
     "action2": "View Profile",
-    "metricsError": "Could not load dashboard metrics. Try reloading the page."
+    "metricsError": "Could not load dashboard metrics.",
+    "retry": "Try again",
+    "groups": {
+      "attention": "Needs attention",
+      "semester": "Semester activity",
+      "general": "Overall summary"
+    },
+    "semesterLoading": "Checking the active semester…",
+    "semesterError": "Could not load the active semester.",
+    "semesterEmpty": "There is no active semester.",
+    "semesterPeriod": "{name} · {start} to {end}"
+  },
+  "AnalystBudget": {
+    "title": "Active semester budget",
+    "loading": "Loading the semester budget…",
+    "error": "Could not load the budget.",
+    "retry": "Try again",
+    "noSemester": "There is no active semester.",
+    "noBudget": "The active semester has no configured budget yet.",
+    "total": "Total budget",
+    "allocated": "Allocated",
+    "unallocated": "Unallocated",
+    "estimated": "Estimated commitment",
+    "estimateNote": "Estimates are based on hourly teaching contracts and assistantship rates.",
+    "unpriced": "{count, plural, one {# assistantship is excluded because it is missing hours or a rate.} other {# assistantships are excluded because they are missing hours or a rate.}}",
+    "categoryTitle": "Allocations by category",
+    "category": "Category",
+    "untracked": "No estimate",
+    "noAllocations": "There are no allocations by category yet.",
+    "monthlyTitle": "Estimated commitments by month",
+    "month": "Month",
+    "hourly": "Hourly teaching",
+    "assistantships": "Assistantships",
+    "accumulated": "Cumulative",
+    "noCommitments": "No commitments can be valued for this semester yet."
   },
   "DashboardNav": {
     "dashboard": "Home",
@@ -288,8 +322,7 @@
     "groups": {
       "studentSupport": "Student support",
       "academicInformation": "Academic information",
-      "research": "Research",
-      "administration": "Administration"
+      "research": "Research"
     },
     "switchToLight": "Use light mode",
     "switchToDark": "Use dark mode",
@@ -726,6 +759,7 @@
     "systemAdmin": {
       "title": "System Administration Dashboard",
       "subtitle": "Global overview of users, roles, security, and regulatory compliance.",
+      "metricsTitle": "Accounts and permissions",
       "actionsTitle": "Administration Actions",
       "actionsSubtitle": "Quick shortcuts for global platform management",
       "stats": {
@@ -761,6 +795,7 @@
     "academicSecretary": {
       "title": "Academic Secretary Dashboard",
       "subtitle": "Academic records, student files, and repository management.",
+      "metricsTitle": "Teaching this semester",
       "actionsTitle": "Secretary Management",
       "actionsSubtitle": "Core operations on repositories and documentation",
       "noticesTitle": "Institutional Notices",
@@ -786,15 +821,16 @@
         "assistantsDesc": "Active assistants in the semester"
       },
       "actions": {
-        "academicInfo": "Academic Repository",
-        "academicInfoDesc": "Consult and update curricular and faculty background.",
-        "records": "Document Management",
-        "recordsDesc": "Review and validate minutes and academic certificates."
+        "academicInfo": "Departments and careers",
+        "academicInfoDesc": "Manage departments, careers, and cohort curricula.",
+        "records": "Students and enrollments",
+        "recordsDesc": "Review academic records and manage semester enrollments."
       }
     },
     "academicProcessAnalyst": {
       "title": "Academic Process Analysis Dashboard",
-      "subtitle": "Consolidated indicators for curricular progression, justifications, and titulation.",
+      "subtitle": "Track the budget, research outputs, and academic indicators.",
+      "metricsTitle": "Research activity",
       "actionsTitle": "Analytical Tools",
       "actionsSubtitle": "Direct access to report generation and monitoring",
       "distributionTitle": "Curricular Distribution",
@@ -805,6 +841,12 @@
         "riskPrevention": "Occupational Risk Prevention Eng."
       },
       "stats": {
+        "projects": "Projects",
+        "projectsDesc": "Total recorded in the repository",
+        "research": "Research",
+        "researchDesc": "Total recorded in the repository",
+        "outputs": "Academic outputs",
+        "outputsDesc": "Publications and other recorded outputs",
         "teachers": "Active Faculty",
         "teachersDesc": "With assignments in the active term",
         "courses": "Active Courses",
@@ -821,13 +863,26 @@
       "actions": {
         "reports": "Generate Reports",
         "reportsDesc": "Create and export analytical reports with official metrics.",
+        "charts": "Academic charts",
+        "chartsDesc": "Explore trends and distributions with filters.",
         "titulation": "Consult Titulations",
         "titulationDesc": "Monitor progress milestones and titulation proceedings."
       }
     },
+    "privacyOfficer": {
+      "title": "Privacy Dashboard",
+      "subtitle": "Monitor personal data rights requests and their deadlines.",
+      "metricsTitle": "Personal data rights requests",
+      "pending": "Open requests",
+      "pendingDesc": "Received, under verification, or in progress",
+      "overdue": "Overdue requests",
+      "overdueDesc": "Open requests past their current deadline"
+    },
     "teachingSupportCoordinator": {
       "title": "Teaching Support Coordination Dashboard",
       "subtitle": "Supervision of justifications, workload, schedules, and assistantships.",
+      "inboxTitle": "Justifications to review",
+      "metricsTitle": "Teaching support this semester",
       "actionsTitle": "Teaching Support Actions",
       "actionsSubtitle": "Background upload and activity coordination",
       "tasksTitle": "Priority Tasks",
@@ -846,8 +901,8 @@
         "unreadInboxDesc": "Submitted through the form",
         "activeAssignments": "Teaching Assignments",
         "activeAssignmentsDesc": "In the active term",
-        "schedules": "Validated Schedules",
-        "schedulesDesc": "Coordinated timetables",
+        "schedules": "Recorded schedules",
+        "schedulesDesc": "Time blocks in the active semester",
         "schedulesTrend": "No conflicts",
         "titulations": "Titulations in Progress",
         "titulationsDesc": "Scheduled defenses",

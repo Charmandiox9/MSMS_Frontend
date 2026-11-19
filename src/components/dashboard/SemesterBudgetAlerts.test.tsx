@@ -14,14 +14,8 @@ vi.mock("@/lib/api", () => ({ apiFetch: fetchDashboard }));
 vi.mock("@/context/ActiveRoleContext", () => ({
   useActiveRole: () => ({ activeRole: activeRole() }),
 }));
-vi.mock("@/components/dashboard/AcademicQuickLinks", () => ({
-  default: () => null,
-}));
-vi.mock("@/components/dashboard/views/SystemAdminDashboard", () => ({
-  default: () => <h1>Administración</h1>,
-}));
-
 const endpoint = "/dashboard/semester-budget-alerts";
+const overviewEndpoint = "/dashboard/semester-budget-overview";
 const exampleAlert = {
   semesterId: "semester-1",
   semesterName: "2026-2",
@@ -50,9 +44,49 @@ describe("Dashboard budget alerts", () => {
     fetchDashboard.mockReset();
   });
 
+  it("shows allocated funds and monthly estimates only in the analyst workspace", async () => {
+    fetchDashboard.mockImplementation(async (request: string) => {
+      if (request === endpoint) return [];
+      if (request === overviewEndpoint) return {
+        state: "ready", semesterName: "2026-2", totalClp: 1000000,
+        allocatedClp: 750000, unallocatedClp: 250000, estimatedClp: 200000,
+        unpricedAssistantships: 1,
+        allocations: [{ id: "ph", name: "Docencia", allocatedClp: 750000, estimatedClp: 200000 }],
+        monthly: [{ month: "2026-08", hourlyClp: 180000, assistantshipsClp: 20000, accumulatedClp: 200000 }],
+      };
+      return { projects: 12 };
+    });
+    const { unmount } = renderDashboard();
+    const budget = screen.getByRole("region", { name: es.AnalystBudget.title });
+    expect(await within(budget).findByText(/250\.000/)).toBeDefined();
+    expect(within(budget).getByText(/ayudantía sin tarifa u horas/)).toBeDefined();
+    const monthly = within(budget).getByRole("table", { name: es.AnalystBudget.monthlyTitle });
+    expect(within(monthly).getByRole("columnheader", { name: "Acumulado" })).toBeDefined();
+    expect(within(monthly).getByText(/200\.000/)).toBeDefined();
+    expect(screen.getByRole("heading", { name: es.DashboardViews.academicProcessAnalyst.metricsTitle })).toBeDefined();
+    unmount();
+    fetchDashboard.mockClear();
+    activeRole.mockReturnValue("SYSTEM_ADMIN");
+    renderDashboard();
+    expect(screen.getByRole("heading", { name: es.DashboardViews.systemAdmin.metricsTitle })).toBeDefined();
+    expect(screen.queryByRole("region", { name: es.AnalystBudget.title })).toBeNull();
+    expect(fetchDashboard.mock.calls.some(([request]) => request === overviewEndpoint)).toBe(false);
+  });
+
+  it("shows the privacy queue and deadlines without requesting academic data", async () => {
+    activeRole.mockReturnValue("PRIVACY_OFFICER");
+    fetchDashboard.mockResolvedValue({ pendingRequests: 8, overdueRequests: 3 });
+    renderDashboard();
+    const privacy = screen.getByRole("region", { name: es.DashboardViews.privacyOfficer.metricsTitle });
+    const overdue = await within(privacy).findByRole("link", { name: /Plazos vencidos/ });
+    expect(overdue.textContent).toContain("3");
+    expect(overdue.getAttribute("href")).toContain("/dashboard/privacy-requests");
+    expect(fetchDashboard.mock.calls).toEqual([["/dashboard/privacy-officer"]]);
+  });
+
   it("prioritizes a real allocation alert after the analyst title and before metrics and reports", async () => {
     fetchDashboard.mockImplementation(async (request: string) =>
-      request === endpoint ? [exampleAlert] : { teachers: 27 },
+      request === endpoint ? [exampleAlert] : request === overviewEndpoint ? { state: "no-budget" } : { projects: 27 },
     );
     renderDashboard();
 
@@ -116,7 +150,7 @@ describe("Dashboard budget alerts", () => {
     renderDashboard();
 
     const banner = await screen.findByRole("region", { name: es.SemesterBudgetAlerts.title });
-    expectBefore(banner, screen.getByRole("heading", { name: "Administración" }));
+    expectBefore(banner, screen.getByRole("heading", { name: es.DashboardViews.systemAdmin.title }));
     expect(within(banner).getByRole("heading", { name: "Alerta de presupuesto: 2026-2", level: 2 })).not.toBeNull();
   });
 

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ClipboardCheck,
   Shield,
   ShieldAlert,
   ShieldCheck,
@@ -29,42 +28,29 @@ export default function SystemAdminDashboard() {
 
       <RoleDashboardStats
         endpoint="/dashboard/system-admin"
+        sectionLabels={{ general: t("metricsTitle") }}
         metrics={[
           {
-            key: "assistantships",
-            title: t("stats.assistantships"),
-            description: t("stats.assistantshipsDesc"),
-            icon: Users,
-          },
-          {
-            key: "assistants",
-            title: t("stats.assistants"),
-            description: t("stats.assistantsDesc"),
-            icon: Users,
-          },
-          {
             key: "users",
+            group: "general",
+            href: "/dashboard/users",
             title: t("stats.users"),
             description: t("stats.usersDesc"),
             icon: Users,
           },
           {
             key: "roles",
+            group: "general",
             title: t("stats.roles"),
             description: t("stats.rolesDesc"),
             icon: Shield,
           },
           {
             key: "activeUsers",
+            group: "general",
             title: t("stats.activeUsers"),
             description: t("stats.activeUsersDesc"),
             icon: ShieldCheck,
-          },
-          {
-            key: "pendingJustifications",
-            title: t("stats.pending"),
-            description: t("stats.pendingDesc"),
-            icon: ClipboardCheck,
           },
         ]}
       />
@@ -84,6 +70,12 @@ export default function SystemAdminDashboard() {
                 description={t("actions.systemSettingsDesc")}
                 href="/dashboard/settings"
                 icon={Sliders}
+              />
+              <QuickActionCard
+                title={t("actions.auditLogs")}
+                description={t("actions.auditLogsDesc")}
+                href="/dashboard/audit"
+                icon={Shield}
               />
             </div>
           </WidgetCard>

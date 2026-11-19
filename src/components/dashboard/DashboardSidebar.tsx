@@ -1,7 +1,7 @@
 "use client";
 
-import { ChevronDown, X } from "lucide-react";
-import { useId, useState, type Ref } from "react";
+import { X } from "lucide-react";
+import type { Ref } from "react";
 import { useTranslations } from "next-intl";
 import DashboardAccountMenu from "@/components/dashboard/DashboardAccountMenu";
 import {
@@ -16,7 +16,6 @@ const NAVIGATION_GROUPS = [
   "studentSupport",
   "academicInformation",
   "research",
-  "administration",
 ] as const;
 
 interface DashboardSidebarProps {
@@ -37,10 +36,6 @@ interface DashboardNavigationProps {
 function DashboardNavigation({ activeRole, onNavigate }: DashboardNavigationProps) {
   const t = useTranslations("DashboardNav");
   const pathname = usePathname();
-  const navigationId = useId();
-  const [groupOverrides, setGroupOverrides] = useState<
-    Record<string, { open: boolean; pathname: string }>
-  >({});
   const sections = getFilteredNavigation(DASHBOARD_SECTIONS, activeRole);
   const items = sections.flatMap((section) => section.items);
   const currentItem = items
@@ -59,7 +54,7 @@ function DashboardNavigation({ activeRole, onNavigate }: DashboardNavigationProp
           href={item.href}
           onClick={onNavigate}
           aria-current={isCurrent ? (pathname === item.href ? "page" : "location") : undefined}
-          className={`flex min-h-11 items-center gap-3 rounded-md border-s-2 px-3 py-2 text-sm leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset md:min-h-9 ${
+          className={`flex min-h-11 items-center gap-3 rounded-md border-s-2 px-3 py-1.5 text-sm leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset md:min-h-8 ${
             isCurrent
               ? "border-primary bg-selection font-semibold text-primary"
               : "border-transparent text-foreground hover:bg-selection"
@@ -76,50 +71,25 @@ function DashboardNavigation({ activeRole, onNavigate }: DashboardNavigationProp
     <nav
       aria-label={t("sidebarNavigation")}
       data-lenis-prevent
-      className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-3 py-4"
+      className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3"
     >
       {sections.map((section) => (
-        <section key={section.key} aria-label={t(`sections.${section.key}`)}>
-          <p className="mb-2 px-3 text-xs font-medium text-muted-foreground">
+        <section key={section.key} aria-label={t(`sections.${section.key}`)} className="border-t border-border/75 py-3 first:border-t-0 first:pt-1">
+          <p className="mb-1.5 px-3 text-[0.6875rem] font-semibold uppercase tracking-wider text-muted-foreground">
             {t(`sections.${section.key}`)}
           </p>
-          <ul className="space-y-1">
+          <ul>
             {section.items.filter((item) => !item.group).map(renderItem)}
             {NAVIGATION_GROUPS.map((group) => {
               const groupItems = section.items.filter((item) => item.group === group);
-              if (groupItems.length < 2) return groupItems.map(renderItem);
-
-              const groupKey = `${section.key}-${group}`;
-              const groupId = `${navigationId}-${groupKey}`;
-              const isCurrent = groupItems.some((item) => item === currentItem);
-              const override = groupOverrides[groupKey];
-              const isOpen = override?.open === true || (
-                isCurrent && override?.pathname !== pathname
-              );
+              if (groupItems.length === 0) return null;
 
               return (
-                <li key={groupKey}>
-                  <button
-                    type="button"
-                    aria-expanded={isOpen}
-                    aria-controls={groupId}
-                    onClick={() => setGroupOverrides((current) => ({
-                      ...current,
-                      [groupKey]: { open: !isOpen, pathname },
-                    }))}
-                    className="flex min-h-11 w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-start text-sm font-medium text-muted-foreground hover:bg-selection hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset md:min-h-9"
-                  >
+                <li key={group} className="mt-3 first:mt-0">
+                  <p className="mb-0.5 px-3 text-xs font-medium text-muted-foreground">
                     {t(`groups.${group}`)}
-                    <ChevronDown
-                      className={`size-4 shrink-0 ${isOpen ? "rotate-180" : ""}`}
-                      aria-hidden="true"
-                    />
-                  </button>
-                  <ul
-                    id={groupId}
-                    hidden={!isOpen}
-                    className="ms-2 space-y-1 border-s border-border ps-2"
-                  >
+                  </p>
+                  <ul aria-label={t(`groups.${group}`)}>
                     {groupItems.map(renderItem)}
                   </ul>
                 </li>

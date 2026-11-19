@@ -241,15 +241,7 @@ test.describe("sesión y acceso por rol", () => {
       const nav = page.getByRole("navigation", { name: "Navegación principal" });
       await expect(nav).toBeVisible();
 
-      for (const name of [
-        "Atención estudiantil",
-        "Información académica",
-        "Investigación",
-        "Administración",
-      ]) {
-        const group = nav.getByRole("button", { name, exact: true, expanded: false });
-        if (await group.count()) await group.click();
-      }
+      await expect(nav.getByRole("button")).toHaveCount(0);
 
       for (const label of visible)
         await expect(

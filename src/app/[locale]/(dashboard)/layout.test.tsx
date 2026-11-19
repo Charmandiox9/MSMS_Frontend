@@ -103,6 +103,11 @@ describe('DashboardLayout (sesión)', () => {
     expect(await screen.findByText('rol:ACADEMIC_SECRETARY')).toBeDefined();
     const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
     expect(within(navigation).getByRole('link', { current: 'page' }).getAttribute('href')).toBe('/dashboard');
+    expect(within(navigation).getByRole('link', { name: 'Gestión de justificaciones' })).toBeDefined();
+    expect(within(navigation).getByRole('link', { name: 'Departamentos & Carreras' })).toBeDefined();
+    expect(within(navigation).getByRole('link', { name: 'Proyectos' })).toBeDefined();
+    expect(within(navigation).getByRole('link', { name: 'Configuración' })).toBeDefined();
+    expect(within(navigation).queryByRole('button')).toBeNull();
     expect(within(navigation).queryByRole('link', { name: 'Usuarios' })).toBeNull();
     expect(screen.getByRole('main').closest('.dashboard-workspace')).not.toBeNull();
     expect(screen.getByRole('link', { name: 'Saltar al contenido' }).getAttribute('href')).toBe('#dashboard-main');
@@ -132,6 +137,10 @@ describe('DashboardLayout (sesión)', () => {
     expect(dialog.getAttribute('id')).toBe(trigger.getAttribute('aria-controls'));
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
     expect(within(dialog).getByRole('button', { name: 'Cuenta' })).toBeDefined();
+    const navigation = within(dialog).getByRole('navigation');
+    expect(within(navigation).getByRole('link', { name: 'Justificaciones' })).toBeDefined();
+    expect(within(navigation).getByRole('link', { name: 'Ayudantías' })).toBeDefined();
+    expect(within(navigation).queryByRole('button')).toBeNull();
 
     const close = within(dialog).getByRole('button', { name: 'Cerrar menú' });
     close.focus();

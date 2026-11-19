@@ -7,6 +7,7 @@ import AcademicSecretaryDashboard from '@/components/dashboard/views/AcademicSec
 import AcademicProcessAnalystDashboard from '@/components/dashboard/views/AcademicProcessAnalystDashboard';
 import TeachingSupportCoordinatorDashboard from '@/components/dashboard/views/TeachingSupportCoordinatorDashboard';
 import GenericDashboard from '@/components/dashboard/views/GenericDashboard';
+import PrivacyOfficerDashboard from '@/components/dashboard/views/PrivacyOfficerDashboard';
 import SemesterBudgetAlerts from '@/components/dashboard/SemesterBudgetAlerts';
 
 export default function DashboardPage() {
@@ -25,6 +26,8 @@ export default function DashboardPage() {
     case 'TEACHING_SUPPORT_COORDINATOR':
       dashboard = <TeachingSupportCoordinatorDashboard />;
       break;
+    case 'PRIVACY_OFFICER':
+      return <PrivacyOfficerDashboard />;
     default:
       dashboard = <GenericDashboard />;
   }

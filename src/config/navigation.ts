@@ -43,7 +43,7 @@ export interface NavigationItem {
   icon: LucideIcon;
   allowedRoles?: UserRoleCode[];
   group?:
-    "academicInformation" | "research" | "studentSupport" | "administration";
+    "academicInformation" | "research" | "studentSupport";
 }
 
 export interface NavigationSection {
@@ -216,7 +216,6 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: "privacyRequests",
         href: "/dashboard/privacy-requests",
         icon: ShieldCheck,
-        group: "administration",
         allowedRoles: [
           "SYSTEM_ADMIN",
           "ACADEMIC_SECRETARY",
@@ -230,21 +229,18 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         href: "/dashboard/users",
         icon: Users,
         allowedRoles: ["SYSTEM_ADMIN"],
-        group: "administration",
       },
       {
         key: "audit",
         href: "/dashboard/audit",
         icon: ShieldCheck,
         allowedRoles: ["SYSTEM_ADMIN"],
-        group: "administration",
       },
       {
         key: "settings",
         href: "/dashboard/settings",
         icon: Settings,
         allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"],
-        group: "administration",
       },
     ],
   },

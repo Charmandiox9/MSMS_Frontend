@@ -1,17 +1,19 @@
 "use client";
 
 import {
-  BookOpenCheck,
-  ClipboardCheck,
+  BarChart3,
   FileBarChart,
+  FileText,
+  FlaskConical,
+  FolderKanban,
   GraduationCap,
-  Users,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import QuickActionCard from "@/components/dashboard/widgets/QuickActionCard";
 import WidgetCard from "@/components/dashboard/widgets/WidgetCard";
 import RoleDashboardStats from "@/components/dashboard/RoleDashboardStats";
 import SemesterBudgetAlerts from "@/components/dashboard/SemesterBudgetAlerts";
+import AnalystBudgetOverview from "./AnalystBudgetOverview";
 
 export default function AcademicProcessAnalystDashboard() {
   const t = useTranslations("DashboardViews.academicProcessAnalyst");
@@ -26,45 +28,35 @@ export default function AcademicProcessAnalystDashboard() {
       </div>
 
       <SemesterBudgetAlerts variant="section" />
+      <AnalystBudgetOverview />
 
       <RoleDashboardStats
         endpoint="/dashboard/academic-process-analyst"
+        sectionLabels={{ general: t("metricsTitle") }}
         metrics={[
           {
-            key: "assistantships",
-            title: t("stats.assistantships"),
-            description: t("stats.assistantshipsDesc"),
-            icon: Users,
+            key: "projects",
+            group: "general",
+            href: "/dashboard/projects",
+            title: t("stats.projects"),
+            description: t("stats.projectsDesc"),
+            icon: FolderKanban,
           },
           {
-            key: "assistants",
-            title: t("stats.assistants"),
-            description: t("stats.assistantsDesc"),
-            icon: Users,
+            key: "research",
+            group: "general",
+            href: "/dashboard/research",
+            title: t("stats.research"),
+            description: t("stats.researchDesc"),
+            icon: FlaskConical,
           },
           {
-            key: "teachers",
-            title: t("stats.teachers"),
-            description: t("stats.teachersDesc"),
-            icon: Users,
-          },
-          {
-            key: "activeCourses",
-            title: t("stats.courses"),
-            description: t("stats.coursesDesc"),
-            icon: BookOpenCheck,
-          },
-          {
-            key: "activeAssignments",
-            title: t("stats.assignments"),
-            description: t("stats.assignmentsDesc"),
-            icon: ClipboardCheck,
-          },
-          {
-            key: "justifications",
-            title: t("stats.justifications"),
-            description: t("stats.justificationsDesc"),
-            icon: FileBarChart,
+            key: "researchOutputs",
+            group: "general",
+            href: "/dashboard/research-outputs",
+            title: t("stats.outputs"),
+            description: t("stats.outputsDesc"),
+            icon: FileText,
           },
         ]}
       />
@@ -77,6 +69,12 @@ export default function AcademicProcessAnalystDashboard() {
               description={t("actions.reportsDesc")}
               href="/dashboard/reports"
               icon={FileBarChart}
+            />
+            <QuickActionCard
+              title={t("actions.charts")}
+              description={t("actions.chartsDesc")}
+              href="/dashboard/charts"
+              icon={BarChart3}
             />
             <QuickActionCard
               title={t("actions.titulation")}
