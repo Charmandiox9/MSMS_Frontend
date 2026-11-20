@@ -329,24 +329,19 @@
   background-color: var(--login-card-surface);
 }
 
-.login-squid-layer {
-  transform: translateX(var(--login-squid-offset-x, 0));
-}
-
 @media (min-width: 64rem) {
   .login-visual {
-    --login-squid-offset-x: clamp(7rem, 10vw, 12rem);
-    --login-panel-surface: transparent;
+    --login-panel-surface: rgb(248 250 252 / 10%);
     --login-panel-wash-start: rgb(248 250 252 / 0%);
-    --login-panel-wash-middle: rgb(248 250 252 / 2%);
-    --login-panel-wash-end: rgb(248 250 252 / 6%);
+    --login-panel-wash-middle: rgb(248 250 252 / 4%);
+    --login-panel-wash-end: rgb(248 250 252 / 11%);
   }
 
   .dark .login-visual {
-    --login-panel-surface: transparent;
+    --login-panel-surface: rgb(2 11 24 / 12%);
     --login-panel-wash-start: rgb(2 11 24 / 0%);
-    --login-panel-wash-middle: rgb(2 11 24 / 2%);
-    --login-panel-wash-end: rgb(2 11 24 / 6%);
+    --login-panel-wash-middle: rgb(2 11 24 / 5%);
+    --login-panel-wash-end: rgb(2 11 24 / 13%);
   }
 }
 

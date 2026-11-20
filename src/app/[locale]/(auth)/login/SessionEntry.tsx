@@ -41,16 +41,24 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
     };
   }, [router]);
 
-  if (session === null) return children;
-  const roles = session ? getSessionRoles(session) : [];
-  if (!session || roles.length < 2 || entering)
+  if (!session) return children;
+  const roles = getSessionRoles(session);
+  if (!roles.length)
     return (
       <WelcomeLoadingScreen
-        phase={entering ? "preparing" : "checking"}
+        phase="checking"
+        displayName={session.displayName}
+      />
+    );
+  if (entering)
+    return (
+      <WelcomeLoadingScreen
+        phase="preparing"
         displayName={session?.displayName}
         activeRole={selected ?? roles[0] ?? null}
       />
     );
+  if (roles.length < 2) return children;
 
   return (
     <main className="institutional-theme flex min-h-screen items-center justify-center bg-background px-5 py-16">

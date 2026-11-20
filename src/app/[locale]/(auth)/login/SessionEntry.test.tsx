@@ -25,13 +25,11 @@ describe("SessionEntry", () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it("espera la validación y no muestra Google mientras comprueba la sesión", () => {
+  it("mantiene visible el login mientras comprueba en segundo plano la sesión", () => {
     installFakeApi({ "GET /auth/session": () => new Promise(() => undefined) });
     renderEntry();
-    expect(
-      screen.getByRole("heading", { name: "Verificando tu sesión" }),
-    ).toBeDefined();
-    expect(screen.queryByText("Continuar con Google")).toBeNull();
+    expect(screen.getByText("Continuar con Google")).toBeDefined();
+    expect(screen.queryByRole("heading", { name: "Verificando tu sesión" })).toBeNull();
   });
   it("muestra Google solo si el backend no reconoce una sesión válida", async () => {
     installFakeApi({ "GET /auth/session": fail(401, "Unauthorized") });

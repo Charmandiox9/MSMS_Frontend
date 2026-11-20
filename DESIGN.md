@@ -14,7 +14,7 @@ La distribución facilita distinguir la navegación de trabajo de las preferenci
 
 ## Paleta aprobada
 
-Claro con acento verde petróleo. Oscuro con superficies gris ceniza y acento lavanda. La fuente de los valores es [globals.css](src/app/globals.css). Las vistas de producto usan `.institutional-theme`; el formulario de acceso conserva su tratamiento visual actual y la preferencia de tema la gestiona `next-themes`. La ilustración del login conserva sus tonos marinos originales mediante tokens `--illustration-*`; en escritorio se extiende bajo la sección de acceso, que usa superficies translúcidas para dejarla visible sin reducir la legibilidad de la tarjeta.
+Claro con acento verde petróleo. Oscuro con superficies gris ceniza y acento lavanda. La fuente de los valores es [globals.css](src/app/globals.css). Las vistas de producto usan `.institutional-theme`; el formulario de acceso conserva su tratamiento visual actual y la preferencia de tema la gestiona `next-themes`. La ilustración del login conserva sus tonos marinos originales mediante tokens `--illustration-*`; en escritorio se extiende detrás de la sección de acceso, que usa superficies translúcidas, pero no atraviesa visualmente la tarjeta de ingreso. La ruta pública mantiene visible el login mientras revisa en segundo plano si ya existe una sesión.
 
 | Uso | Token | Claro | Oscuro |
 |---|---|---|---|

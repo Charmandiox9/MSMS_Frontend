@@ -21,10 +21,7 @@ export default function LoginSquid() {
   if (!isDesktop) return null;
 
   return (
-    <div
-      aria-hidden="true"
-      className="login-squid-layer pointer-events-none absolute inset-y-0 left-0 z-[1] w-[72.5%] opacity-90"
-    >
+    <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-[1] w-[72.5%] opacity-90">
       <Hero3D />
     </div>
   );
