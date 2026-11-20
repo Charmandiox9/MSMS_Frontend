@@ -7,6 +7,7 @@ import { installFakeApi } from '@/test/fake-api';
 import { useActiveRole } from '@/context/ActiveRoleContext';
 
 // Referencia estable, como el router real de Next.
+const routeState = vi.hoisted(() => ({ search: "" }));
 const router = vi.hoisted(() => ({ replace: vi.fn() }));
 const { replace } = router;
 vi.mock('@/i18n/routing', () => ({
@@ -14,9 +15,14 @@ vi.mock('@/i18n/routing', () => ({
   usePathname: () => '/dashboard',
   Link: (props: ComponentProps<'a'>) => <a {...props} />,
 }));
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(routeState.search),
+}));
 vi.mock('@/components/dashboard/DashboardAccountMenu', () => ({
   default: () => <button type="button">Cuenta</button>,
 }));
+
+import { DASHBOARD_WELCOME_PENDING_STORAGE_KEY } from '@/lib/auth';
 
 function ActiveRole() {
   return <p>rol:{useActiveRole().activeRole}</p>;
@@ -48,7 +54,12 @@ function installAuthenticatedApi(routes: Parameters<typeof installFakeApi>[0] = 
 describe('DashboardLayout (sesión)', () => {
   beforeEach(() => {
     replace.mockClear();
+    replace.mockImplementation((href: string) => {
+      routeState.search = new URL(href, 'http://marsys.test').search;
+    });
+    routeState.search = '';
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   afterEach(() => vi.unstubAllGlobals());
@@ -157,5 +168,36 @@ describe('DashboardLayout (sesión)', () => {
     renderLayout();
 
     expect(await screen.findByText('rol:ACADEMIC_SECRETARY')).toBeDefined();
+  });
+
+  it('limpia la URL de bienvenida y la conserva al recargar la misma pestaña', async () => {
+    routeState.search = '?welcome=1';
+    installAuthenticatedApi({
+      'GET /auth/session': () => ({
+        body: { email: 'ana@ucn.cl', displayName: 'Ana Pérez', roles: ['ACADEMIC_SECRETARY'] },
+      }),
+    });
+    const firstRender = renderLayout();
+
+    await waitFor(() => expect(replace).toHaveBeenCalledWith('/dashboard', { scroll: false }));
+    expect(sessionStorage.getItem(DASHBOARD_WELCOME_PENDING_STORAGE_KEY)).toBe('1');
+    expect(
+      await screen.findByRole('heading', { name: 'Te damos la bienvenida, Ana Pérez.' }),
+    ).toBeDefined();
+    expect(screen.queryByRole('heading', { name: 'Verificando tu sesión' })).toBeNull();
+
+    firstRender.unmount();
+    replace.mockClear();
+    installAuthenticatedApi({
+      'GET /auth/session': () => ({
+        body: { email: 'ana@ucn.cl', displayName: 'Ana Pérez', roles: ['ACADEMIC_SECRETARY'] },
+      }),
+    });
+    renderLayout();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Te damos la bienvenida, Ana Pérez.' }),
+    ).toBeDefined();
+    expect(replace).not.toHaveBeenCalled();
   });
 });

@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
@@ -8,14 +15,60 @@ import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { ActiveRoleProvider, useActiveRole } from "@/context/ActiveRoleContext";
 import { ACTIVE_ROLE_STORAGE_KEY, getSessionRoles } from "@/lib/active-role";
-import { getActiveSession, logout, type ActiveSession } from "@/lib/auth";
+import {
+  DASHBOARD_WELCOME_PENDING_STORAGE_KEY,
+  getActiveSession,
+  logout,
+  type ActiveSession,
+} from "@/lib/auth";
 import { DashboardShellSkeleton } from "@/components/ui/LoadingSkeletons";
 import TermsAcceptanceGate from "@/components/legal/TermsAcceptanceGate";
-import WelcomeLoadingScreen from "@/components/auth/WelcomeLoadingScreen";
 import { DashboardStartupProvider } from "@/context/DashboardStartupContext";
 import type { UserRoleCode } from "@/types/auth";
 
 const DESKTOP_BREAKPOINT = "(min-width: 48rem)";
+const WELCOME_PENDING_EVENT = "marsys:welcome-pending";
+let welcomePendingInMemory: boolean | null = null;
+
+function readWelcomePending(): boolean {
+  if (welcomePendingInMemory !== null) return welcomePendingInMemory;
+
+  try {
+    return (
+      window.sessionStorage.getItem(DASHBOARD_WELCOME_PENDING_STORAGE_KEY) ===
+      "1"
+    );
+  } catch {
+    return false;
+  }
+}
+
+function subscribeToWelcomePending(onChange: () => void): () => void {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(WELCOME_PENDING_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(WELCOME_PENDING_EVENT, onChange);
+  };
+}
+
+function writeWelcomePending(isPending: boolean): void {
+  try {
+    if (isPending) {
+      window.sessionStorage.setItem(DASHBOARD_WELCOME_PENDING_STORAGE_KEY, "1");
+    } else {
+      window.sessionStorage.removeItem(DASHBOARD_WELCOME_PENDING_STORAGE_KEY);
+    }
+    welcomePendingInMemory = null;
+  } catch {
+    welcomePendingInMemory = isPending;
+  }
+  window.dispatchEvent(new Event(WELCOME_PENDING_EVENT));
+}
+
+function getServerWelcomePending(): boolean {
+  return false;
+}
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const t = useTranslations("DashboardNav");
@@ -107,16 +160,36 @@ export default function DashboardLayout({
   const [isLoading, setIsLoading] = useState(true);
   const [loadingRole, setLoadingRole] = useState<UserRoleCode | null>(null);
   const welcomeRequested = searchParams?.get("welcome") === "1";
+  const storedWelcomePending = useSyncExternalStore(
+    subscribeToWelcomePending,
+    readWelcomePending,
+    getServerWelcomePending,
+  );
+  const welcomePending = welcomeRequested || storedWelcomePending;
   const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null);
+  const welcomeUrlCleared = useRef(false);
 
   const handleTermsAccessResolved = useCallback((accepted: boolean) => {
     setTermsAccepted(accepted);
   }, []);
 
   const handleWelcomeComplete = useCallback(() => {
+    writeWelcomePending(false);
     setTermsAccepted(null);
     router.replace("/dashboard", { scroll: false });
   }, [router]);
+
+  useEffect(() => {
+    if (welcomeRequested) {
+      writeWelcomePending(true);
+
+      if (!welcomeUrlCleared.current) {
+        welcomeUrlCleared.current = true;
+        router.replace("/dashboard", { scroll: false });
+      }
+      return;
+    }
+  }, [router, welcomeRequested]);
 
   useEffect(() => {
     let mounted = true;
@@ -127,6 +200,7 @@ export default function DashboardLayout({
       setSession(activeSession);
 
       if (!activeSession) {
+        writeWelcomePending(false);
         setIsLoading(false);
         // Una cookie vencida, inválida o de una cuenta desactivada sigue en el navegador:
         // el middleware la vería y devolvería /login → /dashboard. El logout del backend
@@ -147,14 +221,6 @@ export default function DashboardLayout({
     };
   }, [router]);
 
-  if (isLoading && welcomeRequested) {
-    return (
-      <WelcomeLoadingScreen
-        phase="checking"
-      />
-    );
-  }
-
   if (isLoading || !session) {
     return (
       <div className="institutional-theme dashboard-workspace min-h-screen bg-background text-foreground">
@@ -168,7 +234,7 @@ export default function DashboardLayout({
       <DashboardStartupProvider
         activeRole={loadingRole}
         displayName={session.displayName}
-        enabled={welcomeRequested && termsAccepted !== false}
+        enabled={welcomePending && termsAccepted !== false}
         onComplete={handleWelcomeComplete}
       >
         <TermsAcceptanceGate onAccessResolved={handleTermsAccessResolved}>

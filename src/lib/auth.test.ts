@@ -12,6 +12,7 @@ describe("auth", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
@@ -33,7 +34,11 @@ describe("auth", () => {
     await expect(hasActiveSession()).resolves.toBe(true);
     expect(api.fetchMock).toHaveBeenCalledWith(
       `${TEST_API_BASE_URL}/auth/session`,
-      { credentials: "include", cache: "no-store" },
+      expect.objectContaining({
+        credentials: "include",
+        cache: "no-store",
+        signal: expect.any(AbortSignal),
+      }),
     );
   });
 
@@ -73,6 +78,37 @@ describe("auth", () => {
     const { getActiveSession } = await loadAuth();
 
     await expect(getActiveSession()).resolves.toBeNull();
+  });
+
+  it("termina la verificación de sesión si la petición queda pendiente", async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "http://localhost");
+      if (url.pathname === "/api/runtime-config") {
+        return Promise.resolve(
+          Response.json({ graphqlUrl: `${TEST_API_BASE_URL}/graphql` }),
+        );
+      }
+
+      return new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener(
+          "abort",
+          () => reject(new DOMException("Aborted", "AbortError")),
+          { once: true },
+        );
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const { getActiveSession } = await loadAuth();
+
+    const pendingSession = getActiveSession();
+    await vi.runAllTimersAsync();
+
+    await expect(pendingSession).resolves.toBeNull();
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${TEST_API_BASE_URL}/auth/session`,
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
   });
 
   it("cierra sesión con POST y cookies", async () => {
