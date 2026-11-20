@@ -119,7 +119,7 @@ for (const mobile of [false, true]) {
     await dialog.getByRole("button", { name: "Editar tarifa" }).click();
     await expect(
       dialog.getByLabel("Valor mensual por hora directa (CLP)"),
-    ).toHaveValue("52000");
+    ).toHaveValue("52.000");
     await dialog.getByRole("button", { name: "Guardar tarifa" }).click();
     await expect.poll(() => rateUpdate).not.toBeNull();
     expect(rateUpdate).toMatchObject({
@@ -127,7 +127,7 @@ for (const mobile of [false, true]) {
       category: "NEW",
       hourlyRateClp: 52000,
     });
-    await dialog.getByRole("button", { name: "Cerrar", exact: true }).click();
+    await dialog.getByLabel("Cerrar", { exact: true }).click();
     await page
       .getByRole("button", { name: "Crear profesor", exact: true })
       .click();
@@ -175,7 +175,7 @@ for (const mobile of [false, true]) {
       page.getByText("Docente de prueba PH", { exact: true }),
     ).toBeVisible();
     expect(stored).toMatchObject({
-      rut: "12.345.678-5",
+      rut: "12345678-5",
       semesterId: semester.id,
       nrcs: [course.nrc],
       hourlyContracts: [

@@ -41,7 +41,9 @@ for (const locale of ["es", "en"] as const) {
     test(`${locale} ${mode}: graduates keep their missing information and link to their academic record`, async ({
       page,
       context,
+      baseURL,
     }, testInfo) => {
+      const origin = new URL("/", baseURL).origin;
       const pageErrors: string[] = [];
       page.on("pageerror", (error) => pageErrors.push(error.message));
       await context.addInitScript((dark) => {
@@ -62,11 +64,11 @@ for (const locale of ["es", "en"] as const) {
           : { width: 1440, height: 1000 },
       );
       await context.addCookies([
-        { name: "MARSYS_LOCALE", value: locale, url: "http://localhost:3210" },
+        { name: "MARSYS_LOCALE", value: locale, url: origin },
       ]);
       await page.route("**/api/**", async (route) => {
         const headers = {
-          "Access-Control-Allow-Origin": "http://localhost:3210",
+          "Access-Control-Allow-Origin": origin,
           "Access-Control-Allow-Credentials": "true",
           "Access-Control-Allow-Methods": "GET,POST,PATCH,OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type",

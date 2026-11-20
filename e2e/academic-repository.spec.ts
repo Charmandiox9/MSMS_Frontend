@@ -7,6 +7,56 @@ test.beforeEach(async ({ page }) => {
     research: [],
   };
   let revision = 0;
+  const forGraphql = (item: RepositoryRecord) => ({
+    ...item,
+    outputCount: item._count.outputs,
+    research: store.research.find(({ projectId }) => projectId === item.id) ?? null,
+    project: store.projects.find(({ id }) => id === item.projectId) ?? null,
+  });
+  await page.route("**/api/graphql", async (route) => {
+    const { operationName, variables } = route.request().postDataJSON() as {
+      operationName: string;
+      variables: { id?: string; filters?: { search?: string } };
+    };
+    if (operationName === "RepositoryProjectOptions") {
+      const items = store.projects.map((project) => ({
+        id: project.id,
+        title: project.title,
+        code: project.code,
+        researchId: forGraphql(project).research?.id ?? null,
+      }));
+      await route.fulfill({
+        json: {
+          data: {
+            repositoryProjectOptions: { items, total: items.length, page: 1, pageSize: 10, totalPages: 1 },
+          },
+        },
+      });
+      return;
+    }
+
+    const queries = {
+      RepositoryProjects: ["projects", "repositoryProjects"],
+      RepositoryResearch: ["research", "repositoryResearch"],
+      RepositoryProjectDetail: ["projects", "repositoryProject"],
+      RepositoryResearchDetail: ["research", "repositoryResearchDetail"],
+    } as const;
+    const query = queries[operationName as keyof typeof queries];
+    if (!query) throw new Error(`Unexpected GraphQL operation ${operationName}`);
+    const [kind, field] = query;
+    if (variables.id) {
+      const record = store[kind].find(({ id }) => id === variables.id);
+      await route.fulfill({ json: { data: { [field]: record ? forGraphql(record) : null } } });
+      return;
+    }
+    const search = variables.filters?.search?.toLowerCase() ?? "";
+    const items = store[kind]
+      .filter((item) => `${item.title} ${item.code ?? ""} ${item.academicUnit}`.toLowerCase().includes(search))
+      .map((item) => ({ __typename: "RepositoryListRecord", ...forGraphql(item) }));
+    await route.fulfill({
+      json: { data: { [field]: { items, total: items.length, page: 1, pageSize: 10, totalPages: 1 } } },
+    });
+  });
   await page.route("**/api/academic/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -24,45 +74,6 @@ test.beforeEach(async ({ page }) => {
     }
     const rows = store[key];
     const row = rows.find((item) => item.id === path[1]);
-    const enriched = (item: RepositoryRecord): RepositoryRecord => ({
-      ...item,
-      ...(key === "projects"
-        ? {
-            research:
-              store.research.find((value) => value.projectId === item.id) ??
-              null,
-          }
-        : {
-            project:
-              store.projects.find((value) => value.id === item.projectId) ??
-              null,
-          }),
-    });
-    if (request.method() === "GET") {
-      if (path[1]) {
-        await route.fulfill({
-          json: row ? enriched(row) : null,
-          status: row ? 200 : 404,
-        });
-        return;
-      }
-      const needle = url.searchParams.get("search")?.toLowerCase() ?? "";
-      const filtered = rows.filter((item) =>
-        `${item.title} ${item.code ?? ""} ${item.academicUnit}`
-          .toLowerCase()
-          .includes(needle),
-      );
-      await route.fulfill({
-        json: {
-          items: filtered.map(enriched),
-          total: filtered.length,
-          page: 1,
-          pageSize: 10,
-          totalPages: filtered.length ? 1 : 0,
-        },
-      });
-      return;
-    }
     if (request.method() === "DELETE") {
       if (
         key === "projects" &&
@@ -90,7 +101,7 @@ test.beforeEach(async ({ page }) => {
     ).toISOString();
     if (row) {
       Object.assign(row, input, { updatedAt });
-      await route.fulfill({ json: enriched(row) });
+      await route.fulfill({ json: row });
       return;
     }
     const created: RepositoryRecord = {
@@ -107,7 +118,7 @@ test.beforeEach(async ({ page }) => {
       updatedAt,
     };
     rows.push(created);
-    await route.fulfill({ json: enriched(created) });
+    await route.fulfill({ json: created });
   });
 });
 
@@ -161,7 +172,7 @@ for (const account of ["analyst", "secretary", "admin"] as const) {
     await expect(
       dialog.getByText("Participante externo", { exact: true }),
     ).toBeVisible();
-    await expect(dialog.getByText("2500000.50", { exact: true })).toBeVisible();
+    await expect(dialog.getByText(/2\.500\.000,5/)).toBeVisible();
     await dialog.getByRole("button", { name: "Cerrar ventana" }).click();
     await page
       .getByRole("button", { name: "Editar Observatorio costero", exact: true })
@@ -269,9 +280,11 @@ for (const account of ["analyst", "secretary", "admin"] as const) {
 test("muestra textos ingleses y deniega acceso a coordinación", async ({
   page,
   context,
+  baseURL,
 }) => {
   await loginAs(context, "analyst");
-  await page.goto("/en/dashboard/research");
+  await context.addCookies([{ name: "MARSYS_LOCALE", value: "en", url: new URL("/", baseURL).origin }]);
+  await page.goto("/dashboard/research");
   await expect(
     page.getByRole("heading", { name: "Research", exact: true }),
   ).toBeVisible();
