@@ -15,11 +15,11 @@ const STATUS_ICONS: Record<RequestStatus, LucideIcon> = {
 };
 
 const STATUS_STYLES: Record<RequestStatus, string> = {
-  RECEIVED: 'border-ocean-cyan/35 bg-ocean-cyan/10 text-ocean-cyan',
-  VERIFYING: 'border-accent/40 bg-accent/10 text-accent',
-  IN_PROGRESS: 'border-primary/30 bg-primary/10 text-primary',
-  COMPLETED: 'border-secondary/40 bg-secondary/10 text-secondary',
-  DENIED: 'border-coral-red/40 bg-coral-red/10 text-coral-red',
+  RECEIVED: 'border-info/40 bg-info-surface text-info',
+  VERIFYING: 'border-info/40 bg-info-surface text-info',
+  IN_PROGRESS: 'border-warning/40 bg-warning-surface text-warning',
+  COMPLETED: 'border-success/40 bg-success-surface text-success',
+  DENIED: 'border-danger/40 bg-danger-surface text-danger',
   CLOSED: 'border-border bg-muted text-muted-foreground',
 };
 

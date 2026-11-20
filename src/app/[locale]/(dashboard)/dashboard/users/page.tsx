@@ -64,7 +64,7 @@ function getRoleBadgeStyle(roleCode: string) {
     case "SYSTEM_ADMIN":
       return "border-primary/30 bg-primary/10 text-primary";
     case "ACADEMIC_SECRETARY":
-      return "border-ocean-cyan/30 bg-ocean-cyan/10 text-ocean-cyan";
+      return "border-primary/30 bg-primary/10 text-primary";
     case "TEACHING_SUPPORT_COORDINATOR":
       return "border-teal-500/30 bg-teal-500/10 text-teal-600 dark:text-teal-400";
     case "ACADEMIC_PROCESS_ANALYST":
@@ -299,7 +299,7 @@ export default function UsersPage() {
     <section className="space-y-5">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-ocean-cyan">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">
             {t("eyebrow")}
           </p>
           <h1 className="text-3xl font-black tracking-tight text-foreground">
@@ -310,7 +310,7 @@ export default function UsersPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
-          <Users className="h-4 w-4 text-ocean-cyan" />
+          <Users className="h-4 w-4 text-primary" />
           <span>{t("count", { count: data?.total ?? 0 })}</span>
         </div>
       </header>
@@ -326,7 +326,7 @@ export default function UsersPage() {
             }}
             placeholder={t("search")}
             aria-label={t("search")}
-            className="h-10 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm text-foreground outline-none transition focus:border-ocean-cyan focus:ring-2 focus:ring-ocean-cyan/20"
+            className="h-10 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm text-foreground outline-none transition focus:border-focus focus:ring-2 focus:ring-focus/20"
           />
         </label>
         <select
@@ -336,7 +336,7 @@ export default function UsersPage() {
             setPage(1);
           }}
           aria-label={t("filterRole")}
-          className="h-10 rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none focus:border-ocean-cyan focus:ring-2 focus:ring-ocean-cyan/20"
+          className="h-10 rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none focus:border-focus focus:ring-2 focus:ring-focus/20"
         >
           <option value="">{t("allRoles")}</option>
           {data?.roles &&
@@ -352,7 +352,7 @@ export default function UsersPage() {
       {error && (
         <div
           role="alert"
-          className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300"
+          className="rounded-2xl border border-danger/30 bg-danger-surface px-4 py-3 text-sm text-foreground"
         >
           {error}
         </div>
@@ -367,7 +367,7 @@ export default function UsersPage() {
           />
         ) : !data?.items.length ? (
           <div className="px-6 py-16 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-ocean-cyan/10 text-ocean-cyan">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <Users className="h-6 w-6" />
             </div>
             <h2 className="font-bold text-foreground">{t("emptyTitle")}</h2>
@@ -412,7 +412,7 @@ export default function UsersPage() {
                       </p>
                       <div className="mt-1">
                         <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${user.isActive ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "bg-muted text-muted-foreground"}`}
+                          className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${user.isActive ? "bg-success-surface text-success" : "bg-muted text-muted-foreground"}`}
                         >
                           {t(user.isActive ? "active" : "inactive")}
                         </span>
@@ -432,7 +432,7 @@ export default function UsersPage() {
                         </span>
                       ))
                     ) : (
-                      <span className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                      <span className="rounded-xl border border-warning/40 bg-warning-surface px-2.5 py-1 text-xs font-semibold text-warning">
                         {t("noRoles")}
                       </span>
                     )}
@@ -442,7 +442,7 @@ export default function UsersPage() {
                     <button
                       type="button"
                       onClick={() => setRoleTarget(user)}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary transition hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary transition hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                     >
                       <ShieldCheck className="h-4 w-4" />
                       <span>{t("manageRoles")}</span>
@@ -459,7 +459,7 @@ export default function UsersPage() {
                         user.isActive ? "deactivateUser" : "activateUser",
                         { user: user.name },
                       )}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
                     >
                       <Power className="h-4 w-4" />
                     </button>
@@ -469,7 +469,7 @@ export default function UsersPage() {
                       onClick={() => setDeleteTarget(user)}
                       aria-label={t("deleteUser", { user: user.name })}
                       title={t("deleteUser", { user: user.name })}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-rose-500/30 text-rose-600 transition hover:bg-rose-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:opacity-50"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-danger/30 text-danger transition-colors hover:bg-danger-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -597,14 +597,14 @@ export default function UsersPage() {
                         className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 shrink-0 ${
                           isAssigned
                             ? "border border-border bg-card text-muted-foreground hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive focus-visible:ring-destructive"
-                            : "border border-primary/30 bg-primary px-4 text-primary-foreground shadow-sm hover:opacity-90 focus-visible:ring-primary"
+                            : "border border-primary/30 bg-primary px-4 text-primary-foreground shadow-sm hover:opacity-90 focus-visible:ring-focus"
                         }`}
                       >
                         {isRoleBusy ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : isAssigned ? (
                           <>
-                            <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <Check className="h-3.5 w-3.5 text-success" />
                             <span>{t("roleAssigned")}</span>
                           </>
                         ) : (

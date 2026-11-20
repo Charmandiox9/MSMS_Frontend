@@ -179,7 +179,7 @@ export default function PreloadedUsersPanel({
           type="button"
           onClick={() => setDialogOpen(true)}
           disabled={roles.length === 0}
-          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-ucn-navy px-4 py-2.5 text-sm font-bold text-white transition hover:bg-ucn-navy/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus className="h-4 w-4" />
           {t("preloads.createButton")}
@@ -189,7 +189,7 @@ export default function PreloadedUsersPanel({
       {error && (
         <p
           role="alert"
-          className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300"
+          className="rounded-xl border border-danger/30 bg-danger-surface px-4 py-3 text-sm text-foreground"
         >
           {error}
         </p>
@@ -199,7 +199,7 @@ export default function PreloadedUsersPanel({
         <CardsSkeleton count={2} label={t("preloads.loading")} />
       ) : error ? null : preloads.length === 0 ? (
         <div className="flex items-start gap-3 rounded-2xl border border-dashed border-border bg-muted/20 px-4 py-5">
-          <Mail className="mt-0.5 h-4 w-4 shrink-0 text-ocean-cyan" />
+          <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <p className="text-sm text-muted-foreground">{t("preloads.empty")}</p>
         </div>
       ) : (
@@ -210,7 +210,7 @@ export default function PreloadedUsersPanel({
               className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex min-w-0 items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ocean-cyan/10 text-ocean-cyan">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Mail className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
@@ -228,7 +228,7 @@ export default function PreloadedUsersPanel({
                     {preload.roles.map((role) => (
                       <span
                         key={role.id}
-                        className="inline-flex items-center gap-1 rounded-full bg-ocean-cyan/10 px-2.5 py-1 text-xs font-semibold text-ocean-deep dark:text-ocean-cyan"
+                        className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary"
                       >
                         <ShieldCheck className="h-3 w-3" />
                         {role.name}
@@ -242,7 +242,7 @@ export default function PreloadedUsersPanel({
                 onClick={() => void cancelPreload(preload)}
                 disabled={cancellingId !== null}
                 aria-label={t("preloads.cancelFor", { email: preload.email })}
-                className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 self-start rounded-xl border border-border px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:cursor-wait disabled:opacity-50 sm:self-center"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-xl border border-border px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:border-danger/40 hover:bg-danger-surface hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-wait disabled:opacity-50 sm:self-center"
               >
                 {cancellingId === preload.id ? (
                   <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -272,7 +272,7 @@ export default function PreloadedUsersPanel({
         >
           <header className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-ocean-cyan/10 text-ocean-cyan">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <UserRoundPlus className="h-5 w-5" />
               </span>
               <div>
@@ -291,7 +291,7 @@ export default function PreloadedUsersPanel({
               type="button"
               onClick={() => setDialogOpen(false)}
               aria-label={t("preloads.close")}
-              className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+              className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
             >
               <X className="h-4 w-4" />
             </button>
@@ -307,7 +307,7 @@ export default function PreloadedUsersPanel({
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder={t("preloads.emailPlaceholder")}
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ocean-cyan focus:ring-2 focus:ring-ocean-cyan/20"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-focus focus:ring-2 focus:ring-focus/20"
             />
           </label>
 
@@ -324,7 +324,7 @@ export default function PreloadedUsersPanel({
                 return (
                   <label
                     key={role.id}
-                    className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition ${checked ? "border-ocean-cyan/50 bg-ocean-cyan/10 text-foreground" : "border-border bg-background text-muted-foreground hover:bg-muted/50"}`}
+                    className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition ${checked ? "border-primary/50 bg-primary/10 text-foreground" : "border-border bg-background text-muted-foreground hover:bg-muted/50"}`}
                   >
                     <input
                       type="checkbox"
@@ -336,7 +336,7 @@ export default function PreloadedUsersPanel({
                             : current.filter((id) => id !== role.id),
                         )
                       }
-                      className="h-4 w-4 accent-ocean-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan focus-visible:ring-offset-2"
+                      className="h-4 w-4 accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2"
                     />
                     <span className="min-w-0 truncate">{role.name}</span>
                   </label>
@@ -344,7 +344,7 @@ export default function PreloadedUsersPanel({
               })}
             </div>
             {selectedRoleIds.length === 0 && (
-              <p className="text-xs text-amber-700 dark:text-amber-300">
+              <p className="text-sm text-warning">
                 {t("preloads.roleRequired")}
               </p>
             )}
@@ -354,14 +354,14 @@ export default function PreloadedUsersPanel({
             <button
               type="button"
               onClick={() => setDialogOpen(false)}
-              className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+              className="min-h-11 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
             >
               {t("preloads.close")}
             </button>
             <button
               type="submit"
               disabled={saving || selectedRoleIds.length === 0}
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-ucn-navy px-4 py-2 text-sm font-bold text-white transition hover:bg-ucn-navy/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus className="h-4 w-4" />
               {saving ? t("preloads.saving") : t("preloads.save")}

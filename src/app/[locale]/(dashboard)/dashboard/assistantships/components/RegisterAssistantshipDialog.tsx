@@ -390,7 +390,7 @@ export default function RegisterAssistantshipDialog({
           </SkeletonStatus>
         ) : null}
         {(historical ? courses.error : assignments.error) ? (
-          <div role="alert" className="text-sm text-coral-red">
+          <div role="alert" className="text-sm text-danger">
             {t("errors.load")}
             <button
               type="button"

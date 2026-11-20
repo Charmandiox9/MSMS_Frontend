@@ -283,7 +283,7 @@ export default function AcademicExcelImport({
             {error && (
               <p
                 role="alert"
-                className="text-sm text-red-600 dark:text-red-400"
+                className="text-sm text-danger"
               >
                 {error}
               </p>
@@ -379,7 +379,7 @@ export default function AcademicExcelImport({
                   .map((item) => (
                     <p
                       key={`${item.row}-${item.message}`}
-                      className="text-xs text-red-600 dark:text-red-400"
+                      className="text-sm text-danger"
                     >
                       {t("rowIssue", { row: item.row, message: item.message })}
                     </p>
@@ -387,7 +387,7 @@ export default function AcademicExcelImport({
                 {preview.warnings.slice(0, 15).map((item) => (
                   <p
                     key={`${item.row}-${item.message}`}
-                    className="text-xs text-amber-700 dark:text-amber-300"
+                    className="text-sm text-warning"
                   >
                     {t("rowWarning", { row: item.row, message: item.message })}
                   </p>

@@ -326,8 +326,8 @@ export function AssistantshipsWorkspace({
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress} aria-label={t("budget.title")}>
               <div className={`h-full rounded-full ${budget.percentage > 100 ? "bg-destructive" : "bg-primary"}`} style={{ width: `${progress}%` }} />
             </div>
-            {!budget.allocatedAmountClp ? <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">{t("budget.notConfigured")}</p> : null}
-            {budget.unpricedCount > 0 ? <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">{t("budget.unpriced", { count: budget.unpricedCount })}</p> : null}
+            {!budget.allocatedAmountClp ? <p className="mt-2 text-sm text-warning">{t("budget.notConfigured")}</p> : null}
+            {budget.unpricedCount > 0 ? <p className="mt-2 text-sm text-warning">{t("budget.unpriced", { count: budget.unpricedCount })}</p> : null}
           </section>
         );
       })()}
@@ -426,7 +426,7 @@ export function AssistantshipsWorkspace({
 
         {failed ? (
           <div role="alert" className="space-y-3 p-10 text-center">
-            <p className="text-sm text-coral-red">{t("errors.load")}</p>
+            <p className="text-sm text-danger">{t("errors.load")}</p>
             <button type="button" className={buttonClass} onClick={retry}>
               {t("retry")}
             </button>

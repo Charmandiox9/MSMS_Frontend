@@ -102,7 +102,7 @@ export default function StudentIdentityFields({
         </p>
       ) : null}
       {lookup.error ? (
-        <p role="alert" className="text-sm text-coral-red">
+        <p role="alert" className="text-sm text-danger">
           {t("errors.load")}{" "}
           <button
             type="button"

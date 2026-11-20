@@ -21,7 +21,7 @@ const time = (minute: number) =>
 
 const stateBadgeClasses = {
   ACTIVE:
-    "border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold",
+    "border border-success/40 bg-success-surface text-success font-semibold",
   SCHEDULED:
     "border border-primary/30 bg-primary/10 text-primary font-semibold",
   COMPLETED:

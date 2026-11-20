@@ -36,6 +36,8 @@ Usar la proporción 60/30/10 como referencia visual. Los fondos dominan, las sup
 - Mantener áreas táctiles de al menos 44 px para acciones en móvil. Cada control tiene foco visible, etiqueta y estados predecibles. Usar iconos vectoriales de línea y conservar el acceso con teclado. Respetar la preferencia de movimiento reducido.
 - Una acción principal por vista o bloque de decisión, con verbo y objeto. Distinguir acciones secundarias y destructivas. Confirmar una acción destructiva cuando sus consecuencias no puedan deshacerse.
 
+En las tarjetas de Inicio, usar 16 px para la etiqueta, 24 px para la cifra y 14 px para su descripción. Una cifra pendiente puede usar la superficie semántica de advertencia. Los errores usan la superficie de peligro, icono y acción visible. Mantener el fondo de tarjeta neutro para los indicadores sin alerta.
+
 ## Modelos base
 
 Los modelos son referencias de composición. Cada módulo define sus datos, permisos, acciones y reglas del proceso. Reutilizar los componentes disponibles y extraer una variante común cuando haya coincidencia entre usos reales.

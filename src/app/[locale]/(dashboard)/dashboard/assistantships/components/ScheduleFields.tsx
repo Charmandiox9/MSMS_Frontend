@@ -84,7 +84,7 @@ export default function ScheduleFields({
           </Field>
           <button
             type="button"
-            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-coral-red/30 bg-coral-red/10 px-3.5 py-2 text-xs font-bold text-coral-red transition-all hover:bg-coral-red/20 hover:border-coral-red/50 active:scale-95 self-end sm:justify-self-end cursor-pointer shadow-2xs"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 self-end rounded-xl border border-danger/30 bg-danger-surface px-3.5 py-2 text-sm font-bold text-danger transition-colors hover:border-danger/50 hover:bg-danger-surface/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus active:scale-95 sm:justify-self-end"
             onClick={() =>
               onChange(value.filter((schedule) => schedule.id !== item.id))
             }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { ClipboardCheck } from "lucide-react";
+import { CircleAlert, ClipboardCheck } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { apiFetch } from "@/lib/api";
 import { CardsSkeleton } from "@/components/ui/LoadingSkeletons";
@@ -31,12 +31,13 @@ export default function CoordinatorInboxWidget() {
   }, []);
 
   return (
-    <div className="space-y-3 text-xs" aria-live="polite">
+    <div className="space-y-3 text-sm" aria-live="polite">
       {error ? (
         <p
           role="alert"
-          className="rounded-xl bg-rose-500/10 p-3 text-rose-700 dark:text-rose-300"
+          className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-surface p-3 text-foreground"
         >
+          <CircleAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-danger" />
           {t("tasks.error")}
         </p>
       ) : entries === null ? (
@@ -49,7 +50,7 @@ export default function CoordinatorInboxWidget() {
         entries.map((entry) => (
           <article
             key={entry.id}
-            className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3"
+            className="rounded-xl border border-warning/40 bg-warning-surface p-3"
           >
             <p className="font-bold text-foreground">{entry.subjectName}</p>
             {entry.student && (
@@ -66,7 +67,7 @@ export default function CoordinatorInboxWidget() {
       )}
       <Link
         href="/dashboard/justifications"
-        className="inline-flex items-center gap-2 font-semibold text-ocean-cyan hover:underline"
+        className="inline-flex items-center gap-2 font-semibold text-primary hover:underline"
       >
         <ClipboardCheck className="h-4 w-4" />
         {t("tasks.openInbox")}

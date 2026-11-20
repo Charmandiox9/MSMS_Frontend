@@ -558,7 +558,7 @@ function SummaryCard({
   tone: "cyan" | "amber" | "green";
 }) {
   const toneClasses = {
-    cyan: "bg-ocean-cyan/15 text-ocean-cyan",
+    cyan: "bg-info-surface text-info",
     amber: "bg-accent/15 text-accent",
     green: "bg-secondary/15 text-secondary",
   };

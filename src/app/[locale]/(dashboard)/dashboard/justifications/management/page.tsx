@@ -513,7 +513,7 @@ function MetricCard({
     default: "bg-primary/10 text-primary",
     accent: "bg-accent/15 text-accent",
     secondary: "bg-secondary/15 text-secondary",
-    destructive: "bg-coral-red/15 text-coral-red",
+    destructive: "bg-danger-surface text-danger",
   };
 
   return (
