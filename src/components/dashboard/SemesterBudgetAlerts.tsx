@@ -5,6 +5,7 @@ import { CircleAlert, CircleCheck, RotateCw } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Skeleton from "@/components/ui/Skeleton";
 import { apiFetch } from "@/lib/api";
+import { useDashboardStartup } from "@/context/DashboardStartupContext";
 
 type BudgetAlert = {
   semesterId: string;
@@ -108,6 +109,7 @@ export default function SemesterBudgetAlerts({
   const locale = useLocale();
   const headingId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const { completeTask } = useDashboardStartup();
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<AlertLoadState>({
     status: "loading",
@@ -129,13 +131,16 @@ export default function SemesterBudgetAlerts({
       .catch(() => {
         if (active) setState({ status: "error" });
       })
-      .finally(() => window.clearTimeout(timeout));
+      .finally(() => {
+        window.clearTimeout(timeout);
+        if (active) completeTask("budget-alerts");
+      });
 
     return () => {
       active = false;
       window.clearTimeout(timeout);
     };
-  }, [attempt, variant]);
+  }, [attempt, completeTask, variant]);
 
   const retry = () => {
     headingRef.current?.focus();

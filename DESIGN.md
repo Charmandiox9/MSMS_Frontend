@@ -14,7 +14,7 @@ La distribución facilita distinguir la navegación de trabajo de las preferenci
 
 ## Paleta aprobada
 
-Claro con acento verde petróleo. Oscuro con superficies gris ceniza y acento lavanda. La fuente de los valores es [globals.css](src/app/globals.css). Las vistas de producto usan `.institutional-theme`; el formulario de acceso conserva su tratamiento visual actual y la preferencia de tema la gestiona `next-themes`. La ilustración del login conserva sus tonos marinos originales mediante tokens `--illustration-*`; las ilustraciones públicas siguen la paleta institucional.
+Claro con acento verde petróleo. Oscuro con superficies gris ceniza y acento lavanda. La fuente de los valores es [globals.css](src/app/globals.css). Las vistas de producto usan `.institutional-theme`; el formulario de acceso conserva su tratamiento visual actual y la preferencia de tema la gestiona `next-themes`. La ilustración del login conserva sus tonos marinos originales mediante tokens `--illustration-*`; en escritorio se extiende bajo la sección de acceso, que usa superficies translúcidas para dejarla visible sin reducir la legibilidad de la tarjeta.
 
 | Uso | Token | Claro | Oscuro |
 |---|---|---|---|
@@ -37,7 +37,8 @@ Usar la proporción 60/30/10 como referencia visual. Los fondos dominan, las sup
 - Usar Geist Sans y un tamaño base de 16 px para lectura. Como referencia para pantallas nuevas, usar 28–32 px para el título, 20 px para sección y 14 px para datos secundarios. Reservar la tipografía monoespaciada para información que se beneficie de ella.
 - Separar con una escala de 4, 8, 12, 16, 24 y 32 px. Usar radios de 8 px en controles y 12 px en paneles como referencia. Dar más espacio entre secciones que entre elementos de un mismo grupo.
 - Mantener áreas táctiles de al menos 44 px para acciones en móvil. Cada control tiene foco visible, etiqueta y estados predecibles. Usar iconos vectoriales de línea y conservar el acceso con teclado. Respetar la preferencia de movimiento reducido.
-- La bienvenida tras autenticación muestra el nombre de sesión y el rol activo mientras prepara el destino. La animación es breve, no representa un porcentaje de progreso y se desactiva con movimiento reducido. El calamar se carga bajo demanda, se limita a escritorio en el login y pausa cuando queda fuera de vista.
+- La bienvenida tras autenticación muestra el nombre, el rol y tres capacidades concretas de ese perfil. El panel de inicio se monta detrás y la bienvenida espera las tareas iniciales del rol: alertas, métricas, presupuesto, periodo académico y bandeja, según corresponda. Los términos pendientes se presentan antes de abrir el panel. La bienvenida sale con una transición de opacidad y escala de 240 ms; con movimiento reducido conserva solo la opacidad. No representa un porcentaje de progreso.
+- El calamar se carga bajo demanda, se limita a escritorio en el login y pausa cuando queda fuera de vista. El fondo de la sección de acceso deja que parte de la ilustración continúe por detrás; la tarjeta de ingreso conserva contraste suficiente.
 - Una acción principal por vista o bloque de decisión, con verbo y objeto. Distinguir acciones secundarias y destructivas. Confirmar una acción destructiva cuando sus consecuencias no puedan deshacerse.
 
 En las tarjetas de Inicio, usar 16 px para la etiqueta, 24 px para la cifra y 14 px para su descripción. Una cifra pendiente puede usar la superficie semántica de advertencia. Los errores usan la superficie de peligro, icono y acción visible. Mantener el fondo de tarjeta neutro para los indicadores sin alerta.

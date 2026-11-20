@@ -12,5 +12,8 @@ export default async function AuthCallbackPage({
   const query = await searchParams;
   const destination = resolveAuthCallbackTarget(query.route ?? '/dashboard');
 
-  redirect({ href: destination, locale });
+  const href = destination === '/dashboard'
+    ? '/dashboard?welcome=1'
+    : destination;
+  redirect({ href, locale });
 }

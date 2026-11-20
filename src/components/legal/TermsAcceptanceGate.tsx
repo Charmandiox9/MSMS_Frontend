@@ -7,7 +7,13 @@ import { DashboardShellSkeleton } from '@/components/ui/LoadingSkeletons';
 import { Link, useRouter } from '@/i18n/routing';
 import { logout } from '@/lib/auth';
 
-export default function TermsAcceptanceGate({ children }: { children: ReactNode }) {
+export default function TermsAcceptanceGate({
+  children,
+  onAccessResolved,
+}: {
+  children: ReactNode;
+  onAccessResolved?: (accepted: boolean) => void;
+}) {
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations('TermsAcceptance');
@@ -44,15 +50,18 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
         if (!active) return;
         if (status.accepted) {
           setGateState({ requestKey, document: null, required: false, error: false });
+          onAccessResolved?.(true);
           return;
         }
         const current = await getCurrentTerms(locale);
         if (active) {
           setGateState({ requestKey, document: current, required: true, error: false });
+          onAccessResolved?.(false);
         }
       } catch {
         if (active) {
           setGateState({ requestKey, document: null, required: false, error: true });
+          onAccessResolved?.(false);
         }
       }
     };
@@ -60,7 +69,7 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
     return () => {
       active = false;
     };
-  }, [locale, requestKey]);
+  }, [locale, onAccessResolved, requestKey]);
 
   const handleAccept = async () => {
     if (!document || !checked) return;
@@ -68,8 +77,10 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
     try {
       await acceptCurrentTerms(document.version, locale);
       setGateState({ requestKey, document, required: false, error: false });
+      onAccessResolved?.(true);
     } catch {
       setGateState({ requestKey, document, required: true, error: true });
+      onAccessResolved?.(false);
     } finally {
       setSaving(false);
     }

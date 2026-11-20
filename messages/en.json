@@ -1699,8 +1699,44 @@
     "checkingDescription": "Confirming your access to MARSYS.",
     "welcomePersonalized": "Welcome, {name}.",
     "welcomeGeneric": "Welcome to MARSYS.",
+    "welcomeBrand": "MARSYS · Faculty of Marine Sciences",
+    "welcomeDescription": "MARSYS brings together the academic and administrative tools available for your role.",
+    "welcomeFeaturesTitle": "In your workspace, you can",
     "preparing": "Preparing your workspace.",
+    "preparingDescription": "We are loading your alerts, metrics and shortcuts. You will enter when your dashboard is ready.",
     "activeRole": "Workspace role",
+    "features": {
+      "systemAdmin": {
+        "accounts": "Manage accounts and their assigned roles.",
+        "permissions": "Review permissions and institutional settings.",
+        "audit": "Review the trace of relevant actions."
+      },
+      "academicSecretary": {
+        "academicInfo": "Maintain career and course information.",
+        "teachers": "Manage faculty and academic schedules.",
+        "records": "Review academic records and justifications."
+      },
+      "academicProcessAnalyst": {
+        "budget": "Review faculty cash flow, budget and alerts.",
+        "projects": "Follow projects and research outputs.",
+        "reports": "Review academic metrics and reports."
+      },
+      "teachingSupportCoordinator": {
+        "inbox": "Work through the request and justification inbox.",
+        "assistantships": "Coordinate teaching assistantships and applications.",
+        "schedules": "Review assistants and their schedules."
+      },
+      "privacyOfficer": {
+        "requests": "Manage personal data rights requests.",
+        "followUp": "Review deadlines and request follow-up.",
+        "audit": "Review access and processing records."
+      },
+      "default": {
+        "modules": "Open the modules available for your role.",
+        "requests": "Review pending tasks and requests.",
+        "updates": "Check recent activity and status updates."
+      }
+    },
     "title": "Choose your workspace",
     "description": "Your session is active. Select the role you want to use.",
     "roleLabel": "Available roles",

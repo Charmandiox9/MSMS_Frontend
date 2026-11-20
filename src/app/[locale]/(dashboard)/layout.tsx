@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { ActiveRoleProvider, useActiveRole } from "@/context/ActiveRoleContext";
@@ -11,6 +12,7 @@ import { getActiveSession, logout, type ActiveSession } from "@/lib/auth";
 import { DashboardShellSkeleton } from "@/components/ui/LoadingSkeletons";
 import TermsAcceptanceGate from "@/components/legal/TermsAcceptanceGate";
 import WelcomeLoadingScreen from "@/components/auth/WelcomeLoadingScreen";
+import { DashboardStartupProvider } from "@/context/DashboardStartupContext";
 import type { UserRoleCode } from "@/types/auth";
 
 const DESKTOP_BREAKPOINT = "(min-width: 48rem)";
@@ -100,13 +102,24 @@ export default function DashboardLayout({
 }) {
   const t = useTranslations("Dashboard");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [session, setSession] = useState<ActiveSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingRole, setLoadingRole] = useState<UserRoleCode | null>(null);
+  const welcomeRequested = searchParams?.get("welcome") === "1";
+  const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null);
+
+  const handleTermsAccessResolved = useCallback((accepted: boolean) => {
+    setTermsAccepted(accepted);
+  }, []);
+
+  const handleWelcomeComplete = useCallback(() => {
+    setTermsAccepted(null);
+    router.replace("/dashboard", { scroll: false });
+  }, [router]);
 
   useEffect(() => {
     let mounted = true;
-    let welcomeTimeout: number | undefined;
 
     void getActiveSession().then(async (activeSession) => {
       if (!mounted) return;
@@ -126,37 +139,18 @@ export default function DashboardLayout({
       const roles = getSessionRoles(activeSession);
       const savedRole = localStorage.getItem(ACTIVE_ROLE_STORAGE_KEY);
       setLoadingRole(roles.find((role) => role === savedRole) ?? roles[0] ?? null);
-      const displayDurationValue = getComputedStyle(
-        document.documentElement,
-      )
-        .getPropertyValue("--motion-duration-welcome-display")
-        .trim();
-      const displayDuration = Number.parseFloat(displayDurationValue);
-      const displayDurationMs = displayDurationValue.endsWith("ms")
-        ? displayDuration
-        : displayDurationValue.endsWith("s")
-          ? displayDuration * 1000
-          : 0;
-      welcomeTimeout = window.setTimeout(
-        () => {
-          if (mounted) setIsLoading(false);
-        },
-        Number.isFinite(displayDurationMs) ? displayDurationMs : 0,
-      );
+      setIsLoading(false);
     });
 
     return () => {
       mounted = false;
-      if (welcomeTimeout !== undefined) window.clearTimeout(welcomeTimeout);
     };
   }, [router]);
 
-  if (isLoading && session) {
+  if (isLoading && welcomeRequested) {
     return (
       <WelcomeLoadingScreen
-        phase="entering"
-        displayName={session.displayName}
-        activeRole={loadingRole}
+        phase="checking"
       />
     );
   }
@@ -171,9 +165,16 @@ export default function DashboardLayout({
 
   return (
     <ActiveRoleProvider initialSession={session}>
-      <TermsAcceptanceGate>
-        <DashboardLayoutContent>{children}</DashboardLayoutContent>
-      </TermsAcceptanceGate>
+      <DashboardStartupProvider
+        activeRole={loadingRole}
+        displayName={session.displayName}
+        enabled={welcomeRequested && termsAccepted !== false}
+        onComplete={handleWelcomeComplete}
+      >
+        <TermsAcceptanceGate onAccessResolved={handleTermsAccessResolved}>
+          <DashboardLayoutContent>{children}</DashboardLayoutContent>
+        </TermsAcceptanceGate>
+      </DashboardStartupProvider>
     </ActiveRoleProvider>
   );
 }

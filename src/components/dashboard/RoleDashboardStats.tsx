@@ -7,6 +7,7 @@ import { apiFetch } from "@/lib/api";
 import StatCard from "@/components/dashboard/widgets/StatCard";
 import ActiveSemesterSummary from "./ActiveSemesterSummary";
 import { MetricSkeleton } from "@/components/ui/LoadingSkeletons";
+import { useDashboardStartup } from "@/context/DashboardStartupContext";
 
 type Metric = {
   key: string;
@@ -31,6 +32,7 @@ export default function RoleDashboardStats({
   const t = useTranslations("Dashboard");
   const loadingText = useTranslations("Loading");
   const format = useFormatter();
+  const { completeTask } = useDashboardStartup();
   const [values, setValues] = useState<Record<string, number> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -46,12 +48,15 @@ export default function RoleDashboardStats({
         if (active) setError(true);
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+          completeTask("dashboard-metrics");
+        }
       });
     return () => {
       active = false;
     };
-  }, [endpoint, attempt]);
+  }, [completeTask, endpoint, attempt]);
 
   return (
     <>

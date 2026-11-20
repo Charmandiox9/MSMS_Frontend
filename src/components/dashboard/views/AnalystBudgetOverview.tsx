@@ -4,6 +4,7 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api";
 import { MetricsSkeleton } from "@/components/ui/LoadingSkeletons";
+import { useDashboardStartup } from "@/context/DashboardStartupContext";
 
 type BudgetOverview =
   | { state: "no-semester" }
@@ -80,6 +81,7 @@ function BudgetTable({
 export default function AnalystBudgetOverview() {
   const t = useTranslations("AnalystBudget");
   const format = useFormatter();
+  const { completeTask } = useDashboardStartup();
   const headingId = useId();
   const [budget, setBudget] = useState<BudgetOverview | "error" | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -92,11 +94,14 @@ export default function AnalystBudgetOverview() {
       })
       .catch(() => {
         if (current) setBudget("error");
+      })
+      .finally(() => {
+        if (current) completeTask("budget-overview");
       });
     return () => {
       current = false;
     };
-  }, [attempt]);
+  }, [attempt, completeTask]);
 
   const money = (value: number) =>
     format.number(value, {

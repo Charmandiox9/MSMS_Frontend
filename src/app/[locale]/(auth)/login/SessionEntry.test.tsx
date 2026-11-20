@@ -55,7 +55,7 @@ describe("SessionEntry", () => {
     });
     renderEntry();
     await waitFor(() =>
-      expect(router.replace).toHaveBeenCalledWith("/dashboard"),
+      expect(router.replace).toHaveBeenCalledWith("/dashboard?welcome=1"),
     );
     expect(localStorage.getItem(ACTIVE_ROLE_STORAGE_KEY)).toBe(
       "ACADEMIC_SECRETARY",
@@ -84,7 +84,7 @@ describe("SessionEntry", () => {
     expect(localStorage.getItem(ACTIVE_ROLE_STORAGE_KEY)).toBe(
       "TEACHING_SUPPORT_COORDINATOR",
     );
-    expect(router.replace).toHaveBeenCalledWith("/dashboard");
+    expect(router.replace).toHaveBeenCalledWith("/dashboard?welcome=1");
     expect(screen.queryByText("Continuar con Google")).toBeNull();
   });
   it("sin roles habilitados dirige a la página sin acceso, sin pedir otro login", async () => {
@@ -106,7 +106,7 @@ describe("SessionEntry", () => {
     });
     renderEntry();
     await waitFor(() =>
-      expect(router.replace).toHaveBeenCalledWith("/dashboard"),
+      expect(router.replace).toHaveBeenCalledWith("/dashboard?welcome=1"),
     );
   });
 });

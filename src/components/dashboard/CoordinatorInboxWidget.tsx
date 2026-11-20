@@ -7,12 +7,14 @@ import { Link } from "@/i18n/routing";
 import { apiFetch } from "@/lib/api";
 import { CardsSkeleton } from "@/components/ui/LoadingSkeletons";
 import type { JustificationInboxEntry } from "@/types/justifications";
+import { useDashboardStartup } from "@/context/DashboardStartupContext";
 
 type InboxEntry = JustificationInboxEntry;
 
 export default function CoordinatorInboxWidget() {
   const t = useTranslations("DashboardViews.teachingSupportCoordinator");
   const locale = useLocale();
+  const { completeTask } = useDashboardStartup();
   const [entries, setEntries] = useState<InboxEntry[] | null>(null);
   const [error, setError] = useState(false);
 
@@ -24,11 +26,14 @@ export default function CoordinatorInboxWidget() {
       })
       .catch(() => {
         if (active) setError(true);
+      })
+      .finally(() => {
+        if (active) completeTask("coordinator-inbox");
       });
     return () => {
       active = false;
     };
-  }, []);
+  }, [completeTask]);
 
   return (
     <div className="space-y-3 text-sm" aria-live="polite">

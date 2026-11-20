@@ -3,7 +3,9 @@
 @custom-variant dark (&:is(.dark *));
 :root {
   --motion-duration-welcome: 1.2s;
-  --motion-duration-welcome-display: 320ms;
+  --motion-duration-page-transition: 240ms;
+  --z-index-welcome-overlay: 80;
+  --surface-welcome-scrim: color-mix(in srgb, var(--background) 94%, transparent);
   /* Fondo claro */
   --background: #f8fafc;
   --foreground: #0f172a;
@@ -276,10 +278,82 @@
   animation-delay: calc(var(--motion-duration-welcome) / -1.5);
 }
 
+.welcome-screen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-welcome-overlay);
+  background-color: var(--surface-welcome-scrim);
+  opacity: 1;
+  transform: scale(1);
+  transition-property: opacity, transform;
+  transition-duration: var(--motion-duration-page-transition);
+  transition-timing-function: var(--ease-premium);
+}
+
+.welcome-screen-overlay[data-exiting="true"] {
+  opacity: 0;
+  transform: scale(0.985);
+  pointer-events: none;
+}
+
+.login-visual {
+  --login-panel-surface: rgb(248 250 252 / 30%);
+  --login-panel-wash-start: rgb(248 250 252 / 5%);
+  --login-panel-wash-middle: rgb(248 250 252 / 15%);
+  --login-panel-wash-end: rgb(248 250 252 / 30%);
+  --login-card-surface: rgb(255 255 255 / 95%);
+}
+
+.dark .login-visual {
+  --login-panel-surface: rgb(2 11 24 / 30%);
+  --login-panel-wash-start: rgb(2 11 24 / 5%);
+  --login-panel-wash-middle: rgb(2 11 24 / 15%);
+  --login-panel-wash-end: rgb(2 11 24 / 30%);
+  --login-card-surface: rgb(15 23 42 / 90%);
+}
+
+.login-right-panel {
+  background-color: var(--login-panel-surface);
+}
+
+.login-right-wash {
+  background-image: linear-gradient(
+    90deg,
+    var(--login-panel-wash-start),
+    var(--login-panel-wash-middle) 46%,
+    var(--login-panel-wash-end)
+  );
+}
+
+.login-auth-card {
+  background-color: var(--login-card-surface);
+}
+
+@media (min-width: 64rem) {
+  .login-visual {
+    --login-panel-surface: rgb(248 250 252 / 10%);
+    --login-panel-wash-start: rgb(248 250 252 / 0%);
+    --login-panel-wash-middle: rgb(248 250 252 / 4%);
+    --login-panel-wash-end: rgb(248 250 252 / 11%);
+  }
+
+  .dark .login-visual {
+    --login-panel-surface: rgb(2 11 24 / 12%);
+    --login-panel-wash-start: rgb(2 11 24 / 0%);
+    --login-panel-wash-middle: rgb(2 11 24 / 5%);
+    --login-panel-wash-end: rgb(2 11 24 / 13%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .welcome-loading-dot {
     animation: none;
     opacity: 1;
+  }
+
+  .welcome-screen-overlay {
+    transform: none;
+    transition-property: opacity;
   }
 }
 

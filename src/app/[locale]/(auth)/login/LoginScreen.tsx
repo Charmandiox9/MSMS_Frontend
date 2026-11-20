@@ -37,12 +37,12 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="relative z-[2] flex min-w-0 items-center justify-center bg-slate-50/30 px-4 pb-8 pt-24 transition-colors duration-300 dark:bg-[#020b18]/30 sm:px-6 sm:pb-12 lg:p-12 lg:bg-slate-50/25 dark:lg:bg-[#020b18]/25">
+      <div className="login-right-panel relative z-[2] flex min-w-0 items-center justify-center px-4 pb-8 pt-24 transition-colors duration-300 sm:px-6 sm:pb-12 lg:p-12">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-50/5 via-slate-50/15 to-slate-50/30 dark:from-[#020b18]/5 dark:via-[#020b18]/15 dark:to-[#020b18]/30"></div>
+          <div className="login-right-wash absolute inset-0"></div>
         </div>
         <div className="w-full max-w-[440px] relative z-10">
-          <div className="group/card relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/95 p-6 shadow-[0_8px_40px_rgba(0,0,0,0.04)] transition-colors duration-200 hover:border-ocean-cyan/30 dark:border-white/10 dark:bg-[#0f172a]/90 dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] dark:hover:border-cyan-500/30 sm:p-10">
+          <div className="login-auth-card group/card relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200/80 p-6 shadow-[0_8px_40px_rgba(0,0,0,0.04)] transition-colors duration-200 hover:border-ocean-cyan/30 dark:border-white/10 dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] dark:hover:border-cyan-500/30 sm:p-10">
             <div className="flex items-center gap-3 mb-8 sm:gap-4 sm:mb-10">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white dark:bg-[#0f172a] text-ocean-cyan dark:text-cyan-400 rounded-2xl flex items-center justify-center shadow-md dark:shadow-[0_0_30px_rgba(34,211,238,0.15)] border border-slate-200/60 dark:border-white/5 flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg>

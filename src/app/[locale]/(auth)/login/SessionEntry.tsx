@@ -33,7 +33,7 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
         localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, roles[0]);
         setSelected(roles[0]);
         setEntering(true);
-        router.replace("/dashboard");
+        router.replace("/dashboard?welcome=1");
       }
     });
     return () => {
@@ -46,7 +46,7 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
   if (!session || roles.length < 2 || entering)
     return (
       <WelcomeLoadingScreen
-        phase={entering ? "entering" : "checking"}
+        phase={entering ? "preparing" : "checking"}
         displayName={session?.displayName}
         activeRole={selected ?? roles[0] ?? null}
       />
@@ -76,7 +76,7 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
             if (!selected || !roles.includes(selected)) return;
             localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, selected);
             setEntering(true);
-            router.replace("/dashboard");
+            router.replace("/dashboard?welcome=1");
           }}
         >
           <RoleSelectionList
