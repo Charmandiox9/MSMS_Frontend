@@ -293,13 +293,14 @@ Se detectaron en la entrega de QA con tests que fallaban, y se corrigieron el 27
 - ✅ UsersPage (administración de usuarios) › eliminar una cuenta la quita de la lista tras confirmar
 - ✅ UsersPage (administración de usuarios) › muestra el error de carga del backend
 
-#### `src/app/[locale]/(dashboard)/layout.test.tsx` (6)
+#### `src/app/[locale]/(dashboard)/layout.test.tsx` (7)
 
 - ✅ DashboardLayout (sesión) › muestra "Verificando sesión…" y no renderiza el contenido mientras consulta
 - ✅ DashboardLayout (sesión) › redirige al login si no hay sesión y nunca muestra el contenido
 - ✅ DashboardLayout (sesión) › si la sesión es inválida, limpia la cookie antes de ir al login
 - ✅ DashboardLayout (sesión) › redirige al login si el backend está caído
 - ✅ DashboardLayout (sesión) › con sesión renderiza el dashboard con el rol activo
+- La navegación móvil se abre como diálogo y devuelve el foco al cerrar.
 - ✅ DashboardLayout (sesión) › ignora un rol guardado que la sesión ya no tiene
 
 #### `src/app/api/runtime-config/route.test.ts` (3)
@@ -317,10 +318,18 @@ Se detectaron en la entrega de QA con tests que fallaban, y se corrigieron el 27
 - ✅ DashboardPageHeader component › renders title, eyebrow, subtitle, badge, and actions
 - ✅ DashboardPageHeader component › renders correctly with only title
 
-#### `src/components/dashboard/DashboardUserDial.test.tsx` (2)
+#### `src/components/dashboard/DashboardAccountMenu.test.tsx`
 
-- ✅ DashboardUserDial › opens the navigation menu when the bottom sidebar avatar is clicked
-- ✅ DashboardUserDial › keeps the menu visible when reduced motion is enabled
+- Rol visible y cambio de rol disponible para cuentas con varios roles.
+- Escape cierra una capa y devuelve el foco.
+- El cambio de rol conserva una vista compatible. El cambio de idioma conserva la ruta, los parámetros y el fragmento.
+- El interruptor refleja el tema efectivo y permite elegir uno explícitamente.
+
+#### `src/components/dashboard/SemesterBudgetAlerts.test.tsx`
+
+- Inicio del Analista prioriza alertas por delante de los indicadores e informes.
+- El bloque distingue carga, ausencia de alertas y error con reintento.
+- Administración conserva los avisos cuando existen.
 
 #### `src/components/dashboard/justifications/JustificationDetailModal.test.tsx` (7)
 
@@ -338,11 +347,6 @@ Se detectaron en la entrega de QA con tests que fallaban, y se corrigieron el 27
 - ✅ JustificationStatusBadge › renders accepted status correctly
 - ✅ JustificationStatusBadge › renders rejected status correctly
 - ✅ JustificationStatusBadge › renders unread status correctly
-
-#### `src/components/dashboard/RoleSwitcher.test.tsx` (2)
-
-- ✅ RoleSwitcher component › should render interactive dropdown when user has multiple roles
-- ✅ RoleSwitcher component › should render only badge when user has a single role
 
 #### `src/components/dashboard/UnderDevelopmentPlaceholder.test.tsx` (1)
 

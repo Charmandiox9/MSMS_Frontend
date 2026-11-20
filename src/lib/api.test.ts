@@ -25,7 +25,31 @@ describe('apiFetch', () => {
     const [url, init] = api.fetchMock.mock.calls.at(-1)!;
     expect(url).toBe(`${TEST_API_BASE_URL}/justifications`);
     expect(init?.credentials).toBe('include');
-    expect(init?.headers).toEqual({ 'Content-Type': 'application/json', 'X-Trace': '1' });
+    const headers = new Headers(init?.headers);
+    expect(headers.get('Content-Type')).toBe('application/json');
+    expect(headers.get('X-Trace')).toBe('1');
+  });
+
+  it('lets the browser add the boundary for multipart form data', async () => {
+    const api = installFakeApi({
+      'POST /academic/titulations/id/attachments': () => ({
+        body: { id: 'attachment-1' },
+      }),
+    });
+    const { apiFetch } = await loadApi();
+    const formData = new FormData();
+    formData.append('file', new Blob(['%PDF-1.7']), 'acta.pdf');
+
+    await expect(
+      apiFetch('/academic/titulations/id/attachments', {
+        method: 'POST',
+        body: formData,
+      }),
+    ).resolves.toEqual({ id: 'attachment-1' });
+
+    const [, init] = api.fetchMock.mock.calls.at(-1)!;
+    expect(new Headers(init?.headers).has('Content-Type')).toBe(false);
+    expect(init?.body).toBe(formData);
   });
 
   it('devuelve undefined en 204', async () => {
@@ -33,6 +57,31 @@ describe('apiFetch', () => {
     const { apiFetch } = await loadApi();
 
     await expect(apiFetch('/users/u-1', { method: 'DELETE' })).resolves.toBeUndefined();
+  });
+
+  it('preserves the conflict status so forms can give a corrective message', async () => {
+    installFakeApi({ 'POST /academic/titulations': () => ({ status: 409, body: { message: 'Identity conflict' } }) });
+    const { apiFetch } = await loadApi();
+    await expect(apiFetch('/academic/titulations', { method: 'POST', body: '{}' })).rejects.toMatchObject({ name: 'ApiError', status: 409, message: 'Identity conflict' });
+  });
+
+  it('downloads only the expected file type with the session cookie', async () => {
+    const contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    const mock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      void init;
+      if (String(input) === '/api/runtime-config')
+        return Response.json({ graphqlUrl: `${TEST_API_BASE_URL}/graphql` });
+      return new Response('word draft', { headers: { 'content-type': contentType } });
+    });
+    vi.stubGlobal('fetch', mock);
+    const { apiFetchFile } = await loadApi();
+
+    await expect(apiFetchFile('/draft', contentType)).resolves.toMatchObject({ type: contentType });
+    expect(mock).toHaveBeenLastCalledWith(
+      `${TEST_API_BASE_URL}/draft`,
+      expect.objectContaining({ cache: 'no-store', credentials: 'include' }),
+    );
+    await expect(apiFetchFile('/draft', 'application/pdf')).rejects.toThrow();
   });
 
   it('convierte los errores de validación de Nest en un mensaje legible', async () => {

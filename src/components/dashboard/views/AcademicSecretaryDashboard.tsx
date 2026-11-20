@@ -3,8 +3,8 @@
 import {
   BookOpenCheck,
   ClipboardList,
-  FileSpreadsheet,
-  GraduationCap,
+  Building2,
+  ClipboardCheck,
   Users,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -26,27 +26,18 @@ export default function AcademicSecretaryDashboard() {
 
       <RoleDashboardStats
         endpoint="/dashboard/academic-secretary"
+        sectionLabels={{ semester: t("metricsTitle") }}
         metrics={[
           {
-            key: "assistantships",
-            title: t("stats.assistantships"),
-            description: t("stats.assistantshipsDesc"),
-            icon: Users,
-          },
-          {
-            key: "assistants",
-            title: t("stats.assistants"),
-            description: t("stats.assistantsDesc"),
-            icon: Users,
-          },
-          {
             key: "teachers",
+            href: "/dashboard/teachers",
             title: t("stats.faculty"),
             description: t("stats.facultyDesc"),
             icon: Users,
           },
           {
             key: "activeCourses",
+            href: "/dashboard/subjects",
             title: t("stats.courses"),
             description: t("stats.coursesDesc"),
             icon: BookOpenCheck,
@@ -59,9 +50,11 @@ export default function AcademicSecretaryDashboard() {
           },
           {
             key: "pendingJustifications",
+            group: "attention",
+            href: "/dashboard/justifications/management",
             title: t("stats.pending"),
             description: t("stats.pendingDesc"),
-            icon: GraduationCap,
+            icon: ClipboardCheck,
           },
         ]}
       />
@@ -72,8 +65,8 @@ export default function AcademicSecretaryDashboard() {
             <QuickActionCard
               title={t("actions.academicInfo")}
               description={t("actions.academicInfoDesc")}
-              href="/dashboard/subjects"
-              icon={FileSpreadsheet}
+              href="/dashboard/careers"
+              icon={Building2}
             />
             <QuickActionCard
               title={t("actions.records")}

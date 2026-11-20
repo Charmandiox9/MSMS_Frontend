@@ -10,7 +10,16 @@ export interface StudentEnrollment {
 export interface Student {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
+  givenNames?: string | null;
+  rut?: string | null;
+  personalEmail?: string | null;
+  admission?: string | null;
+  paternalSurname?: string | null;
+  maternalSurname?: string | null;
+  birthDate?: string | null;
+  careerId?: string | null;
+  career?: { id: string; code: string | null; name: string } | null;
   careerCurriculumVersionId?: string | null;
   careerCurriculumVersion?: {
     id: string;
@@ -18,6 +27,15 @@ export interface Student {
     career: { id: string; code: string; name: string };
   } | null;
   enrollments: StudentEnrollment[];
+  titulationProcesses?: {
+    id: string;
+    stage: import("@/components/dashboard/titulation/titulation-types").TitulationStage;
+    outcome: import("@/components/dashboard/titulation/titulation-types").TitulationOutcome;
+    careerName: string;
+    degree: string | null;
+    defenseDate: string | null;
+    createdAt: string;
+  }[];
   assistantships?: {
     id: string;
     course: { id: string; name: string; code: string | null };
@@ -33,5 +51,5 @@ export interface StudentImportResult {
   importedStudents: number;
   createdStudents: number;
   addedEnrollments: number;
-  semesterId: string;
+  semesterId: string | null;
 }

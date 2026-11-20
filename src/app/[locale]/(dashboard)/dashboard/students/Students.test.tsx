@@ -59,13 +59,72 @@ describe("Estudiantes", () => {
     installFakeApi({
       "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok(catalog),
-      "GET /academic/students": ok({ ...response, items: [{ ...student, assistantships: [{ id: 'assistantship', course, semester: { id: 'past', name: '2025-2' }, nrc: null, courseNrc: '45678', startsOn: '2025-08-01', endsOn: '2025-12-31' }] }] }),
+      "GET /academic/students": ok({
+        ...response,
+        items: [
+          {
+            ...student,
+            assistantships: [
+              {
+                id: "assistantship",
+                course,
+                semester: { id: "past", name: "2025-2" },
+                nrc: null,
+                courseNrc: "45678",
+                startsOn: "2025-08-01",
+                endsOn: "2025-12-31",
+              },
+            ],
+          },
+        ],
+      }),
     });
     renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
-    expect(await screen.findByText("Historial de ayudantías (1)")).toBeDefined();
+    expect(
+      await screen.findByText("Historial de ayudantías (1)"),
+    ).toBeDefined();
     fireEvent.click(screen.getByText("Historial de ayudantías (1)"));
     expect(screen.getByText("Biología marina · 2025-2")).toBeDefined();
     expect(screen.getByText("NRC de asignatura: 45678")).toBeDefined();
+  });
+  it("distingue a las personas tituladas y muestra su carrera registrada", async () => {
+    const graduate: Student = {
+      ...student,
+      career: { id: "career-bm", code: "BM", name: "Biología Marina" },
+      titulationProcesses: [
+        {
+          id: "graduation-process",
+          stage: "UNCLASSIFIED",
+          outcome: "GRADUATED",
+          careerName: "Biología Marina",
+          degree: null,
+          defenseDate: null,
+          createdAt: "2026-11-18T12:00:00.000Z",
+        },
+      ],
+    };
+    installFakeApi({
+      "GET /academic/careers/options": ok([]),
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/students": ok({ ...response, items: [graduate] }),
+    });
+
+    renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
+
+    expect(await screen.findByText("Titulado")).toBeDefined();
+    expect(screen.getByText("Carrera: Biología Marina")).toBeDefined();
+  });
+  it("identifica los alumnos sin expediente sin inferir su situación académica", async () => {
+    installFakeApi({
+      "GET /academic/careers/options": ok([]),
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/students": ok(response),
+    });
+
+    renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
+
+    expect(await screen.findByText("Sin registro de titulación")).toBeDefined();
+    expect(screen.getByText("Sin carrera registrada")).toBeDefined();
   });
   it("consulta estudiantes con filtros por NRC, búsqueda y paginación del backend", async () => {
     const api = installFakeApi({
@@ -84,7 +143,7 @@ describe("Estudiantes", () => {
         api.calls("GET /academic/students").at(-1)?.query.get("page"),
       ).toBe("2"),
     );
-    fireEvent.change(screen.getByLabelText("Buscar por nombre o correo"), {
+    fireEvent.change(screen.getByLabelText("Buscar por RUT, nombre o correo"), {
       target: { value: "ana" },
     });
     await waitFor(() =>
@@ -104,7 +163,7 @@ describe("Estudiantes", () => {
     async (role) => {
       installFakeApi({
         "GET /academic/careers/options": ok([]),
-      "GET /academic/courses/current": ok(catalog),
+        "GET /academic/courses/current": ok(catalog),
         "GET /academic/students": ok(response),
       });
       renderAs(<StudentsPage />, [role]);
@@ -141,8 +200,12 @@ describe("Estudiantes", () => {
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     fireEvent.click(toggle);
 
-    expect(screen.getByRole("heading", { name: "Asignaturas inscritas" })).toBeDefined();
-    expect(screen.getByRole("heading", { name: "Biología marina" })).toBeDefined();
+    expect(
+      screen.getByRole("heading", { name: "Asignaturas inscritas" }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole("heading", { name: "Biología marina" }),
+    ).toBeDefined();
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
 
     fireEvent.click(toggle);
@@ -151,10 +214,21 @@ describe("Estudiantes", () => {
       screen.queryByRole("heading", { name: "Biología marina" }),
     ).toBeNull();
   });
-  it("limita el detalle del estudiante a sus datos personales", async () => {
+  it("muestra los datos del padrón en el detalle sin exponer las matrículas", async () => {
+    const extendedStudent: Student = {
+      ...student,
+      givenNames: "Ana",
+      paternalSurname: "Soto",
+      maternalSurname: "Paz",
+      rut: "12.345.678-5",
+      personalEmail: "ana.personal@example.com",
+      admission: "202610",
+      birthDate: "2000-01-02",
+      career: { id: "career", code: "8506", name: "Biología Marina" },
+    };
     installFakeApi({
       "GET /academic/courses/current": ok(catalog),
-      "GET /academic/students": ok(response),
+      "GET /academic/students": ok({ ...response, items: [extendedStudent] }),
     });
     renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
 
@@ -165,8 +239,62 @@ describe("Estudiantes", () => {
     const dialog = screen.getByRole("dialog");
     expect(within(dialog).getByText("Ana Soto")).toBeDefined();
     expect(within(dialog).getByText("ana@example.com")).toBeDefined();
+    expect(within(dialog).getByText("12.345.678-5")).toBeDefined();
+    expect(within(dialog).getByText("ana.personal@example.com")).toBeDefined();
+    expect(within(dialog).getByText("Biología Marina")).toBeDefined();
+    expect(within(dialog).getByText("2026")).toBeDefined();
+    expect(within(dialog).getByText("Primer semestre")).toBeDefined();
     expect(within(dialog).queryByText("Biología marina")).toBeNull();
     expect(within(dialog).queryByText("10001")).toBeNull();
+  });
+
+  it("filtra por RUT, carrera y cohorte y envía el orden elegido al backend", async () => {
+    const careerId = "career-8506";
+    const api = installFakeApi({
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/careers/options": ok([
+        {
+          id: careerId,
+          code: "8506",
+          name: "Ingeniería Marina",
+          isActive: true,
+          curriculumVersions: [{ id: "curriculum", cohortYear: 2026 }],
+        },
+      ]),
+      "GET /academic/students": ok(response),
+    });
+    renderAs(<StudentsPage />, ["ACADEMIC_SECRETARY"]);
+    expect(
+      await screen.findByRole("option", {
+        name: "Ingeniería Marina · Código: 8506",
+      }),
+    ).toBeDefined();
+    fireEvent.change(
+      await screen.findByLabelText("Buscar por RUT, nombre o correo"),
+      {
+        target: { value: "12.345.678-5" },
+      },
+    );
+    fireEvent.change(screen.getByLabelText("Filtrar por carrera"), {
+      target: { value: careerId },
+    });
+    fireEvent.change(screen.getByLabelText("Filtrar por cohorte de malla"), {
+      target: { value: "2026" },
+    });
+    fireEvent.change(screen.getByLabelText("Ordenar por"), {
+      target: { value: "surname" },
+    });
+    fireEvent.change(screen.getByLabelText("Dirección"), {
+      target: { value: "desc" },
+    });
+    await waitFor(() => {
+      const query = api.calls("GET /academic/students").at(-1)?.query;
+      expect(query?.get("search")).toBe("12.345.678-5");
+      expect(query?.get("careerId")).toBe(careerId);
+      expect(query?.get("cohortYear")).toBe("2026");
+      expect(query?.get("sortBy")).toBe("surname");
+      expect(query?.get("sortOrder")).toBe("desc");
+    });
   });
   it("crea el perfil manual y vincula un NRC seleccionado", async () => {
     const api = installFakeApi({
@@ -185,7 +313,7 @@ describe("Estudiantes", () => {
     );
     const selected = await screen.findByLabelText(/Biología marina/);
     expect(selected).toHaveProperty("checked", true);
-    fireEvent.change(screen.getByLabelText("Nombre completo"), {
+    fireEvent.change(screen.getByLabelText("Nombre(s)"), {
       target: { value: "Ana Soto" },
     });
     fireEvent.change(screen.getByLabelText("Correo electrónico"), {
@@ -195,8 +323,16 @@ describe("Estudiantes", () => {
     await waitFor(() => expect(saved).toHaveBeenCalledOnce());
     expect(api.calls("POST /academic/students")[0].body).toEqual({
       careerCurriculumVersionId: null,
+      careerId: null,
+      givenNames: "Ana Soto",
       name: "Ana Soto",
       email: "ana@example.com",
+      rut: null,
+      personalEmail: null,
+      admission: null,
+      paternalSurname: null,
+      maternalSurname: null,
+      birthDate: null,
       semesterId: "semester",
       nrcs: ["10001"],
     });
@@ -223,6 +359,67 @@ describe("Estudiantes", () => {
       { semesterId: "semester", nrcs: ["10002"] },
     );
   });
+  it("formatea el RUT chileno y explica el código de admisión al editar", async () => {
+    installFakeApi({
+      "GET /academic/careers/options": ok([]),
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/students/student": ok({ ...student, rut: "214933985", admission: "202610" }),
+    });
+    renderAs(<StudentDialog student={student} onSaved={vi.fn()} onClose={vi.fn()} />);
+    const rut = await screen.findByLabelText("RUT");
+    expect((rut as HTMLInputElement).value).toBe("21.493.398-5");
+    fireEvent.change(rut, { target: { value: "19999999k" } });
+    expect((rut as HTMLInputElement).value).toBe("19.999.999-K");
+    expect((screen.getByLabelText(/Admisión \(AAAASS\)/) as HTMLInputElement).value).toBe("202610");
+    expect(screen.getByText(/202610 = primer semestre de 2026; 202620 = segundo semestre de 2026/)).toBeDefined();
+  });
+  it("muestra solo las mallas de la carrera seleccionada y prioriza el cohorte de admisión", async () => {
+    const careers = [
+      {
+        id: "career-a",
+        code: "8506",
+        name: "Ingeniería Marina",
+        isActive: true,
+        curriculumVersions: [
+          { id: "curriculum-2025", cohortYear: 2025 },
+          { id: "curriculum-2026", cohortYear: 2026 },
+        ],
+      },
+      {
+        id: "career-b",
+        code: "8507",
+        name: "Biología Marina",
+        isActive: true,
+        curriculumVersions: [{ id: "other-curriculum", cohortYear: 2025 }],
+      },
+    ];
+    installFakeApi({
+      "GET /academic/careers/options": ok(careers),
+      "GET /academic/courses/current": ok(catalog),
+      "POST /academic/students": ok(student),
+    });
+    renderAs(
+      <StudentDialog student={null} onSaved={vi.fn()} onClose={vi.fn()} />,
+    );
+    const career = await screen.findByLabelText("Carrera y malla");
+    fireEvent.change(career, { target: { value: "career-a" } });
+    fireEvent.change(screen.getByLabelText(/Admisión \(AAAASS\)/), {
+      target: { value: "202510" },
+    });
+    const curriculum = screen.getByLabelText(
+      "Malla curricular (opcional)",
+    ) as HTMLSelectElement;
+    expect(curriculum.value).toBe("curriculum-2025");
+    expect(
+      within(curriculum).getByRole("option", { name: "Cohorte 2025" }),
+    ).toBeDefined();
+    expect(
+      within(curriculum).queryByRole("option", { name: "Cohorte 2026" }),
+    ).toBeNull();
+    expect(
+      within(curriculum).queryByRole("option", { name: /Biología Marina/ }),
+    ).toBeNull();
+  });
   it("permite crear el perfil sin semestre y no envía matrículas", async () => {
     const api = installFakeApi({
       "GET /academic/careers/options": ok([]),
@@ -233,7 +430,7 @@ describe("Estudiantes", () => {
       <StudentDialog student={null} onSaved={vi.fn()} onClose={vi.fn()} />,
     );
     await screen.findByText(/No hay semestre activo/);
-    fireEvent.change(screen.getByLabelText("Nombre completo"), {
+    fireEvent.change(screen.getByLabelText("Nombre(s)"), {
       target: { value: "Ana Soto" },
     });
     fireEvent.change(screen.getByLabelText("Correo electrónico"), {
@@ -245,8 +442,16 @@ describe("Estudiantes", () => {
     );
     expect(api.calls("POST /academic/students")[0].body).toEqual({
       careerCurriculumVersionId: null,
+      careerId: null,
+      givenNames: "Ana Soto",
       name: "Ana Soto",
       email: "ana@example.com",
+      rut: null,
+      personalEmail: null,
+      admission: null,
+      paternalSurname: null,
+      maternalSurname: null,
+      birthDate: null,
     });
   });
   it("envía el CSV y el semestre visible y comunica los resultados", async () => {
@@ -297,20 +502,40 @@ describe("Estudiantes", () => {
     );
     expect(saved).not.toHaveBeenCalled();
   });
-  it("sin semestre impide importar matrículas", async () => {
-    installFakeApi({
+  it("permite importar el padrón de estudiantes sin semestre activo", async () => {
+    const api = installFakeApi({
       "GET /academic/careers/options": ok([]),
       "GET /academic/courses/current": ok({ semester: null, courses: [] }),
+      "POST /academic/students/import-csv": ok({
+        importedStudents: 1,
+        createdStudents: 1,
+        addedEnrollments: 0,
+        semesterId: null,
+      }),
     });
     renderAs(<ImportStudentsDialog onSaved={vi.fn()} onClose={vi.fn()} />);
-    await screen.findByText("Activa un semestre antes de importar matrículas.");
-    expect(screen.getByLabelText("Archivo CSV")).toHaveProperty(
-      "disabled",
-      true,
+    fireEvent.change(await screen.findByLabelText("Archivo CSV"), {
+      target: {
+        files: [
+          new File(
+            [
+              [
+                "codigo_carrera;carrera;ADMISION;RUT;NOMBRE;AP_PATERNO;AP_MATERNO;EMAIL_ESTUDIANTE",
+                "8506;Biología Marina;202610;12345678-9;Ana;Soto;Paz;ana@example.com",
+              ].join("\n"),
+            ],
+            "estudiantes.csv",
+            { type: "text/csv" },
+          ),
+        ],
+      },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Importar CSV" }));
+    await waitFor(() =>
+      expect(api.calls("POST /academic/students/import-csv")).toHaveLength(1),
     );
-    expect(screen.getByRole("button", { name: "Importar CSV" })).toHaveProperty(
-      "disabled",
-      true,
-    );
+    expect(
+      api.calls("POST /academic/students/import-csv")[0].body,
+    ).not.toHaveProperty("semesterId");
   });
 });

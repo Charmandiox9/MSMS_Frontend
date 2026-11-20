@@ -6,8 +6,6 @@ import { toast } from "sonner";
 import { FormSkeleton } from "@/components/ui/LoadingSkeletons";
 import AcademicCsvImportDialog from "@/components/dashboard/academic/AcademicCsvImportDialog";
 import { apiFetch } from "@/lib/api";
-import { createCsv } from "@/lib/csv";
-import type { CurrentCourseCatalog } from "@/types/academic";
 import type { StudentImportResult } from "@/types/students";
 
 export default function ImportStudentsDialog({
@@ -18,81 +16,30 @@ export default function ImportStudentsDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("StudentsPage");
-  const [catalog, setCatalog] = useState<CurrentCourseCatalog | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [retry, setRetry] = useState(0);
-  const loadErrorMessage = t("errors.load");
-
+  const [catalog, setCatalog] = useState<{ semester?: { id: string } | null } | null>(null);
   useEffect(() => {
     let active = true;
-    apiFetch<CurrentCourseCatalog>("/academic/courses/current")
-      .then((value) => {
-        if (!active) return;
-        setCatalog(value);
-        setLoadError(null);
-      })
-      .catch((cause: unknown) => {
-        if (active)
-          setLoadError(
-            cause instanceof Error ? cause.message : loadErrorMessage,
-          );
-      });
-    return () => {
-      active = false;
-    };
-  }, [loadErrorMessage, retry]);
+    apiFetch<{ semester?: { id: string } | null }>("/academic/courses/current")
+      .then((value) => { if (active) setCatalog(value); })
+      .catch(() => { if (active) setCatalog({ semester: null }); });
+    return () => { active = false; };
+  }, []);
 
-  const templateContent = createCsv(
-    ["nombre", "correo", "nrc1", "nrc2"],
-    [
-      {
-        nombre: "Nombre Apellido",
-        correo: "estudiante@example.com",
-        nrc1: catalog?.courses[0]?.nrc ?? "NRC_EXISTENTE",
-        nrc2: "",
-      },
-    ],
-  );
+  const templateContent = '"codigo_carrera";"carrera";"ADMISION";"RUT";"NOMBRE";"AP_PATERNO";"AP_MATERNO";"NIVEL_CURRICULAR";"EMAIL_ESTUDIANTE";"EMAIL_PERSONAL";"FECHA_NACIMIENTO"\n8506;"Ing. Prev. Riesgo y M.Ambiente";202610;12345678-9;"NOMBRE EJEMPLO";PÉREZ;GONZÁLEZ;8506-S01;estudiante@alumnos.ucn.cl;personal@example.com;1/15/2005\n';
 
   const importStudents = (csv: string) =>
     apiFetch<StudentImportResult>("/academic/students/import-csv", {
       method: "POST",
-      body: JSON.stringify({ csv, semesterId: catalog?.semester?.id }),
+      body: JSON.stringify({ csv, ...(catalog?.semester?.id ? { semesterId: catalog.semester.id } : {}) }),
     });
 
   return (
     <AcademicCsvImportDialog<StudentImportResult>
       title={t("importTitle")}
       description={t("importDescription")}
-      format="nombre;correo;nrc1;nrc2;…"
+      format="codigo_carrera;carrera;ADMISION;RUT;NOMBRE;AP_PATERNO;AP_MATERNO;EMAIL_ESTUDIANTE;EMAIL_PERSONAL;FECHA_NACIMIENTO"
       instructions={t("importRules")}
-      context={
-        loadError ? (
-          <p role="alert" className="text-sm text-destructive">
-            {loadError} {" "}
-            <button
-              type="button"
-              onClick={() => {
-                setLoadError(null);
-                setRetry((value) => value + 1);
-              }}
-              className="font-semibold underline underline-offset-2"
-            >
-              {t("retry")}
-            </button>
-          </p>
-        ) : !catalog ? (
-          <FormSkeleton label={t("loading")} />
-        ) : (
-          <p className="text-sm font-semibold text-primary">
-            {!catalog.semester
-              ? t("noSemesterImport")
-              : catalog.courses.length === 0
-                ? t("noCoursesImport")
-                : t("semester", { name: catalog.semester.name })}
-          </p>
-        )
-      }
+      context={!catalog ? <FormSkeleton label={t("loading")} /> : <p className="text-sm text-muted-foreground">{t("genericImportHint")}</p>}
       template={{ fileName: "estudiantes.csv", content: templateContent }}
       fileLabel={t("file")}
       templateLabel={t("template")}
@@ -106,9 +53,7 @@ export default function ImportStudentsDialog({
       importError={t("errors.import")}
       maxFileSizeBytes={2_000_000}
       canImport={
-        Boolean(catalog?.semester) &&
-        (catalog?.courses.length ?? 0) > 0 &&
-        !loadError
+        Boolean(catalog)
       }
       onClose={onClose}
       onImport={importStudents}

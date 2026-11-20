@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
 import { resolveApiBaseUrl } from "@/lib/runtime-config";
-import DepartmentField from "./DepartmentField";
+import DepartmentField from "../DepartmentField";
 import Modal from "@/components/ui/Modal";
 import FormModal from "@/components/ui/FormModal";
 import PaginationControls from "@/components/ui/PaginationControls";

@@ -10,7 +10,7 @@ vi.mock('sonner', () => ({ toast: { error: vi.fn(), promise: vi.fn(), success: v
 const id = '22222222-2222-4222-8222-222222222222';
 const version = '2026-10-14T12:00:00.123Z';
 const record: ResearchOutputRecord = {
-  id, researchId: id, kind: 'ARTICLE', reportingYear: 2026, title: 'Publicación costera',
+  id, researchId: id, departmentId: null, kind: 'ARTICLE', reportingYear: 2026, title: 'Publicación costera',
   doi: null, journal: null, issn: null, isbn: null, quartile: null, fiveYearImpactFactor: null,
   publicationDate: null, indexation: null, publisher: null, publicationPlace: null,
   studentParticipation: null, internationalParticipation: null, intellectualPropertyType: null,

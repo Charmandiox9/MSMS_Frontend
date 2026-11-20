@@ -15,7 +15,7 @@ import type {
   RepositoryParticipant,
   RepositoryRecord,
 } from "@/types/academic-repository";
-import DepartmentField from "./DepartmentField";
+import DepartmentField from "../DepartmentField";
 import RepositoryFields from "./RepositoryFields";
 import RepositoryParticipants from "./RepositoryParticipants";
 import {

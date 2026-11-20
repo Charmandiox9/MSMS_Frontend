@@ -17,7 +17,7 @@ if (typeof window !== "undefined") {
 export function ThemeProvider({ children, ...props }: React.ComponentProps<typeof NextThemesProvider>) {
   return (
     <NextThemesProvider 
-      attribute="class" 
+      attribute={["class", "data-theme"]}
       defaultTheme="system" 
       enableSystem 
       disableTransitionOnChange 

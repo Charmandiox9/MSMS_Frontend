@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ArrowRight, ShieldCheck } from "lucide-react";
+import { useRouter } from "@/i18n/routing";
 import { getActiveSession } from "@/lib/auth";
 import { ACTIVE_ROLE_STORAGE_KEY, getSessionRoles } from "@/lib/active-role";
 import type { ActiveSession, UserRoleCode } from "@/types/auth";
 import LoginPreferences from "@/components/auth/LoginPreferences";
 
 export default function SessionEntry({ children }: { children: ReactNode }) {
-  const locale = useLocale();
   const router = useRouter();
   const t = useTranslations("SessionEntry");
   const tRoles = useTranslations("DashboardNav.roles");
@@ -27,16 +26,16 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
       setSession(value);
       if (!value) return;
       const roles = getSessionRoles(value);
-      if (!roles.length) router.replace(`/${locale}/no-access`);
+      if (!roles.length) router.replace("/no-access");
       else if (roles.length === 1) {
         localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, roles[0]);
-        router.replace(`/${locale}/dashboard`);
+        router.replace("/dashboard");
       }
     });
     return () => {
       active = false;
     };
-  }, [locale, router]);
+  }, [router]);
 
   if (session === null) return children;
   const roles = session ? getSessionRoles(session) : [];
@@ -73,7 +72,7 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
             if (!selected || !roles.includes(selected)) return;
             localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, selected);
             setEntering(true);
-            router.replace(`/${locale}/dashboard`);
+            router.replace("/dashboard");
           }}
         >
           <fieldset className="space-y-3">

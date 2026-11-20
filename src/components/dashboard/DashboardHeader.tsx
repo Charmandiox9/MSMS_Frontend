@@ -1,42 +1,50 @@
-'use client';
+"use client";
 
-import { Menu } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import Breadcrumbs from '@/components/ui/Breadcrumbs';
-import RoleSwitcher from '@/components/dashboard/RoleSwitcher';
+import { Menu } from "lucide-react";
+import { useTranslations } from "next-intl";
+import type { Ref } from "react";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import type { UserRoleCode } from "@/types/auth";
 
 interface DashboardHeaderProps {
-  onMenuToggle: () => void;
-  rightSlot?: React.ReactNode;
+  activeRole: UserRoleCode | null;
+  mobileOpen: boolean;
+  mobileDialogId: string;
+  menuTriggerRef: Ref<HTMLButtonElement>;
+  onMenuOpen: () => void;
 }
 
 export default function DashboardHeader({
-  onMenuToggle,
-  rightSlot,
+  activeRole,
+  mobileOpen,
+  mobileDialogId,
+  menuTriggerRef,
+  onMenuOpen,
 }: DashboardHeaderProps) {
-  const tNav = useTranslations('DashboardNav');
+  const t = useTranslations("DashboardNav");
 
   return (
-    <header
-      role="banner"
-      className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-card/85 px-4 backdrop-blur-md transition-colors md:px-8"
-    >
-      <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-2 border-b border-border bg-card px-4 py-1 md:px-8">
+      <div className="flex min-w-0 items-center gap-2">
         <button
+          ref={menuTriggerRef}
           type="button"
-          onClick={onMenuToggle}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan md:hidden"
-          aria-label={tNav('openMenu')}
+          onClick={onMenuOpen}
+          aria-label={t("openMenu")}
+          aria-haspopup="dialog"
+          aria-expanded={mobileOpen}
+          aria-controls={mobileDialogId}
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-control text-foreground hover:bg-selection focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus md:hidden"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="size-5" aria-hidden="true" />
         </button>
-        <Breadcrumbs />
+        <Breadcrumbs className="min-w-0 [&_li]:min-w-0 [&_ol]:flex-wrap [&_ol]:gap-y-1" />
       </div>
-
-      <div className="flex items-center gap-3">
-        <RoleSwitcher />
-        {rightSlot}
-      </div>
+      {activeRole && (
+        <p className="max-w-36 shrink-0 wrap-break-word text-end text-sm leading-snug text-muted-foreground sm:max-w-52 md:hidden">
+          {t(`roles.${activeRole}`)}
+        </p>
+      )}
     </header>
   );
 }

@@ -158,6 +158,10 @@ const server = createServer(async (req, res) => {
     return send(res, 200, { email: account.email, roles: account.roles });
   }
 
+  if (route === '/legal/terms/status' && method === 'GET') {
+    return send(res, 200, { accepted: true, currentVersion: 'test', acceptedAt: '2026-11-11T12:00:00Z' });
+  }
+
   // Justificaciones
   if (route === '/justifications/inbox' && method === 'GET') {
     if (!allow('TEACHING_SUPPORT_COORDINATOR')) return forbid();

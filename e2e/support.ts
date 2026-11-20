@@ -20,12 +20,9 @@ export async function backendState() {
   };
 }
 
-const COOKIE_CONSENT = JSON.stringify({ necessary: true, analytics: false, marketing: false });
-
 export const test = base.extend<{ resetBackend: void }>({
-  // El banner de cookies cubre la parte baja de la pantalla; se da por aceptado.
   context: async ({ context }, use) => {
-    await context.addInitScript((consent) => localStorage.setItem('marsys_cookie_consent', consent), COOKIE_CONSENT);
+    await context.addInitScript(() => localStorage.setItem('marsys_essential_storage_notice_dismissed', '1'));
     await use(context);
   },
   resetBackend: [

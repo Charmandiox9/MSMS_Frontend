@@ -6,7 +6,7 @@ import { ACTIVE_ROLE_STORAGE_KEY } from "@/lib/active-role";
 import SessionEntry from "./SessionEntry";
 
 const router = vi.hoisted(() => ({ replace: vi.fn() }));
-vi.mock("next/navigation", () => ({ useRouter: () => router }));
+vi.mock("@/i18n/routing", () => ({ useRouter: () => router }));
 vi.mock("@/components/auth/LoginPreferences", () => ({ default: () => null }));
 function renderEntry() {
   return render(
@@ -53,7 +53,7 @@ describe("SessionEntry", () => {
     });
     renderEntry();
     await waitFor(() =>
-      expect(router.replace).toHaveBeenCalledWith("/es/dashboard"),
+      expect(router.replace).toHaveBeenCalledWith("/dashboard"),
     );
     expect(localStorage.getItem(ACTIVE_ROLE_STORAGE_KEY)).toBe(
       "ACADEMIC_SECRETARY",
@@ -82,7 +82,7 @@ describe("SessionEntry", () => {
     expect(localStorage.getItem(ACTIVE_ROLE_STORAGE_KEY)).toBe(
       "TEACHING_SUPPORT_COORDINATOR",
     );
-    expect(router.replace).toHaveBeenCalledWith("/es/dashboard");
+    expect(router.replace).toHaveBeenCalledWith("/dashboard");
     expect(screen.queryByText("Continuar con Google")).toBeNull();
   });
   it("sin roles habilitados dirige a la página sin acceso, sin pedir otro login", async () => {
@@ -91,7 +91,7 @@ describe("SessionEntry", () => {
     });
     renderEntry();
     await waitFor(() =>
-      expect(router.replace).toHaveBeenCalledWith("/es/no-access"),
+      expect(router.replace).toHaveBeenCalledWith("/no-access"),
     );
     expect(screen.queryByText("Continuar con Google")).toBeNull();
   });
@@ -104,7 +104,7 @@ describe("SessionEntry", () => {
     });
     renderEntry();
     await waitFor(() =>
-      expect(router.replace).toHaveBeenCalledWith("/es/dashboard"),
+      expect(router.replace).toHaveBeenCalledWith("/dashboard"),
     );
   });
 });

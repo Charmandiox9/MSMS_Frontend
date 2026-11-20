@@ -12,12 +12,14 @@ import { GraphQLError } from "graphql";
 import messages from "../../../../../../../messages/es.json";
 import {
   ASSIGNMENTS,
-  STUDENT,
+  STUDENTS,
   CAREER_COURSES,
   HISTORY,
   OPTIONS,
   REGISTER,
   UPDATE,
+  TARIFFS,
+  ASSISTANTSHIP_BUDGET,
   type Assistantship,
   type Filters,
 } from "../graphql";
@@ -37,13 +39,13 @@ vi.mock("sonner", () => ({
       promise: Promise<unknown>,
       options: {
         loading: string;
-        success: string;
+        success: string | ((value: unknown) => string);
         error: (error: unknown) => string;
       },
     ) => {
       notifications.pending(options.loading);
       void promise.then(
-        () => notifications.success(options.success),
+        (value) => notifications.success(typeof options.success === "function" ? options.success(value) : options.success),
         (error: unknown) => notifications.error(options.error(error)),
       );
       return 123;
@@ -80,6 +82,10 @@ const item: Assistantship & { __typename: "AssistantshipView" } = {
   startsOn: semester.startsOn,
   endsOn: semester.endsOn,
   weeklyHours: 4,
+  tariffId: "tariff",
+  tariffName: "Base",
+  tariffRateClp: 10000,
+  estimatedAmountClp: 204000,
   state: "ACTIVE",
   schedules: [],
 };
@@ -107,18 +113,34 @@ const optionsMock = {
   },
   maxUsageCount: 20,
 };
+const tariffsMock = {
+  request: { query: TARIFFS, variables: () => true },
+  result: { data: { assistantshipTariffs: [{ id: "tariff", semesterId: semester.id, name: "Base", monthlyRateClp: 10000 }] } },
+  maxUsageCount: 30,
+};
+const budgetMock = {
+  request: { query: ASSISTANTSHIP_BUDGET, variables: () => true },
+  result: { data: { assistantshipBudgetSummary: {
+    semesterId: semester.id, semesterName: semester.name, allocatedAmountClp: 500000,
+    occupiedAmountClp: 204000, percentage: 40.8, assistantships: 1, unpricedCount: 0,
+  } } },
+  maxUsageCount: 30,
+};
 const studentMock = {
-  request: { query: STUDENT, variables: { email: "ana@example.test" } },
+  request: { query: STUDENTS, variables: { search: "ana@example.test" } },
   result: {
     data: {
-      assistantshipStudent: {
-        id: "student",
-        name: "Ana Pérez",
-        email: "ana@example.test",
-        careerId: "career",
-        careerName: "Biología Marina",
-        careerCurriculumVersionId: "curriculum",
-      },
+      assistantshipStudents: [
+        {
+          id: "student",
+          name: "Ana Pérez",
+          email: "ana@example.test",
+          rut: "123456789",
+          careerId: "career",
+          careerName: "Biología Marina",
+          careerCurriculumVersionId: "curriculum",
+        },
+      ],
     },
   },
   maxUsageCount: 20,
@@ -157,6 +179,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             optionsMock,
+            budgetMock,
             {
               request: { query: HISTORY, variables: () => true },
               result: {
@@ -193,6 +216,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             studentMock,
+            tariffsMock,
             assignmentsMock,
             { request: { query: UPDATE, variables: () => true }, result },
           ]}
@@ -218,18 +242,22 @@ describe("assistantship management", { timeout: 15000 }, () => {
       </NextIntlClientProvider>,
     );
     await screen.findByRole("option", { name: /Biología marina/ });
+    expect(await screen.findByText("12.345.678-9")).toBeDefined();
     expect(
-      (screen.getByLabelText("Nombre completo") as HTMLInputElement).value,
-    ).toBe("Ana Pérez");
+      screen.getByRole("button", { name: /12.345.678-9/ }),
+    ).toBeDefined();
+    expect(screen.getByText("Biología Marina")).toBeDefined();
+    expect(
+      screen
+        .getByRole("button", { name: /Ana Pérez/ })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
     expect(
       (screen.getByLabelText("Bloque horario") as HTMLSelectElement).value,
     ).toBe("A");
     fireEvent.change(screen.getByLabelText("NRC de la ayudantía"), {
       target: { value: "20002" },
     });
-    await screen.findByText(
-      "Estudiante encontrado. La ayudantía quedará vinculada a su ficha.",
-    );
     fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
     await waitFor(() => expect(onRegistered).toHaveBeenCalledWith(semester.id));
     expect(result).toHaveBeenCalledWith(
@@ -276,7 +304,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         messages={messages}
         timeZone="America/Santiago"
       >
-        <MockedProvider mocks={[optionsMock, historyMock]}>
+        <MockedProvider mocks={[optionsMock, budgetMock, historyMock]}>
           <AssistantshipsWorkspace />
         </MockedProvider>
       </NextIntlClientProvider>,
@@ -318,7 +346,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
     );
   });
 
-  it("registers a historical course for a new student without requiring NRC or teacher", async () => {
+  it("registers a historical course for a selected student and requires NRC, hours, and schedule", async () => {
     const past = {
       ...semester,
       id: "past",
@@ -327,9 +355,14 @@ describe("assistantship management", { timeout: 15000 }, () => {
       startsOn: "2025-08-01",
       endsOn: "2025-12-31",
     };
-    const result = vi.fn((_variables: { input: Record<string, unknown> }) => ({
-      data: { registerAssistantship: { ...item, semesterId: past.id } },
-    }));
+    const result = vi.fn(
+      (variables: { input: Record<string, unknown> }) => {
+        void variables;
+        return {
+          data: { registerAssistantship: { ...item, semesterId: past.id } },
+        };
+      },
+    );
     const onRegistered = vi.fn();
     render(
       <NextIntlClientProvider locale="es" messages={messages}>
@@ -337,10 +370,24 @@ describe("assistantship management", { timeout: 15000 }, () => {
           mocks={[
             {
               request: {
-                query: STUDENT,
-                variables: { email: "new@example.test" },
+                query: STUDENTS,
+                variables: { search: "12345678-9" },
               },
-              result: { data: { assistantshipStudent: null } },
+              result: {
+                data: {
+                  assistantshipStudents: [
+                    {
+                      id: "student",
+                      name: "Ana Pérez",
+                      email: "ana@example.test",
+                      rut: "12345678-9",
+                      careerId: "career",
+                      careerName: "Biología Marina",
+                      careerCurriculumVersionId: "curriculum",
+                    },
+                  ],
+                },
+              },
             },
             {
               request: {
@@ -355,13 +402,14 @@ describe("assistantship management", { timeout: 15000 }, () => {
                 },
               },
             },
+            tariffsMock,
             { request: { query: REGISTER, variables: () => true }, result },
           ]}
         >
           <RegisterAssistantshipDialog
             semesters={[semester, past]}
             careers={optionsMock.result.data.assistantshipOptions.careers}
-            blocks={[]}
+            blocks={optionsMock.result.data.assistantshipOptions.blocks}
             initialSemesterId={past.id}
             onClose={vi.fn()}
             onRegistered={onRegistered}
@@ -369,20 +417,13 @@ describe("assistantship management", { timeout: 15000 }, () => {
         </MockedProvider>
       </NextIntlClientProvider>,
     );
-    fireEvent.change(screen.getByLabelText("Correo electrónico"), {
-      target: { value: "new@example.test" },
-    });
-    fireEvent.blur(screen.getByLabelText("Correo electrónico"));
-    await screen.findByText(
-      "No existe un estudiante con ese correo. Se creará su ficha al guardar.",
-    );
-    fireEvent.change(screen.getByLabelText("Nombre completo"), {
-      target: { value: "Alumno nuevo" },
-    });
     fireEvent.change(
-      screen.getByLabelText("Carrera y cohorte del estudiante"),
-      { target: { value: "curriculum" } },
+      screen.getByLabelText("Buscar estudiante por nombre, RUT o correo"),
+      {
+        target: { value: "12345678-9" },
+      },
     );
+    fireEvent.click(await screen.findByRole("button", { name: /Ana Pérez/ }));
     await screen.findByRole("option", { name: /Biología marina · BIO101/ });
     fireEvent.change(screen.getByLabelText("Asignatura de la carrera"), {
       target: { value: "course" },
@@ -390,7 +431,20 @@ describe("assistantship management", { timeout: 15000 }, () => {
     fireEvent.change(screen.getByLabelText("Fecha de aprobación"), {
       target: { value: "2025-07-01" },
     });
-    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.change(screen.getByLabelText("NRC de la ayudantía"), {
+      target: { value: "20003" },
+    });
+    fireEvent.change(screen.getByLabelText("Horas semanales"), {
+      target: { value: "5" },
+    });
+    fireEvent.change(await screen.findByLabelText("Tarifa de ayudantía"), {
+      target: { value: "tariff" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Agregar horario" }));
+    fireEvent.change(screen.getByLabelText("Bloque horario"), {
+      target: { value: "A" },
+    });
+    fireEvent.click(screen.getByRole("checkbox", { name: /Confirmo que el estudiante/ }));
     fireEvent.click(screen.getByRole("button", { name: "Guardar ayudantía" }));
     await waitFor(() => expect(onRegistered).toHaveBeenCalledWith("past"));
     expect(result).toHaveBeenCalledWith(
@@ -399,8 +453,9 @@ describe("assistantship management", { timeout: 15000 }, () => {
           semesterId: "past",
           courseId: "course",
           careerId: "career",
-          careerCurriculumVersionId: "curriculum",
-          assistantEmail: "new@example.test",
+          studentId: "student",
+          assistantshipNrc: "20003",
+          weeklyHours: 5,
         }),
       }),
     );
@@ -409,11 +464,13 @@ describe("assistantship management", { timeout: 15000 }, () => {
         teachingAssignmentId?: string;
         courseNrc?: string;
         assistantshipNrc?: string;
+        studentId?: string;
       };
     };
     expect(input.input.teachingAssignmentId).toBeUndefined();
     expect(input.input.courseNrc).toBeUndefined();
-    expect(input.input.assistantshipNrc).toBeUndefined();
+    expect(input.input.assistantshipNrc).toBe("20003");
+    expect(input.input.studentId).toBe("student");
   });
 
   it("shows a retry action on load failure", async () => {
@@ -422,6 +479,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             optionsMock,
+            budgetMock,
             {
               request: { query: HISTORY, variables: () => true },
               error: new Error("offline"),
@@ -445,30 +503,34 @@ describe("assistantship management", { timeout: 15000 }, () => {
     );
     await screen.findByRole("option", { name: /Biología marina/ });
     fireEvent.change(assignmentSelect, { target: { value: "assignment" } });
-    fireEvent.change(screen.getByLabelText("Nombre completo"), {
-      target: { value: "Ana Pérez" },
-    });
-    fireEvent.change(screen.getByLabelText("Correo electrónico"), {
-      target: { value: "ana@example.test" },
-    });
-    fireEvent.blur(screen.getByLabelText("Correo electrónico"));
-    await screen.findByText(
-      "Estudiante encontrado. La ayudantía quedará vinculada a su ficha.",
+    fireEvent.change(
+      screen.getByLabelText("Buscar estudiante por nombre, RUT o correo"),
+      {
+        target: { value: "ana@example.test" },
+      },
     );
+    fireEvent.click(await screen.findByRole("button", { name: /Ana Pérez/ }));
+    fireEvent.change(screen.getByLabelText("Horas semanales"), {
+      target: { value: "4" },
+    });
+    fireEvent.change(await screen.findByLabelText("Tarifa de ayudantía"), {
+      target: { value: "tariff" },
+    });
     fireEvent.change(screen.getByLabelText("Fecha de aprobación"), {
       target: { value: "2026-07-01" },
     });
-    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Confirmo que el estudiante/ }));
   };
 
   it("keeps the modal open while saving and closes only after the mutation succeeds", async () => {
     const onRegistered = vi.fn();
-    const result = vi.fn(() => ({ data: { registerAssistantship: item } }));
+    const result = vi.fn(() => ({ data: { registerAssistantship: { ...item, scheduleNotificationSent: true } } }));
     render(
       <NextIntlClientProvider locale="es" messages={messages}>
         <MockedProvider
           mocks={[
             studentMock,
+            tariffsMock,
             assignmentsMock,
             {
               request: { query: REGISTER, variables: () => true },
@@ -487,6 +549,11 @@ describe("assistantship management", { timeout: 15000 }, () => {
       </NextIntlClientProvider>,
     );
     await fillRegistration();
+    expect(screen.getByLabelText("Inicio", { exact: true })).toHaveProperty("value", "2026-08-08");
+    expect(screen.getByLabelText("Término", { exact: true })).toHaveProperty("value", "2026-12-24");
+    const scheduleEmail = screen.getByRole("checkbox", { name: /Notificar al estudiante.*horario/ });
+    expect(scheduleEmail).toHaveProperty("checked", false);
+    fireEvent.click(scheduleEmail);
     fireEvent.click(screen.getByRole("button", { name: "Agregar horario" }));
     expect(
       screen.getByRole("option", { name: "A · 08:10–09:40" }),
@@ -508,31 +575,36 @@ describe("assistantship management", { timeout: 15000 }, () => {
       expect.objectContaining({
         input: expect.objectContaining({
           teachingAssignmentId: "assignment",
-          assistantEmail: "ana@example.test",
+          studentId: "student",
+          weeklyHours: 4,
           approvalConfirmed: true,
+          notifySchedule: true,
           schedules: [{ weekday: 1, startsAtMinute: 1290, endsAtMinute: 1380 }],
         }),
       }),
     );
     expect(notifications.success).toHaveBeenCalledWith(
-      "Ayudantía registrada correctamente.",
+      "Ayudantía registrada y confirmación de horario enviada.",
     );
   });
 
-  it("keeps the entered values after a conflict and displays a translated notification", async () => {
+  it("keeps entered values and translates nested backend validation errors", async () => {
     const onRegistered = vi.fn();
     render(
       <NextIntlClientProvider locale="es" messages={messages}>
         <MockedProvider
           mocks={[
             studentMock,
+            tariffsMock,
             assignmentsMock,
             {
               request: { query: REGISTER, variables: () => true },
               result: {
                 errors: [
                   new GraphQLError("conflict", {
-                    extensions: { originalError: { code: "DUPLICATE" } },
+                    extensions: {
+                      originalError: { response: { code: "INVALID_INPUT" } },
+                    },
                   }),
                 ],
               },
@@ -549,15 +621,17 @@ describe("assistantship management", { timeout: 15000 }, () => {
       </NextIntlClientProvider>,
     );
     await fillRegistration();
+    fireEvent.click(screen.getByRole("button", { name: "Agregar horario" }));
+    fireEvent.change(screen.getByLabelText("Bloque horario"), {
+      target: { value: "A" },
+    });
     fireEvent.click(screen.getByRole("button", { name: "Guardar ayudantía" }));
     await waitFor(() =>
       expect(notifications.error).toHaveBeenCalledWith(
-        "La ayudantía o el correo/código estudiantil ya está registrado.",
+        "Algunos datos no cumplen las reglas de la ayudantía. Revisa fechas, horarios y campos obligatorios.",
       ),
     );
-    expect(
-      (screen.getByLabelText("Nombre completo") as HTMLInputElement).value,
-    ).toBe("Ana Pérez");
+    expect(screen.getByText("ana@example.test")).toBeDefined();
     expect(screen.getByRole("dialog")).toBeDefined();
     expect(onRegistered).not.toHaveBeenCalled();
   });
@@ -568,6 +642,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             optionsMock,
+            budgetMock,
             {
               request: { query: HISTORY, variables: () => true },
               result: {
@@ -629,6 +704,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
         <MockedProvider
           mocks={[
             optionsMock,
+            budgetMock,
             {
               request: { query: HISTORY, variables: () => true },
               result: {

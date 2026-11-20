@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { Plus, Trash2 } from "lucide-react";
-import { buttonClass, Field, inputClass } from "./controls";
+import { Field, inputClass } from "./controls";
 import type { AssistantshipBlockOption } from "../schema-types";
 const time = (minute: number) =>
   `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
