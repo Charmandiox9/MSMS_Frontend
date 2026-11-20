@@ -21,6 +21,14 @@ describe("TermsAcceptanceGate", () => {
     vi.mocked(terms.getCurrentTerms).mockImplementation(async (locale) => ({ locale: locale === "en" ? "en" : "es", version: "1", title: "Terms document", notice: "Notice", contentHash: "test-hash", sections: [] }));
   });
 
+  it("uses the dashboard palette while checking the terms status", () => {
+    vi.mocked(terms.getTermsStatus).mockImplementationOnce(() => new Promise(() => undefined));
+    render(gate("es"));
+
+    const loading = screen.getByText(es.TermsAcceptance.loading);
+    expect(loading.closest(".dashboard-workspace")).not.toBeNull();
+  });
+
   it("requires an explicit checkbox action before submitting acceptance", async () => {
     render(gate("es"));
     const checkbox = await screen.findByRole<HTMLInputElement>("checkbox");

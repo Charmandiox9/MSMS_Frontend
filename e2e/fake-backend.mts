@@ -269,6 +269,6 @@ const server = createServer(async (req, res) => {
   return error(res, 404, `Cannot ${method} ${path}`);
 });
 
-server.listen(PORT, 'localhost', () => {
+server.listen(PORT, '127.0.0.1', () => {
   console.log(`Backend E2E simulado en http://localhost:${PORT}`);
 });

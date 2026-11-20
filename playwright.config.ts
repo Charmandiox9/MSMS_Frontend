@@ -8,7 +8,7 @@ export const BACKEND_URL = `http://localhost:${BACKEND_PORT}`;
 
 /**
  * E2E contra el build de producción del frontend y un backend simulado con
- * estado (`e2e/fake-backend.ts`). Los tests comparten ese estado, así que
+ * estado (`e2e/fake-backend.mts`). Los tests comparten ese estado, así que
  * corren en serie y cada uno lo reinicia.
  */
 export default defineConfig({
@@ -33,9 +33,17 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: `npx next build && npx next start --port ${FRONTEND_PORT}`,
+      command: process.env.PLAYWRIGHT_SKIP_BUILD === '1'
+        ? 'node scripts/start-e2e-server.mjs'
+        : 'pnpm run build && node scripts/start-e2e-server.mjs',
       url: `${FRONTEND_URL}/api/runtime-config`,
-      env: { NEXT_PUBLIC_API_URL: `${BACKEND_URL}/api/graphql`, NEXT_TELEMETRY_DISABLED: '1' },
+      env: {
+        NEXT_PUBLIC_API_URL: `${BACKEND_URL}/api/graphql`,
+        NEXT_PUBLIC_BASE_PATH: '',
+        NEXT_TELEMETRY_DISABLED: '1',
+        PORT: String(FRONTEND_PORT),
+        HOSTNAME: '127.0.0.1',
+      },
       reuseExistingServer: !process.env.CI,
       timeout: 240_000,
     },

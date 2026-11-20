@@ -1,0 +1,37 @@
+name: Frontend CI
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Verify pnpm lockfile and install
+        run: |
+          corepack enable pnpm
+          pnpm install --lockfile-only --no-frozen-lockfile
+          git diff --exit-code -- pnpm-lock.yaml
+          pnpm install --frozen-lockfile
+      - name: Unit tests
+        run: pnpm test --maxWorkers=4
+      - name: Build
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3999/api/graphql
+          NEXT_TELEMETRY_DISABLED: '1'
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Browser tests
+        run: pnpm run test:e2e
+        env:
+          PLAYWRIGHT_SKIP_BUILD: '1'
