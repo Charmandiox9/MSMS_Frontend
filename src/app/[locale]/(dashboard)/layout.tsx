@@ -22,6 +22,7 @@ import {
   type ActiveSession,
 } from "@/lib/auth";
 import { DashboardShellSkeleton } from "@/components/ui/LoadingSkeletons";
+import WelcomeLoadingScreen from "@/components/auth/WelcomeLoadingScreen";
 import TermsAcceptanceGate from "@/components/legal/TermsAcceptanceGate";
 import { DashboardStartupProvider } from "@/context/DashboardStartupContext";
 import type { UserRoleCode } from "@/types/auth";
@@ -222,6 +223,7 @@ export default function DashboardLayout({
   }, [router]);
 
   if (isLoading || !session) {
+    if (welcomePending) return <WelcomeLoadingScreen phase="checking" />;
     return <DashboardShellSkeleton label={t("sessionChecking")} />;
   }
 

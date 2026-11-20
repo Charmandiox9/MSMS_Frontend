@@ -1,9 +1,15 @@
 import SessionEntry from "./SessionEntry";
 import LoginScreen from "./LoginScreen";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const query = await searchParams;
+
   return (
-    <SessionEntry>
+    <SessionEntry isOAuthCallback={query.entry === "oauth"}>
       <LoginScreen />
     </SessionEntry>
   );

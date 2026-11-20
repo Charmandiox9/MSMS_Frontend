@@ -11,7 +11,13 @@ import LoginPreferences from "@/components/auth/LoginPreferences";
 import RoleSelectionList from "@/components/auth/RoleSelectionList";
 import WelcomeLoadingScreen from "@/components/auth/WelcomeLoadingScreen";
 
-export default function SessionEntry({ children }: { children: ReactNode }) {
+export default function SessionEntry({
+  children,
+  isOAuthCallback = false,
+}: {
+  children: ReactNode;
+  isOAuthCallback?: boolean;
+}) {
   const router = useRouter();
   const t = useTranslations("SessionEntry");
   const tRoles = useTranslations("DashboardNav.roles");
@@ -20,11 +26,14 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
   );
   const [selected, setSelected] = useState<UserRoleCode | null>(null);
   const [entering, setEntering] = useState(false);
+  const [callbackCheckPending, setCallbackCheckPending] =
+    useState(isOAuthCallback);
 
   useEffect(() => {
     let active = true;
     void getActiveSession().then((value) => {
       if (!active) return;
+      setCallbackCheckPending(false);
       setSession(value);
       if (!value) return;
       const roles = getSessionRoles(value);
@@ -41,6 +50,8 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
     };
   }, [router]);
 
+  if (callbackCheckPending)
+    return <WelcomeLoadingScreen phase="checking" />;
   if (!session) return children;
   const roles = getSessionRoles(session);
   if (!roles.length)
@@ -53,9 +64,8 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
   if (entering)
     return (
       <WelcomeLoadingScreen
-        phase="preparing"
+        phase="checking"
         displayName={session?.displayName}
-        activeRole={selected ?? roles[0] ?? null}
       />
     );
   if (roles.length < 2) return children;

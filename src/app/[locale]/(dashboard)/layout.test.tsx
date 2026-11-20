@@ -73,6 +73,19 @@ describe('DashboardLayout (sesión)', () => {
     expect(screen.queryByText(/rol:/)).toBeNull();
   });
 
+  it('mantiene la bienvenida durante la validación de sesión tras elegir rol', () => {
+    routeState.search = '?welcome=1';
+    const api = installFakeApi();
+    api.on('GET /auth/session', () => new Promise(() => undefined));
+    renderLayout();
+
+    expect(
+      screen.getByRole('heading', { name: 'Verificando tu sesión' }),
+    ).toBeDefined();
+    expect(screen.queryByText('Verificando sesión…')).toBeNull();
+    expect(screen.queryByText(/rol:/)).toBeNull();
+  });
+
   it('redirige al login si no hay sesión y nunca muestra el contenido', async () => {
     installFakeApi({ 'GET /auth/session': () => ({ status: 401, body: { message: 'Unauthorized' } }) });
     renderLayout();

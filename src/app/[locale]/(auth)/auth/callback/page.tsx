@@ -13,7 +13,7 @@ export default async function AuthCallbackPage({
   const destination = resolveAuthCallbackTarget(query.route ?? '/dashboard');
 
   const href = destination === '/dashboard'
-    ? '/dashboard?welcome=1'
+    ? '/?entry=oauth'
     : destination;
   redirect({ href, locale });
 }

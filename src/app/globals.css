@@ -282,7 +282,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-index-welcome-overlay);
-  background-color: var(--surface-welcome-scrim);
+  background-color: var(--background);
   opacity: 1;
   transform: scale(1);
   transition-property: opacity, transform;
