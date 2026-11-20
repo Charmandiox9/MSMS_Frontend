@@ -56,6 +56,8 @@ test.beforeEach(async ({ page }) => {
       }));
     else if (request.method() === "GET" && path === "teachers")
       body = { items: [], total: 0, page: 1, pageSize: 100, totalPages: 0 };
+    else if (request.method() === "GET" && path === "careers/options")
+      body = [];
     else if (request.method() === "GET" && path === "students") {
       const nrc = url.searchParams.get("nrc");
       const search = url.searchParams.get("search")?.toLowerCase() ?? "";
@@ -151,7 +153,8 @@ test("crea estudiantes, edita matrícula, importa CSV y consulta por NRC desde a
     .getByRole("button", { name: "Crear estudiante", exact: true })
     .click();
   let dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Nombre completo").fill("Pedro Pérez");
+  await dialog.getByLabel("Nombre(s)").fill("Pedro");
+  await dialog.getByLabel("Apellido paterno").fill("Pérez");
   await dialog.getByLabel("Correo electrónico").fill("pedro@example.com");
   await dialog.getByLabel(/Oceanografía/).check();
   await page.screenshot({
@@ -192,7 +195,7 @@ test("crea estudiantes, edita matrícula, importa CSV y consulta por NRC desde a
   await expect(
     page.getByRole("heading", { name: "María Soto", exact: true }),
   ).toBeVisible();
-  await expect(page.getByText("3 estudiantes", { exact: true })).toBeVisible();
+  await expect(page.getByText("Página 1 de 1 · 3 estudiantes")).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("students-desktop.png") });
   await page.goto("/dashboard/subjects");
   const biology = page
@@ -233,7 +236,7 @@ test("un CSV con NRC inexistente muestra el error y conserva el diálogo", async
   await dialog
     .getByRole("button", { name: "Importar CSV", exact: true })
     .click();
-  await expect(dialog.getByRole("alert")).toContainText("NRC 99999");
+  await expect(dialog.getByRole("alert")).toContainText("No fue posible importar los estudiantes.");
   await expect(dialog).toBeVisible();
 });
 

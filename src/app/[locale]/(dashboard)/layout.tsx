@@ -222,11 +222,7 @@ export default function DashboardLayout({
   }, [router]);
 
   if (isLoading || !session) {
-    return (
-      <div className="institutional-theme dashboard-workspace min-h-screen bg-background text-foreground">
-        <DashboardShellSkeleton label={t("sessionChecking")} />
-      </div>
-    );
+    return <DashboardShellSkeleton label={t("sessionChecking")} />;
   }
 
   return (
