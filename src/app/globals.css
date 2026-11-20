@@ -297,17 +297,24 @@
 }
 
 .login-visual {
-  --login-scene-transition: rgb(248 250 252 / 88%);
-  --login-seam-width: 22%;
+  --login-panel-base: var(--color-slate-50);
+  --login-panel-feather: calc(var(--spacing) * 32);
+  --login-panel-blur: var(--blur-sm);
+  --login-panel-tint: color-mix(in srgb, var(--login-panel-base) 70%, transparent);
+  --login-panel-glow-top: rgb(165 243 252 / 32%);
+  --login-panel-glow-bottom: rgb(191 219 254 / 32%);
   --login-panel-surface: rgb(248 250 252 / 30%);
   --login-panel-wash-start: rgb(248 250 252 / 5%);
   --login-panel-wash-middle: rgb(248 250 252 / 15%);
   --login-panel-wash-end: rgb(248 250 252 / 30%);
   --login-card-surface: rgb(255 255 255 / 95%);
+  background-color: var(--login-panel-base);
 }
 
 .dark .login-visual {
-  --login-scene-transition: rgb(2 11 24 / 88%);
+  --login-panel-base: #020b18;
+  --login-panel-glow-top: rgb(22 78 99 / 14%);
+  --login-panel-glow-bottom: rgb(30 58 138 / 14%);
   --login-panel-surface: rgb(2 11 24 / 30%);
   --login-panel-wash-start: rgb(2 11 24 / 5%);
   --login-panel-wash-middle: rgb(2 11 24 / 15%);
@@ -316,8 +323,8 @@
 }
 
 .login-seam-fade {
-  width: var(--login-seam-width);
-  background-image: linear-gradient(90deg, transparent, var(--login-scene-transition));
+  width: var(--login-panel-feather);
+  background-image: linear-gradient(90deg, transparent, var(--login-panel-base));
 }
 
 .login-right-panel {
@@ -338,23 +345,18 @@
 }
 
 @media (min-width: 64rem) {
-  .login-visual {
-    --login-panel-surface: rgb(248 250 252 / 16%);
-    --login-panel-wash-start: rgb(248 250 252 / 0%);
-    --login-panel-wash-middle: rgb(248 250 252 / 6%);
-    --login-panel-wash-end: rgb(248 250 252 / 12%);
-  }
-
-  .dark .login-visual {
-    --login-panel-surface: rgb(2 11 24 / 16%);
-    --login-panel-wash-start: rgb(2 11 24 / 0%);
-    --login-panel-wash-middle: rgb(2 11 24 / 6%);
-    --login-panel-wash-end: rgb(2 11 24 / 12%);
-  }
-
   .login-right-panel {
     background-color: transparent;
-    background-image: linear-gradient(90deg, transparent, var(--login-panel-surface));
+  }
+
+  .login-right-wash {
+    left: calc(-1 * var(--login-panel-feather));
+    background:
+      radial-gradient(ellipse at 90% 10%, var(--login-panel-glow-top), transparent 62%),
+      radial-gradient(ellipse at 20% 80%, var(--login-panel-glow-bottom), transparent 62%),
+      var(--login-panel-tint);
+    backdrop-filter: blur(var(--login-panel-blur));
+    mask-image: linear-gradient(90deg, transparent, var(--login-panel-base) var(--login-panel-feather));
   }
 }
 

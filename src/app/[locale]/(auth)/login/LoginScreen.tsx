@@ -8,7 +8,7 @@ export default function LoginPage() {
   const t = useTranslations('Login');
 
   return (
-    <div data-illustration-palette="login" className="login-visual relative isolate grid min-h-dvh w-full overflow-hidden bg-slate-50 selection:bg-ocean-cyan/30 transition-colors duration-500 dark:bg-[#020b18] lg:grid-cols-2">
+    <div data-illustration-palette="login" className="login-visual relative isolate grid min-h-dvh w-full overflow-hidden selection:bg-ocean-cyan/30 transition-colors duration-500 lg:grid-cols-2">
       <LoginPreferences />
       <LoginSquid />
       <div className="hidden lg:flex relative flex-col p-12 overflow-visible bg-white dark:bg-[#010a14] transition-colors duration-500">
@@ -38,9 +38,7 @@ export default function LoginPage() {
       </div>
 
       <div className="login-right-panel relative z-[2] flex min-w-0 items-center justify-center px-4 pb-8 pt-24 transition-colors duration-300 sm:px-6 sm:pb-12 lg:p-12">
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="login-right-wash absolute inset-0"></div>
-        </div>
+        <div aria-hidden="true" className="login-right-wash pointer-events-none absolute inset-0 z-0"></div>
         <div className="w-full max-w-[440px] relative z-10">
           <div className="login-auth-card group/card relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200/80 p-6 shadow-[0_8px_40px_rgba(0,0,0,0.04)] transition-colors duration-200 hover:border-ocean-cyan/30 dark:border-white/10 dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] dark:hover:border-cyan-500/30 sm:p-10">
             <div className="flex items-center gap-3 mb-8 sm:gap-4 sm:mb-10">
