@@ -8,6 +8,7 @@ export interface AssistantshipScheduleView {
 }
 
 export interface AssistantshipView {
+  scheduleNotificationSent: boolean | null;
   id: string;
   teachingAssignmentId: string | null;
   studentId: string | null;
@@ -29,11 +30,32 @@ export interface AssistantshipView {
   startsOn: string;
   endsOn: string | null;
   weeklyHours: number | null;
+  tariffId: string | null;
+  tariffName: string | null;
+  tariffRateClp: number | null;
+  estimatedAmountClp: number | null;
   state: AssistantshipState;
   schedules: Array<AssistantshipScheduleView>;
 }
 
 export type AssistantshipState = "SCHEDULED" | "ACTIVE" | "COMPLETED";
+
+export interface AssistantshipTariffOption {
+  id: string;
+  semesterId: string;
+  name: string;
+  monthlyRateClp: number;
+}
+
+export interface AssistantshipBudgetSummary {
+  semesterId: string;
+  semesterName: string;
+  allocatedAmountClp: number;
+  occupiedAmountClp: number;
+  percentage: number;
+  assistantships: number;
+  unpricedCount: number;
+}
 
 export interface AssistantshipPage {
   items: Array<AssistantshipView>;
@@ -85,7 +107,8 @@ export interface AssistantshipCareerOption {
 export interface AssistantshipStudentOption {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
+  rut: string | null;
   careerCurriculumVersionId: string | null;
   careerId: string | null;
   careerName: string | null;
@@ -114,24 +137,31 @@ export interface AssistantshipFilters {
   pageSize?: number;
 }
 
+export interface SaveAssistantshipTariffInput {
+  id?: string | null;
+  semesterId: string;
+  name: string;
+  monthlyRateClp: number;
+}
+
 export interface RegisterAssistantshipInput {
-  assistantshipNrc?: string | null;
+  notifySchedule?: boolean | null;
+  applicationId?: string | null;
+  assistantshipNrc: string;
   teachingAssignmentId?: string | null;
   semesterId: string;
   courseId?: string | null;
   careerId?: string | null;
-  careerCurriculumVersionId?: string | null;
-  studentId?: string | null;
+  studentId: string;
+  tariffId?: string | null;
   courseNrc?: string | null;
-  assistantName: string;
-  assistantEmail: string;
   studentCode?: string | null;
   approvedOn: string;
   startsOn: string;
   endsOn: string;
   approvalConfirmed: boolean;
-  weeklyHours?: number | null;
-  schedules?: Array<AssistantshipScheduleInput> | null;
+  weeklyHours: number;
+  schedules: Array<AssistantshipScheduleInput>;
 }
 
 export interface AssistantshipScheduleInput {

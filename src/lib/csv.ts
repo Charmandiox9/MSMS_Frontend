@@ -1,3 +1,5 @@
+import { downloadBlob } from "./download";
+
 /** Quote cells and neutralize formulas before generating a spreadsheet download. */
 export function createCsv(
   columns: string[],
@@ -20,15 +22,5 @@ export function createCsv(
   );
 }
 export function downloadCsv(filename: string, content: string) {
-  const url = URL.createObjectURL(
-    new Blob([content], { type: "text/csv;charset=utf-8" }),
-  );
-  try {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.click();
-  } finally {
-    URL.revokeObjectURL(url);
-  }
+  downloadBlob(filename, new Blob([content], { type: "text/csv;charset=utf-8" }));
 }

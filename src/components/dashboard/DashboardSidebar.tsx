@@ -1,184 +1,179 @@
-'use client';
+"use client";
 
+import { X } from "lucide-react";
+import type { Ref } from "react";
+import { useTranslations } from "next-intl";
+import DashboardAccountMenu from "@/components/dashboard/DashboardAccountMenu";
 import {
-  BarChart3,
-  ChevronDown,
-  PanelLeftClose,
-  PanelLeftOpen,
-  X,
-} from 'lucide-react';
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Link, usePathname } from '@/i18n/routing';
-import { DASHBOARD_SECTIONS, getFilteredNavigation } from '@/config/navigation';
-import DashboardUserDial from '@/components/dashboard/DashboardUserDial';
-import type { ActiveSession } from '@/types/auth';
+  DASHBOARD_SECTIONS,
+  getFilteredNavigation,
+  type NavigationItem,
+} from "@/config/navigation";
+import { Link, usePathname } from "@/i18n/routing";
+import type { ActiveSession, UserRoleCode } from "@/types/auth";
+
+const NAVIGATION_GROUPS = [
+  "studentSupport",
+  "academicInformation",
+  "research",
+] as const;
 
 interface DashboardSidebarProps {
-  collapsed: boolean;
-  onCollapsedChange: (collapsed: boolean) => void;
-  mobileOpen: boolean;
-  onMobileOpenChange: (open: boolean) => void;
-  activeRole?: string | null;
+  activeRole: UserRoleCode | null;
   session: ActiveSession | null;
+  mobileOpen: boolean;
+  mobileDialogId: string;
+  mobileDialogRef: Ref<HTMLDialogElement>;
+  onMobileCloseRequest: () => void;
+  onMobileClosed: () => void;
 }
 
-export default function DashboardSidebar({
-  collapsed,
-  onCollapsedChange,
-  mobileOpen,
-  onMobileOpenChange,
-  activeRole,
-  session,
-}: DashboardSidebarProps) {
-  const t = useTranslations('DashboardNav');
+interface DashboardNavigationProps {
+  activeRole: UserRoleCode | null;
+  onNavigate?: () => void;
+}
+
+function DashboardNavigation({ activeRole, onNavigate }: DashboardNavigationProps) {
+  const t = useTranslations("DashboardNav");
   const pathname = usePathname();
-  const [openGroups, setOpenGroups] = useState<string[]>([]);
-
   const sections = getFilteredNavigation(DASHBOARD_SECTIONS, activeRole);
+  const items = sections.flatMap((section) => section.items);
+  const currentItem = items
+    .filter(({ href }) => pathname === href || (
+      href !== "/dashboard" && pathname.startsWith(`${href}/`)
+    ))
+    .sort((first, second) => second.href.length - first.href.length)[0];
 
-  const renderNavigation = (isCollapsed: boolean, closeMobile?: () => void) => (
+  const renderItem = (item: NavigationItem) => {
+    const Icon = item.icon;
+    const isCurrent = item === currentItem;
+
+    return (
+      <li key={item.key}>
+        <Link
+          href={item.href}
+          onClick={onNavigate}
+          aria-current={isCurrent ? (pathname === item.href ? "page" : "location") : undefined}
+          className={`flex min-h-11 items-center gap-3 rounded-md border-s-2 px-3 py-1.5 text-sm leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset md:min-h-8 ${
+            isCurrent
+              ? "border-primary bg-selection font-semibold text-primary"
+              : "border-transparent text-foreground hover:bg-selection"
+          }`}
+        >
+          <Icon className="size-4 shrink-0" aria-hidden="true" />
+          <span className="min-w-0 wrap-break-word">{t(item.key)}</span>
+        </Link>
+      </li>
+    );
+  };
+
+  return (
     <nav
-      aria-label="Sidebar Navigation"
+      aria-label={t("sidebarNavigation")}
       data-lenis-prevent
-      className="flex-1 space-y-5 overflow-y-auto px-3 py-5"
+      className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3"
     >
       {sections.map((section) => (
-        <section key={section.key} aria-label={t(`sections.${section.key}`)}>
-          {!isCollapsed && (
-            <p className="mb-2 px-3 text-[10px] font-black uppercase tracking-[0.16em] text-primary-foreground/45">
-              {t(`sections.${section.key}`)}
-            </p>
-          )}
-          <div className="space-y-1">
-            {(() => {
-              const groupOrder = ['studentSupport', 'academicInformation', 'research', 'administration'] as const;
-              const groupedItems = groupOrder.map((group) => ({
-                group,
-                items: section.items.filter((item) => item.group === group),
-              })).filter(({ items }) => items.length > 0);
-              const ungroupedItems = section.items.filter((item) => !item.group);
-              const renderItem = (item: (typeof section.items)[number]) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  onClick={closeMobile}
-                  title={isCollapsed ? t(item.key) : undefined}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`group flex items-center rounded-2xl px-3 py-3 text-sm font-semibold transition-all ${
-                    isActive
-                      ? 'bg-ocean-cyan/20 text-primary-foreground shadow-inner ring-1 ring-ocean-cyan/30'
-                      : 'text-primary-foreground/65 hover:bg-primary-foreground/10 hover:text-primary-foreground'
-                  } ${isCollapsed ? 'justify-center' : 'gap-3'}`}
-                >
-                  <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-ocean-cyan' : 'group-hover:text-ocean-cyan'}`} />
-                  {!isCollapsed && <span className="truncate">{t(item.key)}</span>}
-                </Link>
-              );
-              };
+        <section key={section.key} aria-label={t(`sections.${section.key}`)} className="border-t border-border/75 py-3 first:border-t-0 first:pt-1">
+          <p className="mb-1.5 px-3 text-[0.6875rem] font-semibold uppercase tracking-wider text-muted-foreground">
+            {t(`sections.${section.key}`)}
+          </p>
+          <ul>
+            {section.items.filter((item) => !item.group).map(renderItem)}
+            {NAVIGATION_GROUPS.map((group) => {
+              const groupItems = section.items.filter((item) => item.group === group);
+              if (groupItems.length === 0) return null;
 
-              return <>
-                {ungroupedItems.map(renderItem)}
-                {groupedItems.map(({ group, items }) => {
-                  if (items.length === 1) return renderItem(items[0]);
-                  const groupKey = `${section.key}.${group}`;
-                  const active = items.some((item) => pathname === item.href);
-                  const isOpen = openGroups.includes(groupKey) || active;
-                  return <div key={groupKey}>
-                    {!isCollapsed && <button
-                      type="button"
-                      aria-expanded={isOpen}
-                      onClick={() => setOpenGroups((current) => current.includes(groupKey)
-                        ? current.filter((key) => key !== groupKey)
-                        : [...current, groupKey])}
-                      className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-bold text-primary-foreground/55 transition-colors hover:bg-primary-foreground/5 hover:text-primary-foreground/80"
-                    >
-                      <span>{t(`groups.${group}`)}</span>
-                      <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                    </button>}
-                    {(isCollapsed || isOpen) && <div className={`${isCollapsed ? '' : 'ml-2 space-y-1 border-l border-primary-foreground/10 pl-2'}`}>
-                      {items.map(renderItem)}
-                    </div>}
-                  </div>;
-                })}
-              </>;
-            })()}
-          </div>
+              return (
+                <li key={group} className="mt-3 first:mt-0">
+                  <p className="mb-0.5 px-3 text-xs font-medium text-muted-foreground">
+                    {t(`groups.${group}`)}
+                  </p>
+                  <ul aria-label={t(`groups.${group}`)}>
+                    {groupItems.map(renderItem)}
+                  </ul>
+                </li>
+              );
+            })}
+          </ul>
         </section>
       ))}
     </nav>
   );
+}
+
+function DashboardBrand({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <Link
+      href="/dashboard"
+      onClick={onNavigate}
+      className="inline-flex min-h-11 min-w-0 items-center gap-3 rounded-md font-semibold tracking-tight text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+    >
+      <span
+        aria-hidden="true"
+        className="grid size-8 shrink-0 place-items-center rounded-md bg-primary text-sm text-primary-foreground"
+      >
+        M
+      </span>
+      MARSYS
+    </Link>
+  );
+}
+
+export default function DashboardSidebar({
+  activeRole,
+  session,
+  mobileOpen,
+  mobileDialogId,
+  mobileDialogRef,
+  onMobileCloseRequest,
+  onMobileClosed,
+}: DashboardSidebarProps) {
+  const t = useTranslations("DashboardNav");
 
   return (
     <>
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true">
-          <button
-            type="button"
-            className="absolute inset-0 bg-ucn-navy/70 backdrop-blur-sm"
-            onClick={() => onMobileOpenChange(false)}
-            aria-label={t('closeMenu')}
-          />
-          <aside
-            data-lenis-prevent
-            className="relative flex h-full w-[290px] max-w-[85vw] flex-col bg-ucn-navy py-5 text-primary-foreground shadow-2xl ring-1 ring-primary-foreground/10"
-          >
-            <div className="flex items-center justify-between px-5">
-              <Link
-                href="/dashboard"
-                onClick={() => onMobileOpenChange(false)}
-                className="flex items-center gap-2 font-black tracking-tight"
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ocean-cyan/15 text-ocean-cyan">
-                  <BarChart3 className="h-5 w-5" />
-                </span>
-                MARSYS
-              </Link>
-              <button
-                type="button"
-                onClick={() => onMobileOpenChange(false)}
-                className="rounded-xl p-2 text-primary-foreground/80 hover:bg-primary-foreground/10"
-                aria-label={t('closeMenu')}
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            {renderNavigation(false, () => onMobileOpenChange(false))}
-            <DashboardUserDial session={session} collapsed={false} />
-          </aside>
+      <aside className="sticky top-0 z-40 hidden h-dvh w-64 shrink-0 flex-col self-start border-e border-border bg-muted md:flex xl:w-72">
+        <div className="shrink-0 border-b border-border px-5 py-3">
+          <DashboardBrand />
         </div>
-      )}
-
-      <aside
-        data-lenis-prevent
-        className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-primary-foreground/10 bg-ucn-navy py-5 text-primary-foreground transition-[width] duration-300 md:flex ${
-          collapsed ? 'w-20' : 'w-72'
-        }`}
-      >
-        <div className={`flex items-center px-5 ${collapsed ? 'justify-center' : 'justify-between'}`}>
-          {!collapsed && (
-            <Link href="/dashboard" className="flex items-center gap-2 font-black tracking-tight">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ocean-cyan/15 text-ocean-cyan">
-                <BarChart3 className="h-5 w-5" />
-              </span>
-              MARSYS
-            </Link>
-          )}
-          <button
-            type="button"
-            onClick={() => onCollapsedChange(!collapsed)}
-            className="rounded-xl p-2 text-primary-foreground/65 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
-            aria-label={collapsed ? t('expand') : t('collapse')}
-          >
-            {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
-          </button>
+        <DashboardNavigation activeRole={activeRole} />
+        <div className="relative shrink-0 border-t border-border bg-muted">
+          <DashboardAccountMenu session={session} />
         </div>
-        {renderNavigation(collapsed)}
-        <DashboardUserDial session={session} collapsed={collapsed} />
       </aside>
+
+      <dialog
+        id={mobileDialogId}
+        ref={mobileDialogRef}
+        aria-label={t("sidebarNavigation")}
+        onClose={onMobileClosed}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) onMobileCloseRequest();
+        }}
+        data-lenis-prevent
+        className="fixed inset-y-0 start-0 end-auto m-0 h-dvh max-h-none w-72 max-w-full overflow-visible border-e border-border bg-muted p-0 text-foreground backdrop:bg-foreground/35 md:hidden"
+      >
+        <div className="flex h-full min-h-0 flex-col">
+          <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-4 py-3">
+            <button
+              type="button"
+              onClick={onMobileCloseRequest}
+              aria-label={t("closeMenu")}
+              className="order-1 grid size-11 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-selection hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            >
+              <X className="size-5" aria-hidden="true" />
+            </button>
+            <DashboardBrand onNavigate={onMobileCloseRequest} />
+          </div>
+          <DashboardNavigation activeRole={activeRole} onNavigate={onMobileCloseRequest} />
+          <div className="relative shrink-0 border-t border-border bg-muted">
+            {mobileOpen && (
+              <DashboardAccountMenu session={session} onNavigate={onMobileCloseRequest} />
+            )}
+          </div>
+        </div>
+      </dialog>
     </>
   );
 }

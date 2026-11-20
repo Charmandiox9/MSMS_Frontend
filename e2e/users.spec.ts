@@ -46,19 +46,22 @@ test.describe('administración de usuarios', () => {
 });
 
 test.describe('cambio de rol activo', () => {
-  test('una cuenta con dos roles cambia de menú y de páginas al cambiar de rol', async ({ context, page }) => {
+  test('una cuenta con dos roles vuelve a Inicio al cambiar a un rol sin acceso a la vista', async ({ context, page }) => {
     await loginAs(context, 'multi');
-    await page.goto('/dashboard');
-    const nav = page.getByRole('navigation').first();
-    await expect(nav.getByRole('link', { name: 'Usuarios', exact: true })).toBeVisible();
+    await page.goto('/dashboard/users');
+    const account = page.getByRole('button', { name: 'Mi cuenta' });
+    await expect(account).toHaveAccessibleDescription('Administrador del sistema');
 
-    await page.getByRole('button', { name: 'Cambiar rol activo' }).first().click();
-    await page.getByRole('option', { name: /Apoyo docente/ }).click();
+    await account.click();
+    const panel = page.getByRole('region', { name: 'Mi cuenta' });
+    await panel.getByRole('button', { name: 'Cambiar rol' }).click();
+    await panel.getByRole('button', { name: 'Apoyo docente' }).click();
 
-    await expect(nav.getByRole('link', { name: 'Justificaciones', exact: true })).toBeVisible();
-    await expect(nav.getByRole('link', { name: 'Usuarios', exact: true })).toHaveCount(0);
+    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(account).toHaveAccessibleDescription('Apoyo docente');
+    await expect(page.getByRole('navigation').getByRole('link', { name: 'Usuarios', exact: true })).toHaveCount(0);
 
     await page.reload();
-    await expect(page.getByRole('navigation').first().getByRole('link', { name: 'Justificaciones', exact: true })).toBeVisible();
+    await expect(account).toHaveAccessibleDescription('Apoyo docente');
   });
 });

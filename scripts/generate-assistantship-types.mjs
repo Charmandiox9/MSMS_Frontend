@@ -35,7 +35,7 @@ function nonNullable(type) {
   return type.name;
 }
 const types = Object.values(schema.getTypeMap()).filter((type) =>
-  /^(Assistantship|RegisterAssistantship)/.test(type.name),
+  /^(Assistantship|RegisterAssistantship|SaveAssistantshipTariff)/.test(type.name),
 );
 const declarations = types.map((type) => {
   if (isEnumType(type))

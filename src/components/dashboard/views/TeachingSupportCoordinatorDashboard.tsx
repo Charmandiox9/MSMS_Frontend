@@ -27,9 +27,11 @@ export default function TeachingSupportCoordinatorDashboard() {
 
       <RoleDashboardStats
         endpoint="/dashboard/teaching-support-coordinator"
+        sectionLabels={{ attention: t("inboxTitle"), semester: t("metricsTitle") }}
         metrics={[
           {
             key: "assistantships",
+            href: "/dashboard/assistantships",
             title: t("stats.assistantships"),
             description: t("stats.assistantshipsDesc"),
             icon: Users,
@@ -42,21 +44,19 @@ export default function TeachingSupportCoordinatorDashboard() {
           },
           {
             key: "unreadInbox",
+            group: "attention",
+            href: "/dashboard/justifications",
             title: t("stats.unreadInbox"),
             description: t("stats.unreadInboxDesc"),
             icon: ClipboardCheck,
           },
           {
             key: "pendingJustifications",
+            group: "attention",
+            href: "/dashboard/justifications",
             title: t("stats.justificationsPending"),
             description: t("stats.justificationsPendingDesc"),
             icon: ClipboardCheck,
-          },
-          {
-            key: "activeAssignments",
-            title: t("stats.activeAssignments"),
-            description: t("stats.activeAssignmentsDesc"),
-            icon: Users,
           },
           {
             key: "activeSchedules",

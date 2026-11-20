@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { renderAs } from "@/test/render";
 import { installFakeApi, ok, fail } from "@/test/fake-api";
 import AcademicCharts from "./AcademicCharts";

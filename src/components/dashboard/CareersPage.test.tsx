@@ -11,6 +11,7 @@ const course = {
   code: "BM101",
   name: "Biología marina",
 };
+const department = { id: "department", name: "Oceanografía" };
 
 describe("CareersPage", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -86,6 +87,7 @@ describe("CareersPage", () => {
     const api = installFakeApi({
       "GET /academic/careers": ok([]),
       "GET /academic/careers/course-options": ok([course]),
+      "GET /academic/departments/options": ok([department]),
       "POST /academic/careers": ok({ id: "career" }),
     });
 
@@ -99,7 +101,11 @@ describe("CareersPage", () => {
     fireEvent.change(screen.getByLabelText("Nombre de la carrera"), {
       target: { value: "Biología Marina" },
     });
-    fireEvent.change(screen.getByRole("combobox"), {
+    await screen.findByRole("option", { name: department.name });
+    fireEvent.change(screen.getByLabelText("Departamento"), {
+      target: { value: department.id },
+    });
+    fireEvent.change(screen.getByRole("combobox", { name: "Asignatura" }), {
       target: { value: course.id },
     });
     fireEvent.click(screen.getByRole("button", { name: "Agregar" }));
@@ -111,6 +117,7 @@ describe("CareersPage", () => {
     expect(api.calls("POST /academic/careers")[0].body).toMatchObject({
       code: "BIO-MAR",
       name: "Biología Marina",
+      departmentId: department.id,
       courses: [{ courseId: course.id, termNumber: 1 }],
     });
   });
@@ -119,6 +126,7 @@ describe("CareersPage", () => {
     const api = installFakeApi({
       "GET /academic/careers": ok([]),
       "GET /academic/careers/course-options": ok([course]),
+      "GET /academic/departments/options": ok([department]),
       "POST /academic/imports/careers/commit": ok({
         id: "job-id",
         status: "QUEUED",
@@ -138,6 +146,10 @@ describe("CareersPage", () => {
     });
     fireEvent.change(screen.getByLabelText("Nombre de la carrera"), {
       target: { value: "Biología Marina" },
+    });
+    await screen.findByRole("option", { name: department.name });
+    fireEvent.change(screen.getByLabelText("Departamento"), {
+      target: { value: department.id },
     });
     fireEvent.click(screen.getByRole("button", { name: "Importar desde CSV" }));
     const file = new File(
@@ -164,6 +176,7 @@ describe("CareersPage", () => {
     ).toMatchObject({
       code: "BIO-MAR",
       name: "Biología Marina",
+      departmentId: department.id,
       cohortYear: new Date().getFullYear(),
       courses: [{ courseName: "Biología marina", termNumber: 1 }],
     });

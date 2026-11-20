@@ -1,11 +1,10 @@
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
-import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 const intlMiddleware = createMiddleware(routing);
 
-export default function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   if (pathname.includes("/auth/callback")) {
@@ -21,14 +20,11 @@ export default function middleware(req: NextRequest) {
 
   // A new visitor starts in Spanish. Explicit locale routes and the MARSYS
   // preference cookie still take precedence inside next-intl's middleware.
-  const headers = new Headers(req.headers);
-  headers.set("accept-language", routing.defaultLocale);
-  return intlMiddleware(new NextRequest(req, {
-    headers,
-    nextConfig: { basePath: req.nextUrl.basePath },
-  }));
+  req.headers.set("accept-language", routing.defaultLocale);
+  return intlMiddleware(req);
 }
 
 export const config = {
-  matcher: ["/", "/(es|en)/:path*", "/((?!api|_next|_vercel|.*\\..*).*)"],
+  // Locale-prefixed paths are internal rewrite targets; matching them again causes redirect loops.
+  matcher: ["/", "/((?!api|_next|_vercel|es(?:/|$)|en(?:/|$)|.*\\..*).*)"],
 };

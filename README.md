@@ -2,6 +2,8 @@
 
 Interfaz web de MARSYS, plataforma académica construida con Next.js App Router, React, TypeScript y Tailwind CSS. La aplicación usa `next-intl` para español e inglés, Apollo Client para GraphQL y Sonner para notificaciones.
 
+Antes de diseñar o modificar el panel privado, consulta el [manual de diseño de MARSYS](DESIGN.md).
+
 ## Requisitos
 
 - Node.js y pnpm.

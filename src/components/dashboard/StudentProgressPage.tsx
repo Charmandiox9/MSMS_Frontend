@@ -86,10 +86,16 @@ export default function StudentProgressPage({ studentId }: { studentId: string }
     <div className="space-y-6">
       <Link href="/dashboard/students" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"><ArrowLeft className="h-4 w-4" />{t("back")}</Link>
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div><p className="text-xs font-bold uppercase tracking-widest text-primary">{t("eyebrow")}</p><h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">{progress.student.name}</h1><p className="mt-1 text-sm text-muted-foreground">{progress.student.email}</p>{version && <p className="mt-2 text-sm font-semibold text-foreground">{version.career.name} · {t("cohort", { year: version.cohortYear })}</p>}</div>
+        <div><p className="text-xs font-bold uppercase tracking-widest text-primary">{t("eyebrow")}</p><h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">{progress.student.name}</h1><p className="mt-1 text-sm text-muted-foreground">{progress.student.email}</p>{(version?.career ?? progress.student.career) && <p className="mt-2 text-sm font-semibold text-foreground">{version?.career.name ?? progress.student.career?.name}{version && ` · ${t("cohort", { year: version.cohortYear })}`}</p>}</div>
         {canManage && version && <button type="button" onClick={() => setEditorOpen(true)} className="inline-flex min-h-11 items-center gap-2 self-start rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:opacity-90 sm:self-auto"><Plus className="h-4 w-4" />{t("recordAttempt")}</button>}
       </header>
-      {!version ? <p className="rounded-2xl border border-dashed border-border p-8 text-sm text-muted-foreground">{t("noCurriculum")}</p> : (
+      {!version ? (
+        <p className="rounded-2xl border border-dashed border-border p-8 text-sm text-muted-foreground">
+          {progress.student.career
+            ? t("careerWithoutCurriculum")
+            : t("noCurriculum")}
+        </p>
+      ) : (
         <>
           <section className="rounded-2xl border border-border bg-card p-5">
             <div className="flex items-end justify-between gap-3"><div><p className="text-sm font-bold text-foreground">{t("overallProgress")}</p><p className="mt-1 text-xs text-muted-foreground">{t("passedSummary", { passed: progress.summary.passedCourses, total: progress.summary.totalCourses, enrolled: progress.summary.enrolledCourses })}</p></div><strong className="text-3xl font-black text-primary">{progress.summary.progressPercent}%</strong></div>

@@ -142,9 +142,12 @@ test.describe("sesión y acceso por rol", () => {
     context,
   }, testInfo) => {
     await loginAs(context, "multi");
+    await context.addCookies([
+      { name: "MARSYS_LOCALE", value: "en", domain: "localhost", path: "/" },
+    ]);
     await context.addInitScript(() => localStorage.setItem("theme", "dark"));
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/en/login");
+    await page.goto("/login");
     await expect(
       page.getByRole("heading", { name: "Choose your workspace" }),
     ).toBeVisible();
@@ -235,7 +238,10 @@ test.describe("sesión y acceso por rol", () => {
     }) => {
       await loginAs(context, account as keyof typeof MENU);
       await page.goto("/dashboard");
-      const nav = page.getByRole("navigation").first();
+      const nav = page.getByRole("navigation", { name: "Navegación principal" });
+      await expect(nav).toBeVisible();
+
+      await expect(nav.getByRole("button")).toHaveCount(0);
 
       for (const label of visible)
         await expect(
@@ -288,7 +294,7 @@ test.describe("sesión y acceso por rol", () => {
       (request) => request.url() === `${BACKEND_URL}/api/auth/logout`,
     );
     await page
-      .getByRole("button", { name: "Abrir menú de cuenta" })
+      .getByRole("button", { name: "Mi cuenta" })
       .first()
       .click();
     await page.getByRole("button", { name: "Cerrar sesión" }).click();

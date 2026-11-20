@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   BookOpen,
   ListChecks,
   ChevronDown,
+  CircleHelp,
   Eye,
   Plus,
   Pencil,
@@ -16,6 +17,7 @@ import { apiFetch } from "@/lib/api";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import PaginationControls from "@/components/ui/PaginationControls";
 import type { Student } from "@/types/students";
+import type { CareerOption } from "@/types/careers";
 import type { PaginatedResponse } from "@/types/pagination";
 import type { CurrentCourseCatalog } from "@/types/academic";
 import { Link } from "@/i18n/routing";
@@ -24,6 +26,8 @@ import ImportStudentsDialog from "./ImportStudentsDialog";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import AcademicDetailsDialog from "@/components/dashboard/academic/AcademicDetailsDialog";
 import AcademicImportButton from "@/components/dashboard/academic/AcademicImportButton";
+import TitulationOutcomeBadge from "@/components/dashboard/titulation/TitulationOutcomeBadge";
+import StatusBadge from "@/components/ui/StatusBadge";
 import {
   academicPrimaryActionClass,
   academicSecondaryActionClass,
@@ -39,14 +43,21 @@ export default function StudentsPage({
   initialNrc?: string;
 }) {
   const t = useTranslations("StudentsPage");
+  const titulation = useTranslations("TitulationPage");
+  const locale = useLocale();
   const { activeRole } = useActiveRole();
   const canManage =
     activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY";
   const [search, setSearch] = useState("");
   const [nrc, setNrc] = useState(initialNrc);
+  const [careerId, setCareerId] = useState("");
+  const [cohortYear, setCohortYear] = useState("");
+  const [sortBy, setSortBy] = useState<"" | "name" | "surname">("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
   const [result, setResult] = useState<PaginatedResponse<Student> | null>(null);
   const [catalog, setCatalog] = useState<CurrentCourseCatalog | null>(null);
+  const [careerOptions, setCareerOptions] = useState<CareerOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
@@ -61,12 +72,32 @@ export default function StudentsPage({
   useEffect(() => {
     if (!canRead) return;
     let active = true;
+    apiFetch<CareerOption[]>("/academic/careers/options")
+      .then((careers) => {
+        if (active) setCareerOptions(careers);
+      })
+      .catch(() => {
+        if (active) setCareerOptions([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [canRead]);
+  useEffect(() => {
+    if (!canRead) return;
+    let active = true;
     const query = new URLSearchParams({
       page: String(page),
       pageSize: "10",
       search: search.trim(),
     });
     if (nrc) query.set("nrc", nrc);
+    if (careerId) query.set("careerId", careerId);
+    if (cohortYear) query.set("cohortYear", cohortYear);
+    if (sortBy) {
+      query.set("sortBy", sortBy);
+      query.set("sortOrder", sortOrder);
+    }
     Promise.all([
       apiFetch<PaginatedResponse<Student>>(`/academic/students?${query}`),
       apiFetch<CurrentCourseCatalog>("/academic/courses/current"),
@@ -88,7 +119,18 @@ export default function StudentsPage({
     return () => {
       active = false;
     };
-  }, [canRead, search, nrc, page, reload, loadError]);
+  }, [
+    canRead,
+    search,
+    nrc,
+    careerId,
+    cohortYear,
+    sortBy,
+    sortOrder,
+    page,
+    reload,
+    loadError,
+  ]);
   const refresh = () => {
     setEditor(undefined);
     setImportOpen(false);
@@ -97,6 +139,30 @@ export default function StudentsPage({
     setReload((value) => value + 1);
   };
   if (!activeRole) return <PageSkeleton label={t("loading")} />;
+  const cohortOptions = [
+    ...new Set(
+      careerOptions
+        .filter((career) => !careerId || career.id === careerId)
+        .flatMap((career) =>
+          career.curriculumVersions.map(({ cohortYear: year }) => year),
+        ),
+    ),
+  ].sort((left, right) => right - left);
+  const viewingCareer =
+    viewingStudent?.careerCurriculumVersion?.career ?? viewingStudent?.career;
+  const viewingBirthDate = viewingStudent?.birthDate
+    ? new Intl.DateTimeFormat(locale, {
+        dateStyle: "long",
+        timeZone: "UTC",
+      }).format(
+        new Date(`${viewingStudent.birthDate.slice(0, 10)}T12:00:00.000Z`),
+      )
+    : null;
+  const viewingAdmissionTerm = viewingStudent?.admission?.endsWith("10")
+    ? t("firstSemester")
+    : viewingStudent?.admission?.endsWith("20")
+      ? t("secondSemester")
+      : null;
   return (
     <div className="space-y-6">
       <DashboardPageHeader
@@ -130,7 +196,7 @@ export default function StudentsPage({
               : t("noSemesterList")}
           </p>
         )}
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <label className="text-xs font-semibold text-muted-foreground">
             {t("search")}
             <input
@@ -144,6 +210,82 @@ export default function StudentsPage({
               }}
               className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
             />
+          </label>
+          <label className="text-xs font-semibold text-muted-foreground">
+            {t("filterCareer")}
+            <select
+              value={careerId}
+              onChange={(event) => {
+                setLoading(true);
+                setCareerId(event.target.value);
+                setCohortYear("");
+                setPage(1);
+              }}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
+            >
+              <option value="">{t("allCareers")}</option>
+              {careerOptions.map((career) => (
+                <option key={career.id} value={career.id}>
+                  {career.code
+                    ? t("careerOption", {
+                        name: career.name,
+                        code: career.code,
+                      })
+                    : career.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-xs font-semibold text-muted-foreground">
+            {t("filterCohort")}
+            <select
+              value={cohortYear}
+              onChange={(event) => {
+                setLoading(true);
+                setCohortYear(event.target.value);
+                setPage(1);
+              }}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
+            >
+              <option value="">{t("allCohorts")}</option>
+              {cohortOptions.map((year) => (
+                <option key={year} value={year}>
+                  {t("cohortYear", { year })}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-xs font-semibold text-muted-foreground">
+            {t("sortBy")}
+            <select
+              value={sortBy}
+              onChange={(event) => {
+                setLoading(true);
+                setSortBy(event.target.value as "" | "name" | "surname");
+                setPage(1);
+              }}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
+            >
+              <option value="">{t("sortDefault")}</option>
+              <option value="name">{t("sortName")}</option>
+              <option value="surname">{t("sortSurname")}</option>
+            </select>
+          </label>
+          <label className="text-xs font-semibold text-muted-foreground">
+            {t("sortOrder")}
+            <select
+              value={sortOrder}
+              onChange={(event) => {
+                setLoading(true);
+                setSortOrder(event.target.value as "asc" | "desc");
+                setPage(1);
+              }}
+              disabled={!sortBy}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-50"
+            >
+              <option value="asc">{t("sortAscending")}</option>
+              <option value="desc">{t("sortDescending")}</option>
+            </select>
           </label>
           <label className="text-xs font-semibold text-muted-foreground">
             {t("filterCourse")}
@@ -205,6 +347,12 @@ export default function StudentsPage({
             {result.items.map((student) => {
               const coursesExpanded = expandedCoursesStudentId === student.id;
               const coursesPanelId = `student-courses-${student.id}`;
+              const studentCareer =
+                student.careerCurriculumVersion?.career ?? student.career;
+              const titulationOutcome =
+                student.titulationProcesses?.find(
+                  (process) => process.outcome === "GRADUATED",
+                )?.outcome ?? student.titulationProcesses?.[0]?.outcome;
 
               return (
                 <li
@@ -219,11 +367,29 @@ export default function StudentsPage({
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-muted-foreground md:hidden">
                         {t("studentColumn")}
                       </span>
-                      <h2 className="text-sm font-semibold text-foreground">
-                        {student.name}
-                      </h2>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-sm font-semibold text-foreground">
+                          {student.name}
+                        </h2>
+                        {titulationOutcome ? (
+                          <TitulationOutcomeBadge
+                            outcome={titulationOutcome}
+                            label={titulation(`outcomes.${titulationOutcome}`)}
+                          />
+                        ) : (
+                          <StatusBadge
+                            label={t("noTitulationRecord")}
+                            icon={CircleHelp}
+                          />
+                        )}
+                      </div>
                       <p className="break-all text-xs text-muted-foreground">
-                        {student.email}
+                        {student.email || t("emailUnrecorded")}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {studentCareer
+                          ? t("assignedCareer", { name: studentCareer.name })
+                          : t("noCareerRecorded")}
                       </p>
                     </div>
                   </div>
@@ -341,12 +507,13 @@ export default function StudentsPage({
                       </ul>
                     </section>
                   )}
-                  {student.careerCurriculumVersion && (
+                  {(student.careerCurriculumVersion?.career ??
+                    student.career) && (
                     <p className="text-xs text-muted-foreground md:col-span-3">
-                      {student.careerCurriculumVersion.career.name} ·{" "}
-                      {t("cohortYear", {
-                        year: student.careerCurriculumVersion.cohortYear,
-                      })}
+                      {student.careerCurriculumVersion?.career.name ??
+                        student.career?.name}
+                      {student.careerCurriculumVersion &&
+                        ` · ${t("cohortYear", { year: student.careerCurriculumVersion.cohortYear })}`}
                     </p>
                   )}
                   <div className="md:col-span-3">
@@ -392,7 +559,35 @@ export default function StudentsPage({
           onClose={() => setViewingStudent(null)}
           fields={[
             { label: t("name"), value: viewingStudent.name },
+            { label: t("givenNames"), value: viewingStudent.givenNames },
+            {
+              label: t("paternalSurname"),
+              value: viewingStudent.paternalSurname,
+            },
+            {
+              label: t("maternalSurname"),
+              value: viewingStudent.maternalSurname,
+            },
             { label: t("email"), value: viewingStudent.email },
+            { label: t("personalEmail"), value: viewingStudent.personalEmail },
+            { label: t("rut"), value: viewingStudent.rut },
+            { label: t("birthDate"), value: viewingBirthDate },
+            { label: t("careerCode"), value: viewingCareer?.code },
+            { label: t("careerName"), value: viewingCareer?.name },
+            {
+              label: t("curriculumCohort"),
+              value: viewingStudent.careerCurriculumVersion?.cohortYear,
+            },
+            {
+              label: t("admissionYear"),
+              value: viewingStudent.admission?.slice(0, 4),
+            },
+            { label: t("admissionSemester"), value: viewingAdmissionTerm },
+            { label: t("titulations"), value: viewingStudent.titulationProcesses?.length ? (
+              <ul className="space-y-2">
+                {viewingStudent.titulationProcesses.map((process) => <li key={process.id}><Link href={`/dashboard/titulation?processId=${encodeURIComponent(process.id)}`} className="inline-flex min-h-11 items-center text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-primary">{process.degree || process.careerName} · {titulation(`outcomes.${process.outcome}`)}</Link></li>)}
+              </ul>
+            ) : t("noTitulations") },
           ]}
         />
       )}

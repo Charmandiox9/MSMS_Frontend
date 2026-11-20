@@ -1,18 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { NextRequest } from 'next/server';
-import middleware from '../middleware';
+import proxy from '../proxy';
+import { getPathname } from './routing';
 
 function resolvedLocale(cookie?: string) {
   const req = new NextRequest('https://marsys.test/fasol/marsys/login', {
     nextConfig: { basePath: '/fasol/marsys' },
     headers: { 'accept-language': 'en-US,en;q=0.9', ...(cookie ? { cookie } : {}) },
   });
-  const response = middleware(req);
+  const response = proxy(req);
   const rewrite = response.headers.get('x-middleware-rewrite');
   return rewrite ? new URL(rewrite).pathname : null;
 }
 
 describe('MARSYS language selection under a shared domain', () => {
+  it.each(['es', 'en'] as const)(
+    'generates %s routes without a locale prefix',
+    (locale) => {
+      expect(getPathname({ href: '/dashboard', locale })).toBe('/dashboard');
+    },
+  );
+
   it('starts in Spanish even when the browser prefers English', () => {
     expect(resolvedLocale()).toBe('/fasol/marsys/es/login');
   });

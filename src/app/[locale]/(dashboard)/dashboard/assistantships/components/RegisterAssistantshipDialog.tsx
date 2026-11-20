@@ -11,6 +11,7 @@ import { SkeletonStatus } from "@/components/ui/LoadingSkeletons";
 import {
   ASSIGNMENTS,
   CAREER_COURSES,
+  TARIFFS,
   REGISTER,
   UPDATE,
   type Assistantship,
@@ -18,6 +19,7 @@ import {
   type SemesterOption,
 } from "../graphql";
 import { assistantshipErrorKey } from "../errors";
+import type { ApplicationDetail } from "../applications";
 import { buttonClass, Field, inputClass } from "./controls";
 import StudentIdentityFields, {
   useAssistantshipStudent,
@@ -28,12 +30,19 @@ import type {
   AssistantshipBlockOption,
 } from "../schema-types";
 
+function offsetDate(value: string, days: number) {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
 export default function RegisterAssistantshipDialog({
   semesters,
   careers = [],
   blocks,
   initialRecord,
   initialSemesterId,
+  application,
   onClose,
   onRegistered,
 }: {
@@ -42,10 +51,12 @@ export default function RegisterAssistantshipDialog({
   blocks: AssistantshipBlockOption[];
   initialRecord?: Assistantship;
   initialSemesterId?: string;
+  application?: ApplicationDetail;
   onClose: () => void;
   onRegistered: (semesterId: string) => void;
 }) {
   const t = useTranslations("AssistantshipsPage");
+  const applicationsText = useTranslations("AssistantshipApplications");
   const savingRef = useRef(false);
   const [semesterId, setSemesterId] = useState(
     initialRecord?.semesterId ??
@@ -61,11 +72,15 @@ export default function RegisterAssistantshipDialog({
     initialRecord?.careerId ?? "",
   );
   const [courseId, setCourseId] = useState(initialRecord?.courseId ?? "");
-  const identity = useAssistantshipStudent(initialRecord, careers);
-  const { student, effectiveCurriculumId, studentCareer, lookupReady } =
-    identity;
-  const careerId =
-    selectedCareerId || student?.careerId || studentCareer?.id || "";
+  const [tariffId, setTariffId] = useState(initialRecord?.tariffId ?? "");
+  const identity = useAssistantshipStudent(
+    initialRecord ?? (application ? {
+      assistantEmail: application.student?.email ?? application.studentEmail,
+      studentId: application.student?.id ?? null,
+    } : undefined),
+  );
+  const { student, lookupReady } = identity;
+  const careerId = selectedCareerId || student?.careerId || "";
   const effectiveBlocks = [
     ...blocks,
     ...(initialRecord?.schedules ?? []).flatMap((schedule, index) =>
@@ -98,6 +113,10 @@ export default function RegisterAssistantshipDialog({
     })),
   );
   const semester = semesters.find((item) => item.id === semesterId);
+  const suggestedStart = semester && offsetDate(semester.startsOn, 7);
+  const suggestedEnd = semester && offsetDate(semester.endsOn, -7);
+  const hasSuggestedPeriod = Boolean(suggestedStart && suggestedEnd && suggestedStart <= suggestedEnd);
+  const existingPeriod = initialRecord?.semesterId === semesterId ? initialRecord : undefined;
   const historical = !!semester && !semester.isActive;
   const availableSemesters = semesters.filter(
     (item) =>
@@ -116,6 +135,11 @@ export default function RegisterAssistantshipDialog({
     skip: !semesterId || historical,
     fetchPolicy: "network-only",
   });
+  const tariffs = useQuery(TARIFFS, {
+    variables: { semesterId },
+    skip: !semesterId,
+    fetchPolicy: "network-only",
+  });
   const [register, { loading: saving }] = useMutation(REGISTER);
   const [update, { loading: updating }] = useMutation(UPDATE);
   const busy = saving || updating;
@@ -126,6 +150,7 @@ export default function RegisterAssistantshipDialog({
     const form = new FormData(event.currentTarget);
     const text = (key: string) => String(form.get(key) ?? "").trim();
     const input: Registration = {
+      ...(application ? { applicationId: application.id } : {}),
       semesterId,
       teachingAssignmentId: historical
         ? initialRecord?.semesterId === semesterId &&
@@ -136,18 +161,14 @@ export default function RegisterAssistantshipDialog({
       courseId: historical ? courseId : undefined,
       careerId: historical ? careerId : undefined,
       courseNrc: historical ? text("courseNrc") || undefined : undefined,
-      careerCurriculumVersionId: effectiveCurriculumId || undefined,
-      studentId: student?.id,
-      assistantName: text("name"),
-      assistantEmail: text("email"),
-      assistantshipNrc: text("assistantshipNrc") || undefined,
+      studentId: student!.id,
+      tariffId,
+      assistantshipNrc: text("assistantshipNrc"),
       approvedOn: text("approvedOn"),
       startsOn: text("startsOn"),
       endsOn: text("endsOn"),
       approvalConfirmed: form.get("approvalConfirmed") === "on",
-      weeklyHours: text("weeklyHours")
-        ? Number(text("weeklyHours"))
-        : undefined,
+      weeklyHours: Number(text("weeklyHours")),
       schedules: schedules.map((schedule) => {
         const block = effectiveBlocks.find(
           (item) => item.code === schedule.block,
@@ -162,12 +183,16 @@ export default function RegisterAssistantshipDialog({
     };
     savingRef.current = true;
     try {
-      const operation: Promise<unknown> = initialRecord
-        ? update({ variables: { id: initialRecord.id, input } })
-        : register({ variables: { input } });
+      const notifySchedule = !initialRecord && form.get("notifySchedule") === "on";
+      const operation = initialRecord
+        ? update({ variables: { id: initialRecord.id, input } }).then(() => null)
+        : register({ variables: { input: { ...input, ...(notifySchedule ? { notifySchedule } : {}) } } })
+            .then(({ data }) => data?.registerAssistantship.scheduleNotificationSent);
       toast.promise(operation, {
         loading: t("form.saving"),
-        success: t(initialRecord ? "form.updated" : "form.success"),
+        success: (sent) => t(initialRecord ? "form.updated" : !notifySchedule
+          ? "form.success"
+          : sent === true ? "form.scheduleEmailSent" : "form.scheduleEmailFailed"),
         error: (error: unknown) => t(`errors.${assistantshipErrorKey(error)}`),
       });
       await operation;
@@ -227,7 +252,8 @@ export default function RegisterAssistantshipDialog({
             disabled={
               busy ||
               !lookupReady ||
-              !effectiveCurriculumId ||
+              !student ||
+              !schedules.length ||
               (historical
                 ? !courseId ||
                   !careerId ||
@@ -235,7 +261,10 @@ export default function RegisterAssistantshipDialog({
                   Boolean(courses.error)
                 : !assignmentId ||
                   assignments.loading ||
-                  Boolean(assignments.error))
+                  Boolean(assignments.error)) ||
+              !tariffId ||
+              tariffs.loading ||
+              Boolean(tariffs.error)
             }
           >
             {busy && (
@@ -257,6 +286,11 @@ export default function RegisterAssistantshipDialog({
         onSubmit={(event) => void submit(event)}
         className={`space-y-6 ${busy ? "pointer-events-none opacity-60" : ""}`}
       >
+        {application && (
+          <p className="rounded-xl border border-border bg-muted p-3 text-sm">
+            {applicationsText("completionContext", { name: application.name, subject: application.subject })}
+          </p>
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t("form.semester")} htmlFor="register-semester">
             <select
@@ -268,6 +302,7 @@ export default function RegisterAssistantshipDialog({
                 setSemesterId(event.target.value);
                 setAssignmentId("");
                 setCourseId("");
+                setTariffId("");
               }}
             >
               {availableSemesters.map((item) => (
@@ -388,19 +423,17 @@ export default function RegisterAssistantshipDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <StudentIdentityFields
               identity={identity}
-              careers={careers}
-              onEmailChange={() => {
+              onStudentChange={() => {
                 setSelectedCareerId("");
                 setCourseId("");
               }}
-              onCurriculumChange={() => setCourseId("")}
             />
             <Field label={t("form.assistantshipNrc")} htmlFor="register-code">
               <input
                 id="register-code"
                 name="assistantshipNrc"
                 defaultValue={initialRecord?.assistantshipNrc ?? ""}
-                required={!historical}
+                required
                 className={inputClass}
                 maxLength={50}
               />
@@ -415,8 +448,34 @@ export default function RegisterAssistantshipDialog({
                 max="168"
                 step="0.01"
                 className={inputClass}
+                required
               />
             </Field>
+            <Field label={t("form.tariff")} htmlFor="register-tariff">
+              <select
+                id="register-tariff"
+                value={tariffId}
+                className={inputClass}
+                required
+                disabled={tariffs.loading || !tariffs.data?.assistantshipTariffs.length}
+                onChange={(event) => setTariffId(event.target.value)}
+              >
+                <option value="">{t("form.selectTariff")}</option>
+                {tariffs.data?.assistantshipTariffs.map((tariff) => (
+                  <option key={tariff.id} value={tariff.id}>
+                    {tariff.name} · {new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(tariff.monthlyRateClp)}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("form.tariffBasis")}
+              </p>
+            </Field>
+            {!tariffs.loading && !tariffs.error && !tariffs.data?.assistantshipTariffs.length && (
+              <p role="status" className="rounded-xl bg-muted p-3 text-xs text-muted-foreground sm:col-span-2">
+                {t("form.noTariffs")}
+              </p>
+            )}
           </div>
         </div>
 
@@ -439,7 +498,7 @@ export default function RegisterAssistantshipDialog({
               type="date"
               min={semester?.startsOn}
               max={semester?.endsOn}
-              defaultValue={initialRecord?.startsOn ?? semester?.startsOn}
+              defaultValue={existingPeriod ? existingPeriod.startsOn : hasSuggestedPeriod ? suggestedStart : undefined}
               className={inputClass}
               required
             />
@@ -452,7 +511,7 @@ export default function RegisterAssistantshipDialog({
               type="date"
               min={semester?.startsOn}
               max={semester?.endsOn}
-              defaultValue={initialRecord?.endsOn ?? semester?.endsOn}
+              defaultValue={existingPeriod ? existingPeriod.endsOn ?? semester?.endsOn : hasSuggestedPeriod ? suggestedEnd : undefined}
               className={inputClass}
               required
             />
@@ -475,6 +534,12 @@ export default function RegisterAssistantshipDialog({
           onChange={setSchedules}
           blocks={effectiveBlocks}
         />
+        {!initialRecord && (
+          <label className="flex min-h-11 items-center gap-3 rounded-xl border border-border px-3 py-2 text-sm">
+            <input type="checkbox" name="notifySchedule" className="size-4 shrink-0 accent-primary" />
+            {t("form.notifySchedule")}
+          </label>
+        )}
       </form>
     </FormModal>
   );

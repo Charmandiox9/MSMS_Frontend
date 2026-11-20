@@ -466,9 +466,23 @@ export default function AcademicCharts() {
   const [hourlyComponentFilter, setHourlyComponentFilter] = useState("");
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [data, setData] = useState<ChartData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [retry, setRetry] = useState(0);
+  const queryKey = JSON.stringify({
+    allowed,
+    year,
+    startsOn,
+    endsOn,
+    semesterId,
+    retry,
+  });
+  const [queryState, setQueryState] = useState<{
+    key: string;
+    status: "success" | "error";
+  } | null>(null);
+  const currentQueryState =
+    queryState?.key === queryKey ? queryState : null;
+  const loading = allowed && currentQueryState === null;
+  const error = currentQueryState?.status === "error";
   const selectYear = (value: string) => {
     if (!/^\d{4}$/.test(value) || Number(value) < 1900 || Number(value) > 2200)
       return;
@@ -478,8 +492,6 @@ export default function AcademicCharts() {
   useEffect(() => {
     if (!allowed) return;
     const controller = new AbortController();
-    setLoading(true);
-    setError(false);
     void graphqlClient
       .query({
         query: ACADEMIC_CHARTS,
@@ -528,18 +540,16 @@ export default function AcademicCharts() {
           },
         });
         setSemesters(summary.semesters);
+        setQueryState({ key: queryKey, status: "success" });
       })
       .catch(() => {
         if (!controller.signal.aborted) {
           setData(null);
-          setError(true);
+          setQueryState({ key: queryKey, status: "error" });
         }
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [allowed, graphqlClient, year, startsOn, endsOn, semesterId, retry, t]);
+  }, [allowed, graphqlClient, year, startsOn, endsOn, semesterId, retry, t, queryKey]);
 
   const visibleProjectRows = useMemo(
     () =>

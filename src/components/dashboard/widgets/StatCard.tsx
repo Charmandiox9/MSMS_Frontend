@@ -1,14 +1,13 @@
-import { type LucideIcon } from 'lucide-react';
+import { ArrowUpRight, type LucideIcon } from "lucide-react";
+import { Link } from "@/i18n/routing";
 
 interface StatCardProps {
   title: string;
-  value: string | number;
-  description?: string;
+  value: string;
+  description: string;
   icon: LucideIcon;
-  trend?: {
-    value: string;
-    isPositive?: boolean;
-  };
+  href?: string;
+  highlighted: boolean;
 }
 
 export default function StatCard({
@@ -16,38 +15,38 @@ export default function StatCard({
   value,
   description,
   icon: Icon,
-  trend,
+  href,
+  highlighted,
 }: StatCardProps) {
-  return (
-    <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          {title}
-        </span>
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-ocean-cyan/25 bg-ocean-cyan/10 text-ocean-cyan">
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-
-      <div className="mt-4">
-        <div className="text-3xl font-black tracking-tight text-foreground">
+  const surface = `flex min-w-0 items-start gap-3 rounded-xl border px-4 py-4 ${
+    highlighted
+      ? "border-amber-500/35 bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300"
+      : "border-border bg-card text-primary"
+  }`;
+  const content = (
+    <>
+      <Icon className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-foreground">{title}</p>
+        <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight">
           {value}
-        </div>
-        {(description || trend) && (
-          <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-            {trend && (
-              <span
-                className={`font-bold ${
-                  trend.isPositive ? 'text-emerald-500' : 'text-amber-500'
-                }`}
-              >
-                {trend.value}
-              </span>
-            )}
-            {description && <span className="truncate">{description}</span>}
-          </div>
-        )}
+        </p>
+        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       </div>
-    </div>
+      {href && <ArrowUpRight className="size-4 shrink-0" aria-hidden="true" />}
+    </>
+  );
+
+  return href ? (
+    <Link
+      href={href}
+      className={`${surface} hover:border-primary/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
+    >
+      {content}
+    </Link>
+  ) : (
+    <div className={surface}>{content}</div>
   );
 }

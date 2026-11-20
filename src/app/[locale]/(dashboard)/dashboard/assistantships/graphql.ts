@@ -9,9 +9,11 @@ import type {
   AssistantshipState,
   RegisterAssistantshipInput,
   AssistantshipScheduleInput,
+  AssistantshipTariffOption,
+  AssistantshipBudgetSummary,
 } from "./schema-types";
 export type { AssistantshipState } from "./schema-types";
-export type Assistantship = AssistantshipView;
+export type Assistantship = Omit<AssistantshipView, "scheduleNotificationSent">;
 export type Schedule = AssistantshipScheduleView;
 export type SemesterOption = AssistantshipSemesterOption;
 export type AssignmentOption = AssistantshipAssignmentOption;
@@ -32,6 +34,8 @@ export interface HistoryData {
 export interface OptionsData {
   assistantshipOptions: AssistantshipOptions;
 }
+export interface AssistantshipTariffsData { assistantshipTariffs: AssistantshipTariffOption[] }
+export interface AssistantshipBudgetSummaryData { assistantshipBudgetSummary: AssistantshipBudgetSummary }
 const fields = gql`
   fragment AssistantshipFields on AssistantshipView {
     id
@@ -55,6 +59,10 @@ const fields = gql`
     startsOn
     endsOn
     weeklyHours
+    tariffId
+    tariffName
+    tariffRateClp
+    estimatedAmountClp
     state
     schedules {
       weekday
@@ -86,7 +94,15 @@ export const OPTIONS: TypedDocumentNode<
 > = gql`
   query AssistantshipOptions {
     assistantshipOptions {
-      careers { id name isActive curriculumVersions { id cohortYear } }
+      careers {
+        id
+        name
+        isActive
+        curriculumVersions {
+          id
+          cohortYear
+        }
+      }
       semesters {
         id
         name
@@ -106,23 +122,37 @@ export const OPTIONS: TypedDocumentNode<
     }
   }
 `;
-export const STUDENT: TypedDocumentNode<
-  { assistantshipStudent: import("./schema-types").AssistantshipStudentOption | null },
-  { email: string }
+export const STUDENTS: TypedDocumentNode<
+  {
+    assistantshipStudents: import("./schema-types").AssistantshipStudentOption[];
+  },
+  { search: string }
 > = gql`
-  query AssistantshipStudent($email: String!) {
-    assistantshipStudent(email: $email) {
-      id name email careerCurriculumVersionId careerId careerName
+  query AssistantshipStudents($search: String!) {
+    assistantshipStudents(search: $search) {
+      id
+      name
+      email
+      rut
+      careerCurriculumVersionId
+      careerId
+      careerName
     }
   }
 `;
 
 export const CAREER_COURSES: TypedDocumentNode<
-  { assistantshipCareerCourses: import("./schema-types").AssistantshipCourseOption[] },
+  {
+    assistantshipCareerCourses: import("./schema-types").AssistantshipCourseOption[];
+  },
   { careerId: string }
 > = gql`
   query AssistantshipCareerCourses($careerId: ID!) {
-    assistantshipCareerCourses(careerId: $careerId) { id name code }
+    assistantshipCareerCourses(careerId: $careerId) {
+      id
+      name
+      code
+    }
   }
 `;
 export const ASSIGNMENTS: TypedDocumentNode<
@@ -139,13 +169,37 @@ export const ASSIGNMENTS: TypedDocumentNode<
     }
   }
 `;
+export const TARIFFS: TypedDocumentNode<AssistantshipTariffsData, { semesterId: string }> = gql`
+  query AssistantshipTariffs($semesterId: ID!) {
+    assistantshipTariffs(semesterId: $semesterId) { id semesterId name monthlyRateClp }
+  }
+`;
+export const ASSISTANTSHIP_BUDGET: TypedDocumentNode<AssistantshipBudgetSummaryData, { semesterId: string }> = gql`
+  query AssistantshipBudgetSummary($semesterId: ID!) {
+    assistantshipBudgetSummary(semesterId: $semesterId) {
+      semesterId semesterName allocatedAmountClp occupiedAmountClp percentage assistantships unpricedCount
+    }
+  }
+`;
+export const SAVE_TARIFF: TypedDocumentNode<
+  { saveAssistantshipTariff: AssistantshipTariffOption },
+  { input: import("./schema-types").SaveAssistantshipTariffInput }
+> = gql`
+  mutation SaveAssistantshipTariff($input: SaveAssistantshipTariffInput!) {
+    saveAssistantshipTariff(input: $input) { id semesterId name monthlyRateClp }
+  }
+`;
+export const DELETE_TARIFF: TypedDocumentNode<{ deleteAssistantshipTariff: boolean }, { id: string }> = gql`
+  mutation DeleteAssistantshipTariff($id: ID!) { deleteAssistantshipTariff(id: $id) }
+`;
 export const REGISTER: TypedDocumentNode<
-  { registerAssistantship: Assistantship },
+  { registerAssistantship: Assistantship & { scheduleNotificationSent?: boolean | null } },
   { input: Registration }
 > = gql`
   mutation RegisterAssistantship($input: RegisterAssistantshipInput!) {
     registerAssistantship(input: $input) {
       ...AssistantshipFields
+      scheduleNotificationSent
     }
   }
   ${fields}

@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/routing';
 export default async function AssistantshipHistoryPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  redirect(`/${locale}/dashboard/assistantships`);
+  redirect({ href: '/dashboard/assistantships', locale });
 }
