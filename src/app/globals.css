@@ -297,6 +297,8 @@
 }
 
 .login-visual {
+  --login-scene-transition: rgb(248 250 252 / 88%);
+  --login-seam-width: 22%;
   --login-panel-surface: rgb(248 250 252 / 30%);
   --login-panel-wash-start: rgb(248 250 252 / 5%);
   --login-panel-wash-middle: rgb(248 250 252 / 15%);
@@ -305,11 +307,17 @@
 }
 
 .dark .login-visual {
+  --login-scene-transition: rgb(2 11 24 / 88%);
   --login-panel-surface: rgb(2 11 24 / 30%);
   --login-panel-wash-start: rgb(2 11 24 / 5%);
   --login-panel-wash-middle: rgb(2 11 24 / 15%);
   --login-panel-wash-end: rgb(2 11 24 / 30%);
   --login-card-surface: rgb(15 23 42 / 90%);
+}
+
+.login-seam-fade {
+  width: var(--login-seam-width);
+  background-image: linear-gradient(90deg, transparent, var(--login-scene-transition));
 }
 
 .login-right-panel {
@@ -331,17 +339,22 @@
 
 @media (min-width: 64rem) {
   .login-visual {
-    --login-panel-surface: rgb(248 250 252 / 10%);
+    --login-panel-surface: rgb(248 250 252 / 16%);
     --login-panel-wash-start: rgb(248 250 252 / 0%);
-    --login-panel-wash-middle: rgb(248 250 252 / 4%);
-    --login-panel-wash-end: rgb(248 250 252 / 11%);
+    --login-panel-wash-middle: rgb(248 250 252 / 6%);
+    --login-panel-wash-end: rgb(248 250 252 / 12%);
   }
 
   .dark .login-visual {
-    --login-panel-surface: rgb(2 11 24 / 12%);
+    --login-panel-surface: rgb(2 11 24 / 16%);
     --login-panel-wash-start: rgb(2 11 24 / 0%);
-    --login-panel-wash-middle: rgb(2 11 24 / 5%);
-    --login-panel-wash-end: rgb(2 11 24 / 13%);
+    --login-panel-wash-middle: rgb(2 11 24 / 6%);
+    --login-panel-wash-end: rgb(2 11 24 / 12%);
+  }
+
+  .login-right-panel {
+    background-color: transparent;
+    background-image: linear-gradient(90deg, transparent, var(--login-panel-surface));
   }
 }
 

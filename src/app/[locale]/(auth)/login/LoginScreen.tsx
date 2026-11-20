@@ -25,7 +25,7 @@ export default function LoginPage() {
         </div>
         <div className="absolute inset-0 z-0 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-[#010a14] dark:via-[#010a14]/90 dark:to-transparent w-full pointer-events-none transition-colors duration-500"></div>
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-white/40 to-white/90 dark:from-transparent dark:via-[#010a14]/30 dark:to-[#010a14]/90 w-full pointer-events-none transition-colors duration-500"></div>
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-gradient-to-r from-transparent to-slate-50/45 dark:to-[#020b18]/45"></div>
+        <div aria-hidden="true" className="login-seam-fade pointer-events-none absolute inset-y-0 right-0 z-0"></div>
         <div className="relative z-10 flex-grow flex flex-col justify-start pt-[10vh] items-start w-full max-w-lg mx-auto pl-4 lg:pl-0">
           <h1 className="text-6xl lg:text-7xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter leading-[1.05] drop-shadow-sm dark:drop-shadow-[0_4px_25px_rgba(0,0,0,1)] transition-colors duration-500">
             {t('welcomeTitle')} <br/>
