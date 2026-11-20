@@ -35,9 +35,19 @@ export async function getActiveSession(): Promise<ActiveSession | null> {
       typeof payload.avatarUrl !== "string"
     )
       return null;
+    if (
+      "displayName" in payload &&
+      typeof payload.displayName !== "string"
+    )
+      return null;
+    const displayName =
+      "displayName" in payload && typeof payload.displayName === "string"
+        ? payload.displayName.trim()
+        : "";
     return {
       email: payload.email,
       roles: payload.roles,
+      ...(displayName ? { displayName } : {}),
       ...("avatarUrl" in payload && typeof payload.avatarUrl === "string"
         ? { avatarUrl: payload.avatarUrl }
         : {}),

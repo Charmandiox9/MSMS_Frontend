@@ -904,12 +904,12 @@ export default function TitulationWorkspace() {
                   aria-busy="true"
                   className="space-y-3"
                 >
-                  <div className="h-12 animate-pulse rounded-xl bg-muted" />
+                  <div className="h-12 animate-pulse rounded-xl bg-skeleton" />
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="h-16 animate-pulse rounded-xl bg-muted" />
-                    <div className="h-16 animate-pulse rounded-xl bg-muted" />
-                    <div className="h-16 animate-pulse rounded-xl bg-muted" />
-                    <div className="h-16 animate-pulse rounded-xl bg-muted" />
+                    <div className="h-16 animate-pulse rounded-xl bg-skeleton" />
+                    <div className="h-16 animate-pulse rounded-xl bg-skeleton" />
+                    <div className="h-16 animate-pulse rounded-xl bg-skeleton" />
+                    <div className="h-16 animate-pulse rounded-xl bg-skeleton" />
                   </div>
                 </div>
               ) : detailError ? (

@@ -9,6 +9,7 @@ import { ACTIVE_ROLE_STORAGE_KEY, getSessionRoles } from "@/lib/active-role";
 import type { ActiveSession, UserRoleCode } from "@/types/auth";
 import LoginPreferences from "@/components/auth/LoginPreferences";
 import RoleSelectionList from "@/components/auth/RoleSelectionList";
+import WelcomeLoadingScreen from "@/components/auth/WelcomeLoadingScreen";
 
 export default function SessionEntry({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -30,6 +31,8 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
       if (!roles.length) router.replace("/no-access");
       else if (roles.length === 1) {
         localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, roles[0]);
+        setSelected(roles[0]);
+        setEntering(true);
         router.replace("/dashboard");
       }
     });
@@ -42,11 +45,11 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
   const roles = session ? getSessionRoles(session) : [];
   if (!session || roles.length < 2 || entering)
     return (
-      <div className={`flex min-h-screen items-center justify-center bg-background px-6 ${session ? "institutional-theme" : ""}`}>
-        <p role="status" className="text-sm font-medium text-muted-foreground">
-          {t(entering ? "entering" : "checking")}
-        </p>
-      </div>
+      <WelcomeLoadingScreen
+        phase={entering ? "entering" : "checking"}
+        displayName={session?.displayName}
+        activeRole={selected ?? roles[0] ?? null}
+      />
     );
 
   return (

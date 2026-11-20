@@ -6,9 +6,12 @@ import { useRouter } from "@/i18n/routing";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { ActiveRoleProvider, useActiveRole } from "@/context/ActiveRoleContext";
+import { ACTIVE_ROLE_STORAGE_KEY, getSessionRoles } from "@/lib/active-role";
 import { getActiveSession, logout, type ActiveSession } from "@/lib/auth";
 import { DashboardShellSkeleton } from "@/components/ui/LoadingSkeletons";
 import TermsAcceptanceGate from "@/components/legal/TermsAcceptanceGate";
+import WelcomeLoadingScreen from "@/components/auth/WelcomeLoadingScreen";
+import type { UserRoleCode } from "@/types/auth";
 
 const DESKTOP_BREAKPOINT = "(min-width: 48rem)";
 
@@ -99,29 +102,64 @@ export default function DashboardLayout({
   const router = useRouter();
   const [session, setSession] = useState<ActiveSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingRole, setLoadingRole] = useState<UserRoleCode | null>(null);
 
   useEffect(() => {
     let mounted = true;
+    let welcomeTimeout: number | undefined;
 
     void getActiveSession().then(async (activeSession) => {
       if (!mounted) return;
 
       setSession(activeSession);
-      setIsLoading(false);
 
       if (!activeSession) {
+        setIsLoading(false);
         // Una cookie vencida, inválida o de una cuenta desactivada sigue en el navegador:
         // el middleware la vería y devolvería /login → /dashboard. El logout del backend
         // es público y la borra aunque la sesión ya no sea válida.
         await logout().catch(() => undefined);
         if (mounted) router.replace("/login");
+        return;
       }
+
+      const roles = getSessionRoles(activeSession);
+      const savedRole = localStorage.getItem(ACTIVE_ROLE_STORAGE_KEY);
+      setLoadingRole(roles.find((role) => role === savedRole) ?? roles[0] ?? null);
+      const displayDurationValue = getComputedStyle(
+        document.documentElement,
+      )
+        .getPropertyValue("--motion-duration-welcome-display")
+        .trim();
+      const displayDuration = Number.parseFloat(displayDurationValue);
+      const displayDurationMs = displayDurationValue.endsWith("ms")
+        ? displayDuration
+        : displayDurationValue.endsWith("s")
+          ? displayDuration * 1000
+          : 0;
+      welcomeTimeout = window.setTimeout(
+        () => {
+          if (mounted) setIsLoading(false);
+        },
+        Number.isFinite(displayDurationMs) ? displayDurationMs : 0,
+      );
     });
 
     return () => {
       mounted = false;
+      if (welcomeTimeout !== undefined) window.clearTimeout(welcomeTimeout);
     };
   }, [router]);
+
+  if (isLoading && session) {
+    return (
+      <WelcomeLoadingScreen
+        phase="entering"
+        displayName={session.displayName}
+        activeRole={loadingRole}
+      />
+    );
+  }
 
   if (isLoading || !session) {
     return (

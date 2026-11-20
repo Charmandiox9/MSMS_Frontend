@@ -1775,6 +1775,12 @@
   "SessionEntry": {
     "checking": "Verificando sesión…",
     "entering": "Abriendo tu dashboard…",
+    "checkingTitle": "Verificando tu sesión",
+    "checkingDescription": "Confirmando tu acceso a MARSYS.",
+    "welcomePersonalized": "Te damos la bienvenida, {name}.",
+    "welcomeGeneric": "Te damos la bienvenida a MARSYS.",
+    "preparing": "Preparando tu espacio de trabajo.",
+    "activeRole": "Rol de trabajo",
     "title": "Elige tu vista de trabajo",
     "description": "Tu sesión está activa. Selecciona el rol con el que quieres ingresar.",
     "roleLabel": "Roles disponibles",

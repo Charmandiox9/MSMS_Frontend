@@ -1,12 +1,27 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 
 const Hero3D = dynamic(() => import('@/components/landing/Hero3D'), { ssr: false });
+const DESKTOP_LOGIN_QUERY = '(min-width: 64rem)';
 
 export default function LoginSquid() {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const desktopQuery = window.matchMedia(DESKTOP_LOGIN_QUERY);
+    const updateViewport = () => setIsDesktop(desktopQuery.matches);
+
+    updateViewport();
+    desktopQuery.addEventListener('change', updateViewport);
+    return () => desktopQuery.removeEventListener('change', updateViewport);
+  }, []);
+
+  if (!isDesktop) return null;
+
   return (
-    <div aria-hidden="true" className="absolute inset-y-0 -left-[65%] z-[1] w-[180%] lg:left-0 lg:w-[72.5%] pointer-events-none opacity-70 dark:opacity-80">
+    <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-[1] w-[62%] opacity-90">
       <Hero3D />
     </div>
   );

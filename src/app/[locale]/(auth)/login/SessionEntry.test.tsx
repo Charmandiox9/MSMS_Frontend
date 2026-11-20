@@ -28,7 +28,9 @@ describe("SessionEntry", () => {
   it("espera la validación y no muestra Google mientras comprueba la sesión", () => {
     installFakeApi({ "GET /auth/session": () => new Promise(() => undefined) });
     renderEntry();
-    expect(screen.getByRole("status").textContent).toBe("Verificando sesión…");
+    expect(
+      screen.getByRole("heading", { name: "Verificando tu sesión" }),
+    ).toBeDefined();
     expect(screen.queryByText("Continuar con Google")).toBeNull();
   });
   it("muestra Google solo si el backend no reconoce una sesión válida", async () => {
