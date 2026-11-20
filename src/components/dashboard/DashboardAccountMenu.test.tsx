@@ -81,7 +81,7 @@ describe("DashboardAccountMenu", () => {
     mocks.pathname = "/dashboard/titulation";
     const { trigger, panel, onNavigate } = renderMenu();
     fireEvent.click(within(panel).getByRole("button", { name: "Cambiar rol" }));
-    fireEvent.click(within(panel).getByRole("button", { name: "Apoyo docente" }));
+    fireEvent.click(within(panel).getByRole("radio", { name: "Apoyo docente" }));
     expect(within(trigger).getByText("Apoyo docente")).toBeDefined();
     expect(mocks.toast.success).toHaveBeenCalledWith("Cambiaste a Apoyo docente.");
     expect(mocks.replace).not.toHaveBeenCalled();
@@ -92,7 +92,7 @@ describe("DashboardAccountMenu", () => {
     mocks.pathname = "/dashboard/justifications/management";
     const { panel, onNavigate } = renderMenu();
     fireEvent.click(within(panel).getByRole("button", { name: "Cambiar rol" }));
-    fireEvent.click(within(panel).getByRole("button", { name: "Apoyo docente" }));
+    fireEvent.click(within(panel).getByRole("radio", { name: "Apoyo docente" }));
     expect(onNavigate).toHaveBeenCalledOnce();
     expect(mocks.replace).toHaveBeenCalledWith("/dashboard");
     expect(mocks.toast.info).toHaveBeenCalledWith(expect.stringMatching(/Apoyo docente.*Inicio/));

@@ -195,7 +195,7 @@ export default function Modal({
         if (form && button && button.type !== "submit")
           setHasUnsavedChanges(true);
       }}
-      className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 p-3 sm:p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-overlay p-3 sm:p-4 backdrop-blur-sm"
       role="dialog"
       ref={dialogRef}
       tabIndex={-1}
@@ -263,7 +263,7 @@ export default function Modal({
         )}
         {confirmingDiscard && unsavedChanges && (
           <div
-            className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[2px]"
+            className="absolute inset-0 z-20 flex items-center justify-center bg-overlay/70 p-4 backdrop-blur-[2px]"
             onClick={(event) => event.stopPropagation()}
           >
             <section

@@ -9,7 +9,7 @@ export default function HeroSection() {
 
   return (
     <section className="relative w-full overflow-hidden flex items-center min-h-[90vh] pt-16">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-ocean-cyan/10 via-transparent to-transparent opacity-50 dark:opacity-20 pointer-events-none z-0"></div>
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-70"></div>
 
       {/* The 3D Canvas Full Screen Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -22,9 +22,9 @@ export default function HeroSection() {
         {/* Left Column: Text & CTA restringido a la mitad del contenedor */}
         <div className="w-full lg:w-[55%] xl:w-[50%] flex flex-col gap-8 pointer-events-auto">
           <AnimeReveal>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ucn-navy/5 dark:bg-white/5 border border-ucn-navy/10 dark:border-white/10 w-fit">
-              <span className="w-2 h-2 rounded-full bg-ocean-cyan animate-pulse"></span>
-              <span className="text-xs font-medium text-foreground/80">{t('badge')}</span>
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-foreground shadow-sm">
+              <span className="size-2 rounded-full bg-primary" aria-hidden="true"></span>
+              <span className="text-sm font-medium text-foreground">{t('badge')}</span>
             </div>
           </AnimeReveal>
 
@@ -45,7 +45,7 @@ export default function HeroSection() {
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Link 
                 href="/login" 
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-ocean-cyan hover:bg-ocean-cyan/90 text-white font-bold transition-all shadow-lg shadow-ocean-cyan/20 hover:shadow-ocean-cyan/40 hover:-translate-y-0.5"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 {t('explore_fcm')} <ArrowRight className="w-5 h-5" />
               </Link>

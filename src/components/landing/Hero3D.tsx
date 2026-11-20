@@ -10,6 +10,7 @@ const wakeCount = 700;
 const roamingCount = 300;
 const planktonCount = 1200; 
 const totalCount = squidCount + wakeCount + roamingCount + planktonCount;
+type PaletteToken = "--primary" | "--secondary" | "--foreground";
 
 // Math.random() fuera del render: las partículas se generan una vez por montaje.
 function createParticles() {
@@ -18,8 +19,7 @@ function createParticles() {
   // 1. PARTICULAS QUE FORMAN EL CALAMAR
   for (let i = 0; i < squidCount; i++) {
     let x = 0, y = 0, z = 0;
-    let colorLight = "";
-    let colorDark = "";
+    let colorToken: PaletteToken;
     const rand = Math.random();
     
     if (rand < 0.45) {
@@ -35,8 +35,7 @@ function createParticles() {
       y = Math.sin(angle) * r;
       z = Math.cos(angle) * r;
       
-      colorLight = Math.random() > 0.2 ? "#0ea5e9" : "#1e3a8a"; 
-      colorDark = Math.random() > 0.2 ? "#0ea5e9" : "#38bdf8";
+      colorToken = Math.random() > 0.2 ? "--primary" : "--secondary";
     } else if (rand < 0.6) {
       // Aletas
       x = 3 + Math.random() * 2;
@@ -44,7 +43,7 @@ function createParticles() {
       y = (Math.random() > 0.5 ? 1 : -1) * (0.2 + Math.random() * finWidth);
       z = (Math.random() - 0.5) * 0.4;
       
-      colorLight = "#0284c7"; colorDark = "#38bdf8";
+      colorToken = "--primary";
     } else if (rand < 0.65) {
       // Ojos
       x = 0.5 + (Math.random() - 0.5) * 0.4;
@@ -52,7 +51,7 @@ function createParticles() {
       y = (Math.random() - 0.5) * 0.4;
       z = side * 1.0 + (Math.random() - 0.5) * 0.3;
       
-      colorLight = "#0f172a"; colorDark = "#ffffff";
+      colorToken = "--foreground";
     } else if (rand < 0.85) {
       // 8 Brazos
       x = -Math.random() * 3;
@@ -67,8 +66,7 @@ function createParticles() {
       y = baseY + (Math.random() - 0.5) * thick;
       z = baseZ + (Math.random() - 0.5) * thick;
       
-      colorLight = Math.random() > 0.8 ? "#f59e0b" : "#1e3a8a"; 
-      colorDark = Math.random() > 0.8 ? "#f59e0b" : "#38bdf8";
+      colorToken = Math.random() > 0.8 ? "--secondary" : "--primary";
     } else {
       // 2 Tentáculos largos (Acortados)
       x = -Math.random() * 4.5;
@@ -81,8 +79,7 @@ function createParticles() {
       y = -0.5 + (Math.random() - 0.5) * thick;
       z = side * spread + (Math.random() - 0.5) * thick;
       
-      colorLight = Math.random() > 0.8 ? "#f59e0b" : "#0ea5e9"; 
-      colorDark = Math.random() > 0.8 ? "#fcd34d" : "#7dd3fc";
+      colorToken = Math.random() > 0.8 ? "--secondary" : "--primary";
     }
     
     temp.push({ 
@@ -90,7 +87,7 @@ function createParticles() {
       baseX: x, baseY: y, baseZ: z, 
       t: Math.random() * 100, 
       speed: 0.001 + Math.random() * 0.004, // Movimiento más lento
-      colorLight, colorDark,
+      colorToken,
       mx: 0, my: 0
     });
   }
@@ -104,8 +101,7 @@ function createParticles() {
       baseZ: (Math.random() - 0.5) * 1.5,
       t: Math.random() * 100,
       speed: 0.01 + Math.random() * 0.015, // Movimiento más lento
-      colorLight: Math.random() > 0.5 ? "#0ea5e9" : "#f59e0b",
-      colorDark: Math.random() > 0.5 ? "#38bdf8" : "#fcd34d",
+      colorToken: Math.random() > 0.5 ? "--primary" : "--secondary",
       mx: 0, my: 0
     });
   }
@@ -119,15 +115,13 @@ function createParticles() {
       baseZ: (Math.random() - 0.5) * 10,
       t: Math.random() * 100,
       speed: 0.005 + Math.random() * 0.01, // Movimiento más lento
-      colorLight: Math.random() > 0.8 ? "#f59e0b" : "#0ea5e9",
-      colorDark: Math.random() > 0.8 ? "#fcd34d" : "#38bdf8",
+      colorToken: Math.random() > 0.8 ? "--secondary" : "--primary",
       mx: 0, my: 0
     });
   }
 
   // 4. PLANCTON AMBIENTAL
   for (let i = 0; i < planktonCount; i++) {
-    const isMagenta = Math.random() > 0.5;
     temp.push({
       type: 'plankton',
       baseX: (Math.random() - 0.5) * 35, 
@@ -135,8 +129,7 @@ function createParticles() {
       baseZ: -4 - Math.random() * 12, 
       t: Math.random() * 100,
       speed: 0.002 + Math.random() * 0.005, // Movimiento más lento
-      colorLight: isMagenta ? "#ec4899" : "#10b981", 
-      colorDark: isMagenta ? "#f472b6" : "#34d399",
+      colorToken: Math.random() > 0.5 ? "--secondary" : "--primary",
       mx: 0, my: 0
     });
   }
@@ -169,8 +162,13 @@ function ParticleSquidSwarm() {
 
   useEffect(() => {
     if (mesh.current) {
+      const paletteElement =
+        document.querySelector<HTMLElement>(".institutional-theme") ??
+        document.documentElement;
+      const palette = getComputedStyle(paletteElement);
       particles.forEach((p, i) => {
-        mesh.current!.setColorAt(i, new THREE.Color(isDark ? p.colorDark : p.colorLight));
+        const value = palette.getPropertyValue(p.colorToken).trim();
+        mesh.current!.setColorAt(i, new THREE.Color(value));
       });
       mesh.current.instanceColor!.needsUpdate = true;
     }
@@ -275,7 +273,6 @@ function ParticleSquidSwarm() {
     <instancedMesh ref={mesh} args={[undefined, undefined, totalCount]} rotation={[0, Math.PI / 12, Math.PI / 6]}>
       <tetrahedronGeometry args={[0.3, 0]} />
       <meshBasicMaterial 
-        color="white"
         transparent 
         opacity={isDark ? 0.9 : 0.7} 
         blending={THREE.AdditiveBlending}

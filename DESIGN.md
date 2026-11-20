@@ -1,6 +1,6 @@
 # Manual de diseño de MARSYS
 
-MARSYS es una herramienta de trabajo de la Facultad de Ciencias del Mar de la UCN. El panel debe ayudar a cada persona a encontrar su módulo, entender el estado del trabajo y actuar con claridad. Este manual define el diseño del panel privado. El acceso y las páginas públicas conservan su identidad y sus reglas propias.
+MARSYS es una herramienta de trabajo de la Facultad de Ciencias del Mar de la UCN. La interfaz debe ayudar a cada persona a encontrar su módulo, entender el estado del trabajo y actuar con claridad. Las vistas públicas, el selector de rol y el panel comparten la paleta institucional; el formulario de acceso conserva su diseño actual.
 
 ## Bandeja y navegación
 
@@ -8,13 +8,13 @@ MARSYS es una herramienta de trabajo de la Facultad de Ciencias del Mar de la UC
 - **Móvil.** El botón Menú abre la navegación. La lista de módulos puede desplazarse sin mover Mi cuenta del pie. El rol activo se puede leer con el menú cerrado.
 - **Mi cuenta.** La entrada queda en el pie del lateral y muestra el rol debajo del nombre. El menú reúne Mi perfil, Cambiar rol cuando hay más de uno asignado, Tema, Idioma y Cerrar sesión. La salida queda separada al final. El selector de roles se abre desde esa misma cuenta y marca el rol activo.
 - **Preferencias.** El interruptor Modo oscuro usa sol y luna como iconos de línea y mantiene una etiqueta estable. La primera visita sigue la preferencia del sistema y una elección explícita se conserva. El idioma muestra Español y English como dos opciones visibles con una sola selección. Usar los nombres de los idiomas, con texto y estado perceptibles por teclado y lector de pantalla.
-- **Cambio de rol.** Conservar la vista si sigue disponible. Si el nuevo rol requiere otra vista, volver a Inicio con un aviso. Los permisos siguen verificados por el servidor. Configuración institucional pertenece a Administración.
+- **Cambio de rol.** Usar la misma lista de selección de roles que aparece al iniciar una sesión con varios roles. En Mi cuenta, aplicar el nuevo rol al elegirlo. Conservar la vista si sigue disponible; si requiere otro permiso, volver a Inicio con un aviso. Los permisos siguen verificados por el servidor. Configuración institucional pertenece a Administración.
 
 La distribución facilita distinguir la navegación de trabajo de las preferencias personales y reserva espacio para listados y expedientes. Los detalles de interacción están en [Menú de cuenta](docs/account-menu.md).
 
 ## Paleta aprobada
 
-Claro con acento verde petróleo. Oscuro con superficies gris ceniza y acento lavanda. La fuente de los valores es [globals.css](src/app/globals.css). El ámbito del panel es `.dashboard-workspace` y la preferencia la gestiona `next-themes`.
+Claro con acento verde petróleo. Oscuro con superficies gris ceniza y acento lavanda. La fuente de los valores es [globals.css](src/app/globals.css). Las vistas de producto usan `.institutional-theme`; el formulario de acceso conserva su tratamiento visual actual y la preferencia de tema la gestiona `next-themes`.
 
 | Uso | Token | Claro | Oscuro |
 |---|---|---|---|
@@ -26,6 +26,8 @@ Claro con acento verde petróleo. Oscuro con superficies gris ceniza y acento la
 | Acción principal | `--primary` / `--primary-foreground` | `#075E66` / `#FFFFFF` | `#C9B9EA` / `#24202B` |
 | Selección | `--selection` | `#DFEFEE` | `#393340` |
 | Borde de control y foco | `--control` / `--focus` | `#768B97` / `#0A6B75` | `#84858A` / `#DDCEF9` |
+| Capas modales | `--overlay` | `rgba(20, 43, 65, 0.55)` | `rgba(10, 11, 13, 0.72)` |
+| Series de gráficos | `--chart-series-*` | Paleta institucional definida en tokens | Variaciones ceniza y lavanda definidas en tokens |
 
 Usar la proporción 60/30/10 como referencia visual. Los fondos dominan, las superficies de apoyo agrupan y el acento marca acciones o selección. Consumir los tokens mediante clases semánticas en lugar de valores directos. Éxito, advertencia, peligro e información tienen sus propios pares de texto y superficie. Un estado se reconoce por su etiqueta y, cuando corresponda, por un icono además del color.
 
@@ -40,7 +42,7 @@ En las tarjetas de Inicio, usar 16 px para la etiqueta, 24 px para la cifra y 14
 
 ## Modelos base
 
-Los modelos son referencias de composición. Cada módulo define sus datos, permisos, acciones y reglas del proceso. Reutilizar los componentes disponibles y extraer una variante común cuando haya coincidencia entre usos reales.
+Los modelos son referencias de composición. Cada módulo define sus datos, permisos, acciones y reglas del proceso. Reutilizar los componentes disponibles y extraer una variante común cuando haya coincidencia entre usos reales. Las series de gráfico usan exclusivamente `--chart-series-*`; no reutilizar colores de estado como decoración.
 
 | Modelo | Estructura compartida | Ejemplo de adaptación |
 |---|---|---|

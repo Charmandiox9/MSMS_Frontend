@@ -189,7 +189,7 @@ export default function AssistantshipDetailModal({
         {/* Card 3: Period and Workload */}
         <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
           <div className="flex items-center gap-2 border-b border-border pb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            <Calendar className="h-4 w-4 text-ucn-gold" aria-hidden="true" />
+            <Calendar className="h-4 w-4 text-primary" aria-hidden="true" />
             <span>{t("detail.periodSection")}</span>
           </div>
           <div className="grid gap-4 sm:grid-cols-4 text-sm">

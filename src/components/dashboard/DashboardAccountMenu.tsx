@@ -2,7 +2,6 @@
 
 import {
   ArrowLeft,
-  Check,
   ChevronRight,
   ChevronsUpDown,
   LogOut,
@@ -21,6 +20,7 @@ import { Link, LOCALE_COOKIE_NAME, routing, usePathname, useRouter } from "@/i18
 import { logout, type ActiveSession } from "@/lib/auth";
 import { APP_BASE_PATH } from "@/lib/base-path";
 import type { UserRoleCode } from "@/types/auth";
+import RoleSelectionList from "@/components/auth/RoleSelectionList";
 
 const FOCUS_STYLE = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset";
 const ROW_STYLE = `flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm font-medium ${FOCUS_STYLE}`;
@@ -251,21 +251,13 @@ export default function DashboardAccountMenu({
               <ArrowLeft className="size-4 shrink-0" aria-hidden="true" />
               {t("backToAccount")}
             </button>
-            <p className="px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground">{t("activeRoleLabel")}</p>
-            <div role="group" aria-label={t("switchRoleTitle")}>
-              {roles.map((role) => (
-                <button
-                  key={role}
-                  type="button"
-                  aria-pressed={activeRole === role}
-                  onClick={() => changeRole(role)}
-                  className={`${INTERACTIVE_ROW_STYLE} justify-between aria-pressed:bg-selection`}
-                >
-                  <span>{t(`roles.${role}`)}</span>
-                  {activeRole === role && <Check className="size-4 shrink-0" aria-hidden="true" />}
-                </button>
-              ))}
-            </div>
+            <RoleSelectionList
+              roles={roles}
+              selectedRole={activeRole}
+              onSelect={changeRole}
+              legend={t("activeRoleLabel")}
+              roleName={(role) => t(`roles.${role}`)}
+            />
           </>
         ) : view === "account" && (
           <>

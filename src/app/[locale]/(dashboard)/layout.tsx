@@ -58,7 +58,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   }, [mobileOpen]);
 
   return (
-    <div className="dashboard-workspace flex min-h-screen bg-background text-foreground">
+    <div className="institutional-theme dashboard-workspace flex min-h-screen bg-background text-foreground">
       <a
         href="#dashboard-main"
         className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-4 focus:py-3 focus:text-primary focus:ring-2 focus:ring-focus"
@@ -125,7 +125,7 @@ export default function DashboardLayout({
 
   if (isLoading || !session) {
     return (
-      <div className="dashboard-workspace min-h-screen bg-background text-foreground">
+      <div className="institutional-theme dashboard-workspace min-h-screen bg-background text-foreground">
         <DashboardShellSkeleton label={t("sessionChecking")} />
       </div>
     );

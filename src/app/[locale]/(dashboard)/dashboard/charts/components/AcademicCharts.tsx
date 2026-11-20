@@ -44,12 +44,12 @@ type Semester = { id: string; name: string };
 const filterClass =
   "h-11 rounded-xl border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30";
 const chartColors = [
-  "#0f766e",
-  "#0284c7",
-  "#2563eb",
-  "#7c3aed",
-  "#d97706",
-  "#e11d48",
+  "var(--chart-series-1)",
+  "var(--chart-series-2)",
+  "var(--chart-series-3)",
+  "var(--chart-series-4)",
+  "var(--chart-series-5)",
+  "var(--chart-series-6)",
 ];
 const chartTextColor = "var(--muted-foreground)";
 const chartGridColor = "var(--border)";

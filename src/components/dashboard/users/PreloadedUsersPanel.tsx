@@ -264,7 +264,7 @@ export default function PreloadedUsersPanel({
           setDialogOpen(false);
         }}
         onClose={() => setDialogOpen(false)}
-        className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-3xl border border-border bg-card p-0 text-foreground shadow-2xl backdrop:bg-slate-950/60"
+        className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-3xl border border-border bg-card p-0 text-foreground shadow-2xl backdrop:bg-overlay"
       >
         <form
           onSubmit={(event) => void submitPreload(event)}

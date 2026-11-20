@@ -51,7 +51,7 @@ export default function Breadcrumbs({ className = '' }: BreadcrumbsProps) {
       <nav aria-label={t('breadcrumb')} className={`flex items-center text-xs font-medium ${className}`}>
         <ol className="flex items-center space-x-1.5 overflow-hidden">
           <li className="flex items-center space-x-1.5">
-            <Home className="h-3.5 w-3.5 text-ocean-cyan shrink-0" aria-hidden="true" />
+            <Home className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
             <span className="font-semibold text-foreground" aria-current="page">
               {t('dashboard')}
             </span>
@@ -91,7 +91,7 @@ export default function Breadcrumbs({ className = '' }: BreadcrumbsProps) {
         <li>
           <Link
             href="/dashboard"
-            className="flex items-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+            className="flex items-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
             aria-label={t('dashboard')}
             title={t('dashboard')}
           >
@@ -110,7 +110,7 @@ export default function Breadcrumbs({ className = '' }: BreadcrumbsProps) {
               ) : (
                 <Link
                   href={crumb.href}
-                  className="truncate text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+                  className="truncate text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                 >
                   {crumb.label}
                 </Link>

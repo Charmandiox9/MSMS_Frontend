@@ -79,7 +79,8 @@
   --accent-foreground: #451a03;
 }
 
-:is(.dashboard-workspace, body:has(.dashboard-workspace)) {
+:is(.institutional-theme, body:has(.institutional-theme)) {
+  color-scheme: light;
   --background: #eef3f5;
   --foreground: #142b41;
   --card: #ffffff;
@@ -94,6 +95,7 @@
   --selection: #dfefee;
   --accent: var(--selection);
   --accent-foreground: var(--primary);
+  --overlay: rgb(20 43 65 / 55%);
   --success: #176246;
   --success-surface: #e5f2e9;
   --warning: #824a13;
@@ -103,13 +105,18 @@
   --danger-surface: #fbecef;
   --info: #234f88;
   --info-surface: #e9f0fa;
-  --secondary: var(--success);
-  --secondary-foreground: #ffffff;
-  --ucn-navy: #122c43;
-  --ocean-cyan: var(--primary);
+  --secondary: #e7ecef;
+  --secondary-foreground: var(--foreground);
+  --chart-series-1: #075e66;
+  --chart-series-2: #526978;
+  --chart-series-3: #7b6d8d;
+  --chart-series-4: #899ca6;
+  --chart-series-5: #9c7955;
+  --chart-series-6: #536c5f;
 }
 
-:is(.dark, [data-theme="dark"]) :is(.dashboard-workspace, body:has(.dashboard-workspace)) {
+:is(.dark, [data-theme="dark"]) :is(.institutional-theme, body:has(.institutional-theme)) {
+  color-scheme: dark;
   --background: #1b1c1e;
   --foreground: #f2f1f0;
   --card: #242527;
@@ -121,6 +128,7 @@
   --primary: #c9b9ea;
   --primary-foreground: #24202b;
   --selection: #393340;
+  --overlay: rgb(10 11 13 / 72%);
   --success: #b9d8be;
   --success-surface: #2b392f;
   --warning: #edcb95;
@@ -130,8 +138,14 @@
   --danger-surface: #423034;
   --info: #b0d4e2;
   --info-surface: #27373d;
-  --secondary-foreground: #213127;
-  --ucn-navy: #303133;
+  --secondary: #393a3d;
+  --secondary-foreground: var(--foreground);
+  --chart-series-1: #c9b9ea;
+  --chart-series-2: #babbc0;
+  --chart-series-3: #9e8dbb;
+  --chart-series-4: #84858a;
+  --chart-series-5: #c6a978;
+  --chart-series-6: #859a8a;
 }
 
 @theme inline {
@@ -163,6 +177,7 @@
   --color-info-surface: var(--info-surface, var(--card));
   --color-danger: var(--destructive);
   --color-danger-surface: var(--danger-surface, var(--card));
+  --color-overlay: var(--overlay, rgb(15 23 42 / 70%));
   
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);

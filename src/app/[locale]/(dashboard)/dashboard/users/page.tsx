@@ -66,9 +66,8 @@ function getRoleBadgeStyle(roleCode: string) {
     case "ACADEMIC_SECRETARY":
       return "border-primary/30 bg-primary/10 text-primary";
     case "TEACHING_SUPPORT_COORDINATOR":
-      return "border-teal-500/30 bg-teal-500/10 text-teal-600 dark:text-teal-400";
     case "ACADEMIC_PROCESS_ANALYST":
-      return "border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400";
+      return "border-primary/20 bg-selection text-primary";
     default:
       return "border-border bg-muted/60 text-foreground";
   }
