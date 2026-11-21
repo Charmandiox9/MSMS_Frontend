@@ -122,7 +122,7 @@ export default function AssistantshipDetailModal({
               {t("nrc", { nrc: item.nrc ?? "—" })}
             </span>
             {item.assistantshipNrc && (
-              <span className="rounded-lg bg-secondary/15 px-2.5 py-1 font-bold tabular-nums text-secondary">
+              <span className="rounded-lg bg-secondary/15 px-2.5 py-1 font-bold tabular-nums text-foreground">
                 {t("form.assistantshipNrc")}: {item.assistantshipNrc}
               </span>
             )}
@@ -162,7 +162,7 @@ export default function AssistantshipDetailModal({
           {/* Card 2: Academic & Teacher info */}
           <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
             <div className="flex items-center gap-2 border-b border-border pb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              <BookOpen className="h-4 w-4 text-secondary" aria-hidden="true" />
+              <BookOpen className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <span>{t("detail.academicSection")}</span>
             </div>
             <div className="space-y-2 text-sm">
@@ -220,7 +220,7 @@ export default function AssistantshipDetailModal({
 
         <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
           <div className="flex items-center gap-2 border-b border-border pb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            <Clock className="h-4 w-4 text-secondary" aria-hidden="true" />
+            <Clock className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <span>{t("tariffs.costSection")}</span>
           </div>
           {item.tariffName ? (
@@ -256,7 +256,7 @@ export default function AssistantshipDetailModal({
                   </div>
                   {schedule.location && (
                     <div className="flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1 text-muted-foreground">
-                      <MapPin className="h-3 w-3 text-secondary shrink-0" aria-hidden="true" />
+                      <MapPin className="h-3 w-3 text-muted-foreground shrink-0" aria-hidden="true" />
                       <span className="truncate max-w-[120px]">{schedule.location}</span>
                     </div>
                   )}

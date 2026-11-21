@@ -391,7 +391,7 @@ export default function JustificationsPage() {
       )}
 
       {actionError && (
-        <div className="rounded-2xl border border-accent/40 bg-accent/10 p-4 text-sm font-semibold text-accent">
+        <div className="rounded-2xl border border-danger/30 bg-danger-surface p-4 text-sm font-semibold text-danger">
           {actionError}
         </div>
       )}
@@ -559,8 +559,8 @@ function SummaryCard({
 }) {
   const toneClasses = {
     cyan: "bg-info-surface text-info",
-    amber: "bg-accent/15 text-accent",
-    green: "bg-secondary/15 text-secondary",
+    amber: "bg-warning-surface text-warning",
+    green: "bg-success-surface text-success",
   };
 
   return (

@@ -251,7 +251,7 @@ export default function JustificationDetailModal({
 
         {!!item.assistants?.length && (
           <section className="rounded-2xl border border-secondary/30 bg-secondary/5 p-4">
-            <p className="text-xs font-bold uppercase text-secondary">
+            <p className="text-xs font-bold uppercase text-primary">
               {t("detail.assistants")}
             </p>
             <div className="mt-3 space-y-2">

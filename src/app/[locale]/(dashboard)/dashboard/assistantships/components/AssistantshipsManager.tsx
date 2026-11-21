@@ -223,7 +223,7 @@ export function AssistantshipsWorkspace({
     <section className="space-y-6">
       <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
             {t("eyebrow")}
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">
@@ -292,7 +292,7 @@ export function AssistantshipsWorkspace({
               key={key}
               className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4"
             >
-              <div className="rounded-xl bg-secondary/10 p-3 text-secondary">
+              <div className="rounded-xl bg-primary/10 p-3 text-primary">
                 <Icon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
@@ -496,7 +496,7 @@ export function AssistantshipsWorkspace({
         ) : (
           <div role="status" className="px-6 py-16 text-center">
             <ClipboardList
-              className="mx-auto h-8 w-8 text-secondary/70"
+              className="mx-auto h-8 w-8 text-muted-foreground"
               aria-hidden="true"
             />
             <p className="mt-4 text-sm font-semibold text-foreground">
