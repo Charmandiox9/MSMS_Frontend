@@ -1,5 +1,5 @@
 <style>
-  #role-switcher-preview {
+  #role-switcher-redesign-preview {
     --account-surface: light-dark(#ffffff, #242527);
     --account-text: light-dark(#142b41, #f2f1f0);
     --account-muted: light-dark(#526978, #babbc0);
@@ -7,10 +7,9 @@
     --account-hover: light-dark(#f5f8f9, #2d2e30);
     --account-selection: light-dark(#dfefee, #393340);
     --account-accent: light-dark(#075e66, #c9b9ea);
-    display: flex;
+    display: grid;
     width: 100%;
-    flex-direction: column;
-    align-items: center;
+    justify-items: center;
     gap: 12px;
     padding: 16px;
     color-scheme: light;
@@ -19,35 +18,75 @@
     font-size: 14px;
   }
 
-  #role-switcher-preview[data-theme="dark"] {
+  #role-switcher-redesign-preview[data-theme="dark"] {
     color-scheme: dark;
   }
 
-  #role-switcher-preview *,
-  #role-switcher-preview *::before,
-  #role-switcher-preview *::after {
+  #role-switcher-redesign-preview *,
+  #role-switcher-redesign-preview *::before,
+  #role-switcher-redesign-preview *::after {
     box-sizing: border-box;
   }
 
-  #role-switcher-preview button,
-  #role-switcher-preview select {
+  #role-switcher-redesign-preview button {
     font: inherit;
   }
 
-  #role-switcher-preview .account-popover,
-  #role-switcher-preview .account-trigger {
-    width: min(100%, 264px);
+  #role-switcher-redesign-preview button:focus-visible {
+    outline: 2px solid var(--account-accent);
+    outline-offset: 2px;
+  }
+
+  #role-switcher-redesign-preview .scenario-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--account-border);
+    border-radius: 8px;
+    background: var(--account-surface);
+    padding: 4px;
+    color: var(--account-muted);
+    font-size: 12px;
+  }
+
+  #role-switcher-redesign-preview .scenario-button {
+    min-height: 32px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    padding: 4px 8px;
+    color: var(--account-muted);
+  }
+
+  #role-switcher-redesign-preview .scenario-button[aria-pressed="true"] {
+    background: var(--account-selection);
+    color: var(--account-text);
+    font-weight: 500;
+  }
+
+  #role-switcher-redesign-preview .account-popover,
+  #role-switcher-redesign-preview .account-trigger {
+    width: min(100%, 280px);
     border: 1px solid var(--account-border);
     border-radius: 12px;
     background: var(--account-surface);
   }
 
-  #role-switcher-preview .account-popover {
+  #role-switcher-redesign-preview .account-popover {
+    height: 264px;
+    overflow: hidden;
     padding: 8px;
     box-shadow: 0 12px 28px light-dark(rgb(20 43 65 / 12%), rgb(0 0 0 / 30%));
   }
 
-  #role-switcher-preview .menu-row {
+  #role-switcher-redesign-preview .account-view[hidden],
+  #role-switcher-redesign-preview .roles-view[hidden],
+  #role-switcher-redesign-preview .menu-row[hidden],
+  #role-switcher-redesign-preview .role-option[hidden] {
+    display: none;
+  }
+
+  #role-switcher-redesign-preview .menu-row {
     display: flex;
     width: 100%;
     min-height: 42px;
@@ -61,57 +100,32 @@
     text-align: left;
   }
 
-  #role-switcher-preview .menu-row:hover,
-  #role-switcher-preview .language-option:hover {
+  #role-switcher-redesign-preview .menu-row:hover,
+  #role-switcher-redesign-preview .role-option:hover,
+  #role-switcher-redesign-preview .back-button:hover,
+  #role-switcher-redesign-preview .language-option:hover {
     background: var(--account-hover);
   }
 
-  #role-switcher-preview .menu-row > span:first-of-type {
+  #role-switcher-redesign-preview .menu-row > span:first-of-type {
     flex: 1;
   }
 
-  #role-switcher-preview .menu-icon {
+  #role-switcher-redesign-preview .menu-icon {
     width: 16px;
     height: 16px;
     flex: none;
     color: var(--account-muted);
   }
 
-  #role-switcher-preview .role-field {
-    display: grid;
-    gap: 4px;
-    padding: 4px 10px 8px;
-  }
-
-  #role-switcher-preview .role-field label {
-    color: var(--account-muted);
-    font-size: 12px;
-    font-weight: 400;
-  }
-
-  #role-switcher-preview .role-select {
-    width: 100%;
-    min-height: 42px;
-    border: 1px solid var(--account-border);
-    border-radius: 6px;
-    background-color: var(--account-surface);
-    padding: 8px;
-    color: var(--account-text);
-  }
-
-  #role-switcher-preview .role-select option {
-    background: var(--account-surface);
-    color: var(--account-text);
-  }
-
-  #role-switcher-preview .menu-divider {
+  #role-switcher-redesign-preview .menu-divider {
     height: 1px;
     margin: 5px 0;
     border: 0;
     background: var(--account-border);
   }
 
-  #role-switcher-preview .preference-row {
+  #role-switcher-redesign-preview .preference-row {
     display: flex;
     min-height: 44px;
     align-items: center;
@@ -121,7 +135,7 @@
     color: var(--account-text);
   }
 
-  #role-switcher-preview .theme-switch {
+  #role-switcher-redesign-preview .theme-switch {
     position: relative;
     width: 44px;
     height: 26px;
@@ -131,7 +145,7 @@
     background: var(--account-hover);
   }
 
-  #role-switcher-preview .theme-switch::after {
+  #role-switcher-redesign-preview .theme-switch::after {
     position: absolute;
     top: 3px;
     left: 3px;
@@ -143,22 +157,22 @@
     transition: transform 180ms ease-out, background-color 180ms ease-out;
   }
 
-  #role-switcher-preview .theme-switch[aria-checked="true"] {
+  #role-switcher-redesign-preview .theme-switch[aria-checked="true"] {
     border-color: var(--account-accent);
     background: var(--account-accent);
   }
 
-  #role-switcher-preview .theme-switch[aria-checked="true"]::after {
+  #role-switcher-redesign-preview .theme-switch[aria-checked="true"]::after {
     transform: translateX(18px);
     background: var(--account-surface);
   }
 
-  #role-switcher-preview .language-options {
+  #role-switcher-redesign-preview .language-options {
     display: flex;
     gap: 4px;
   }
 
-  #role-switcher-preview .language-option {
+  #role-switcher-redesign-preview .language-option {
     min-width: 42px;
     min-height: 36px;
     border: 0;
@@ -167,7 +181,7 @@
     color: var(--account-muted);
   }
 
-  #role-switcher-preview .language-option[aria-pressed="true"] {
+  #role-switcher-redesign-preview .language-option[aria-pressed="true"] {
     background: var(--account-selection);
     color: var(--account-text);
     font-weight: 500;
@@ -175,7 +189,112 @@
     text-underline-offset: 4px;
   }
 
-  #role-switcher-preview .account-trigger {
+  #role-switcher-redesign-preview .roles-header {
+    display: flex;
+    min-height: 34px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 2px;
+  }
+
+  #role-switcher-redesign-preview .roles-view:not([hidden]) {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  #role-switcher-redesign-preview .back-button {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    flex: none;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+  }
+
+  #role-switcher-redesign-preview .roles-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  #role-switcher-redesign-preview .current-role-label,
+  #role-switcher-redesign-preview .other-roles-label {
+    margin: 5px 8px 3px;
+    color: var(--account-muted);
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  #role-switcher-redesign-preview .current-role-card {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    background: var(--account-selection);
+    padding: 6px 10px;
+  }
+
+  #role-switcher-redesign-preview .current-role-card .menu-icon {
+    color: var(--account-accent);
+  }
+
+  #role-switcher-redesign-preview .current-role-name {
+    min-width: 0;
+    flex: 1;
+    color: var(--account-text);
+    font-weight: 500;
+  }
+
+  #role-switcher-redesign-preview .active-tag {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
+    color: var(--account-accent);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  #role-switcher-redesign-preview .active-tag .menu-icon {
+    width: 14px;
+    height: 14px;
+    color: currentColor;
+  }
+
+  #role-switcher-redesign-preview .role-options {
+    display: grid;
+    min-height: 0;
+    flex: 1;
+    gap: 2px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+
+  #role-switcher-redesign-preview .role-option {
+    display: flex;
+    width: 100%;
+    min-height: 38px;
+    align-items: center;
+    gap: 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    padding: 6px 10px;
+    color: var(--account-text);
+    text-align: left;
+  }
+
+  #role-switcher-redesign-preview .role-option span {
+    min-width: 0;
+    flex: 1;
+  }
+
+  #role-switcher-redesign-preview .account-trigger {
     display: flex;
     min-height: 54px;
     align-items: center;
@@ -185,7 +304,7 @@
     text-align: left;
   }
 
-  #role-switcher-preview .avatar {
+  #role-switcher-redesign-preview .avatar {
     display: grid;
     width: 36px;
     height: 36px;
@@ -196,18 +315,18 @@
     font-weight: 500;
   }
 
-  #role-switcher-preview .account-copy {
+  #role-switcher-redesign-preview .account-copy {
     display: grid;
     min-width: 0;
     flex: 1;
   }
 
-  #role-switcher-preview .account-copy strong {
+  #role-switcher-redesign-preview .account-copy strong {
     font-size: 14px;
     font-weight: 500;
   }
 
-  #role-switcher-preview .account-copy span {
+  #role-switcher-redesign-preview .account-copy span {
     overflow: hidden;
     color: var(--account-muted);
     font-size: 12px;
@@ -215,12 +334,7 @@
     white-space: nowrap;
   }
 
-  #role-switcher-preview .account-trigger .menu-icon {
-    width: 16px;
-    height: 16px;
-  }
-
-  #role-switcher-preview .sr-only {
+  #role-switcher-redesign-preview .sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -229,86 +343,205 @@
     white-space: nowrap;
     clip-path: inset(50%);
   }
+
+  @media (pointer: coarse) {
+    #role-switcher-redesign-preview .role-option {
+      min-height: 44px;
+    }
+  }
 </style>
 
-<div id="role-switcher-preview" class="viz-dotted-background" data-theme="light" role="region" aria-label="Menú de cuenta de MARSYS">
+<div id="role-switcher-redesign-preview" class="viz-dotted-background" data-theme="light" role="region" aria-label="Simulación del menú de cuenta">
+  <div class="scenario-control" role="group" aria-label="Escenario de cuenta">
+    <span>Simular</span>
+    <button class="scenario-button" type="button" data-scenario="single" aria-pressed="false">Un rol</button>
+    <button class="scenario-button" type="button" data-scenario="multiple" aria-pressed="true">Varios</button>
+  </div>
+
   <section class="account-popover" aria-label="Opciones de cuenta">
-    <button class="menu-row" type="button" aria-label="Mi perfil">
-      <i class="menu-icon" data-lucide="user-round" aria-hidden="true"></i>
-      <span>Mi perfil</span>
-    </button>
-    <div class="role-field">
-      <label for="role-switcher-select">Rol activo</label>
-      <select class="role-select" id="role-switcher-select">
-        <option value="Apoyo docente" selected>Apoyo docente</option>
-        <option value="Administrador del sistema">Administrador del sistema</option>
-        <option value="Analista académico">Analista académico</option>
-        <option value="Secretario docente">Secretario docente</option>
-      </select>
+    <div class="account-view" id="role-account-view">
+      <button class="menu-row" type="button" aria-label="Mi perfil">
+        <i class="menu-icon" data-lucide="user-round" aria-hidden="true"></i>
+        <span>Mi perfil</span>
+      </button>
+      <button class="menu-row" id="role-change-entry" type="button" aria-controls="role-selection-view">
+        <i class="menu-icon" data-lucide="arrow-left-right" aria-hidden="true"></i>
+        <span>Cambiar rol</span>
+        <i class="menu-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+      </button>
+      <hr class="menu-divider">
+      <div class="preference-row">
+        <span>Modo oscuro</span>
+        <button class="theme-switch" id="role-redesign-theme" type="button" role="switch" aria-label="Modo oscuro" aria-checked="false"></button>
+      </div>
+      <div class="preference-row">
+        <span>Idioma</span>
+        <span class="language-options" role="group" aria-label="Idioma">
+          <button class="language-option" type="button" aria-pressed="true">ES</button>
+          <button class="language-option" type="button" aria-pressed="false">EN</button>
+        </span>
+      </div>
+      <hr class="menu-divider">
+      <button class="menu-row" type="button" aria-label="Cerrar sesión">
+        <i class="menu-icon" data-lucide="log-out" aria-hidden="true"></i>
+        <span>Cerrar sesión</span>
+      </button>
     </div>
-    <hr class="menu-divider">
-    <div class="preference-row">
-      <span>Modo oscuro</span>
-      <button class="theme-switch" id="role-switcher-theme" type="button" role="switch" aria-label="Modo oscuro" aria-checked="false"></button>
-    </div>
-    <div class="preference-row">
-      <span>Idioma</span>
-      <span class="language-options" role="group" aria-label="Idioma">
-        <button class="language-option" type="button" aria-pressed="true">ES</button>
-        <button class="language-option" type="button" aria-pressed="false">EN</button>
-      </span>
-    </div>
-    <hr class="menu-divider">
-    <button class="menu-row" type="button" aria-label="Cerrar sesión">
-      <i class="menu-icon" data-lucide="log-out" aria-hidden="true"></i>
-      <span>Cerrar sesión</span>
-    </button>
-    <span class="sr-only" id="role-switcher-status" aria-live="polite"></span>
+
+    <section class="roles-view" id="role-selection-view" aria-label="Selección de rol" hidden>
+      <div class="roles-header">
+        <button class="back-button" id="role-back-button" type="button" aria-label="Volver a Mi cuenta">
+          <i class="menu-icon" data-lucide="arrow-left" aria-hidden="true"></i>
+        </button>
+        <h2 class="roles-title">Cambiar rol</h2>
+      </div>
+      <p class="current-role-label">Rol que estás usando</p>
+      <div class="current-role-card" aria-live="polite">
+        <i class="menu-icon" data-lucide="user-round" aria-hidden="true"></i>
+        <span class="current-role-name" id="role-current-name">Analista académico</span>
+        <span class="active-tag"><i class="menu-icon" data-lucide="check" aria-hidden="true"></i>En uso</span>
+      </div>
+      <p class="other-roles-label">Cambiar a</p>
+      <div class="role-options" id="role-alternatives" aria-label="Otros roles">
+        <button class="role-option" type="button" data-role="SYSTEM_ADMIN">
+          <span>Administrador del sistema</span>
+          <i class="menu-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+        </button>
+        <button class="role-option" type="button" data-role="ACADEMIC_PROCESS_ANALYST">
+          <span>Analista académico</span>
+          <i class="menu-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+        </button>
+        <button class="role-option" type="button" data-role="ACADEMIC_SECRETARY">
+          <span>Secretario docente</span>
+          <i class="menu-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+        </button>
+        <button class="role-option" type="button" data-role="TEACHING_SUPPORT_COORDINATOR">
+          <span>Apoyo docente</span>
+          <i class="menu-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
+      <span class="sr-only" id="role-redesign-status" aria-live="polite"></span>
+    </section>
   </section>
 
   <button class="account-trigger" type="button" aria-label="Mi cuenta">
     <span class="avatar" aria-hidden="true">M</span>
     <span class="account-copy">
       <strong>Mi cuenta</strong>
-      <span id="role-switcher-active-role">Apoyo docente</span>
+      <span id="role-redesign-footer-role">Analista académico</span>
     </span>
     <i class="menu-icon" data-lucide="chevrons-up-down" aria-hidden="true"></i>
   </button>
 </div>
 
 <script>
-  const rolePreview = document.getElementById("role-switcher-preview");
-  const roleSelect = rolePreview.querySelector("#role-switcher-select");
-  const roleStatus = rolePreview.querySelector("#role-switcher-status");
-  const activeRoleLabel = rolePreview.querySelector("#role-switcher-active-role");
-  const assignedRoles = Array.from(roleSelect.options, (option) => option.value);
+  const rolePreview = document.getElementById("role-switcher-redesign-preview");
+  const roleDefinitions = [
+    { code: "TEACHING_SUPPORT_COORDINATOR", name: "Apoyo docente" },
+    { code: "SYSTEM_ADMIN", name: "Administrador del sistema" },
+    { code: "ACADEMIC_PROCESS_ANALYST", name: "Analista académico" },
+    { code: "ACADEMIC_SECRETARY", name: "Secretario docente" }
+  ];
+  const accountView = rolePreview.querySelector("#role-account-view");
+  const rolesView = rolePreview.querySelector("#role-selection-view");
+  const changeRoleEntry = rolePreview.querySelector("#role-change-entry");
+  const currentRoleName = rolePreview.querySelector("#role-current-name");
+  const footerRoleName = rolePreview.querySelector("#role-redesign-footer-role");
+  const roleStatus = rolePreview.querySelector("#role-redesign-status");
+  const alternatives = Array.from(rolePreview.querySelectorAll(".role-option"));
+  let currentRoleCode = "ACADEMIC_PROCESS_ANALYST";
+  let scenario = "multiple";
+  let view = "account";
 
-  function renderRole() {
-    activeRoleLabel.textContent = roleSelect.value;
-    roleStatus.textContent = "Rol activo: " + roleSelect.value;
+  function assignedRoles() {
+    return scenario === "single"
+      ? roleDefinitions.filter(({ code }) => code === currentRoleCode)
+      : roleDefinitions;
   }
 
-  function restoreRoleSelection(widgetState) {
-    const selectedRole = widgetState?.modelContent?.selectedRole;
-    if (!assignedRoles.includes(selectedRole)) return;
-    roleSelect.value = selectedRole;
-    renderRole();
+  function render() {
+    const currentRole = roleDefinitions.find(({ code }) => code === currentRoleCode);
+    const roles = assignedRoles();
+    const canSwitch = roles.length > 1;
+
+    currentRoleName.textContent = currentRole?.name ?? "Sin rol activo";
+    footerRoleName.textContent = currentRole?.name ?? "Sin rol activo";
+    changeRoleEntry.hidden = !canSwitch;
+    if (!canSwitch) view = "account";
+    accountView.hidden = view !== "account";
+    rolesView.hidden = view !== "roles";
+
+    alternatives.forEach((option) => {
+      const role = roleDefinitions.find(({ code }) => code === option.dataset.role);
+      option.hidden = !canSwitch || option.dataset.role === currentRoleCode;
+      option.setAttribute("aria-label", "Cambiar a " + role.name);
+    });
+
+    rolePreview.querySelectorAll(".scenario-button").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.scenario === scenario));
+    });
   }
 
-  function persistRoleSelection() {
+  function persistState() {
     if (typeof globalThis.openai?.setWidgetState !== "function") return;
     globalThis.openai.setWidgetState({
-      modelContent: { selectedRole: roleSelect.value },
-      privateContent: null
+      modelContent: { selectedRole: currentRoleCode },
+      privateContent: { scenario, view }
     }).catch(() => {});
   }
 
-  roleSelect.addEventListener("change", () => {
-    renderRole();
-    persistRoleSelection();
+  function restoreState(widgetState) {
+    const selectedRole = widgetState?.modelContent?.selectedRole;
+    if (roleDefinitions.some(({ code }) => code === selectedRole)) {
+      currentRoleCode = selectedRole;
+    } else {
+      const selectedRoleName = selectedRole;
+      const matchingRole = roleDefinitions.find(({ name }) => name === selectedRoleName);
+      if (matchingRole) currentRoleCode = matchingRole.code;
+    }
+
+    const savedScenario = widgetState?.privateContent?.scenario;
+    scenario = savedScenario === "single" ? "single" : "multiple";
+    const savedView = widgetState?.privateContent?.view;
+    view = savedView === "roles" && scenario === "multiple" ? "roles" : "account";
+    render();
+  }
+
+  changeRoleEntry.addEventListener("click", () => {
+    view = "roles";
+    render();
+    rolePreview.querySelector("#role-back-button").focus();
+    persistState();
   });
 
-  rolePreview.querySelector("#role-switcher-theme").addEventListener("click", (event) => {
+  rolePreview.querySelector("#role-back-button").addEventListener("click", () => {
+    view = "account";
+    render();
+    changeRoleEntry.focus();
+    persistState();
+  });
+
+  alternatives.forEach((option) => {
+    option.addEventListener("click", () => {
+      currentRoleCode = option.dataset.role;
+      render();
+      const currentRole = roleDefinitions.find(({ code }) => code === currentRoleCode);
+      roleStatus.textContent = "Rol activo cambiado a " + currentRole.name;
+      alternatives.find((item) => !item.hidden)?.focus();
+      persistState();
+    });
+  });
+
+  rolePreview.querySelectorAll(".scenario-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      scenario = button.dataset.scenario;
+      view = "account";
+      render();
+      persistState();
+    });
+  });
+
+  rolePreview.querySelector("#role-redesign-theme").addEventListener("click", (event) => {
     const enabled = event.currentTarget.getAttribute("aria-checked") !== "true";
     event.currentTarget.setAttribute("aria-checked", String(enabled));
     rolePreview.dataset.theme = enabled ? "dark" : "light";
@@ -322,8 +555,8 @@
     });
   });
 
-  restoreRoleSelection(globalThis.openai?.widgetState);
+  restoreState(globalThis.openai?.widgetState);
   window.addEventListener("openai:set_globals", (event) => {
-    restoreRoleSelection(event.detail?.globals?.widgetState);
+    restoreState(event.detail?.globals?.widgetState);
   });
 </script>
