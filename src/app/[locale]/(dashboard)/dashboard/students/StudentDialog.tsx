@@ -24,6 +24,20 @@ const formatRut = (value: string) => {
   return `${body}-${digits.slice(-1)}`;
 };
 
+function admissionYear(value: string) {
+  return /^\d{4}(10|20)$/.test(value) ? Number(value.slice(0, 4)) : null;
+}
+
+function suggestedCurriculum(
+  career: CareerOption | undefined,
+  year: number | null,
+) {
+  if (!career?.isActive || year === null) return undefined;
+  return career.curriculumVersions.find((plan) =>
+    curriculumCohortYears(plan).includes(year),
+  );
+}
+
 export default function StudentDialog({
   student,
   initialNrc,
@@ -64,13 +78,14 @@ export default function StudentDialog({
   const [retry, setRetry] = useState(0);
   const loadError = t("errors.load");
   const selectedCareer = careers.find((career) => career.id === careerId);
-  const admissionCohort = /^\d{4}(10|20)$/.test(admission)
-    ? Number(admission.slice(0, 4))
-    : null;
-  const availableCurricula = (selectedCareer?.curriculumVersions ?? []).filter(
-    (version) =>
-      admissionCohort === null || curriculumCohortYears(version).includes(admissionCohort),
-  );
+  const admissionCohort = admissionYear(admission);
+  const careerCurricula = selectedCareer?.curriculumVersions ?? [];
+  const showCurriculumHint =
+    student && selectedCareer && (selectedCareer.isActive || !careerCurricula.length);
+  const availableCurricula =
+    student || admissionCohort === null
+      ? careerCurricula
+      : careerCurricula.filter((plan) => curriculumCohortYears(plan).includes(admissionCohort));
   useEffect(() => {
     let active = true;
     Promise.all([
@@ -100,8 +115,8 @@ export default function StudentDialog({
           setPaternalSurname(latest.paternalSurname ?? "");
           setMaternalSurname(latest.maternalSurname ?? "");
           setBirthDate(latest.birthDate?.slice(0, 10) ?? "");
-          setCurriculumVersionId(latest.careerCurriculumVersionId ?? "");
           setCareerId(latest.careerId ?? latest.career?.id ?? "");
+          setCurriculumVersionId(latest.careerCurriculumVersionId ?? "");
         }
         setError(null);
       })
@@ -270,17 +285,10 @@ export default function StudentDialog({
               onChange={(event) => {
                 const value = event.target.value.replace(/\D/g, "").slice(0, 6);
                 setAdmission(value);
-                const cohortYear = /^\d{4}(10|20)$/.test(value)
-                  ? Number(value.slice(0, 4))
-                  : null;
-                if (careerId && cohortYear !== null) {
-                  const version = careers
-                    .find((career) => career.id === careerId)
-                    ?.curriculumVersions.find(
-                      (item) => curriculumCohortYears(item).includes(cohortYear),
-                    );
-                  setCurriculumVersionId(version?.id ?? "");
-                }
+                const year = admissionYear(value);
+                if (year === null || year === admissionCohort) return;
+                const plan = suggestedCurriculum(selectedCareer, year);
+                if (plan || !student) setCurriculumVersionId(plan?.id ?? "");
               }}
               className={fieldClass}
             />
@@ -300,23 +308,15 @@ export default function StudentDialog({
           <label className="text-sm font-semibold sm:col-span-2">
             {t("career")}
             <select
-              aria-label={t("career")}
               value={careerId}
               onChange={(event) => {
                 const nextCareerId = event.target.value;
                 setCareerId(nextCareerId);
-                const cohortYear = /^\d{4}(10|20)$/.test(admission)
-                  ? Number(admission.slice(0, 4))
-                  : null;
-                const version =
-                  cohortYear === null
-                    ? undefined
-                    : careers
-                        .find((career) => career.id === nextCareerId)
-                        ?.curriculumVersions.find(
-                          (item) => curriculumCohortYears(item).includes(cohortYear),
-                        );
-                setCurriculumVersionId(version?.id ?? "");
+                const plan = suggestedCurriculum(
+                  careers.find((career) => career.id === nextCareerId),
+                  admissionCohort,
+                );
+                setCurriculumVersionId(plan?.id ?? "");
               }}
               className={fieldClass}
             >
@@ -328,39 +328,45 @@ export default function StudentDialog({
                 </option>
               ))}
             </select>
-            <span className="mt-3 block">{t("curriculum")}</span>
+          </label>
+          <label className="text-sm font-semibold sm:col-span-2">
+            {t("curriculum")}
             <select
-              aria-label={t("curriculum")}
               value={curriculumVersionId}
-              onChange={(event) => {
-                const versionId = event.target.value;
-                setCurriculumVersionId(versionId);
-                const matchingCareer = careers.find((career) =>
-                  career.curriculumVersions.some(
-                    (version) => version.id === versionId,
-                  ),
-                );
-                if (matchingCareer) setCareerId(matchingCareer.id);
-              }}
+              onChange={(event) => setCurriculumVersionId(event.target.value)}
+              aria-describedby={showCurriculumHint ? "student-curriculum-hint" : undefined}
               className={fieldClass}
             >
               <option value="">{t("noCurriculum")}</option>
-              {availableCurricula.map((version) => (
-                <option
-                  key={version.id}
-                  value={version.id}
-                  disabled={
-                    !selectedCareer?.isActive &&
-                    version.id !== curriculumVersionId
-                  }
-                >
-                  {admissionCohort !== null && admissionCohort !== version.cohortYear
-                    ? t("curriculumPlanYear", { year: version.cohortYear })
-                    : t("cohortYear", { year: version.cohortYear })}
-                </option>
-              ))}
+              {availableCurricula.map((version) => {
+                const cohorts = curriculumCohortYears(version);
+                return (
+                  <option
+                    key={version.id}
+                    value={version.id}
+                    disabled={
+                      !selectedCareer?.isActive &&
+                      version.id !== curriculumVersionId
+                    }
+                  >
+                    {student
+                      ? t(cohorts.length === 1 ? "curriculumPlanWithCohort" : "curriculumPlanWithCohorts", {
+                          year: version.cohortYear,
+                          cohorts: cohorts.join(", "),
+                        })
+                      : admissionCohort !== null && admissionCohort !== version.cohortYear
+                        ? t("curriculumPlanYear", { year: version.cohortYear })
+                        : t("cohortYear", { year: version.cohortYear })}
+                  </option>
+                );
+              })}
             </select>
           </label>
+          {showCurriculumHint && (
+            <p id="student-curriculum-hint" className="-mt-2 text-xs text-muted-foreground sm:col-span-2">
+              {t(careerCurricula.length ? "editCurriculumHint" : "careerHasNoCurricula")}
+            </p>
+          )}
         </fieldset>
         {error && (
           <p

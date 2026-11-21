@@ -429,6 +429,55 @@ describe("Estudiantes", () => {
     expect(curriculum.value).toBe("curriculum-2025");
     expect(within(curriculum).getByRole("option", { name: "Plan 2025" })).toBeDefined();
   });
+  it("muestra todas las mallas de la carrera al editar y guarda la elegida", async () => {
+    const editing = {
+      ...student,
+      careerId: "career-a",
+      careerCurriculumVersionId: null,
+      admission: "202410",
+    };
+    const path = `/academic/students/${student.id}`;
+    const api = installFakeApi({
+      "GET /academic/courses/current": ok(catalog),
+      "GET /academic/careers/options": ok([
+        {
+          id: "career-a",
+          name: "Ingeniería Marina",
+          isActive: true,
+          curriculumVersions: [
+            { id: "plan-2026", cohortYear: 2026, cohorts: [{ cohortYear: 2026 }, { cohortYear: 2027 }] },
+            { id: "plan-2025", cohortYear: 2025 },
+          ],
+        },
+        {
+          id: "career-b",
+          name: "Biología Marina",
+          isActive: true,
+          curriculumVersions: [{ id: "other", cohortYear: 2024 }],
+        },
+      ]),
+      [`GET ${path}`]: ok(editing),
+      [`PATCH ${path}`]: ok(editing),
+    });
+    renderAs(<StudentDialog student={editing} onSaved={vi.fn()} onClose={vi.fn()} />);
+
+    const curriculum = await screen.findByRole<HTMLSelectElement>("combobox", {
+      name: "Malla curricular (opcional)",
+    });
+    expect(curriculum.value).toBe("");
+    expect(await within(curriculum).findByRole("option", { name: "Plan 2025 · Cohorte 2025" })).toBeDefined();
+    expect(within(curriculum).getByRole("option", { name: "Plan 2026 · Cohortes 2026, 2027" })).toBeDefined();
+    expect(within(curriculum).queryByRole("option", { name: "Plan 2024 · Cohorte 2024" })).toBeNull();
+
+    fireEvent.change(curriculum, { target: { value: "plan-2026" } });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar estudiante" }));
+    await waitFor(() => expect(api.calls(`PATCH ${path}`)[0].body).toMatchObject({
+      careerId: "career-a",
+      admission: "202410",
+      careerCurriculumVersionId: "plan-2026",
+    }));
+  });
+
   it("permite crear el perfil sin semestre y no envía matrículas", async () => {
     const api = installFakeApi({
       "GET /academic/careers/options": ok([]),
