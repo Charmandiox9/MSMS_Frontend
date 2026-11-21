@@ -7,26 +7,37 @@ import { Sun, Moon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { hasActiveSession, logout } from '@/lib/auth';
 import { useMounted } from '@/hooks/useMounted';
+import { toast } from 'sonner';
 
 export default function Navbar() {
   const t = useTranslations('Navigation');
   const { theme, setTheme, systemTheme } = useTheme();
   const mounted = useMounted();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const tAccount = useTranslations('DashboardNav');
 
   useEffect(() => {
     void hasActiveSession().then(setIsLoggedIn);
   }, []);
 
   const handleLogout = async () => {
-    await logout();
-    setIsLoggedIn(false);
-    router.push('/');
-    router.refresh();
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    try {
+      await logout();
+      setIsLoggedIn(false);
+      router.replace('/signed-out');
+      router.refresh();
+    } catch {
+      toast.error(tAccount('signOutError'));
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   const toggleTheme = () => {
@@ -88,7 +99,7 @@ export default function Navbar() {
             <Link href="/dashboard" className="flex min-h-11 items-center rounded-xl border border-border bg-muted px-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-selection focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus sm:px-4 sm:text-sm">
               {t('dashboard')}
             </Link>
-            <button onClick={handleLogout} className="flex min-h-11 items-center rounded-xl bg-danger-surface px-2.5 text-xs font-semibold text-danger transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus sm:px-4 sm:text-sm">
+            <button onClick={handleLogout} disabled={isSigningOut} aria-busy={isSigningOut} className="flex min-h-11 items-center rounded-xl bg-danger-surface px-2.5 text-xs font-semibold text-danger transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-wait disabled:opacity-70 sm:px-4 sm:text-sm">
               {t('logout')}
             </button>
           </div>

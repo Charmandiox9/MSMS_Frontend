@@ -1232,6 +1232,12 @@
     "backToLogin": "Return to home",
     "contact": "Contact: fcm@ucn.cl"
   },
+  "SignedOut": {
+    "title": "You’re signed out",
+    "description": "Thanks for working with MARSYS. Your session has ended, and you can sign in again whenever you need.",
+    "returnToLogin": "Sign in again",
+    "returnToHome": "Visit the public site"
+  },
   "UsersPage": {
     "eyebrow": "System administration",
     "title": "Users",

@@ -1232,6 +1232,12 @@
     "backToLogin": "Volver al inicio",
     "contact": "Contacto: fcm@ucn.cl"
   },
+  "SignedOut": {
+    "title": "Sesión cerrada",
+    "description": "Gracias por trabajar con MARSYS. Tu sesión terminó correctamente; podrás volver a ingresar cuando lo necesites.",
+    "returnToLogin": "Volver a ingresar",
+    "returnToHome": "Ir al sitio público"
+  },
   "UsersPage": {
     "eyebrow": "Administración del sistema",
     "title": "Usuarios",
