@@ -8,13 +8,13 @@ WORKDIR /app
 # Install locked dependencies
 FROM base AS deps
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm ci --no-audit --no-fund
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable pnpm && pnpm install --frozen-lockfile
 
 # 2. Compilación (Build)
 FROM deps AS test
 COPY . .
-CMD ["npm", "test"]
+CMD ["pnpm", "test"]
 
 # Compile the production standalone application
 FROM base AS builder
@@ -27,7 +27,7 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 # Deshabilitamos la telemetría de Next.js
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+RUN pnpm run build
 
 # 3. Producción (Runner)
 FROM base AS runner

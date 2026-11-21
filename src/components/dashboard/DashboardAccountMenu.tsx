@@ -1,9 +1,6 @@
 "use client";
 
 import {
-  ArrowLeft,
-  Check,
-  ChevronRight,
   ChevronsUpDown,
   LogOut,
   Moon,
@@ -18,9 +15,10 @@ import { DASHBOARD_SECTIONS, isRouteAllowed } from "@/config/navigation";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { useMounted } from "@/hooks/useMounted";
 import { Link, LOCALE_COOKIE_NAME, routing, usePathname, useRouter } from "@/i18n/routing";
-import { logout, type ActiveSession } from "@/lib/auth";
+import type { ActiveSession } from "@/lib/auth";
 import { APP_BASE_PATH } from "@/lib/base-path";
 import type { UserRoleCode } from "@/types/auth";
+import AccountRolePicker from "@/components/dashboard/AccountRolePicker";
 
 const FOCUS_STYLE = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset";
 const ROW_STYLE = `flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm font-medium ${FOCUS_STYLE}`;
@@ -29,7 +27,7 @@ const LOCALE_LABELS = { es: "spanish", en: "english" } as const;
 const ACCOUNT_ROUTES = DASHBOARD_SECTIONS.flatMap(({ items }) => items.map(({ href }) => href))
   .sort((first, second) => second.length - first.length);
 
-type AccountView = "account" | "roles" | null;
+type AccountView = "account" | null;
 type AccountLocale = (typeof routing.locales)[number];
 
 function roleCanKeepView(pathname: string, role: UserRoleCode) {
@@ -108,7 +106,7 @@ export default function DashboardAccountMenu({
   const t = useTranslations("DashboardNav");
   const pathname = usePathname();
   const router = useRouter();
-  const { activeRole, roles, hasMultipleRoles, setActiveRole } = useActiveRole();
+  const { activeRole, roles, setActiveRole } = useActiveRole();
   const [view, setView] = useState<AccountView>(null);
   const [signingOut, setSigningOut] = useState(false);
   const panelId = useId();
@@ -118,38 +116,25 @@ export default function DashboardAccountMenu({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const profileRef = useRef<HTMLAnchorElement>(null);
-  const roleButtonRef = useRef<HTMLButtonElement>(null);
-  const backRef = useRef<HTMLButtonElement>(null);
-  const focusRoleButton = useRef(false);
 
   useEffect(() => {
     if (!view) return;
 
     if (panelRef.current) panelRef.current.scrollTop = 0;
-
-    if (view === "roles") {
-      backRef.current?.focus();
-    } else if (focusRoleButton.current) {
-      focusRoleButton.current = false;
-      roleButtonRef.current?.focus();
-    } else {
-      profileRef.current?.focus();
-    }
+    profileRef.current?.focus();
 
     function dismissOnOutsidePointer(event: PointerEvent) {
-      if (event.target instanceof Node && !containerRef.current?.contains(event.target)) {
-        setView(null);
-      }
+      if (!(event.target instanceof Node)) return;
+      const isRolePicker =
+        event.target instanceof Element &&
+        event.target.closest("[data-account-role-picker]");
+      if (containerRef.current?.contains(event.target) || isRolePicker) return;
+      setView(null);
     }
 
     document.addEventListener("pointerdown", dismissOnOutsidePointer);
     return () => document.removeEventListener("pointerdown", dismissOnOutsidePointer);
   }, [view]);
-
-  function backToAccount() {
-    focusRoleButton.current = true;
-    setView("account");
-  }
 
   function closePanel() {
     setView(null);
@@ -161,8 +146,7 @@ export default function DashboardAccountMenu({
 
     event.preventDefault();
     event.stopPropagation();
-    if (view === "roles") backToAccount();
-    else closePanel();
+    closePanel();
   }
 
   function navigateFromPanel() {
@@ -170,39 +154,28 @@ export default function DashboardAccountMenu({
     onNavigate?.();
   }
 
-  function changeRole(role: UserRoleCode) {
-    if (role === activeRole) {
-      backToAccount();
-      return;
-    }
+  function changeRole(role: UserRoleCode): boolean {
+    if (role === activeRole) return true;
 
     setActiveRole(role);
     const roleName = t(`roles.${role}`);
 
     if (roleCanKeepView(pathname, role)) {
-      backToAccount();
       toast.success(t("roleChangeSuccess", { role: roleName }));
+      return true;
     } else {
       navigateFromPanel();
       router.replace("/dashboard");
       toast.info(t("roleChangeRedirect", { role: roleName }));
+      return false;
     }
   }
 
-  async function signOut() {
+  function signOut() {
     if (signingOut) return;
     setSigningOut(true);
-
-    try {
-      await logout();
-      navigateFromPanel();
-      router.replace("/");
-      router.refresh();
-    } catch {
-      toast.error(t("signOutError"));
-    } finally {
-      setSigningOut(false);
-    }
+    navigateFromPanel();
+    router.replace("/signed-out");
   }
 
   return (
@@ -211,9 +184,12 @@ export default function DashboardAccountMenu({
       className="relative px-3 py-2"
       onKeyDown={handleEscape}
       onBlur={(event) => {
-        if (event.relatedTarget instanceof Node && !event.currentTarget.contains(event.relatedTarget)) {
-          setView(null);
-        }
+        if (!(event.relatedTarget instanceof Node)) return;
+        const relatedElement = event.relatedTarget instanceof Element
+          ? event.relatedTarget
+          : null;
+        const isRolePicker = relatedElement?.closest("[data-account-role-picker]");
+        if (!event.currentTarget.contains(event.relatedTarget) && !isRolePicker) setView(null);
       }}
     >
       <button
@@ -245,44 +221,20 @@ export default function DashboardAccountMenu({
         aria-labelledby={accountLabelId}
         className="absolute inset-x-3 bottom-full z-10 mb-1 max-h-[75dvh] overflow-y-auto overscroll-contain rounded-xl border border-border bg-card p-2 text-foreground shadow-lg"
       >
-        {view === "roles" ? (
-          <>
-            <button ref={backRef} type="button" onClick={backToAccount} className={INTERACTIVE_ROW_STYLE}>
-              <ArrowLeft className="size-4 shrink-0" aria-hidden="true" />
-              {t("backToAccount")}
-            </button>
-            <p className="px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground">{t("activeRoleLabel")}</p>
-            <div role="group" aria-label={t("switchRoleTitle")}>
-              {roles.map((role) => (
-                <button
-                  key={role}
-                  type="button"
-                  aria-pressed={activeRole === role}
-                  onClick={() => changeRole(role)}
-                  className={`${INTERACTIVE_ROW_STYLE} justify-between aria-pressed:bg-selection`}
-                >
-                  <span>{t(`roles.${role}`)}</span>
-                  {activeRole === role && <Check className="size-4 shrink-0" aria-hidden="true" />}
-                </button>
-              ))}
-            </div>
-          </>
-        ) : view === "account" && (
+        {view === "account" && (
           <>
             <Link ref={profileRef} href="/dashboard/profile" onClick={navigateFromPanel} className={INTERACTIVE_ROW_STYLE}>
               <UserRound className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               {t("profile")}
             </Link>
-            {hasMultipleRoles && (
-              <button ref={roleButtonRef} type="button" onClick={() => setView("roles")} className={INTERACTIVE_ROW_STYLE}>
-                <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                <span className="flex-1">{t("switchRole")}</span>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-              </button>
-            )}
+            <AccountRolePicker
+              roles={roles}
+              activeRole={activeRole}
+              onConfirm={changeRole}
+            />
             <AccountPreferences />
             <div className="mt-1 border-t border-border pt-1">
-              <button type="button" aria-disabled={signingOut} aria-busy={signingOut} onClick={() => void signOut()} className={`${ROW_STYLE} text-danger hover:bg-danger-surface aria-disabled:opacity-70`}>
+              <button type="button" disabled={signingOut} aria-busy={signingOut} onClick={signOut} className={`${ROW_STYLE} text-danger hover:bg-danger-surface disabled:opacity-70`}>
                 <LogOut className="size-4 shrink-0" aria-hidden="true" />
                 {t("logout")}
               </button>

@@ -11,6 +11,13 @@ export type TitulationDocumentStatus =
   | "RECEIVED"
   | "PREPARED";
 
+export type TitulationDocumentKind =
+  | "DEFENSE_ANNEXES"
+  | "THESIS_SUMMARY"
+  | "LIBRARY_FORM"
+  | "ACTA"
+  | "EVALUATIONS";
+
 export type TitulationOutcome = "UNCONFIRMED" | "IN_PROGRESS" | "GRADUATED" | "NOT_GRADUATED";
 export type TitulationView = "ALL" | "REVIEW" | "ACTIVE" | "GRADUATED";
 

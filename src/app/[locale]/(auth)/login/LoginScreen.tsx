@@ -8,57 +8,24 @@ export default function LoginPage() {
   const t = useTranslations('Login');
 
   return (
-    <div className="relative isolate grid min-h-dvh w-full lg:grid-cols-2 bg-slate-50 dark:bg-[#020b18] overflow-hidden selection:bg-ocean-cyan/30 transition-colors duration-500">
+    <div data-illustration-palette="login" className="login-visual relative isolate grid min-h-dvh w-full overflow-hidden selection:bg-ocean-cyan/30 transition-colors duration-500 lg:grid-cols-2">
       <LoginPreferences />
       <LoginSquid />
-      <style>{`
-        @keyframes sway {
-          0%, 100% { transform: translate(0%, 0%) rotate(-25deg) scale(1.2); }
-          50% { transform: translate(-3%, 3%) rotate(-23deg) scale(1.25); }
-        }
-        @keyframes sway-alt {
-          0%, 100% { transform: translate(0%, 0%) rotate(-20deg) scale(1.2); }
-          50% { transform: translate(3%, -3%) rotate(-22deg) scale(1.25); }
-        }
-        @keyframes smooth-pulse {
-          0%, 100% { opacity: 0.15; transform: scale(1) rotate(-25deg); }
-          50% { opacity: 0.3; transform: scale(1.05) rotate(-25deg); }
-        }
-        .wave-layer-1 { animation: sway 25s ease-in-out infinite; transform-origin: center; }
-        .wave-layer-2 { animation: sway-alt 30s ease-in-out infinite; transform-origin: center; }
-        .smooth-glow-1 { animation: smooth-pulse 10s ease-in-out infinite; }
-        .smooth-glow-2 { animation: smooth-pulse 12s ease-in-out infinite 2s; }
-      `}</style>
-
-      {/* Left Panel: Visual/Brand (Hidden on mobile) */}
       <div className="hidden lg:flex relative flex-col p-12 overflow-visible bg-white dark:bg-[#010a14] transition-colors duration-500">
-        {/* Ocean Wave Background */}
         <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-[#000d1a] dark:to-[#002a4d] overflow-hidden transition-colors duration-500">
-
-          {/* Custom SVG Waves with Swaying Animation */}
           <div className="absolute inset-0 flex items-center justify-center opacity-70 dark:opacity-50 mix-blend-multiply dark:mix-blend-color-dodge pointer-events-none transition-all duration-500">
-            <svg className="absolute w-[200%] h-[200%] wave-layer-1" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+            <svg className="absolute h-[160%] w-[160%]" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
               <path d="M0 400C100 300 200 500 400 400C600 300 700 500 800 400L800 800L0 800Z" fill="#0ea5e9" />
               <path d="M0 500C200 400 300 600 500 500C700 400 800 600 800 500L800 800L0 800Z" fill="#0369a1" opacity="0.4" />
             </svg>
-            <svg className="absolute w-[200%] h-[200%] wave-layer-2" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+            <svg className="absolute h-[160%] w-[160%]" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
               <path d="M0 450C150 350 250 550 450 450C650 350 750 550 800 450L800 800L0 800Z" fill="#0284c7" opacity="0.6" />
             </svg>
           </div>
-
-          {/* Subtle fluid bands for glowing depth */}
-          <div className="absolute top-[-10%] left-[-20%] w-[150%] h-[60%] bg-gradient-to-r from-transparent via-cyan-400 to-transparent blur-[80px] smooth-glow-1"></div>
-          <div className="absolute bottom-[-10%] left-[-20%] w-[150%] h-[60%] bg-gradient-to-r from-transparent via-blue-500 to-transparent blur-[90px] smooth-glow-2"></div>
         </div>
-
-        {/* Text Contrast Gradient (Ensures perfect legibility in BOTH modes) */}
         <div className="absolute inset-0 z-0 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-[#010a14] dark:via-[#010a14]/90 dark:to-transparent w-full pointer-events-none transition-colors duration-500"></div>
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-white/40 to-white/90 dark:from-transparent dark:via-[#010a14]/30 dark:to-[#010a14]/90 w-full pointer-events-none transition-colors duration-500"></div>
-
-        {/* EDGE FADE: Blends the left panel into the right panel seamlessly */}
-        <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-r from-transparent to-slate-50 dark:to-[#020b18] z-20 pointer-events-none transition-colors duration-500"></div>
-
-        {/* Content */}
+        <div aria-hidden="true" className="login-seam-fade pointer-events-none absolute inset-y-0 right-0 z-0"></div>
         <div className="relative z-10 flex-grow flex flex-col justify-start pt-[10vh] items-start w-full max-w-lg mx-auto pl-4 lg:pl-0">
           <h1 className="text-6xl lg:text-7xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter leading-[1.05] drop-shadow-sm dark:drop-shadow-[0_4px_25px_rgba(0,0,0,1)] transition-colors duration-500">
             {t('welcomeTitle')} <br/>
@@ -70,22 +37,10 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Panel: Authentication */}
-      <div className="min-w-0 flex items-center justify-center relative z-[2] px-4 pb-8 pt-24 sm:px-6 sm:pb-12 lg:p-12 bg-slate-50/55 dark:bg-[#020b18]/50 lg:bg-slate-50/80 dark:lg:bg-[#020b18]/75 backdrop-blur-sm transition-colors duration-500">
-
-        {/* Subtle right panel background with large blurred orbs */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-50/15 via-slate-50/55 to-slate-50/85 dark:from-[#020b18]/10 dark:via-[#020b18]/50 dark:to-[#020b18]/80"></div>
-          <div className="absolute top-[-30%] right-[-20%] w-[80%] h-[80%] bg-cyan-200/30 dark:bg-cyan-900/10 rounded-full blur-[120px]"></div>
-          <div className="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] bg-blue-200/30 dark:bg-blue-900/10 rounded-full blur-[140px]"></div>
-        </div>
-
-        {/* Card Container */}
+      <div className="login-right-panel relative z-[2] flex min-w-0 items-center justify-center px-4 pb-8 pt-24 transition-colors duration-300 sm:px-6 sm:pb-12 lg:p-12">
+        <div aria-hidden="true" className="login-right-wash pointer-events-none absolute inset-0 z-0"></div>
         <div className="w-full max-w-[440px] relative z-10">
-
-          <div className="bg-white/80 dark:bg-[#0f172a]/40 backdrop-blur-3xl border border-slate-200/80 dark:border-white/10 rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] p-6 sm:p-10 flex flex-col relative overflow-hidden group/card hover:border-ocean-cyan/30 dark:hover:border-cyan-500/30 transition-all duration-700">
-
-            {/* Header Area */}
+          <div className="login-auth-card group/card relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200/80 p-6 shadow-[0_8px_40px_rgba(0,0,0,0.04)] transition-colors duration-200 hover:border-ocean-cyan/30 dark:border-white/10 dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] dark:hover:border-cyan-500/30 sm:p-10">
             <div className="flex items-center gap-3 mb-8 sm:gap-4 sm:mb-10">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white dark:bg-[#0f172a] text-ocean-cyan dark:text-cyan-400 rounded-2xl flex items-center justify-center shadow-md dark:shadow-[0_0_30px_rgba(34,211,238,0.15)] border border-slate-200/60 dark:border-white/5 flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg>
@@ -100,9 +55,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Action Area */}
             <div className="space-y-6">
-              {/* Glowing Google Button */}
               <a href={googleLoginUrl ?? withBasePath('/login')} className="w-full relative group/btn block">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-ocean-cyan to-blue-500 rounded-[14px] blur opacity-20 dark:opacity-30 group-hover/btn:opacity-50 dark:group-hover/btn:opacity-70 transition duration-500"></div>
                 <div className="relative w-full flex items-center justify-center gap-3 bg-white dark:bg-[#0a0f1c] border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white py-4 px-4 rounded-[14px] shadow-sm transition-all font-bold overflow-hidden">
@@ -117,7 +70,6 @@ export default function LoginPage() {
                 </div>
               </a>
 
-              {/* Warning Notice */}
               <div className="flex items-start gap-3 text-[11.5px] font-bold uppercase tracking-wider text-ocean-cyan dark:text-cyan-50 bg-blue-50/50 dark:bg-cyan-950/40 px-5 py-4 rounded-[14px] border border-blue-100/50 dark:border-cyan-800/50">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 flex-shrink-0 mt-0.5 text-ocean-cyan dark:text-cyan-400"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
                 <span className="text-left leading-tight text-slate-600 dark:text-cyan-50/80 mt-0.5">{t('warning')}</span>

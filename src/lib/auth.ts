@@ -7,15 +7,31 @@ const authEndpoint = (path: string) => {
   return authBaseUrl ? `${authBaseUrl}/auth/${path}` : undefined;
 };
 
+const SESSION_CHECK_TIMEOUT_MS = 10_000;
+const LOGOUT_TIMEOUT_MS = 4_000;
+
+export const DASHBOARD_WELCOME_PENDING_STORAGE_KEY =
+  'marsys_dashboard_welcome_pending';
+
 export const googleLoginUrl = authEndpoint("google");
 
 export async function getActiveSession(): Promise<ActiveSession | null> {
-  const authBaseUrl = await resolveApiBaseUrl();
-  const sessionUrl = authBaseUrl ? `${authBaseUrl}/auth/session` : undefined;
-  if (!sessionUrl) return null;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    SESSION_CHECK_TIMEOUT_MS,
+  );
 
   try {
-    const response = await fetch(sessionUrl, { credentials: "include", cache: "no-store" });
+    const authBaseUrl = await resolveApiBaseUrl();
+    const sessionUrl = authBaseUrl ? `${authBaseUrl}/auth/session` : undefined;
+    if (!sessionUrl) return null;
+
+    const response = await fetch(sessionUrl, {
+      credentials: "include",
+      cache: "no-store",
+      signal: controller.signal,
+    });
     if (!response.ok) return null;
     const payload: unknown = await response.json();
     if (
@@ -35,15 +51,27 @@ export async function getActiveSession(): Promise<ActiveSession | null> {
       typeof payload.avatarUrl !== "string"
     )
       return null;
+    if (
+      "displayName" in payload &&
+      typeof payload.displayName !== "string"
+    )
+      return null;
+    const displayName =
+      "displayName" in payload && typeof payload.displayName === "string"
+        ? payload.displayName.trim()
+        : "";
     return {
       email: payload.email,
       roles: payload.roles,
+      ...(displayName ? { displayName } : {}),
       ...("avatarUrl" in payload && typeof payload.avatarUrl === "string"
         ? { avatarUrl: payload.avatarUrl }
         : {}),
     };
   } catch {
     return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -58,8 +86,16 @@ export async function logout(): Promise<void> {
     return;
   }
 
-  await fetch(logoutUrl, {
-    method: "POST",
-    credentials: "include",
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), LOGOUT_TIMEOUT_MS);
+  try {
+    const response = await fetch(logoutUrl, {
+      method: "POST",
+      credentials: "include",
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error("Logout request failed");
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }

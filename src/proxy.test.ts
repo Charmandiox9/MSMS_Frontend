@@ -30,8 +30,8 @@ describe("middleware", () => {
       "/dashboard/justifications",
     ],
     ["/auth/callback?route=/no-access", "/no-access"],
-    ["/auth/callback", "/"],
-    ["/auth/callback?route=/dashboard", "/"],
+    ["/auth/callback", "/?entry=oauth"],
+    ["/auth/callback?route=/dashboard", "/?entry=oauth"],
   ])("el callback de OAuth redirige %s a %s", (path, expected) => {
       const response = proxy(request(path));
 
@@ -52,7 +52,7 @@ describe("middleware", () => {
     expect(new URL(response.headers.get("location")!).origin).toBe(
       "https://marsys.test",
     );
-    expect(location(response)).toBe("/");
+    expect(location(response)).toBe("/?entry=oauth");
   });
 
   it.each([

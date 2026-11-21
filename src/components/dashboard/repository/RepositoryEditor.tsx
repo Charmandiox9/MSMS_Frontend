@@ -149,7 +149,7 @@ export default function RepositoryEditor({
         ) : loadError ? (
           <div
             role="alert"
-            className="rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm"
+            className="rounded-xl border border-danger/30 bg-danger-surface p-4 text-sm text-foreground"
           >
             {loadError}
             <button

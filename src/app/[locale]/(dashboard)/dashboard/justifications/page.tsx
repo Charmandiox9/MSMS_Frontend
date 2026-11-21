@@ -391,7 +391,7 @@ export default function JustificationsPage() {
       )}
 
       {actionError && (
-        <div className="rounded-2xl border border-accent/40 bg-accent/10 p-4 text-sm font-semibold text-accent">
+        <div className="rounded-2xl border border-danger/30 bg-danger-surface p-4 text-sm font-semibold text-danger">
           {actionError}
         </div>
       )}
@@ -479,7 +479,7 @@ export default function JustificationsPage() {
 
       {expandedPanel && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-overlay p-4 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
         >
@@ -558,9 +558,9 @@ function SummaryCard({
   tone: "cyan" | "amber" | "green";
 }) {
   const toneClasses = {
-    cyan: "bg-ocean-cyan/15 text-ocean-cyan",
-    amber: "bg-accent/15 text-accent",
-    green: "bg-secondary/15 text-secondary",
+    cyan: "bg-info-surface text-info",
+    amber: "bg-warning-surface text-warning",
+    green: "bg-success-surface text-success",
   };
 
   return (

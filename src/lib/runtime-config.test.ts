@@ -8,6 +8,7 @@ async function loadRuntimeConfig(buildTimeUrl?: string) {
 
 describe('runtime-config', () => {
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
@@ -54,6 +55,32 @@ describe('runtime-config', () => {
     const { resolveApiBaseUrl, getBuildTimeAuthBaseUrl } = await loadRuntimeConfig('/api/graphql');
     expect(getBuildTimeAuthBaseUrl()).toBe('/fasol/marsys/api');
     await expect(resolveApiBaseUrl()).resolves.toBe('/fasol/marsys/api');
-    expect(fetchMock).toHaveBeenCalledWith('/fasol/marsys/api/runtime-config', { cache: 'no-store' });
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/fasol/marsys/api/runtime-config',
+      expect.objectContaining({
+        cache: 'no-store',
+        signal: expect.any(AbortSignal),
+      }),
+    );
+  });
+
+  it('usa la URL de build si la configuración en runtime no responde', async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener(
+          'abort',
+          () => reject(new DOMException('Aborted', 'AbortError')),
+          { once: true },
+        );
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const { resolveApiBaseUrl } = await loadRuntimeConfig('http://localhost:3001/api/graphql');
+    const pendingBaseUrl = resolveApiBaseUrl();
+
+    await vi.runAllTimersAsync();
+
+    await expect(pendingBaseUrl).resolves.toBe('http://localhost:3001/api');
   });
 });

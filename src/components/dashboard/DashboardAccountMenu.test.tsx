@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type { ComponentProps } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -34,13 +34,14 @@ const session: ActiveSession = {
   roles: ["SYSTEM_ADMIN", "TEACHING_SUPPORT_COORDINATOR"],
 };
 
-function renderMenu(initialSession = session, onNavigate = vi.fn()) {
+function renderMenu(initialSession = session, onNavigate = vi.fn(), container?: HTMLElement) {
   render(
     <NextIntlClientProvider locale="es" messages={messages} timeZone="America/Santiago">
       <ActiveRoleProvider initialSession={initialSession}>
         <DashboardAccountMenu session={initialSession} onNavigate={onNavigate} />
       </ActiveRoleProvider>
     </NextIntlClientProvider>,
+    { container },
   );
   const trigger = screen.getByRole("button", { name: "Mi cuenta" });
   fireEvent.click(trigger);
@@ -60,19 +61,75 @@ describe("DashboardAccountMenu", () => {
   it("shows the current role and omits role switching for a single assignment", () => {
     const { trigger, panel } = renderMenu({ ...session, roles: ["SYSTEM_ADMIN"] });
     expect(within(trigger).getByText("Administrador del sistema")).toBeDefined();
-    expect(within(panel).queryByRole("button", { name: "Cambiar rol" })).toBeNull();
+    expect(within(panel).getByText("Administrador del sistema")).toBeDefined();
+    expect(within(panel).queryByRole("button", { name: /Cambiar rol/ })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Roles disponibles" })).toBeNull();
     expect(document.activeElement).toBe(within(panel).getByRole("link", { name: "Mi perfil" }));
   });
 
-  it("closes one account view at a time on Escape and restores focus", () => {
+  it("opens a compact role list with the active role first", () => {
     const { trigger, panel } = renderMenu();
-    fireEvent.click(within(panel).getByRole("button", { name: "Cambiar rol" }));
-    const back = within(panel).getByRole("button", { name: "Volver a Mi cuenta" });
-    expect(document.activeElement).toBe(back);
-    fireEvent.keyDown(back, { key: "Escape" });
-    const changeRole = within(panel).getByRole("button", { name: "Cambiar rol" });
-    expect(document.activeElement).toBe(changeRole);
-    fireEvent.keyDown(changeRole, { key: "Escape" });
+    const rolePickerButton = within(panel).getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    });
+    fireEvent.click(rolePickerButton);
+
+    const options = screen.getByRole("region", { name: "Roles disponibles" });
+    const currentRole = within(options).getByText("Administrador del sistema").closest("[aria-current]");
+    expect(currentRole?.getAttribute("aria-current")).toBe("true");
+    expect(within(options).getByText("En uso")).toBeDefined();
+    expect(within(options).getByRole("button", { name: "Apoyo docente" })).toBeDefined();
+    expect(within(panel).getByRole("switch", { name: "Modo oscuro" })).toBeDefined();
+    expect(within(panel).getByRole("radiogroup", { name: "Idioma" })).toBeDefined();
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("places the role picker inside the mobile navigation dialog", () => {
+    const dialog = document.createElement("dialog");
+    dialog.open = true;
+    document.body.append(dialog);
+    try {
+      const { panel } = renderMenu(session, vi.fn(), dialog);
+      fireEvent.click(within(panel).getByRole("button", {
+        name: "Cambiar rol. Rol actual: Administrador del sistema",
+      }));
+      expect(within(dialog).getByRole("region", { name: "Roles disponibles" })).toBeDefined();
+    } finally {
+      dialog.remove();
+    }
+  });
+
+  it("keeps the active role until the user confirms a different role", () => {
+    const { trigger, panel } = renderMenu();
+    fireEvent.click(within(panel).getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    }));
+    const options = screen.getByRole("region", { name: "Roles disponibles" });
+    fireEvent.click(within(options).getByRole("button", { name: "Apoyo docente" }));
+
+    expect(screen.getByRole("heading", { name: "Confirmar cambio de rol" })).toBeDefined();
+    expect(screen.getByRole("status").textContent).toContain(
+      "El rol actual es Administrador del sistema. ¿Quieres cambiar a Apoyo docente?",
+    );
+    expect(within(trigger).getByText("Administrador del sistema")).toBeDefined();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+    expect(within(trigger).getByText("Administrador del sistema")).toBeDefined();
+    expect(mocks.toast.success).not.toHaveBeenCalled();
+  });
+
+  it("closes the role list on Escape and restores focus to its trigger", () => {
+    const { trigger, panel } = renderMenu();
+    const rolePickerButton = within(panel).getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    });
+    fireEvent.click(rolePickerButton);
+    const options = screen.getByRole("region", { name: "Roles disponibles" });
+    fireEvent.keyDown(within(options).getByRole("button", { name: "Apoyo docente" }), { key: "Escape" });
+
+    expect(screen.queryByRole("region", { name: "Roles disponibles" })).toBeNull();
+    expect(document.activeElement).toBe(rolePickerButton);
+    fireEvent.keyDown(rolePickerButton, { key: "Escape" });
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(trigger);
   });
@@ -80,8 +137,11 @@ describe("DashboardAccountMenu", () => {
   it("keeps a shared route and announces the new active role", () => {
     mocks.pathname = "/dashboard/titulation";
     const { trigger, panel, onNavigate } = renderMenu();
-    fireEvent.click(within(panel).getByRole("button", { name: "Cambiar rol" }));
-    fireEvent.click(within(panel).getByRole("button", { name: "Apoyo docente" }));
+    fireEvent.click(within(panel).getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    }));
+    fireEvent.click(within(screen.getByRole("region", { name: "Roles disponibles" })).getByRole("button", { name: "Apoyo docente" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cambiar rol" }));
     expect(within(trigger).getByText("Apoyo docente")).toBeDefined();
     expect(mocks.toast.success).toHaveBeenCalledWith("Cambiaste a Apoyo docente.");
     expect(mocks.replace).not.toHaveBeenCalled();
@@ -91,8 +151,11 @@ describe("DashboardAccountMenu", () => {
   it("redirects and announces a role change when the current route is unavailable", () => {
     mocks.pathname = "/dashboard/justifications/management";
     const { panel, onNavigate } = renderMenu();
-    fireEvent.click(within(panel).getByRole("button", { name: "Cambiar rol" }));
-    fireEvent.click(within(panel).getByRole("button", { name: "Apoyo docente" }));
+    fireEvent.click(within(panel).getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    }));
+    fireEvent.click(within(screen.getByRole("region", { name: "Roles disponibles" })).getByRole("button", { name: "Apoyo docente" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cambiar rol" }));
     expect(onNavigate).toHaveBeenCalledOnce();
     expect(mocks.replace).toHaveBeenCalledWith("/dashboard");
     expect(mocks.toast.info).toHaveBeenCalledWith(expect.stringMatching(/Apoyo docente.*Inicio/));
@@ -115,5 +178,15 @@ describe("DashboardAccountMenu", () => {
     expect(document.cookie).toContain("MARSYS_LOCALE=en");
     expect(mocks.refresh).toHaveBeenCalledOnce();
     expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("opens the sign out transition immediately", async () => {
+    const { panel, onNavigate } = renderMenu();
+    fireEvent.click(within(panel).getByRole("button", { name: "Cerrar sesión" }));
+
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/signed-out"));
+    expect(mocks.logout).not.toHaveBeenCalled();
+    expect(mocks.refresh).not.toHaveBeenCalled();
+    expect(onNavigate).toHaveBeenCalledOnce();
   });
 });

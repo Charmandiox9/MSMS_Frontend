@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import type { LucideIcon } from "lucide-react";
+import { CircleAlert, type LucideIcon } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import StatCard from "@/components/dashboard/widgets/StatCard";
 import ActiveSemesterSummary from "./ActiveSemesterSummary";
 import { MetricSkeleton } from "@/components/ui/LoadingSkeletons";
+import { useDashboardStartup } from "@/context/DashboardStartupContext";
 
 type Metric = {
   key: string;
@@ -31,6 +32,7 @@ export default function RoleDashboardStats({
   const t = useTranslations("Dashboard");
   const loadingText = useTranslations("Loading");
   const format = useFormatter();
+  const { completeTask } = useDashboardStartup();
   const [values, setValues] = useState<Record<string, number> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -46,32 +48,38 @@ export default function RoleDashboardStats({
         if (active) setError(true);
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+          completeTask("dashboard-metrics");
+        }
       });
     return () => {
       active = false;
     };
-  }, [endpoint, attempt]);
+  }, [completeTask, endpoint, attempt]);
 
   return (
     <>
       {error && (
         <div
           role="alert"
-          className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300"
+          className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-surface px-4 py-3 text-base text-foreground"
         >
-          {t("metricsError")}{" "}
-          <button
-            type="button"
-            className="min-h-11 font-semibold underline"
-            onClick={() => {
-              setError(false);
-              setLoading(true);
-              setAttempt((previous) => previous + 1);
-            }}
-          >
-            {t("retry")}
-          </button>
+          <CircleAlert aria-hidden="true" className="mt-1 size-5 shrink-0 text-danger" />
+          <p>
+            {t("metricsError")} {" "}
+            <button
+              type="button"
+              className="min-h-11 font-semibold underline underline-offset-4"
+              onClick={() => {
+                setError(false);
+                setLoading(true);
+                setAttempt((previous) => previous + 1);
+              }}
+            >
+              {t("retry")}
+            </button>
+          </p>
         </div>
       )}
       {loading && (

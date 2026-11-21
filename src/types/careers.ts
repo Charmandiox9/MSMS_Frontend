@@ -8,6 +8,7 @@ export interface CareerCourse {
 export interface CurriculumVersion {
   id: string;
   cohortYear: number;
+  cohorts?: { cohortYear: number }[];
   courses: CareerCourse[];
   _count: { students: number };
 }
@@ -27,7 +28,13 @@ export interface CareerOption {
   code: string | null;
   name: string;
   isActive: boolean;
-  curriculumVersions: Pick<CurriculumVersion, "id" | "cohortYear">[];
+  curriculumVersions: Pick<CurriculumVersion, "id" | "cohortYear" | "cohorts">[];
+}
+
+export function curriculumCohortYears(
+  version: Pick<CurriculumVersion, "cohortYear" | "cohorts">,
+) {
+  return version.cohorts?.map(({ cohortYear }) => cohortYear) ?? [version.cohortYear];
 }
 
 export interface CourseOption {

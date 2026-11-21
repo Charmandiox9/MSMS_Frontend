@@ -23,7 +23,7 @@ export default function WidgetCard({
         <div>
           <h3 className="text-base font-bold text-foreground">{title}</h3>
           {subtitle && (
-            <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+            <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
           )}
         </div>
         {action && <div>{action}</div>}

@@ -82,16 +82,16 @@ export default function SystemAdminDashboard() {
         </div>
 
         <div>
-          <div className="rounded-2xl border border-ocean-cyan/35 bg-gradient-to-br from-ocean-cyan/10 via-card to-card p-6 shadow-sm">
+          <div className="rounded-2xl border border-primary/35 bg-gradient-to-br from-primary/10 via-card to-card p-6 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ocean-cyan/20 text-ocean-cyan">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-primary">
                 <ShieldAlert className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-foreground">
                   {t("law21719.title")}
                 </h3>
-                <span className="inline-block rounded-full bg-ocean-cyan/10 px-2 py-0.5 text-[10px] font-bold text-ocean-cyan">
+                <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
                   {t("law21719.status")}
                 </span>
               </div>
@@ -102,7 +102,7 @@ export default function SystemAdminDashboard() {
             <div className="mt-5 border-t border-border/60 pt-4">
               <Link
                 href="/privacy"
-                className="inline-flex items-center text-xs font-semibold text-ocean-cyan hover:underline"
+                className="inline-flex items-center text-sm font-semibold text-primary hover:underline"
               >
                 {t("law21719.viewPolicy")} &rarr;
               </Link>

@@ -297,6 +297,21 @@ export default function TitulationWorkspace() {
     );
   }
 
+  function refreshSelectedProcess() {
+    if (!selectedId) return;
+
+    const detailKey = `${selectedId}|${refreshKey}`;
+    void apiFetch<TitulationProcess>(
+      `/academic/titulations/${encodeURIComponent(selectedId)}`,
+      { cache: "no-store" },
+    )
+      .then((process) => {
+        setLoadedDetail({ key: detailKey, process });
+        setDetailErrorKey(null);
+      })
+      .catch(() => setDetailErrorKey(detailKey));
+  }
+
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.delete("q");
@@ -904,12 +919,12 @@ export default function TitulationWorkspace() {
                   aria-busy="true"
                   className="space-y-3"
                 >
-                  <div className="h-12 animate-pulse rounded-xl bg-muted" />
+                  <div className="h-12 animate-pulse rounded-xl bg-skeleton" />
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="h-16 animate-pulse rounded-xl bg-muted" />
-                    <div className="h-16 animate-pulse rounded-xl bg-muted" />
-                    <div className="h-16 animate-pulse rounded-xl bg-muted" />
-                    <div className="h-16 animate-pulse rounded-xl bg-muted" />
+                    <div className="h-16 animate-pulse rounded-xl bg-skeleton" />
+                    <div className="h-16 animate-pulse rounded-xl bg-skeleton" />
+                    <div className="h-16 animate-pulse rounded-xl bg-skeleton" />
+                    <div className="h-16 animate-pulse rounded-xl bg-skeleton" />
                   </div>
                 </div>
               ) : detailError ? (
@@ -932,6 +947,7 @@ export default function TitulationWorkspace() {
                   query={search}
                   defenseDate={displayDefenseDate(selectedProcess)}
                   canManage={canManage}
+                  onAttachmentUploaded={refreshSelectedProcess}
                 />
               ) : (
                 <p className="text-sm leading-relaxed text-muted-foreground">

@@ -7,8 +7,15 @@ import en from "../../../messages/en.json";
 import * as terms from "@/lib/legal-terms";
 import TermsAcceptanceGate from "./TermsAcceptanceGate";
 
+const mocks = vi.hoisted(() => ({
+  replace: vi.fn(),
+  refresh: vi.fn(),
+  logout: vi.fn(),
+}));
+
 vi.mock("@/lib/legal-terms", () => ({ getTermsStatus: vi.fn(), getCurrentTerms: vi.fn(), acceptCurrentTerms: vi.fn() }));
-vi.mock("@/i18n/routing", () => ({ useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }), Link: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a> }));
+vi.mock("@/lib/auth", () => ({ logout: mocks.logout }));
+vi.mock("@/i18n/routing", () => ({ useRouter: () => ({ replace: mocks.replace, refresh: mocks.refresh }), Link: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a> }));
 
 function gate(locale: "es" | "en") {
   return <NextIntlClientProvider locale={locale} messages={locale === "es" ? es : en} timeZone="America/Santiago"><TermsAcceptanceGate><p>Protected content</p></TermsAcceptanceGate></NextIntlClientProvider>;
@@ -17,6 +24,7 @@ function gate(locale: "es" | "en") {
 describe("TermsAcceptanceGate", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(mocks.logout).mockResolvedValue(undefined);
     vi.mocked(terms.getTermsStatus).mockResolvedValue({ accepted: false, currentVersion: "1", acceptedAt: null });
     vi.mocked(terms.getCurrentTerms).mockImplementation(async (locale) => ({ locale: locale === "en" ? "en" : "es", version: "1", title: "Terms document", notice: "Notice", contentHash: "test-hash", sections: [] }));
   });
@@ -48,5 +56,15 @@ describe("TermsAcceptanceGate", () => {
     const checkbox = await screen.findByRole<HTMLInputElement>("checkbox");
     expect(checkbox.checked).toBe(false);
     expect(screen.getByRole<HTMLButtonElement>("button", { name: en.TermsAcceptance.accept }).disabled).toBe(true);
+  });
+
+  it("opens the sign out transition from the error state", async () => {
+    vi.mocked(terms.getTermsStatus).mockRejectedValueOnce(new Error("Unavailable"));
+    render(gate("es"));
+    fireEvent.click(await screen.findByRole("button", { name: es.TermsAcceptance.logout }));
+
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/signed-out"));
+    expect(mocks.logout).not.toHaveBeenCalled();
+    expect(mocks.refresh).not.toHaveBeenCalled();
   });
 });

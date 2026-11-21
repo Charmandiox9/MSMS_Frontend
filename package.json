@@ -4,8 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.31.0",
   "engines": {
-    "node": ">=22.0.0",
-    "npm": ">=10.5.1"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "generate:assistantship-types": "node scripts/generate-assistantship-types.mjs",
@@ -35,7 +34,7 @@
     "recharts": "^3.10.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.6.0",
-    "three": "^0.185.1"
+    "three": "0.182.0"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
@@ -46,7 +45,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/three": "^0.185.4",
+    "@types/three": "0.182.0",
     "@vitejs/plugin-react": "^6.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",

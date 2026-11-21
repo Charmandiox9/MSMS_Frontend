@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { CalendarDays } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { useDashboardStartup } from "@/context/DashboardStartupContext";
 
 type Semester = {
   name: string;
@@ -15,6 +16,7 @@ type Semester = {
 export default function ActiveSemesterSummary() {
   const t = useTranslations("Dashboard");
   const format = useFormatter();
+  const { completeTask } = useDashboardStartup();
   const [semester, setSemester] = useState<
     Semester | "loading" | "error" | null
   >("loading");
@@ -28,11 +30,14 @@ export default function ActiveSemesterSummary() {
       })
       .catch(() => {
         if (current) setSemester("error");
+      })
+      .finally(() => {
+        if (current) completeTask("active-semester");
       });
     return () => {
       current = false;
     };
-  }, []);
+  }, [completeTask]);
 
   const date = (value: string) =>
     format.dateTime(new Date(value), { dateStyle: "medium", timeZone: "UTC" });

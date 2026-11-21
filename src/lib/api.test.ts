@@ -112,7 +112,7 @@ describe('apiFetch', () => {
     await expect(apiFetch('/justifications')).rejects.toThrow('No se pudo completar la solicitud');
   });
 
-  it('falla sin llamar a la red si no hay URL configurada', async () => {
+  it('consulta solo la configuración local si no hay URL de API', async () => {
     vi.stubEnv('NEXT_PUBLIC_API_URL', '');
     const fetchMock = vi.fn(async () => Response.json({ graphqlUrl: null }));
     vi.stubGlobal('fetch', fetchMock);
@@ -120,6 +120,9 @@ describe('apiFetch', () => {
 
     await expect(apiFetch('/justifications')).rejects.toThrow('API URL no configurada');
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledWith('/api/runtime-config', { cache: 'no-store' });
+    expect(fetchMock).toHaveBeenCalledWith('/api/runtime-config', {
+      cache: 'no-store',
+      signal: expect.any(AbortSignal),
+    });
   });
 });

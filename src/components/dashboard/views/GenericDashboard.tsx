@@ -16,7 +16,7 @@ export default function GenericDashboard() {
       </div>
 
       <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-border bg-card p-8 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-ocean-cyan/30 bg-ocean-cyan/10 text-ocean-cyan">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary">
           <LayoutDashboard className="h-6 w-6" />
         </div>
         <h2 className="mt-4 text-lg font-bold text-foreground">{t('welcome')}</h2>

@@ -265,13 +265,13 @@ export default function JustificationsManagementPage() {
             icon={Clock3}
             label={t("historyStats.pending")}
             value={filtered.filter((item) => item.status === "PENDING").length}
-            tone="accent"
+            tone="warning"
           />
           <MetricCard
             icon={CheckCircle2}
             label={t("historyStats.accepted")}
             value={filtered.filter((item) => item.status === "ACCEPTED").length}
-            tone="secondary"
+            tone="success"
           />
           <MetricCard
             icon={XCircle}
@@ -507,13 +507,13 @@ function MetricCard({
   icon: LucideIcon;
   label: string;
   value: number;
-  tone?: "default" | "accent" | "secondary" | "destructive";
+  tone?: "default" | "warning" | "success" | "destructive";
 }) {
   const toneClasses = {
     default: "bg-primary/10 text-primary",
-    accent: "bg-accent/15 text-accent",
-    secondary: "bg-secondary/15 text-secondary",
-    destructive: "bg-coral-red/15 text-coral-red",
+    warning: "bg-warning-surface text-warning",
+    success: "bg-success-surface text-success",
+    destructive: "bg-danger-surface text-danger",
   };
 
   return (

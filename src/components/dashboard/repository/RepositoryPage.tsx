@@ -359,7 +359,7 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
       {error ? (
         <div
           role="alert"
-          className="rounded-2xl border border-red-500/30 bg-red-500/5 p-5"
+          className="rounded-2xl border border-danger/30 bg-danger-surface p-5"
         >
           <p className="text-sm">{error}</p>
           <button
@@ -457,7 +457,7 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
                   <button
                     type="button"
                     disabled={busy}
-                    className={`${secondaryButton} text-red-600 dark:text-red-400`}
+                    className={`${secondaryButton} text-danger`}
                     aria-label={t("deleteRecord", { title: row.title })}
                     onClick={() => void open("delete", row)}
                   >
@@ -527,7 +527,7 @@ export default function RepositoryPage({ kind }: { kind: RepositoryKind }) {
             <button
               type="button"
               disabled={busy}
-              className={`${primaryButton} bg-red-600 text-white`}
+              className={`${primaryButton} bg-danger text-destructive-foreground`}
               onClick={() => void remove()}
             >
               {t(busy ? "deleting" : "confirmDelete")}

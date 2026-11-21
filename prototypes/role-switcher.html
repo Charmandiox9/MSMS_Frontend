@@ -1,0 +1,661 @@
+<style>
+  #role-switcher-confirm-preview {
+    --account-surface: light-dark(#ffffff, #242527);
+    --account-text: light-dark(#142b41, #f2f1f0);
+    --account-muted: light-dark(#526978, #babbc0);
+    --account-border: light-dark(#d8e2e8, #414246);
+    --account-hover: light-dark(#f5f8f9, #2d2e30);
+    --account-selection: light-dark(#dfefee, #393340);
+    --account-accent: light-dark(#075e66, #c9b9ea);
+    --account-on-accent: light-dark(#ffffff, #242527);
+    display: grid;
+    width: 100%;
+    justify-items: center;
+    gap: 12px;
+    padding: 16px;
+    color-scheme: light;
+    color: var(--account-text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  #role-switcher-confirm-preview[data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  #role-switcher-confirm-preview *,
+  #role-switcher-confirm-preview *::before,
+  #role-switcher-confirm-preview *::after {
+    box-sizing: border-box;
+  }
+
+  #role-switcher-confirm-preview button {
+    font: inherit;
+  }
+
+  #role-switcher-confirm-preview button:focus-visible {
+    outline: 2px solid var(--account-accent);
+    outline-offset: 2px;
+  }
+
+  #role-switcher-confirm-preview .scenario-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--account-border);
+    border-radius: 8px;
+    background: var(--account-surface);
+    padding: 4px;
+    color: var(--account-muted);
+    font-size: 12px;
+  }
+
+  #role-switcher-confirm-preview .scenario-button {
+    min-height: 32px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    padding: 4px 8px;
+    color: var(--account-muted);
+  }
+
+  #role-switcher-confirm-preview .scenario-button[aria-pressed="true"] {
+    background: var(--account-selection);
+    color: var(--account-text);
+    font-weight: 500;
+  }
+
+  #role-switcher-confirm-preview .account-popover,
+  #role-switcher-confirm-preview .account-trigger {
+    width: min(100%, 280px);
+    border: 1px solid var(--account-border);
+    border-radius: 12px;
+    background: var(--account-surface);
+  }
+
+  #role-switcher-confirm-preview .account-popover {
+    position: relative;
+    height: 264px;
+    overflow: visible;
+    padding: 8px;
+    box-shadow: 0 12px 28px light-dark(rgb(20 43 65 / 12%), rgb(0 0 0 / 30%));
+  }
+
+  #role-switcher-confirm-preview [hidden] {
+    display: none !important;
+  }
+
+  #role-switcher-confirm-preview .menu-row {
+    display: flex;
+    width: 100%;
+    min-height: 40px;
+    align-items: center;
+    gap: 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    padding: 7px 10px;
+    color: var(--account-text);
+    text-align: left;
+  }
+
+  #role-switcher-confirm-preview .menu-row:hover,
+  #role-switcher-confirm-preview .role-selector:hover,
+  #role-switcher-confirm-preview .role-choice:hover,
+  #role-switcher-confirm-preview .language-option:hover {
+    background: var(--account-hover);
+  }
+
+  #role-switcher-confirm-preview .menu-row > span {
+    flex: 1;
+  }
+
+  #role-switcher-confirm-preview .menu-icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    color: var(--account-muted);
+  }
+
+  #role-switcher-confirm-preview .menu-divider {
+    height: 1px;
+    margin: 4px 0;
+    border: 0;
+    background: var(--account-border);
+  }
+
+  #role-switcher-confirm-preview .role-control {
+    position: relative;
+    z-index: 1;
+    padding: 2px 4px;
+  }
+
+  #role-switcher-confirm-preview .role-static,
+  #role-switcher-confirm-preview .role-selector {
+    display: flex;
+    width: 100%;
+    min-height: 40px;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    padding: 7px 10px;
+    text-align: left;
+  }
+
+  #role-switcher-confirm-preview .role-static {
+    color: var(--account-text);
+  }
+
+  #role-switcher-confirm-preview .role-selector {
+    border: 1px solid var(--account-border);
+    background: var(--account-surface);
+    color: var(--account-text);
+  }
+
+  #role-switcher-confirm-preview .role-static > span,
+  #role-switcher-confirm-preview .role-selector > span:first-of-type {
+    min-width: 0;
+    flex: 1;
+  }
+
+  #role-switcher-confirm-preview .role-selector .menu-icon:last-child {
+    color: var(--account-muted);
+  }
+
+  #role-switcher-confirm-preview .role-menu,
+  #role-switcher-confirm-preview .role-confirmation {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    z-index: 5;
+    border: 1px solid var(--account-border);
+    border-radius: 10px;
+    background: var(--account-surface);
+    box-shadow: 0 12px 28px light-dark(rgb(20 43 65 / 16%), rgb(0 0 0 / 40%));
+  }
+
+  #role-switcher-confirm-preview .role-menu {
+    display: grid;
+    max-height: 186px;
+    gap: 2px;
+    overflow-y: auto;
+    padding: 4px;
+  }
+
+  #role-switcher-confirm-preview .current-role {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    gap: 8px;
+    border-radius: 7px;
+    background: var(--account-selection);
+    padding: 6px 8px;
+  }
+
+  #role-switcher-confirm-preview .current-role-name {
+    min-width: 0;
+    flex: 1;
+    font-weight: 500;
+  }
+
+  #role-switcher-confirm-preview .current-role-status {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
+    color: var(--account-accent);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  #role-switcher-confirm-preview .current-role-status .menu-icon {
+    width: 14px;
+    height: 14px;
+    color: currentColor;
+  }
+
+  #role-switcher-confirm-preview .role-choice {
+    display: flex;
+    width: 100%;
+    min-height: 38px;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    padding: 6px 8px;
+    color: var(--account-text);
+    text-align: left;
+  }
+
+  #role-switcher-confirm-preview .role-choice > span {
+    min-width: 0;
+    flex: 1;
+  }
+
+  #role-switcher-confirm-preview .role-confirmation {
+    padding: 12px;
+  }
+
+  #role-switcher-confirm-preview .confirmation-title {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  #role-switcher-confirm-preview .confirmation-copy {
+    margin: 0;
+    color: var(--account-muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  #role-switcher-confirm-preview .confirmation-copy strong {
+    color: var(--account-text);
+    font-weight: 500;
+  }
+
+  #role-switcher-confirm-preview .confirmation-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  #role-switcher-confirm-preview .confirmation-button {
+    min-height: 36px;
+    border: 1px solid var(--account-border);
+    border-radius: 7px;
+    background: transparent;
+    padding: 6px 10px;
+    color: var(--account-text);
+  }
+
+  #role-switcher-confirm-preview .confirmation-button-primary {
+    border-color: var(--account-accent);
+    background: var(--account-accent);
+    color: var(--account-on-accent);
+    font-weight: 500;
+  }
+
+  #role-switcher-confirm-preview .preference-row {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 8px;
+    color: var(--account-text);
+  }
+
+  #role-switcher-confirm-preview .theme-switch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex: none;
+    border: 1px solid var(--account-muted);
+    border-radius: 999px;
+    background: var(--account-hover);
+  }
+
+  #role-switcher-confirm-preview .theme-switch::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--account-muted);
+    content: "";
+    transition: transform 180ms ease-out, background-color 180ms ease-out;
+  }
+
+  #role-switcher-confirm-preview .theme-switch[aria-checked="true"] {
+    border-color: var(--account-accent);
+    background: var(--account-accent);
+  }
+
+  #role-switcher-confirm-preview .theme-switch[aria-checked="true"]::after {
+    transform: translateX(18px);
+    background: var(--account-surface);
+  }
+
+  #role-switcher-confirm-preview .language-options {
+    display: flex;
+    gap: 4px;
+  }
+
+  #role-switcher-confirm-preview .language-option {
+    min-width: 42px;
+    min-height: 36px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--account-muted);
+  }
+
+  #role-switcher-confirm-preview .language-option[aria-pressed="true"] {
+    background: var(--account-selection);
+    color: var(--account-text);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  #role-switcher-confirm-preview .account-trigger {
+    display: flex;
+    min-height: 54px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    color: var(--account-text);
+    text-align: left;
+  }
+
+  #role-switcher-confirm-preview .avatar {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--account-selection);
+    font-weight: 500;
+  }
+
+  #role-switcher-confirm-preview .account-copy {
+    display: grid;
+    min-width: 0;
+    flex: 1;
+  }
+
+  #role-switcher-confirm-preview .account-copy strong {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  #role-switcher-confirm-preview .account-copy span {
+    overflow: hidden;
+    color: var(--account-muted);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #role-switcher-confirm-preview .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+
+  @media (pointer: coarse) {
+    #role-switcher-confirm-preview .role-choice {
+      min-height: 44px;
+    }
+  }
+</style>
+
+<div id="role-switcher-confirm-preview" class="viz-dotted-background" data-theme="light" role="region" aria-label="Simulación del selector de rol">
+  <div class="scenario-control" role="group" aria-label="Escenario de cuenta">
+    <span>Simular</span>
+    <button class="scenario-button" type="button" data-scenario="single" aria-pressed="false">Un rol</button>
+    <button class="scenario-button" type="button" data-scenario="multiple" aria-pressed="true">Varios roles</button>
+  </div>
+
+  <section class="account-popover" aria-label="Opciones de cuenta">
+    <button class="menu-row" type="button">
+      <i class="menu-icon" data-lucide="user-round" aria-hidden="true"></i>
+      <span>Mi perfil</span>
+    </button>
+    <hr class="menu-divider">
+
+    <div class="role-control" id="role-control">
+      <div class="role-static" id="role-static">
+        <i class="menu-icon" data-lucide="shield-check" aria-hidden="true"></i>
+        <span id="role-static-name">Analista académico</span>
+      </div>
+      <button class="role-selector" id="role-selector" type="button" aria-label="Rol actual: Analista académico" aria-expanded="false" aria-controls="role-menu" hidden>
+        <i class="menu-icon" data-lucide="shield-check" aria-hidden="true"></i>
+        <span id="role-selector-name">Analista académico</span>
+        <i class="menu-icon" data-lucide="chevron-down" aria-hidden="true"></i>
+      </button>
+
+      <div class="role-menu" id="role-menu" role="group" aria-label="Roles disponibles" hidden>
+        <div class="current-role" id="role-menu-current" aria-current="true">
+          <span class="current-role-name" id="role-menu-current-name">Analista académico</span>
+          <span class="current-role-status"><i class="menu-icon" data-lucide="check" aria-hidden="true"></i>En uso</span>
+        </div>
+        <div id="role-menu-alternatives">
+          <button class="role-choice" type="button" data-role="TEACHING_SUPPORT_COORDINATOR">
+            <span>Apoyo docente</span>
+            <i class="menu-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+          </button>
+          <button class="role-choice" type="button" data-role="SYSTEM_ADMIN">
+            <span>Administrador del sistema</span>
+            <i class="menu-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+          </button>
+          <button class="role-choice" type="button" data-role="ACADEMIC_SECRETARY">
+            <span>Secretario docente</span>
+            <i class="menu-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+          </button>
+          <button class="role-choice" type="button" data-role="ACADEMIC_PROCESS_ANALYST">
+            <span>Analista académico</span>
+            <i class="menu-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <section class="role-confirmation" id="role-confirmation" aria-labelledby="role-confirmation-title" hidden>
+        <h3 class="confirmation-title" id="role-confirmation-title">Confirmar cambio</h3>
+        <p class="confirmation-copy">
+          Cambiarás de <strong id="role-confirmation-from">Analista académico</strong> a
+          <strong id="role-confirmation-to">Secretario docente</strong>.
+        </p>
+        <div class="confirmation-actions">
+          <button class="confirmation-button" id="role-cancel-change" type="button">Cancelar</button>
+          <button class="confirmation-button confirmation-button-primary" id="role-confirm-change" type="button">Cambiar rol</button>
+        </div>
+      </section>
+    </div>
+
+    <hr class="menu-divider">
+    <div class="preference-row">
+      <span>Modo oscuro</span>
+      <button class="theme-switch" id="role-preview-theme" type="button" role="switch" aria-label="Modo oscuro" aria-checked="false"></button>
+    </div>
+    <div class="preference-row">
+      <span>Idioma</span>
+      <span class="language-options" role="group" aria-label="Idioma">
+        <button class="language-option" type="button" aria-pressed="true">ES</button>
+        <button class="language-option" type="button" aria-pressed="false">EN</button>
+      </span>
+    </div>
+    <hr class="menu-divider">
+    <button class="menu-row" type="button">
+      <i class="menu-icon" data-lucide="log-out" aria-hidden="true"></i>
+      <span>Cerrar sesión</span>
+    </button>
+    <span class="sr-only" id="role-preview-status" aria-live="polite"></span>
+  </section>
+
+  <button class="account-trigger" type="button" aria-label="Mi cuenta">
+    <span class="avatar" aria-hidden="true">M</span>
+    <span class="account-copy">
+      <strong>Mi cuenta</strong>
+      <span id="role-footer-name">Analista académico</span>
+    </span>
+    <i class="menu-icon" data-lucide="chevrons-up-down" aria-hidden="true"></i>
+  </button>
+</div>
+
+<script>
+  const rolePreview = document.getElementById("role-switcher-confirm-preview");
+  const roleDefinitions = [
+    { code: "TEACHING_SUPPORT_COORDINATOR", name: "Apoyo docente" },
+    { code: "SYSTEM_ADMIN", name: "Administrador del sistema" },
+    { code: "ACADEMIC_PROCESS_ANALYST", name: "Analista académico" },
+    { code: "ACADEMIC_SECRETARY", name: "Secretario docente" }
+  ];
+  const roleByCode = new Map(roleDefinitions.map((role) => [role.code, role]));
+  const roleStatic = rolePreview.querySelector("#role-static");
+  const roleSelector = rolePreview.querySelector("#role-selector");
+  const roleMenu = rolePreview.querySelector("#role-menu");
+  const roleMenuCurrent = rolePreview.querySelector("#role-menu-current");
+  const roleAlternatives = Array.from(rolePreview.querySelectorAll(".role-choice"));
+  const confirmation = rolePreview.querySelector("#role-confirmation");
+  const confirmationFrom = rolePreview.querySelector("#role-confirmation-from");
+  const confirmationTo = rolePreview.querySelector("#role-confirmation-to");
+  const cancelChange = rolePreview.querySelector("#role-cancel-change");
+  const confirmChange = rolePreview.querySelector("#role-confirm-change");
+  const status = rolePreview.querySelector("#role-preview-status");
+  const footerRoleName = rolePreview.querySelector("#role-footer-name");
+  let activeRoleCode = "ACADEMIC_PROCESS_ANALYST";
+  let pendingRoleCode = null;
+  let scenario = "multiple";
+  let menuOpen = false;
+
+  function activeRole() {
+    return roleByCode.get(activeRoleCode);
+  }
+
+  function closeRolePicker() {
+    menuOpen = false;
+    pendingRoleCode = null;
+  }
+
+  function render() {
+    const current = activeRole();
+    const canSwitch = scenario === "multiple" && roleDefinitions.length > 1;
+
+    rolePreview.querySelector("#role-static-name").textContent = current.name;
+    rolePreview.querySelector("#role-selector-name").textContent = current.name;
+    rolePreview.querySelector("#role-menu-current-name").textContent = current.name;
+    rolePreview.querySelector("#role-selector").setAttribute("aria-label", "Rol actual: " + current.name);
+    footerRoleName.textContent = current.name;
+
+    roleStatic.hidden = canSwitch;
+    roleSelector.hidden = !canSwitch;
+    roleSelector.setAttribute("aria-expanded", String(menuOpen));
+    roleMenu.hidden = !canSwitch || !menuOpen || Boolean(pendingRoleCode);
+    roleMenuCurrent.hidden = !canSwitch;
+    confirmation.hidden = !canSwitch || !pendingRoleCode;
+
+    roleAlternatives.forEach((option) => {
+      const role = roleByCode.get(option.dataset.role);
+      const isCurrent = role.code === activeRoleCode;
+      option.hidden = !canSwitch || isCurrent;
+      option.setAttribute("aria-label", "Cambiar a " + role.name);
+    });
+
+    rolePreview.querySelectorAll(".scenario-button").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.scenario === scenario));
+    });
+  }
+
+  function persistState() {
+    if (typeof globalThis.openai?.setWidgetState !== "function") return;
+    globalThis.openai.setWidgetState({
+      modelContent: { selectedRole: activeRoleCode },
+      privateContent: { scenario }
+    }).catch(() => {});
+  }
+
+  function restoreState(widgetState) {
+    const selectedRole = widgetState?.modelContent?.selectedRole;
+    const matchingRole = roleDefinitions.find(({ code, name }) => code === selectedRole || name === selectedRole);
+    if (matchingRole) activeRoleCode = matchingRole.code;
+
+    scenario = widgetState?.privateContent?.scenario === "single" ? "single" : "multiple";
+    closeRolePicker();
+    render();
+  }
+
+  roleSelector.addEventListener("click", () => {
+    menuOpen = !menuOpen;
+    pendingRoleCode = null;
+    render();
+  });
+
+  roleAlternatives.forEach((option) => {
+    option.addEventListener("click", () => {
+      pendingRoleCode = option.dataset.role;
+      menuOpen = false;
+      const nextRole = roleByCode.get(pendingRoleCode);
+      confirmationFrom.textContent = activeRole().name;
+      confirmationTo.textContent = nextRole.name;
+      render();
+      cancelChange.focus();
+    });
+  });
+
+  cancelChange.addEventListener("click", () => {
+    closeRolePicker();
+    render();
+    roleSelector.focus();
+  });
+
+  confirmChange.addEventListener("click", () => {
+    if (!pendingRoleCode || !roleByCode.has(pendingRoleCode)) return;
+    activeRoleCode = pendingRoleCode;
+    const newRole = activeRole();
+    closeRolePicker();
+    render();
+    status.textContent = "Rol cambiado a " + newRole.name;
+    roleSelector.focus();
+    persistState();
+  });
+
+  rolePreview.querySelectorAll(".scenario-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      scenario = button.dataset.scenario;
+      closeRolePicker();
+      render();
+      persistState();
+    });
+  });
+
+  rolePreview.addEventListener("click", (event) => {
+    if (!rolePreview.querySelector("#role-control").contains(event.target)) {
+      closeRolePicker();
+      render();
+    }
+  });
+
+  rolePreview.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (pendingRoleCode) {
+      closeRolePicker();
+      render();
+      roleSelector.focus();
+    } else if (menuOpen) {
+      closeRolePicker();
+      render();
+      roleSelector.focus();
+    }
+  });
+
+  rolePreview.querySelector("#role-preview-theme").addEventListener("click", (event) => {
+    const enabled = event.currentTarget.getAttribute("aria-checked") !== "true";
+    event.currentTarget.setAttribute("aria-checked", String(enabled));
+    rolePreview.dataset.theme = enabled ? "dark" : "light";
+  });
+
+  rolePreview.querySelectorAll(".language-option").forEach((option) => {
+    option.addEventListener("click", () => {
+      rolePreview.querySelectorAll(".language-option").forEach((item) => {
+        item.setAttribute("aria-pressed", String(item === option));
+      });
+    });
+  });
+
+  restoreState(globalThis.openai?.widgetState);
+  window.addEventListener("openai:set_globals", (event) => {
+    restoreState(event.detail?.globals?.widgetState);
+  });
+</script>

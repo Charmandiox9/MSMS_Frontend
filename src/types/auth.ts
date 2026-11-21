@@ -31,6 +31,7 @@ export type PermissionCode =
 
 export interface ActiveSession {
   email: string;
+  displayName?: string;
   roles: string[];
   avatarUrl?: string;
 }

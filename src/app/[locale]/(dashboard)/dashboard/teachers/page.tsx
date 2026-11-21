@@ -246,7 +246,7 @@ export default function TeachersPage() {
         </div>
       )}
       {message && (
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-300">
+        <div className="rounded-2xl border border-success/30 bg-success-surface p-4 text-sm text-success">
           {message}
         </div>
       )}
@@ -340,7 +340,7 @@ export default function TeachersPage() {
                       </span>
                     )}
                     <span
-                      className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${teacher.isActive === false ? "bg-muted text-muted-foreground" : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"}`}
+                      className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${teacher.isActive === false ? "bg-muted text-muted-foreground" : "bg-success-surface text-success"}`}
                     >
                       {t(teacher.isActive === false ? "inactive" : "active")}
                     </span>

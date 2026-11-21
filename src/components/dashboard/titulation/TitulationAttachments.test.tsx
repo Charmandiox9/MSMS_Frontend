@@ -19,6 +19,7 @@ vi.mock("@/lib/download", () => ({ downloadBlob: downloadBlobMock }));
 
 const attachment = {
   id: "attachment-1",
+  documentKind: "ACTA",
   originalName: "Acta de Ejemplo.pdf",
   contentType: "application/pdf",
   size: 12,
@@ -35,34 +36,62 @@ describe("TitulationAttachments", () => {
 
   it("uploads a selected PDF only after explicit confirmation", async () => {
     const uploaded = { ...attachment, id: "attachment-2" };
+    const onUploadComplete = vi.fn();
     apiFetchMock.mockImplementation(async (_path, init) =>
       init?.method === "POST" ? uploaded : [],
     );
-    renderAs(<TitulationAttachments processId="process-1" />);
+    renderAs(
+      <TitulationAttachments
+        processId="process-1"
+        onUploadComplete={onUploadComplete}
+      />,
+    );
 
     await screen.findByText("Este expediente aún no tiene archivos adjuntos.");
+    const uploadButton = screen.getByRole("button", { name: "Adjuntar archivo" });
+    expect(uploadButton.hasAttribute("disabled")).toBe(true);
+    fireEvent.change(screen.getByLabelText("Documento al que corresponde"), {
+      target: { value: "ACTA" },
+    });
+    expect(
+      screen.getByLabelText("Estado del requisito después de subirlo"),
+    ).toHaveProperty("value", "RECEIVED");
+    fireEvent.change(
+      screen.getByLabelText("Estado del requisito después de subirlo"),
+      { target: { value: "PREPARED" } },
+    );
     const file = new File(["%PDF-1.7"], "acta.pdf", { type: "application/pdf" });
     fireEvent.change(screen.getByLabelText("Seleccionar archivo"), {
       target: { files: [file] },
     });
 
     expect(apiFetchMock).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole("button", { name: "Adjuntar archivo" }).hasAttribute("disabled")).toBe(false);
-    fireEvent.click(screen.getByRole("button", { name: "Adjuntar archivo" }));
+    expect(uploadButton.hasAttribute("disabled")).toBe(false);
+    fireEvent.click(uploadButton);
 
-    expect(await screen.findByText("Archivo adjuntado al expediente.")).toBeTruthy();
+    expect(
+      await screen.findByText(
+        "Archivo vinculado a Acta de titulación. Estado actualizado a Preparado.",
+      ),
+    ).toBeTruthy();
     expect(await screen.findByText("Acta de Ejemplo.pdf")).toBeTruthy();
+    expect(onUploadComplete).toHaveBeenCalledOnce();
     const uploadCall = apiFetchMock.mock.calls.find(([, init]) => init?.method === "POST");
     expect(uploadCall?.[0]).toBe("/academic/titulations/process-1/attachments");
     expect((uploadCall?.[1]?.body as FormData).get("file")).toMatchObject({
       name: "acta.pdf",
       type: "application/pdf",
     });
+    expect((uploadCall?.[1]?.body as FormData).get("documentKind")).toBe("ACTA");
+    expect((uploadCall?.[1]?.body as FormData).get("documentStatus")).toBe("PREPARED");
   });
 
   it("blocks unsupported files before sending them", async () => {
     renderAs(<TitulationAttachments processId="process-1" />);
     await screen.findByText("Este expediente aún no tiene archivos adjuntos.");
+    fireEvent.change(screen.getByLabelText("Documento al que corresponde"), {
+      target: { value: "ACTA" },
+    });
 
     const file = new File(["example"], "script.txt", { type: "text/plain" });
     fireEvent.change(screen.getByLabelText("Seleccionar archivo"), {
@@ -74,6 +103,13 @@ describe("TitulationAttachments", () => {
     );
     expect(screen.getByRole("button", { name: "Adjuntar archivo" }).hasAttribute("disabled")).toBe(true);
     expect(apiFetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks existing attachments without a category as unclassified", async () => {
+    apiFetchMock.mockResolvedValue([{ ...attachment, documentKind: null }]);
+    renderAs(<TitulationAttachments processId="process-1" />);
+
+    expect(await screen.findByText("Sin tipo asociado")).toBeTruthy();
   });
 
   it("downloads an attachment using its safe display name", async () => {

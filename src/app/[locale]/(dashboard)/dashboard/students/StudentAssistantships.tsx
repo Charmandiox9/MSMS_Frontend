@@ -10,7 +10,7 @@ export default function StudentAssistantships({
   if (!items.length) return null;
   return (
     <details className="w-full rounded-xl border border-secondary/30 bg-secondary/5 p-3">
-      <summary className="cursor-pointer text-xs font-semibold text-secondary">
+      <summary className="cursor-pointer text-xs font-semibold text-primary">
         {t("assistantships", { count: items.length })}
       </summary>
       <ul className="mt-3 space-y-2 text-xs text-foreground">

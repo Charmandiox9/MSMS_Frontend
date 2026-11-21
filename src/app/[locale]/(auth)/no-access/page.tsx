@@ -8,9 +8,9 @@ export default function NoAccessPage() {
   const t = useTranslations('NoAccess');
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+    <div className="institutional-theme flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-lg">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-coral-red/30 bg-coral-red/10 text-coral-red">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-danger/30 bg-danger-surface text-danger">
           <ShieldAlert className="h-8 w-8" />
         </div>
 
@@ -29,7 +29,7 @@ export default function NoAccessPage() {
         <div className="space-y-3">
           <Link
             href="/login"
-            className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-cyan"
+            className="flex min-h-11 w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             {t('backToLogin')}
           </Link>

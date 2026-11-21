@@ -25,16 +25,16 @@ export default function PublicPageToolbar({ backLabel }: { backLabel: string }) 
         <button
           type="button"
           onClick={() => setTheme(isDark ? 'light' : 'dark')}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/70 bg-white/80 text-slate-700 shadow-sm backdrop-blur-md transition-colors hover:border-ocean-cyan hover:text-ocean-cyan dark:border-white/10 dark:bg-slate-950/50 dark:text-white/80"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           aria-label={t('toggleTheme')}
           title={t('toggleTheme')}
         >
-          {mounted && isDark ? <Sun className="h-5 w-5 text-amber-300" /> : <Moon className="h-5 w-5" />}
+          {mounted && isDark ? <Sun className="h-5 w-5 text-primary" /> : <Moon className="h-5 w-5" />}
         </button>
         <button
           type="button"
           onClick={() => router.replace(pathname, { locale: locale === 'es' ? 'en' : 'es' })}
-          className="flex h-10 min-w-10 items-center justify-center rounded-xl border border-slate-200/70 bg-white/80 px-2 text-xs font-black uppercase text-slate-700 shadow-sm backdrop-blur-md transition-colors hover:border-ocean-cyan hover:text-ocean-cyan dark:border-white/10 dark:bg-slate-950/50 dark:text-white/80"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border bg-card px-2 text-sm font-bold uppercase text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           aria-label={t('toggleLanguage')}
           title={t('toggleLanguage')}
         >

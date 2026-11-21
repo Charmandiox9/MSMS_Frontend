@@ -5,9 +5,14 @@ import { useLocale, useTranslations } from 'next-intl';
 import { acceptCurrentTerms, getCurrentTerms, getTermsStatus, type TermsDocument } from '@/lib/legal-terms';
 import { DashboardShellSkeleton } from '@/components/ui/LoadingSkeletons';
 import { Link, useRouter } from '@/i18n/routing';
-import { logout } from '@/lib/auth';
 
-export default function TermsAcceptanceGate({ children }: { children: ReactNode }) {
+export default function TermsAcceptanceGate({
+  children,
+  onAccessResolved,
+}: {
+  children: ReactNode;
+  onAccessResolved?: (accepted: boolean) => void;
+}) {
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations('TermsAcceptance');
@@ -29,11 +34,12 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
   const confirmationKey = `${requestKey}:${document?.version ?? ''}`;
   const checked = checkedDocument === confirmationKey;
   const [saving, setSaving] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
-  const handleExit = async () => {
-    await logout().catch(() => undefined);
-    router.replace('/login');
-    router.refresh();
+  const handleExit = () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    router.replace('/signed-out');
   };
 
   useEffect(() => {
@@ -44,15 +50,18 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
         if (!active) return;
         if (status.accepted) {
           setGateState({ requestKey, document: null, required: false, error: false });
+          onAccessResolved?.(true);
           return;
         }
         const current = await getCurrentTerms(locale);
         if (active) {
           setGateState({ requestKey, document: current, required: true, error: false });
+          onAccessResolved?.(false);
         }
       } catch {
         if (active) {
           setGateState({ requestKey, document: null, required: false, error: true });
+          onAccessResolved?.(false);
         }
       }
     };
@@ -60,7 +69,7 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
     return () => {
       active = false;
     };
-  }, [locale, requestKey]);
+  }, [locale, onAccessResolved, requestKey]);
 
   const handleAccept = async () => {
     if (!document || !checked) return;
@@ -68,8 +77,10 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
     try {
       await acceptCurrentTerms(document.version, locale);
       setGateState({ requestKey, document, required: false, error: false });
+      onAccessResolved?.(true);
     } catch {
       setGateState({ requestKey, document, required: true, error: true });
+      onAccessResolved?.(false);
     } finally {
       setSaving(false);
     }
@@ -83,7 +94,7 @@ export default function TermsAcceptanceGate({ children }: { children: ReactNode 
         <p className="text-muted-foreground">{t('loadError')}</p>
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" onClick={() => setRetry((count) => count + 1)} className="w-fit rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground">{t('retry')}</button>
-          <button type="button" onClick={() => void handleExit()} className="w-fit rounded-xl border border-border px-5 py-3 font-semibold text-foreground">{t('logout')}</button>
+          <button type="button" disabled={signingOut} aria-busy={signingOut} onClick={handleExit} className="w-fit rounded-xl border border-border px-5 py-3 font-semibold text-foreground disabled:cursor-wait disabled:opacity-70">{t('logout')}</button>
           <Link href="/privacy" className="text-sm font-medium text-primary underline underline-offset-4">{t('privacyLink')}</Link>
         </div>
       </main>

@@ -54,8 +54,14 @@ test.describe('cambio de rol activo', () => {
 
     await account.click();
     const panel = page.getByRole('region', { name: 'Mi cuenta' });
-    await panel.getByRole('button', { name: 'Cambiar rol' }).click();
-    await panel.getByRole('button', { name: 'Apoyo docente' }).click();
+    await panel.getByRole('button', {
+      name: 'Cambiar rol. Rol actual: Administrador del sistema',
+    }).click();
+    const roles = page.getByRole('region', { name: 'Roles disponibles' });
+    await roles.getByRole('button', { name: 'Apoyo docente' }).click();
+    const confirmation = roles.getByRole('region', { name: 'Confirmar cambio de rol' });
+    await expect(account).toHaveAccessibleDescription('Administrador del sistema');
+    await confirmation.getByRole('button', { name: 'Cambiar rol' }).click();
 
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(account).toHaveAccessibleDescription('Apoyo docente');

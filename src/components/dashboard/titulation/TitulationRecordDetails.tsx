@@ -70,11 +70,13 @@ export default function TitulationRecordDetails({
   query,
   defenseDate,
   canManage,
+  onAttachmentUploaded,
 }: {
   process: TitulationProcess;
   query: string;
   defenseDate: string;
   canManage: boolean;
+  onAttachmentUploaded: () => void;
 }) {
   const t = useTranslations("TitulationPage");
   const missing = CORE_FIELDS.filter((field) => !process[field]);
@@ -240,6 +242,7 @@ export default function TitulationRecordDetails({
               <TitulationAttachments
                 key={`${process.id}-attachments`}
                 processId={process.id}
+                onUploadComplete={onAttachmentUploaded}
               />
             </div>
           </details>

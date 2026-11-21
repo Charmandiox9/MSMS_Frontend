@@ -20,18 +20,21 @@ export default function StatCard({
 }: StatCardProps) {
   const surface = `flex min-w-0 items-start gap-3 rounded-xl border px-4 py-4 ${
     highlighted
-      ? "border-amber-500/35 bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300"
-      : "border-border bg-card text-primary"
+      ? "border-warning/40 bg-warning-surface"
+      : "border-border bg-card"
   }`;
   const content = (
     <>
-      <Icon className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+      <Icon
+        className={`mt-0.5 size-5 shrink-0 ${highlighted ? "text-warning" : "text-primary"}`}
+        aria-hidden="true"
+      />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-foreground">{title}</p>
+        <p className="text-base font-semibold text-foreground">{title}</p>
         <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight">
           {value}
         </p>
-        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+        <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
           {description}
         </p>
       </div>
