@@ -10,19 +10,22 @@ export default function RoleSelectionList({
   onSelect,
   legend,
   roleName,
+  density = "comfortable",
 }: {
   roles: readonly UserRoleCode[];
   selectedRole: UserRoleCode | null;
   onSelect: (role: UserRoleCode) => void;
   legend: string;
   roleName: (role: UserRoleCode) => string;
+  density?: "comfortable" | "compact";
 }) {
   const groupName = useId();
+  const compact = density === "compact";
 
   return (
-    <fieldset className="space-y-3">
-      <legend className="text-base font-semibold text-foreground">{legend}</legend>
-      <div className="space-y-2">
+    <fieldset className={compact ? "space-y-2" : "space-y-3"}>
+      <legend className={compact ? "text-sm font-semibold text-foreground" : "text-base font-semibold text-foreground"}>{legend}</legend>
+      <div className={compact ? "space-y-1" : "space-y-2"}>
         {roles.map((role) => {
           const selected = selectedRole === role;
 
@@ -37,14 +40,14 @@ export default function RoleSelectionList({
                 className="peer sr-only"
               />
               <span
-                className={`flex min-h-14 items-center gap-3 rounded-xl border px-4 py-3 transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus ${
+                className={`flex ${compact ? "min-h-11 gap-2 rounded-lg px-3 py-2" : "min-h-14 gap-3 rounded-xl px-4 py-3"} items-center border transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus ${
                   selected
                     ? "border-primary bg-selection"
                     : "border-border bg-card hover:border-primary/40 hover:bg-muted"
                 }`}
               >
                 <span
-                  className={`min-w-0 flex-1 text-base font-medium ${
+                  className={`min-w-0 flex-1 break-words ${compact ? "text-sm" : "text-base"} font-medium ${
                     selected ? "text-foreground" : "text-muted-foreground"
                   }`}
                 >
@@ -53,7 +56,7 @@ export default function RoleSelectionList({
                 {selected && (
                   <Check
                     aria-hidden="true"
-                    className="size-5 shrink-0 text-primary"
+                    className={`${compact ? "size-4" : "size-5"} shrink-0 text-primary`}
                   />
                 )}
               </span>

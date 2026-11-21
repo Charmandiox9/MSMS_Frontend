@@ -45,4 +45,27 @@ describe("RoleSelectionList", () => {
 
     expect(onSelect).toHaveBeenCalledWith("TEACHING_SUPPORT_COORDINATOR");
   });
+
+  it("keeps compact role options labeled and touch friendly", () => {
+    render(
+      <RoleSelectionList
+        roles={roles}
+        selectedRole="SYSTEM_ADMIN"
+        onSelect={vi.fn()}
+        legend="Rol activo"
+        roleName={(role) => roleNames[role]}
+        density="compact"
+      />,
+    );
+
+    const selectedRadio = screen.getByRole("radio", {
+      name: "Administrador del sistema",
+    });
+    const visibleOption = selectedRadio.parentElement?.querySelector<HTMLElement>(
+      "span.flex",
+    );
+
+    expect(screen.getByRole("group", { name: "Rol activo" })).toBeDefined();
+    expect(visibleOption?.className).toContain("min-h-11");
+  });
 });

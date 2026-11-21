@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type { ComponentProps } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -60,19 +60,58 @@ describe("DashboardAccountMenu", () => {
   it("shows the current role and omits role switching for a single assignment", () => {
     const { trigger, panel } = renderMenu({ ...session, roles: ["SYSTEM_ADMIN"] });
     expect(within(trigger).getByText("Administrador del sistema")).toBeDefined();
-    expect(within(panel).queryByRole("button", { name: "Cambiar rol" })).toBeNull();
+    expect(within(panel).getByText("Administrador del sistema")).toBeDefined();
+    expect(within(panel).queryByRole("button", { name: /Cambiar rol/ })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Roles disponibles" })).toBeNull();
     expect(document.activeElement).toBe(within(panel).getByRole("link", { name: "Mi perfil" }));
   });
 
-  it("closes one account view at a time on Escape and restores focus", () => {
+  it("opens a compact role list from the current role and marks the active choice", () => {
     const { trigger, panel } = renderMenu();
-    fireEvent.click(within(panel).getByRole("button", { name: "Cambiar rol" }));
-    const back = within(panel).getByRole("button", { name: "Volver a Mi cuenta" });
-    expect(document.activeElement).toBe(back);
-    fireEvent.keyDown(back, { key: "Escape" });
-    const changeRole = within(panel).getByRole("button", { name: "Cambiar rol" });
-    expect(document.activeElement).toBe(changeRole);
-    fireEvent.keyDown(changeRole, { key: "Escape" });
+    const rolePickerButton = within(panel).getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    });
+    fireEvent.click(rolePickerButton);
+
+    const options = screen.getByRole("region", { name: "Roles disponibles" });
+    expect(within(options).getByRole("radio", { name: "Administrador del sistema" })).toHaveProperty("checked", true);
+    expect(within(options).getByRole("radio", { name: "Apoyo docente" })).toHaveProperty("checked", false);
+    expect(within(panel).getByRole("switch", { name: "Modo oscuro" })).toBeDefined();
+    expect(within(panel).getByRole("radiogroup", { name: "Idioma" })).toBeDefined();
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("keeps the active role until the user confirms a different role", () => {
+    const { trigger, panel } = renderMenu();
+    fireEvent.click(within(panel).getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    }));
+    const options = screen.getByRole("region", { name: "Roles disponibles" });
+    fireEvent.click(within(options).getByRole("radio", { name: "Apoyo docente" }));
+
+    expect(screen.getByRole("heading", { name: "Confirmar cambio de rol" })).toBeDefined();
+    expect(screen.getByRole("status").textContent).toContain(
+      "El rol actual es Administrador del sistema. ¿Quieres cambiar a Apoyo docente?",
+    );
+    expect(within(trigger).getByText("Administrador del sistema")).toBeDefined();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+    expect(within(trigger).getByText("Administrador del sistema")).toBeDefined();
+    expect(mocks.toast.success).not.toHaveBeenCalled();
+  });
+
+  it("closes the role list on Escape and restores focus to its trigger", () => {
+    const { trigger, panel } = renderMenu();
+    const rolePickerButton = within(panel).getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    });
+    fireEvent.click(rolePickerButton);
+    const options = screen.getByRole("region", { name: "Roles disponibles" });
+    fireEvent.keyDown(within(options).getByRole("radio", { name: "Administrador del sistema" }), { key: "Escape" });
+
+    expect(screen.queryByRole("region", { name: "Roles disponibles" })).toBeNull();
+    expect(document.activeElement).toBe(rolePickerButton);
+    fireEvent.keyDown(rolePickerButton, { key: "Escape" });
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(trigger);
   });
@@ -80,8 +119,11 @@ describe("DashboardAccountMenu", () => {
   it("keeps a shared route and announces the new active role", () => {
     mocks.pathname = "/dashboard/titulation";
     const { trigger, panel, onNavigate } = renderMenu();
-    fireEvent.click(within(panel).getByRole("button", { name: "Cambiar rol" }));
-    fireEvent.click(within(panel).getByRole("radio", { name: "Apoyo docente" }));
+    fireEvent.click(within(panel).getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    }));
+    fireEvent.click(within(screen.getByRole("region", { name: "Roles disponibles" })).getByRole("radio", { name: "Apoyo docente" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cambiar rol" }));
     expect(within(trigger).getByText("Apoyo docente")).toBeDefined();
     expect(mocks.toast.success).toHaveBeenCalledWith("Cambiaste a Apoyo docente.");
     expect(mocks.replace).not.toHaveBeenCalled();
@@ -91,8 +133,11 @@ describe("DashboardAccountMenu", () => {
   it("redirects and announces a role change when the current route is unavailable", () => {
     mocks.pathname = "/dashboard/justifications/management";
     const { panel, onNavigate } = renderMenu();
-    fireEvent.click(within(panel).getByRole("button", { name: "Cambiar rol" }));
-    fireEvent.click(within(panel).getByRole("radio", { name: "Apoyo docente" }));
+    fireEvent.click(within(panel).getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    }));
+    fireEvent.click(within(screen.getByRole("region", { name: "Roles disponibles" })).getByRole("radio", { name: "Apoyo docente" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cambiar rol" }));
     expect(onNavigate).toHaveBeenCalledOnce();
     expect(mocks.replace).toHaveBeenCalledWith("/dashboard");
     expect(mocks.toast.info).toHaveBeenCalledWith(expect.stringMatching(/Apoyo docente.*Inicio/));
@@ -115,5 +160,15 @@ describe("DashboardAccountMenu", () => {
     expect(document.cookie).toContain("MARSYS_LOCALE=en");
     expect(mocks.refresh).toHaveBeenCalledOnce();
     expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("routes to the farewell page after a successful sign out", async () => {
+    const { panel, onNavigate } = renderMenu();
+    fireEvent.click(within(panel).getByRole("button", { name: "Cerrar sesión" }));
+
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/signed-out"));
+    expect(mocks.logout).toHaveBeenCalledOnce();
+    expect(mocks.refresh).toHaveBeenCalledOnce();
+    expect(onNavigate).toHaveBeenCalledOnce();
   });
 });
