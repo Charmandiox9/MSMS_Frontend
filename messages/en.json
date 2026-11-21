@@ -4,6 +4,11 @@
     "metrics": "Loading metrics…",
     "table": "Loading records…"
   },
+  "FileDropzone": {
+    "label": "File upload area",
+    "dropInstruction": "Drop a file here or choose it with the file picker.",
+    "dropActive": "Release the file to select it."
+  },
   "FormModal": {
     "unsavedTitle": "You have unsaved changes",
     "unsavedDescription": "If you leave now, the changes made in this form will be lost.",
@@ -2617,9 +2622,17 @@
     "attempt": "Attempt {number}",
     "nrc": "NRC {nrc}",
     "otherAttempts": "Courses outside the curriculum",
-    "noCurriculum": "This student has no career linked.",
-    "careerWithoutCurriculum": "The career is linked, but the entry cohort must be confirmed before assigning a curriculum.",
-    "emptyCurriculum": "No courses are registered in this curriculum.",
+    "dataNoticeLabel": "Curriculum data needs attention",
+    "nextStepLabel": "Next step",
+    "missingCareerTitle": "A career is not linked",
+    "missingCareerDescription": "Without this link, MARSYS cannot assign a curriculum or calculate the student's progress.",
+    "missingCareerNextStep": "Assign a career from the student's record.",
+    "missingCurriculumTitle": "A curriculum is not associated",
+    "careerWithoutCurriculum": "The {career} career is linked, but the entry cohort must be confirmed to associate the correct curriculum.",
+    "confirmCohortNextStep": "Confirm the student's admission year in their record.",
+    "emptyCurriculumTitle": "This curriculum has no courses",
+    "emptyCurriculum": "The career and cohort are linked, but this curriculum version does not contain any courses yet.",
+    "emptyCurriculumNextStep": "Review the course setup for this cohort's curriculum.",
     "recordAttempt": "Record result",
     "recordTitle": "Record course result",
     "recordDescription": "Enrolled courses are shown from the active semester roster. Each final result is retained as a historical attempt.",

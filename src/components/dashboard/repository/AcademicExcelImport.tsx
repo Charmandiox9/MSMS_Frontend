@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
+import FileDropzone from "@/components/ui/FileDropzone";
 import FormModal from "@/components/ui/FormModal";
 import { primaryButton, secondaryButton } from "./repository-fields";
 import AcademicImportButton from "@/components/dashboard/academic/AcademicImportButton";
@@ -265,16 +266,21 @@ export default function AcademicExcelImport({
             <p className="rounded-xl bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
               {t("sourceFile", { name: sourceFileName })}
             </p>
-            <label className="block text-sm font-medium">
-              {t("fileLabel")}
-              <input
-                type="file"
-                accept=".xlsx"
-                disabled={busy}
-                className="mt-2 block w-full rounded-xl border border-border bg-background p-3 text-sm"
-                onChange={(event) => void chooseFile(event.target.files?.[0])}
-              />
-            </label>
+            <FileDropzone
+              disabled={busy}
+              onFileDrop={(file) => void chooseFile(file)}
+            >
+              <label className="block text-sm font-medium">
+                {t("fileLabel")}
+                <input
+                  type="file"
+                  accept=".xlsx"
+                  disabled={busy}
+                  className="mt-2 block w-full rounded-xl border border-border bg-background p-3 text-sm"
+                  onChange={(event) => void chooseFile(event.target.files?.[0])}
+                />
+              </label>
+            </FileDropzone>
             {busy && (
               <p role="status" className="text-sm text-muted-foreground">
                 {t("loading")}

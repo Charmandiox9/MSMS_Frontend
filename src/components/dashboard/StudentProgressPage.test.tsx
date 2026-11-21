@@ -55,9 +55,18 @@ describe("StudentProgressPage curriculum availability", () => {
     ]);
 
     expect(
-      await screen.findByText(
-        "La carrera está vinculada, pero falta confirmar la cohorte de ingreso para asociar la malla.",
+      await screen.findByRole("heading", {
+        level: 2,
+        name: "Falta asociar una malla curricular",
+      }),
+    ).toBeDefined();
+    expect(
+      screen.getByText(
+        "La carrera Biología Marina está vinculada, pero falta confirmar la cohorte de ingreso para asociar la malla correspondiente.",
       ),
+    ).toBeDefined();
+    expect(
+      screen.getByText("Confirma el año de admisión en la ficha del estudiante."),
     ).toBeDefined();
     expect(screen.getByText("Biología Marina")).toBeDefined();
   });
@@ -70,7 +79,56 @@ describe("StudentProgressPage curriculum availability", () => {
     ]);
 
     expect(
-      await screen.findByText("Este alumno no tiene una carrera vinculada."),
+      await screen.findByRole("heading", {
+        level: 2,
+        name: "Falta vincular una carrera",
+      }),
+    ).toBeDefined();
+    expect(
+      screen.getByText(
+        "Sin este vínculo, MARSYS no puede asociar una malla ni calcular el avance del estudiante.",
+      ),
+    ).toBeDefined();
+    expect(
+      screen.getByText("Asigna una carrera desde la ficha del estudiante."),
+    ).toBeDefined();
+  });
+
+  it("explains when the linked curriculum has no courses", async () => {
+    const career = {
+      id: "career-1",
+      code: "BM",
+      name: "Biología Marina",
+    };
+    const progress = createProgress(career);
+    progress.student.curriculumVersion = {
+      id: "curriculum-1",
+      cohortYear: 2024,
+      courses: [],
+      _count: { students: 1 },
+      career,
+    };
+    mockProgressResponse(progress);
+
+    renderAs(<StudentProgressPage studentId="student-1" />, [
+      "ACADEMIC_PROCESS_ANALYST",
+    ]);
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 2,
+        name: "Esta malla no tiene asignaturas",
+      }),
+    ).toBeDefined();
+    expect(
+      screen.getByText(
+        "La carrera y la cohorte están asociadas, pero esta versión todavía no contiene asignaturas.",
+      ),
+    ).toBeDefined();
+    expect(
+      screen.getByText(
+        "Revisa la configuración de asignaturas para la malla de esta cohorte.",
+      ),
     ).toBeDefined();
   });
 });

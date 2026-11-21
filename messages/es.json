@@ -4,6 +4,11 @@
     "metrics": "Cargando indicadores…",
     "table": "Cargando registros…"
   },
+  "FileDropzone": {
+    "label": "Zona para cargar archivos",
+    "dropInstruction": "Arrastra el archivo aquí o selecciónalo con el control.",
+    "dropActive": "Suelta el archivo para seleccionarlo."
+  },
   "FormModal": {
     "unsavedTitle": "Hay cambios sin guardar",
     "unsavedDescription": "Si sales ahora, perderás los cambios que realizaste en este formulario.",
@@ -2617,9 +2622,17 @@
     "attempt": "Intento {number}",
     "nrc": "NRC {nrc}",
     "otherAttempts": "Asignaturas fuera de la malla",
-    "noCurriculum": "Este alumno no tiene una carrera vinculada.",
-    "careerWithoutCurriculum": "La carrera está vinculada, pero falta confirmar la cohorte de ingreso para asociar la malla.",
-    "emptyCurriculum": "La malla no tiene asignaturas registradas.",
+    "dataNoticeLabel": "Datos curriculares pendientes",
+    "nextStepLabel": "Siguiente paso",
+    "missingCareerTitle": "Falta vincular una carrera",
+    "missingCareerDescription": "Sin este vínculo, MARSYS no puede asociar una malla ni calcular el avance del estudiante.",
+    "missingCareerNextStep": "Asigna una carrera desde la ficha del estudiante.",
+    "missingCurriculumTitle": "Falta asociar una malla curricular",
+    "careerWithoutCurriculum": "La carrera {career} está vinculada, pero falta confirmar la cohorte de ingreso para asociar la malla correspondiente.",
+    "confirmCohortNextStep": "Confirma el año de admisión en la ficha del estudiante.",
+    "emptyCurriculumTitle": "Esta malla no tiene asignaturas",
+    "emptyCurriculum": "La carrera y la cohorte están asociadas, pero esta versión todavía no contiene asignaturas.",
+    "emptyCurriculumNextStep": "Revisa la configuración de asignaturas para la malla de esta cohorte.",
     "recordAttempt": "Registrar resultado",
     "recordTitle": "Registrar resultado de asignatura",
     "recordDescription": "Las asignaturas inscritas se reflejan desde la lista del semestre activo. Cada resultado final se conserva como un intento histórico.",

@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Download } from "lucide-react";
+import FileDropzone from "@/components/ui/FileDropzone";
 import FormModal from "@/components/ui/FormModal";
 import { downloadCsv } from "@/lib/csv";
 import {
@@ -156,24 +157,32 @@ export default function AcademicCsvImportDialog<TResult>({
             {downloadLabel}
           </button>
         </section>
-        <label className="block text-sm font-semibold text-foreground">
-          {fileLabel}
-          <input
-            type="file"
-            accept=".csv,text/csv"
-            disabled={submitting || !canImport}
-            onChange={(event) => {
-              setFile(event.target.files?.[0] ?? null);
-              setError(null);
-            }}
-            className="mt-2 block min-h-11 w-full rounded-xl border border-border bg-background p-2 text-sm text-foreground file:mr-3 file:min-h-8 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:font-semibold file:text-primary disabled:opacity-60"
-          />
-          {file && (
-            <span className="mt-2 block text-xs font-normal text-muted-foreground">
-              {file.name} · {(file.size / 1024).toLocaleString()} KB
-            </span>
-          )}
-        </label>
+        <FileDropzone
+          disabled={submitting || !canImport}
+          onFileDrop={(selectedFile) => {
+            setFile(selectedFile);
+            setError(null);
+          }}
+        >
+          <label className="block text-sm font-semibold text-foreground">
+            {fileLabel}
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              disabled={submitting || !canImport}
+              onChange={(event) => {
+                setFile(event.target.files?.[0] ?? null);
+                setError(null);
+              }}
+              className="mt-2 block min-h-11 w-full rounded-xl border border-border bg-background p-2 text-sm text-foreground file:mr-3 file:min-h-8 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:font-semibold file:text-primary disabled:opacity-60"
+            />
+            {file && (
+              <span className="mt-2 block text-xs font-normal text-muted-foreground">
+                {file.name} · {(file.size / 1024).toLocaleString()} KB
+              </span>
+            )}
+          </label>
+        </FileDropzone>
       </div>
     </FormModal>
   );

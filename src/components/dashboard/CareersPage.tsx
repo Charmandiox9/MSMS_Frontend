@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { apiFetch } from "@/lib/api";
 import FormModal from "@/components/ui/FormModal";
+import FileDropzone from "@/components/ui/FileDropzone";
 import CurriculumViewer from "./CurriculumViewer";
 import CareerDeleteDialog from "./CareerDeleteDialog";
 import DepartmentField from "./DepartmentField";
@@ -347,17 +348,19 @@ function CareerEditor({
               )}
               {mode === "create" && curriculumSource === "csv" ? (
                 <div className="space-y-3">
-                  <label className="block text-sm font-semibold">
-                    {t("csvFile")}
-                    <input
-                      type="file"
-                      accept=".csv,text/csv"
-                      onChange={(event) =>
-                        void readCsv(event.target.files?.[0])
-                      }
-                      className={`${inputClass} file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-bold`}
-                    />
-                  </label>
+                  <FileDropzone onFileDrop={(file) => void readCsv(file)}>
+                    <label className="block text-sm font-semibold">
+                      {t("csvFile")}
+                      <input
+                        type="file"
+                        accept=".csv,text/csv"
+                        onChange={(event) =>
+                          void readCsv(event.target.files?.[0])
+                        }
+                        className={`${inputClass} file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-bold`}
+                      />
+                    </label>
+                  </FileDropzone>
                   {csvFileName && csvCourses.length > 0 && (
                     <section
                       className="space-y-2 rounded-xl border border-border bg-background/60 p-3"
@@ -649,16 +652,18 @@ function CurriculumImportDialog({
             className={inputClass}
           />
         </label>
-        <label className="block text-sm font-semibold">
-          {t("csvFile")}
-          <input
-            required
-            type="file"
-            accept=".csv,text/csv"
-            onChange={(event) => void readFile(event.target.files?.[0])}
-            className={`${inputClass} file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-bold`}
-          />
-        </label>
+        <FileDropzone onFileDrop={(file) => void readFile(file)}>
+          <label className="block text-sm font-semibold">
+            {t("csvFile")}
+            <input
+              required
+              type="file"
+              accept=".csv,text/csv"
+              onChange={(event) => void readFile(event.target.files?.[0])}
+              className={`${inputClass} file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-bold`}
+            />
+          </label>
+        </FileDropzone>
         {fileName && courses.length > 0 && (
           <section
             className="space-y-2 rounded-xl border border-border bg-background/60 p-4"

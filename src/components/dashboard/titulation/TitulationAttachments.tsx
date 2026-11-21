@@ -6,6 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { SkeletonStatus } from "@/components/ui/LoadingSkeletons";
 import Skeleton from "@/components/ui/Skeleton";
+import FileDropzone from "@/components/ui/FileDropzone";
 import { academicPrimaryActionClass, academicSecondaryActionClass } from "@/components/dashboard/academic/academicActionStyles";
 import { apiFetch, apiFetchFile } from "@/lib/api";
 import { downloadBlob } from "@/lib/download";
@@ -294,37 +295,39 @@ export default function TitulationAttachments({
             ))}
           </select>
         </div>
-        <div className="space-y-1.5">
-          <label htmlFor={inputId} className="text-sm font-medium text-foreground">
-            {t("fileLabel")}
-          </label>
-          <input
-            ref={fileInputRef}
-            id={inputId}
-            type="file"
-            accept={`.pdf,.docx,${PDF_MIME},${DOCX_MIME}`}
-            disabled={uploading}
-            aria-describedby={selectionError ? `${helpId} ${errorId}` : helpId}
-            onChange={(event) => selectFile(event.currentTarget.files?.[0] ?? null)}
-            className="block min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground file:mr-3 file:min-h-8 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:font-semibold file:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
-          />
-          <p id={helpId} className="text-xs leading-relaxed text-muted-foreground">
-            {t("description")}
-          </p>
-          {selectionError && (
-            <p id={errorId} role="alert" className="text-sm text-danger">
-              {t(selectionError)}
+        <FileDropzone disabled={uploading} onFileDrop={selectFile}>
+          <div className="space-y-1.5">
+            <label htmlFor={inputId} className="text-sm font-medium text-foreground">
+              {t("fileLabel")}
+            </label>
+            <input
+              ref={fileInputRef}
+              id={inputId}
+              type="file"
+              accept={`.pdf,.docx,${PDF_MIME},${DOCX_MIME}`}
+              disabled={uploading}
+              aria-describedby={selectionError ? `${helpId} ${errorId}` : helpId}
+              onChange={(event) => selectFile(event.currentTarget.files?.[0] ?? null)}
+              className="block min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground file:mr-3 file:min-h-8 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:font-semibold file:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+            />
+            <p id={helpId} className="text-xs leading-relaxed text-muted-foreground">
+              {t("description")}
             </p>
-          )}
-          {selectedFile && !selectionError && (
-            <p className="text-xs text-muted-foreground">
-              {t("selected", {
-                name: selectedFile.name,
-                size: formatFileSize(selectedFile.size, locale),
-              })}
-            </p>
-          )}
-        </div>
+            {selectionError && (
+              <p id={errorId} role="alert" className="text-sm text-danger">
+                {t(selectionError)}
+              </p>
+            )}
+            {selectedFile && !selectionError && (
+              <p className="text-xs text-muted-foreground">
+                {t("selected", {
+                  name: selectedFile.name,
+                  size: formatFileSize(selectedFile.size, locale),
+                })}
+              </p>
+            )}
+          </div>
+        </FileDropzone>
         <button
           type="submit"
           className={academicPrimaryActionClass}
