@@ -18,9 +18,8 @@ export default function WelcomeLoadingScreen({
   const t = useTranslations("SessionEntry");
   const tRoles = useTranslations("DashboardNav.roles");
   const isPreparing = phase === "preparing";
-  const greeting = displayName?.trim()
-    ? t("welcomePersonalized", { name: displayName.trim() })
-    : t("welcomeGeneric");
+  const normalizedDisplayName = displayName?.replace(/\s+/gu, " ").trim() ?? "";
+  const isPersonalized = isPreparing && normalizedDisplayName.length > 0;
 
   let features: string[] = [];
   if (isPreparing) {
@@ -87,9 +86,30 @@ export default function WelcomeLoadingScreen({
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               {t("welcomeBrand")}
             </p>
-            <h1 className="mt-2 text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl">
-              {isPreparing ? greeting : t("checkingTitle")}
+            <h1 className={`mt-2 ${isPersonalized ? "max-w-xl" : ""} text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl`}>
+              {isPersonalized ? (
+                <>
+                  <span className="block text-base font-medium leading-relaxed text-muted-foreground sm:text-lg">
+                    {t("welcomePersonalized")}
+                  </span>{" "}
+                  <span dir="auto" className="mt-1 block break-words text-balance text-foreground">
+                    {normalizedDisplayName}
+                  </span>
+                </>
+              ) : isPreparing ? (
+                t("welcomeGeneric")
+              ) : (
+                t("checkingTitle")
+              )}
             </h1>
+            {isPreparing && activeRole && (
+              <p className="mt-3 inline-flex min-h-10 flex-wrap items-center gap-2 rounded-full border border-border bg-muted px-4 py-2 text-sm">
+                <span className="text-muted-foreground">{t("activeRole")}:</span>
+                <span className="font-semibold text-foreground">
+                  {tRoles(activeRole)}
+                </span>
+              </p>
+            )}
           </div>
         </header>
 
@@ -98,14 +118,6 @@ export default function WelcomeLoadingScreen({
             <p className="mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground">
               {t("welcomeDescription")}
             </p>
-            {activeRole && (
-              <p className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-muted px-4 py-2 text-sm">
-                <span className="text-muted-foreground">{t("activeRole")}:</span>
-                <span className="font-semibold text-foreground">
-                  {tRoles(activeRole)}
-                </span>
-              </p>
-            )}
             <section aria-labelledby="welcome-features-title" className="mt-8">
               <h2 id="welcome-features-title" className="text-lg font-semibold">
                 {t("welcomeFeaturesTitle")}

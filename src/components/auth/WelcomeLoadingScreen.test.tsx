@@ -6,7 +6,7 @@ const translations = vi.hoisted(() => ({
   SessionEntry: {
     checkingTitle: "Checking your session",
     checkingDescription: "Confirming access to MARSYS.",
-    welcomePersonalized: "Welcome, {name}.",
+    welcomePersonalized: "Welcome",
     welcomeGeneric: "Welcome to MARSYS.",
     welcomeBrand: "MARSYS · Faculty of Marine Sciences",
     welcomeDescription: "Academic and administrative workspace.",
@@ -49,9 +49,11 @@ describe("WelcomeLoadingScreen", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Welcome, María González.",
+        name: "Welcome María González",
       }),
     ).toBeDefined();
+    expect(screen.getByText("María González").getAttribute("dir")).toBe("auto");
+    expect(screen.getByText("Welcome")).toBeDefined();
     expect(screen.getByText("Academic secretary")).toBeDefined();
     expect(screen.getByText("Manage faculty and schedules.")).toBeDefined();
     expect(
@@ -70,6 +72,22 @@ describe("WelcomeLoadingScreen", () => {
       screen.getByRole("heading", { name: "Welcome to MARSYS." }),
     ).toBeDefined();
     expect(screen.getByText("Open available modules.")).toBeDefined();
+  });
+
+  it("normalizes and wraps a long display name as its own line", () => {
+    render(
+      <WelcomeLoadingScreen
+        phase="preparing"
+        displayName={"  Felipe   Daniel\n Silva Díaz  "}
+        activeRole="ACADEMIC_SECRETARY"
+      />,
+    );
+
+    const heading = screen.getByRole("heading", {
+      name: "Welcome Felipe Daniel Silva Díaz",
+    });
+    expect(heading.className).toContain("max-w-xl");
+    expect(screen.getByText("Felipe Daniel Silva Díaz").className).toContain("break-words");
   });
 
   it("keeps session verification distinct from dashboard preparation", () => {

@@ -50,7 +50,7 @@ describe("DashboardStartupProvider", () => {
       </IntlProvider>,
     );
 
-    expect(screen.getByRole("heading", { name: "Te damos la bienvenida, Ana Pérez." })).toBeDefined();
+    expect(screen.getByRole("heading", { name: "Te damos la bienvenida Ana Pérez" })).toBeDefined();
     expect(
       document
         .getElementById("dashboard-test-content")

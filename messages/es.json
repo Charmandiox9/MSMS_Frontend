@@ -1793,7 +1793,7 @@
     "entering": "Abriendo tu dashboard…",
     "checkingTitle": "Verificando tu sesión",
     "checkingDescription": "Confirmando tu acceso a MARSYS.",
-    "welcomePersonalized": "Te damos la bienvenida, {name}.",
+    "welcomePersonalized": "Te damos la bienvenida",
     "welcomeGeneric": "Te damos la bienvenida a MARSYS.",
     "welcomeBrand": "MARSYS · Facultad de Ciencias del Mar",
     "welcomeDescription": "En MARSYS encuentras las herramientas académicas y administrativas habilitadas para tu rol.",

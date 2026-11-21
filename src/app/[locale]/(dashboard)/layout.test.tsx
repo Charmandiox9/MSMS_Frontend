@@ -195,7 +195,7 @@ describe('DashboardLayout (sesión)', () => {
     await waitFor(() => expect(replace).toHaveBeenCalledWith('/dashboard', { scroll: false }));
     expect(sessionStorage.getItem(DASHBOARD_WELCOME_PENDING_STORAGE_KEY)).toBe('1');
     expect(
-      await screen.findByRole('heading', { name: 'Te damos la bienvenida, Ana Pérez.' }),
+      await screen.findByRole('heading', { name: 'Te damos la bienvenida Ana Pérez' }),
     ).toBeDefined();
     expect(screen.queryByRole('heading', { name: 'Verificando tu sesión' })).toBeNull();
 
@@ -209,7 +209,7 @@ describe('DashboardLayout (sesión)', () => {
     renderLayout();
 
     expect(
-      await screen.findByRole('heading', { name: 'Te damos la bienvenida, Ana Pérez.' }),
+      await screen.findByRole('heading', { name: 'Te damos la bienvenida Ana Pérez' }),
     ).toBeDefined();
     expect(replace).not.toHaveBeenCalled();
   });

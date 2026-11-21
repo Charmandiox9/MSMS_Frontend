@@ -1713,7 +1713,7 @@
     "entering": "Opening your dashboard…",
     "checkingTitle": "Checking your session",
     "checkingDescription": "Confirming your access to MARSYS.",
-    "welcomePersonalized": "Welcome, {name}.",
+    "welcomePersonalized": "Welcome",
     "welcomeGeneric": "Welcome to MARSYS.",
     "welcomeBrand": "MARSYS · Faculty of Marine Sciences",
     "welcomeDescription": "MARSYS brings together the academic and administrative tools available for your role.",
