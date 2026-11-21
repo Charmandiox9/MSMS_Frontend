@@ -15,10 +15,11 @@ pipeline {
 
         stage('Install & Test') {
             steps {
-                sh 'npm ci'
-                sh 'npm run lint'
-                // Unitarias e integración (Vitest). Las E2E (npm run test:e2e) requieren navegador.
-                sh 'npm run test'
+                sh 'corepack enable pnpm'
+                sh 'pnpm install --frozen-lockfile'
+                sh 'pnpm run lint'
+                // Unitarias e integración (Vitest). Las E2E (pnpm run test:e2e) requieren navegador.
+                sh 'pnpm run test'
             }
         }
 

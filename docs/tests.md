@@ -11,12 +11,12 @@ Informe de las pruebas funcionales, de permisos y de carga de archivos del front
 
 | Nivel                    | Comando                                                     | Archivos        | Tests | Resultado                  |
 | ------------------------ | ----------------------------------------------------------- | --------------- | ----- | -------------------------- |
-| Unitarias e integración  | `npm test`                                                  | 30 (30 ✅)      | 157   | **157 pasan · 0 fallan**   |
-| E2E (navegador real)     | `npm run test:e2e`                                          | 3 specs         | 21    | **21 pasan · 0 fallan**    |
-| Lint                     | `npm run lint`                                              | —               | —     | ✅ 0 errores (5 avisos)    |
-| Tipos y build            | `npx tsc --noEmit` · `npm run build`                        | —               | —     | ✅ Compila                 |
+| Unitarias e integración  | `pnpm test`                                                  | 30 (30 ✅)      | 157   | **157 pasan · 0 fallan**   |
+| E2E (navegador real)     | `pnpm run test:e2e`                                          | 3 specs         | 21    | **21 pasan · 0 fallan**    |
+| Lint                     | `pnpm run lint`                                              | —               | —     | ✅ 0 errores (5 avisos)    |
+| Tipos y build            | `pnpm exec tsc --noEmit` · `pnpm run build`                  | —               | —     | ✅ Compila                 |
 
-**Estado inicial:** había 14 archivos de test con 50 tests, todos en verde. El lint tenía **62 errores** y Jenkins solo ejecutaba `npm run lint`, así que el pipeline del frontend quedaba en rojo. Los tests no se ejecutaban en CI.
+**Estado inicial:** había 14 archivos de test con 50 tests, todos en verde. El lint tenía **62 errores** y Jenkins solo ejecutaba el lint, así que el pipeline del frontend quedaba en rojo. Los tests no se ejecutaban en CI.
 
 **Primera entrega (rol QA):**
 
@@ -30,24 +30,24 @@ Los que fallaban comprobaban comportamientos incorrectos a propósito. Después 
 ## Cómo ejecutar
 
 ```bash
-npm test               # unitarias e integración (Vitest)
-npm run test:e2e       # E2E: compila el frontend, levanta un backend simulado y abre Chromium
-npm run lint
+pnpm test               # unitarias e integración (Vitest)
+pnpm run test:e2e       # E2E: compila el frontend, levanta un backend simulado y abre Chromium
+pnpm run lint
 ```
 
-Detalles de `npm run test:e2e`:
+Detalles de `pnpm run test:e2e`:
 
 - **Qué levanta:**
   - `next build` + `next start` en el puerto `3100`, con `NEXT_PUBLIC_API_URL=http://localhost:3999/api/graphql`;
   - el backend simulado `e2e/fake-backend.mts` en el puerto `3999`.
 - **Qué necesita:**
   - no usa base de datos, Redis, R2 ni Google;
-  - usa el Chromium de Playwright 1.62.1. Si no está en la caché, se instala con `npx playwright install chromium`.
+  - usa el Chromium de Playwright 1.62.1. Si no está en la caché, se instala con `pnpm exec playwright install chromium`.
 - **Qué deja:**
-  - el build queda en `.next`, igual que `npm run build`;
+  - el build queda en `.next`, igual que `pnpm run build`;
   - los reportes quedan en `playwright-report/` y `test-results/` (ignorados por git).
 
-Jenkins ahora ejecuta `npm run lint` y `npm run test`. Las E2E no se ejecutan en CI porque necesitan navegador.
+Jenkins ahora ejecuta `pnpm run lint` y `pnpm run test`. Las E2E no se ejecutan en CI porque necesitan navegador.
 
 ## Infraestructura de pruebas
 
@@ -130,7 +130,7 @@ Se detectaron en la entrega de QA con tests que fallaban, y se corrigieron el 27
 
 ### 1. Jenkins en rojo por el lint (62 errores)
 
-- **Problema:** `npm run lint` fallaba con 62 errores, así que el pipeline del frontend nunca pasaba.
+- **Problema:** el lint fallaba con 62 errores, así que el pipeline del frontend nunca pasaba.
   - 48 errores venían de `Math.random()` durante el render en `Hero3D`.
   - 10 venían de `setState` síncrono dentro de `useEffect`.
   - 4 eran imports sin usar.
@@ -140,7 +140,7 @@ Se detectaron en la entrega de QA con tests que fallaban, y se corrigieron el 27
   - `CookieConsent` lee el consentimiento guardado durante el render en el cliente.
   - El modal de detalle ajusta su formulario al cambiar de justificación, sin efecto.
   - Las cargas de las páginas (bandeja, histórico, semestres, profesores, asignaturas) se hacen con una cadena de promesas dentro del efecto, con cancelación al desmontar. Esto también evita actualizar una página que ya se cerró. Las recargas tras importar o activar usan un contador (`reloadKey`).
-- **CI:** Jenkins ahora también ejecuta `npm run test`, como pedía el comentario del `Jenkinsfile`.
+- **CI:** Jenkins ahora también ejecuta `pnpm run test`, como pedía el comentario del `Jenkinsfile`.
 - **Resultado:** 0 errores. Quedan 5 avisos: `<img>` de avatares y dependencias de un efecto de animación en `DashboardUserDial`.
 
 ### 2. Fecha de inasistencia un día antes en el histórico de secretaría

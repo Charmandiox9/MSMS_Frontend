@@ -1,4 +1,4 @@
-// Generated from the backend GraphQL schema. Run npm run generate:assistantship-types.
+// Generated from the backend GraphQL schema. Run pnpm run generate:assistantship-types.
 
 export interface AssistantshipScheduleView {
   weekday: number;
