@@ -282,6 +282,7 @@
     "accountMenu": "Abrir menú de cuenta",
     "account": "Mi cuenta",
     "activeRoleLabel": "Rol activo",
+    "currentRoleStatus": "En uso",
     "noActiveRole": "Sin rol activo",
     "rolePickerButton": "Cambiar rol. Rol actual: {role}",
     "availableRolesLabel": "Roles disponibles",
@@ -1233,10 +1234,9 @@
     "contact": "Contacto: fcm@ucn.cl"
   },
   "SignedOut": {
-    "title": "Sesión cerrada",
-    "description": "Gracias por trabajar con MARSYS. Tu sesión terminó correctamente; podrás volver a ingresar cuando lo necesites.",
-    "returnToLogin": "Volver a ingresar",
-    "returnToHome": "Ir al sitio público"
+    "title": "Cerrando sesión",
+    "description": "Estamos cerrando tu sesión. Te llevaremos al inicio de sesión en un momento.",
+    "retry": "Reintentar cierre de sesión"
   },
   "UsersPage": {
     "eyebrow": "Administración del sistema",

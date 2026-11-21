@@ -15,7 +15,7 @@ import { DASHBOARD_SECTIONS, isRouteAllowed } from "@/config/navigation";
 import { useActiveRole } from "@/context/ActiveRoleContext";
 import { useMounted } from "@/hooks/useMounted";
 import { Link, LOCALE_COOKIE_NAME, routing, usePathname, useRouter } from "@/i18n/routing";
-import { logout, type ActiveSession } from "@/lib/auth";
+import type { ActiveSession } from "@/lib/auth";
 import { APP_BASE_PATH } from "@/lib/base-path";
 import type { UserRoleCode } from "@/types/auth";
 import AccountRolePicker from "@/components/dashboard/AccountRolePicker";
@@ -171,20 +171,11 @@ export default function DashboardAccountMenu({
     }
   }
 
-  async function signOut() {
+  function signOut() {
     if (signingOut) return;
     setSigningOut(true);
-
-    try {
-      await logout();
-      navigateFromPanel();
-      router.replace("/signed-out");
-      router.refresh();
-    } catch {
-      toast.error(t("signOutError"));
-    } finally {
-      setSigningOut(false);
-    }
+    navigateFromPanel();
+    router.replace("/signed-out");
   }
 
   return (
@@ -243,7 +234,7 @@ export default function DashboardAccountMenu({
             />
             <AccountPreferences />
             <div className="mt-1 border-t border-border pt-1">
-              <button type="button" aria-disabled={signingOut} aria-busy={signingOut} onClick={() => void signOut()} className={`${ROW_STYLE} text-danger hover:bg-danger-surface aria-disabled:opacity-70`}>
+              <button type="button" disabled={signingOut} aria-busy={signingOut} onClick={signOut} className={`${ROW_STYLE} text-danger hover:bg-danger-surface disabled:opacity-70`}>
                 <LogOut className="size-4 shrink-0" aria-hidden="true" />
                 {t("logout")}
               </button>

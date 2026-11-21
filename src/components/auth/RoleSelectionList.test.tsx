@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { UserRoleCode } from "@/types/auth";
 import RoleSelectionList from "./RoleSelectionList";
@@ -67,5 +67,26 @@ describe("RoleSelectionList", () => {
 
     expect(screen.getByRole("group", { name: "Rol activo" })).toBeDefined();
     expect(visibleOption?.className).toContain("min-h-11");
+  });
+
+  it("shows the current role first and labels it as in use", () => {
+    render(
+      <RoleSelectionList
+        roles={roles}
+        selectedRole="TEACHING_SUPPORT_COORDINATOR"
+        onSelect={vi.fn()}
+        legend="Roles disponibles"
+        roleName={(role) => roleNames[role]}
+        density="compact"
+        currentRoleStatus="En uso"
+      />,
+    );
+
+    const group = screen.getByRole("group", { name: "Roles disponibles" });
+    const currentRole = screen.getByText("Apoyo docente").closest("[aria-current]");
+
+    expect(currentRole?.getAttribute("aria-current")).toBe("true");
+    expect(within(group).getByText("En uso")).toBeDefined();
+    expect(within(group).getByRole("button", { name: "Administrador del sistema" })).toBeDefined();
   });
 });

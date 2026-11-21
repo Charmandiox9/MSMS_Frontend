@@ -122,4 +122,13 @@ describe("auth", () => {
     expect(api.calls("POST /auth/logout")).toHaveLength(1);
     expect(api.calls("POST /auth/logout")[0].credentials).toBe("include");
   });
+
+  it("reporta un error del servidor al cerrar sesión", async () => {
+    installFakeApi({
+      "POST /auth/logout": () => ({ status: 500 }),
+    });
+    const { logout } = await loadAuth();
+
+    await expect(logout()).rejects.toThrow("Logout request failed");
+  });
 });

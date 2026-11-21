@@ -60,11 +60,12 @@ export default function AccountRolePicker({
       const availableAbove = bounds.top - viewportInset;
       const availableBelow = window.innerHeight - bounds.bottom - viewportInset;
       const maxHeight = Math.min(320, window.innerHeight - viewportInset * 2);
+      const preferredHeight = Math.min(maxHeight, 48 + roles.length * 48);
       const openBelow =
-        availableBelow >= Math.min(maxHeight, 220) ||
+        availableBelow >= Math.min(preferredHeight, 180) ||
         availableBelow >= availableAbove;
       const availableSpace = openBelow ? availableBelow : availableAbove;
-      const height = Math.max(120, Math.min(maxHeight, availableSpace));
+      const anchoredHeight = Math.min(preferredHeight, availableSpace);
       const width = Math.min(bounds.width, window.innerWidth - viewportInset * 2);
       const left = Math.max(
         viewportInset,
@@ -72,10 +73,10 @@ export default function AccountRolePicker({
       );
 
       setPosition({
-        top: openBelow ? bounds.bottom + 4 : bounds.top - height - 4,
+        top: openBelow ? bounds.bottom + 4 : bounds.top - anchoredHeight - 4,
         left,
         width,
-        maxHeight: height,
+        maxHeight: availableSpace,
       });
     }
 
@@ -87,13 +88,19 @@ export default function AccountRolePicker({
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [isOpen]);
+  }, [isOpen, roles.length]);
 
   useEffect(() => {
     if (!isOpen || !position) return;
 
-    if (pendingRole) cancelRef.current?.focus();
-    else pickerRef.current?.querySelector<HTMLInputElement>("input:checked")?.focus();
+    if (pendingRole) {
+      cancelRef.current?.focus();
+      return;
+    }
+
+    const checkedOption = pickerRef.current?.querySelector<HTMLInputElement>("input:checked");
+    const firstAlternative = pickerRef.current?.querySelector<HTMLButtonElement>("button");
+    (checkedOption ?? firstAlternative)?.focus();
   }, [isOpen, pendingRole, position]);
 
   useEffect(() => {
@@ -233,6 +240,7 @@ export default function AccountRolePicker({
               legend={t("activeRoleLabel")}
               roleName={(role) => t(`roles.${role}`)}
               density="compact"
+              currentRoleStatus={t("currentRoleStatus")}
             />
           )}
         </div>,

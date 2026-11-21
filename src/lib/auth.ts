@@ -89,11 +89,12 @@ export async function logout(): Promise<void> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), LOGOUT_TIMEOUT_MS);
   try {
-    await fetch(logoutUrl, {
+    const response = await fetch(logoutUrl, {
       method: "POST",
       credentials: "include",
       signal: controller.signal,
     });
+    if (!response.ok) throw new Error("Logout request failed");
   } finally {
     clearTimeout(timeoutId);
   }

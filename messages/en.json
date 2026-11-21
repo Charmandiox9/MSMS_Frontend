@@ -282,6 +282,7 @@
     "accountMenu": "Open account menu",
     "account": "My account",
     "activeRoleLabel": "Active role",
+    "currentRoleStatus": "In use",
     "noActiveRole": "No active role",
     "rolePickerButton": "Switch role. Current role: {role}",
     "availableRolesLabel": "Available roles",
@@ -1233,10 +1234,9 @@
     "contact": "Contact: fcm@ucn.cl"
   },
   "SignedOut": {
-    "title": "You’re signed out",
-    "description": "Thanks for working with MARSYS. Your session has ended, and you can sign in again whenever you need.",
-    "returnToLogin": "Sign in again",
-    "returnToHome": "Visit the public site"
+    "title": "Signing out",
+    "description": "We’re closing your session. You’ll be taken to the sign in page in a moment.",
+    "retry": "Retry sign out"
   },
   "UsersPage": {
     "eyebrow": "System administration",

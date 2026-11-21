@@ -1,38 +1,56 @@
-import type { ReactNode } from "react";
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import SignedOutPage from "./page";
 
-const copy = vi.hoisted(() => ({
-  title: "Sesión cerrada",
-  description: "Gracias por trabajar con MARSYS. Tu sesión terminó correctamente; podrás volver a ingresar cuando lo necesites.",
-  returnToLogin: "Volver a ingresar",
-  returnToHome: "Ir al sitio público",
+const mocks = vi.hoisted(() => ({
+  replace: vi.fn(),
+  logout: vi.fn(),
 }));
 
 vi.mock("next-intl/server", () => ({
-  getTranslations: async () => (key: keyof typeof copy) => copy[key],
+  getTranslations: async (namespace: string) => (key: string) => {
+    if (namespace === "SignedOut") {
+      return {
+        title: "Cerrando sesión",
+        description: "Te llevaremos al inicio de sesión.",
+        retry: "Reintentar cierre de sesión",
+      }[key as "title" | "description" | "retry"];
+    }
+    return "No se pudo cerrar la sesión.";
+  },
 }));
 
 vi.mock("@/i18n/routing", () => ({
-  Link: ({
-    href,
-    children,
-    className,
-  }: {
-    href: string;
-    children: ReactNode;
-    className?: string;
-  }) => <a href={href} className={className}>{children}</a>,
+  useRouter: () => ({ replace: mocks.replace }),
 }));
+vi.mock("@/lib/auth", () => ({ logout: mocks.logout }));
 
 describe("SignedOutPage", () => {
-  it("confirms the sign out and offers clear next destinations", async () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(mocks.logout).mockResolvedValue(undefined);
+  });
+
+  it("shows a transient state and redirects to login after sign out completes", async () => {
     render(await SignedOutPage());
 
-    expect(screen.getByRole("heading", { name: copy.title })).toBeDefined();
-    expect(screen.getByText(copy.description)).toBeDefined();
-    expect(screen.getByRole("link", { name: copy.returnToLogin }).getAttribute("href")).toBe("/login");
-    expect(screen.getByRole("link", { name: copy.returnToHome }).getAttribute("href")).toBe("/");
+    expect(screen.getByRole("heading", { name: "Cerrando sesión" })).toBeDefined();
+    expect(screen.getByRole("status").textContent).toContain("inicio de sesión");
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/login"));
+    expect(mocks.logout).toHaveBeenCalledOnce();
+  });
+
+  it("allows retry when the logout request fails", async () => {
+    vi.mocked(mocks.logout)
+      .mockRejectedValueOnce(new Error("Network error"))
+      .mockResolvedValueOnce(undefined);
+
+    render(await SignedOutPage());
+
+    expect(await screen.findByRole("alert")).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Reintentar cierre de sesión" }));
+
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/login"));
+    expect(mocks.logout).toHaveBeenCalledTimes(2);
   });
 });

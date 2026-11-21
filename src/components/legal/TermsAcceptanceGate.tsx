@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { acceptCurrentTerms, getCurrentTerms, getTermsStatus, type TermsDocument } from '@/lib/legal-terms';
 import { DashboardShellSkeleton } from '@/components/ui/LoadingSkeletons';
 import { Link, useRouter } from '@/i18n/routing';
-import { logout } from '@/lib/auth';
 
 export default function TermsAcceptanceGate({
   children,
@@ -17,7 +16,6 @@ export default function TermsAcceptanceGate({
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations('TermsAcceptance');
-  const tAccount = useTranslations('DashboardNav');
   const [retry, setRetry] = useState(0);
   const requestKey = `${locale}:${retry}`;
   const [gateState, setGateState] = useState<{
@@ -37,21 +35,11 @@ export default function TermsAcceptanceGate({
   const checked = checkedDocument === confirmationKey;
   const [saving, setSaving] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
-  const [signOutError, setSignOutError] = useState(false);
 
-  const handleExit = async () => {
+  const handleExit = () => {
     if (signingOut) return;
     setSigningOut(true);
-    setSignOutError(false);
-    try {
-      await logout();
-      router.replace('/signed-out');
-      router.refresh();
-    } catch {
-      setSignOutError(true);
-    } finally {
-      setSigningOut(false);
-    }
+    router.replace('/signed-out');
   };
 
   useEffect(() => {
@@ -104,10 +92,9 @@ export default function TermsAcceptanceGate({
       <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-5 px-6">
         <h1 className="text-2xl font-bold text-foreground">{t('loadErrorTitle')}</h1>
         <p className="text-muted-foreground">{t('loadError')}</p>
-        {signOutError && <p role="alert" className="text-sm font-medium text-danger">{tAccount('signOutError')}</p>}
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" onClick={() => setRetry((count) => count + 1)} className="w-fit rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground">{t('retry')}</button>
-          <button type="button" disabled={signingOut} aria-busy={signingOut} onClick={() => void handleExit()} className="w-fit rounded-xl border border-border px-5 py-3 font-semibold text-foreground disabled:cursor-wait disabled:opacity-70">{t('logout')}</button>
+          <button type="button" disabled={signingOut} aria-busy={signingOut} onClick={handleExit} className="w-fit rounded-xl border border-border px-5 py-3 font-semibold text-foreground disabled:cursor-wait disabled:opacity-70">{t('logout')}</button>
           <Link href="/privacy" className="text-sm font-medium text-primary underline underline-offset-4">{t('privacyLink')}</Link>
         </div>
       </main>

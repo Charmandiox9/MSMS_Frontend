@@ -58,13 +58,13 @@ describe("TermsAcceptanceGate", () => {
     expect(screen.getByRole<HTMLButtonElement>("button", { name: en.TermsAcceptance.accept }).disabled).toBe(true);
   });
 
-  it("shows the farewell page after the user signs out from the error state", async () => {
+  it("opens the sign out transition from the error state", async () => {
     vi.mocked(terms.getTermsStatus).mockRejectedValueOnce(new Error("Unavailable"));
     render(gate("es"));
     fireEvent.click(await screen.findByRole("button", { name: es.TermsAcceptance.logout }));
 
     await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/signed-out"));
-    expect(mocks.logout).toHaveBeenCalledOnce();
-    expect(mocks.refresh).toHaveBeenCalledOnce();
+    expect(mocks.logout).not.toHaveBeenCalled();
+    expect(mocks.refresh).not.toHaveBeenCalled();
   });
 });

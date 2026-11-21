@@ -66,7 +66,7 @@ describe("DashboardAccountMenu", () => {
     expect(document.activeElement).toBe(within(panel).getByRole("link", { name: "Mi perfil" }));
   });
 
-  it("opens a compact role list from the current role and marks the active choice", () => {
+  it("opens a compact role list with the active role first", () => {
     const { trigger, panel } = renderMenu();
     const rolePickerButton = within(panel).getByRole("button", {
       name: "Cambiar rol. Rol actual: Administrador del sistema",
@@ -74,8 +74,10 @@ describe("DashboardAccountMenu", () => {
     fireEvent.click(rolePickerButton);
 
     const options = screen.getByRole("region", { name: "Roles disponibles" });
-    expect(within(options).getByRole("radio", { name: "Administrador del sistema" })).toHaveProperty("checked", true);
-    expect(within(options).getByRole("radio", { name: "Apoyo docente" })).toHaveProperty("checked", false);
+    const currentRole = within(options).getByText("Administrador del sistema").closest("[aria-current]");
+    expect(currentRole?.getAttribute("aria-current")).toBe("true");
+    expect(within(options).getByText("En uso")).toBeDefined();
+    expect(within(options).getByRole("button", { name: "Apoyo docente" })).toBeDefined();
     expect(within(panel).getByRole("switch", { name: "Modo oscuro" })).toBeDefined();
     expect(within(panel).getByRole("radiogroup", { name: "Idioma" })).toBeDefined();
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
@@ -87,7 +89,7 @@ describe("DashboardAccountMenu", () => {
       name: "Cambiar rol. Rol actual: Administrador del sistema",
     }));
     const options = screen.getByRole("region", { name: "Roles disponibles" });
-    fireEvent.click(within(options).getByRole("radio", { name: "Apoyo docente" }));
+    fireEvent.click(within(options).getByRole("button", { name: "Apoyo docente" }));
 
     expect(screen.getByRole("heading", { name: "Confirmar cambio de rol" })).toBeDefined();
     expect(screen.getByRole("status").textContent).toContain(
@@ -107,7 +109,7 @@ describe("DashboardAccountMenu", () => {
     });
     fireEvent.click(rolePickerButton);
     const options = screen.getByRole("region", { name: "Roles disponibles" });
-    fireEvent.keyDown(within(options).getByRole("radio", { name: "Administrador del sistema" }), { key: "Escape" });
+    fireEvent.keyDown(within(options).getByRole("button", { name: "Apoyo docente" }), { key: "Escape" });
 
     expect(screen.queryByRole("region", { name: "Roles disponibles" })).toBeNull();
     expect(document.activeElement).toBe(rolePickerButton);
@@ -122,7 +124,7 @@ describe("DashboardAccountMenu", () => {
     fireEvent.click(within(panel).getByRole("button", {
       name: "Cambiar rol. Rol actual: Administrador del sistema",
     }));
-    fireEvent.click(within(screen.getByRole("region", { name: "Roles disponibles" })).getByRole("radio", { name: "Apoyo docente" }));
+    fireEvent.click(within(screen.getByRole("region", { name: "Roles disponibles" })).getByRole("button", { name: "Apoyo docente" }));
     fireEvent.click(screen.getByRole("button", { name: "Cambiar rol" }));
     expect(within(trigger).getByText("Apoyo docente")).toBeDefined();
     expect(mocks.toast.success).toHaveBeenCalledWith("Cambiaste a Apoyo docente.");
@@ -136,7 +138,7 @@ describe("DashboardAccountMenu", () => {
     fireEvent.click(within(panel).getByRole("button", {
       name: "Cambiar rol. Rol actual: Administrador del sistema",
     }));
-    fireEvent.click(within(screen.getByRole("region", { name: "Roles disponibles" })).getByRole("radio", { name: "Apoyo docente" }));
+    fireEvent.click(within(screen.getByRole("region", { name: "Roles disponibles" })).getByRole("button", { name: "Apoyo docente" }));
     fireEvent.click(screen.getByRole("button", { name: "Cambiar rol" }));
     expect(onNavigate).toHaveBeenCalledOnce();
     expect(mocks.replace).toHaveBeenCalledWith("/dashboard");
@@ -162,13 +164,13 @@ describe("DashboardAccountMenu", () => {
     expect(mocks.replace).not.toHaveBeenCalled();
   });
 
-  it("routes to the farewell page after a successful sign out", async () => {
+  it("opens the sign out transition immediately", async () => {
     const { panel, onNavigate } = renderMenu();
     fireEvent.click(within(panel).getByRole("button", { name: "Cerrar sesión" }));
 
     await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/signed-out"));
-    expect(mocks.logout).toHaveBeenCalledOnce();
-    expect(mocks.refresh).toHaveBeenCalledOnce();
+    expect(mocks.logout).not.toHaveBeenCalled();
+    expect(mocks.refresh).not.toHaveBeenCalled();
     expect(onNavigate).toHaveBeenCalledOnce();
   });
 });

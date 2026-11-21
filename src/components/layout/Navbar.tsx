@@ -5,9 +5,8 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { hasActiveSession, logout } from '@/lib/auth';
+import { hasActiveSession } from '@/lib/auth';
 import { useMounted } from '@/hooks/useMounted';
-import { toast } from 'sonner';
 
 export default function Navbar() {
   const t = useTranslations('Navigation');
@@ -19,25 +18,16 @@ export default function Navbar() {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const tAccount = useTranslations('DashboardNav');
 
   useEffect(() => {
     void hasActiveSession().then(setIsLoggedIn);
   }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     if (isSigningOut) return;
     setIsSigningOut(true);
-    try {
-      await logout();
-      setIsLoggedIn(false);
-      router.replace('/signed-out');
-      router.refresh();
-    } catch {
-      toast.error(tAccount('signOutError'));
-    } finally {
-      setIsSigningOut(false);
-    }
+    setIsLoggedIn(false);
+    router.replace('/signed-out');
   };
 
   const toggleTheme = () => {
