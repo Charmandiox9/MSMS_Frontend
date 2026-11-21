@@ -7,7 +7,6 @@
     --account-hover: light-dark(#f5f8f9, #2d2e30);
     --account-selection: light-dark(#dfefee, #393340);
     --account-accent: light-dark(#075e66, #c9b9ea);
-    --account-accent-foreground: light-dark(#ffffff, #24202b);
     display: flex;
     width: 100%;
     flex-direction: column;
@@ -30,7 +29,8 @@
     box-sizing: border-box;
   }
 
-  #role-switcher-preview button {
+  #role-switcher-preview button,
+  #role-switcher-preview select {
     font: inherit;
   }
 
@@ -62,7 +62,6 @@
   }
 
   #role-switcher-preview .menu-row:hover,
-  #role-switcher-preview .role-step:hover,
   #role-switcher-preview .language-option:hover {
     background: var(--account-hover);
   }
@@ -78,60 +77,31 @@
     color: var(--account-muted);
   }
 
-  #role-switcher-preview .role-switcher {
+  #role-switcher-preview .role-field {
+    display: grid;
+    gap: 4px;
     padding: 4px 10px 8px;
   }
 
-  #role-switcher-preview .role-label-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    color: var(--account-text);
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  #role-switcher-preview .role-position {
+  #role-switcher-preview .role-field label {
     color: var(--account-muted);
     font-size: 12px;
-    font-variant-numeric: tabular-nums;
     font-weight: 400;
   }
 
-  #role-switcher-preview .role-control {
-    display: flex;
-    min-width: 0;
-    align-items: center;
-    gap: 4px;
-    margin-top: 2px;
+  #role-switcher-preview .role-select {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid var(--account-border);
+    border-radius: 6px;
+    background-color: var(--account-surface);
+    padding: 8px;
+    color: var(--account-text);
   }
 
-  #role-switcher-preview .role-step {
-    display: grid;
-    width: 44px;
-    height: 44px;
-    flex: none;
-    place-items: center;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--account-accent);
-  }
-
-  #role-switcher-preview .role-step .menu-icon {
-    color: currentColor;
-  }
-
-  #role-switcher-preview .current-role {
-    min-width: 0;
-    flex: 1;
-    overflow: hidden;
-    color: var(--account-accent);
-    font-weight: 500;
-    text-align: center;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  #role-switcher-preview .role-select option {
+    background: var(--account-surface);
+    color: var(--account-text);
   }
 
   #role-switcher-preview .menu-divider {
@@ -180,7 +150,7 @@
 
   #role-switcher-preview .theme-switch[aria-checked="true"]::after {
     transform: translateX(18px);
-    background: var(--account-accent-foreground);
+    background: var(--account-surface);
   }
 
   #role-switcher-preview .language-options {
@@ -267,20 +237,14 @@
       <i class="menu-icon" data-lucide="user-round" aria-hidden="true"></i>
       <span>Mi perfil</span>
     </button>
-    <div class="role-switcher">
-      <div class="role-label-row">
-        <span>Cambiar rol</span>
-        <span class="role-position" id="role-switcher-position">1 de 4</span>
-      </div>
-      <div class="role-control" id="role-switcher-controls" role="group" aria-label="Cambiar rol">
-        <button class="role-step" id="role-switcher-previous" type="button" aria-label="Rol anterior">
-          <i class="menu-icon" data-lucide="chevron-left" aria-hidden="true"></i>
-        </button>
-        <output class="current-role" id="role-switcher-current" data-tooltip="Apoyo docente">Apoyo docente</output>
-        <button class="role-step" id="role-switcher-next" type="button" aria-label="Siguiente rol">
-          <i class="menu-icon" data-lucide="chevron-right" aria-hidden="true"></i>
-        </button>
-      </div>
+    <div class="role-field">
+      <label for="role-switcher-select">Rol activo</label>
+      <select class="role-select" id="role-switcher-select">
+        <option value="Apoyo docente" selected>Apoyo docente</option>
+        <option value="Administrador del sistema">Administrador del sistema</option>
+        <option value="Analista académico">Analista académico</option>
+        <option value="Secretario docente">Secretario docente</option>
+      </select>
     </div>
     <hr class="menu-divider">
     <div class="preference-row">
@@ -314,44 +278,34 @@
 
 <script>
   const rolePreview = document.getElementById("role-switcher-preview");
-  const assignedRoles = [
-    "Apoyo docente",
-    "Secretario docente",
-    "Analista académico",
-    "Responsable de privacidad"
-  ];
-  const currentRole = rolePreview.querySelector("#role-switcher-current");
-  const rolePosition = rolePreview.querySelector("#role-switcher-position");
-  const activeRoleLabel = rolePreview.querySelector("#role-switcher-active-role");
+  const roleSelect = rolePreview.querySelector("#role-switcher-select");
   const roleStatus = rolePreview.querySelector("#role-switcher-status");
-  let activeRoleIndex = 0;
+  const activeRoleLabel = rolePreview.querySelector("#role-switcher-active-role");
+  const assignedRoles = Array.from(roleSelect.options, (option) => option.value);
 
   function renderRole() {
-    const role = assignedRoles[activeRoleIndex];
-    currentRole.textContent = role;
-    currentRole.dataset.tooltip = role;
-    activeRoleLabel.textContent = role;
-    rolePosition.textContent = (activeRoleIndex + 1) + " de " + assignedRoles.length;
-    roleStatus.textContent = "Rol activo: " + role;
+    activeRoleLabel.textContent = roleSelect.value;
+    roleStatus.textContent = "Rol activo: " + roleSelect.value;
   }
 
-  function moveRole(direction) {
-    activeRoleIndex = (activeRoleIndex + direction + assignedRoles.length) % assignedRoles.length;
+  function restoreRoleSelection(widgetState) {
+    const selectedRole = widgetState?.modelContent?.selectedRole;
+    if (!assignedRoles.includes(selectedRole)) return;
+    roleSelect.value = selectedRole;
+    renderRole();
+  }
+
+  function persistRoleSelection() {
+    if (typeof globalThis.openai?.setWidgetState !== "function") return;
+    globalThis.openai.setWidgetState({
+      modelContent: { selectedRole: roleSelect.value },
+      privateContent: null
+    }).catch(() => {});
+  }
+
+  roleSelect.addEventListener("change", () => {
     renderRole();
     persistRoleSelection();
-  }
-
-  rolePreview.querySelector("#role-switcher-previous").addEventListener("click", () => moveRole(-1));
-  rolePreview.querySelector("#role-switcher-next").addEventListener("click", () => moveRole(1));
-  rolePreview.querySelector("#role-switcher-controls").addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      moveRole(-1);
-    }
-    if (event.key === "ArrowRight") {
-      event.preventDefault();
-      moveRole(1);
-    }
   });
 
   rolePreview.querySelector("#role-switcher-theme").addEventListener("click", (event) => {
@@ -367,22 +321,6 @@
       });
     });
   });
-
-  function restoreRoleSelection(widgetState) {
-    const selectedRole = widgetState?.modelContent?.selectedRole;
-    const restoredIndex = assignedRoles.indexOf(selectedRole);
-    if (restoredIndex < 0) return;
-    activeRoleIndex = restoredIndex;
-    renderRole();
-  }
-
-  function persistRoleSelection() {
-    if (typeof globalThis.openai?.setWidgetState !== "function") return;
-    globalThis.openai.setWidgetState({
-      modelContent: { selectedRole: assignedRoles[activeRoleIndex] },
-      privateContent: null
-    }).catch(() => {});
-  }
 
   restoreRoleSelection(globalThis.openai?.widgetState);
   window.addEventListener("openai:set_globals", (event) => {
