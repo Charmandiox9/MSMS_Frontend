@@ -24,10 +24,21 @@ for (const viewport of [
     await expect(panel.getByRole("radiogroup", { name: "Idioma" })).toBeVisible();
     await expect(panel.getByRole("button", { name: "Cerrar sesión" })).toBeInViewport();
 
-    const switchRole = panel.getByRole("button", { name: "Cambiar rol" });
+    const switchRole = panel.getByRole("button", {
+      name: "Cambiar rol. Rol actual: Administrador del sistema",
+    });
     await switchRole.click();
-    await expect(panel.getByRole("button", { name: "Volver a Mi cuenta" })).toBeFocused();
+    const roles = page.getByRole("region", { name: "Roles disponibles" });
+    const nextRole = roles.getByRole("button", { name: "Apoyo docente" });
+    await expect(nextRole).toBeFocused();
+    await nextRole.click();
+    const confirmation = roles.getByRole("region", { name: "Confirmar cambio de rol" });
+    await expect(confirmation.getByRole("button", { name: "Cancelar" })).toBeFocused();
     await page.keyboard.press("Escape");
+    await expect(confirmation).toHaveCount(0);
+    await expect(nextRole).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(roles).toHaveCount(0);
     await expect(switchRole).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(panel).toHaveCount(0);

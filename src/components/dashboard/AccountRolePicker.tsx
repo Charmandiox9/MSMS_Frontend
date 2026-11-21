@@ -244,7 +244,8 @@ export default function AccountRolePicker({
             />
           )}
         </div>,
-        document.body,
+        // Keep the picker in the modal's interactive subtree on mobile.
+        containerRef.current?.closest("dialog") ?? document.body,
       )}
     </div>
   );

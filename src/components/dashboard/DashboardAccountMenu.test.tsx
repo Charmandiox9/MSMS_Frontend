@@ -34,13 +34,14 @@ const session: ActiveSession = {
   roles: ["SYSTEM_ADMIN", "TEACHING_SUPPORT_COORDINATOR"],
 };
 
-function renderMenu(initialSession = session, onNavigate = vi.fn()) {
+function renderMenu(initialSession = session, onNavigate = vi.fn(), container?: HTMLElement) {
   render(
     <NextIntlClientProvider locale="es" messages={messages} timeZone="America/Santiago">
       <ActiveRoleProvider initialSession={initialSession}>
         <DashboardAccountMenu session={initialSession} onNavigate={onNavigate} />
       </ActiveRoleProvider>
     </NextIntlClientProvider>,
+    { container },
   );
   const trigger = screen.getByRole("button", { name: "Mi cuenta" });
   fireEvent.click(trigger);
@@ -81,6 +82,21 @@ describe("DashboardAccountMenu", () => {
     expect(within(panel).getByRole("switch", { name: "Modo oscuro" })).toBeDefined();
     expect(within(panel).getByRole("radiogroup", { name: "Idioma" })).toBeDefined();
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("places the role picker inside the mobile navigation dialog", () => {
+    const dialog = document.createElement("dialog");
+    dialog.open = true;
+    document.body.append(dialog);
+    try {
+      const { panel } = renderMenu(session, vi.fn(), dialog);
+      fireEvent.click(within(panel).getByRole("button", {
+        name: "Cambiar rol. Rol actual: Administrador del sistema",
+      }));
+      expect(within(dialog).getByRole("region", { name: "Roles disponibles" })).toBeDefined();
+    } finally {
+      dialog.remove();
+    }
   });
 
   it("keeps the active role until the user confirms a different role", () => {
