@@ -17,9 +17,7 @@ COPY . .
 CMD ["pnpm", "test"]
 
 # Compile the production standalone application
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+FROM deps AS builder
 COPY . .
 ARG NEXT_PUBLIC_API_URL=/api/graphql
 ARG NEXT_PUBLIC_BASE_PATH=
