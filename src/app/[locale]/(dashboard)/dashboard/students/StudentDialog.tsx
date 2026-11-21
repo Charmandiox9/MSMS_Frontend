@@ -10,7 +10,7 @@ import AcademicSelectionList from "@/components/dashboard/academic/AcademicSelec
 import { apiFetch } from "@/lib/api";
 import type { Student } from "@/types/students";
 import type { CurrentCourseCatalog } from "@/types/academic";
-import type { CareerOption } from "@/types/careers";
+import { curriculumCohortYears, type CareerOption } from "@/types/careers";
 
 const fieldClass =
   "mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30";
@@ -69,7 +69,7 @@ export default function StudentDialog({
     : null;
   const availableCurricula = (selectedCareer?.curriculumVersions ?? []).filter(
     (version) =>
-      admissionCohort === null || version.cohortYear === admissionCohort,
+      admissionCohort === null || curriculumCohortYears(version).includes(admissionCohort),
   );
   useEffect(() => {
     let active = true;
@@ -277,7 +277,7 @@ export default function StudentDialog({
                   const version = careers
                     .find((career) => career.id === careerId)
                     ?.curriculumVersions.find(
-                      (item) => item.cohortYear === cohortYear,
+                      (item) => curriculumCohortYears(item).includes(cohortYear),
                     );
                   setCurriculumVersionId(version?.id ?? "");
                 }
@@ -314,7 +314,7 @@ export default function StudentDialog({
                     : careers
                         .find((career) => career.id === nextCareerId)
                         ?.curriculumVersions.find(
-                          (item) => item.cohortYear === cohortYear,
+                          (item) => curriculumCohortYears(item).includes(cohortYear),
                         );
                 setCurriculumVersionId(version?.id ?? "");
               }}
@@ -354,7 +354,9 @@ export default function StudentDialog({
                     version.id !== curriculumVersionId
                   }
                 >
-                  {t("cohortYear", { year: version.cohortYear })}
+                  {admissionCohort !== null && admissionCohort !== version.cohortYear
+                    ? t("curriculumPlanYear", { year: version.cohortYear })
+                    : t("cohortYear", { year: version.cohortYear })}
                 </option>
               ))}
             </select>

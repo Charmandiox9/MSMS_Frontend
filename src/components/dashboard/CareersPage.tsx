@@ -9,10 +9,11 @@ import { apiFetch } from "@/lib/api";
 import FormModal from "@/components/ui/FormModal";
 import FileDropzone from "@/components/ui/FileDropzone";
 import CurriculumViewer from "./CurriculumViewer";
+import CurriculumPreview from "./CurriculumPreview";
 import CareerDeleteDialog from "./CareerDeleteDialog";
 import DepartmentField from "./DepartmentField";
 import { PageSkeleton } from "@/components/ui/LoadingSkeletons";
-import type { Career, CourseOption } from "@/types/careers";
+import { curriculumCohortYears, type Career, type CourseOption } from "@/types/careers";
 import {
   parseCurriculumCsv,
   type ImportedCurriculumCourse,
@@ -23,7 +24,8 @@ import {
 } from "./use-academic-import-job";
 
 type EditorMode = "create" | "edit" | "version" | "version-edit";
-type SelectedCourse = { courseId: string; termNumber: number };
+type SelectedCourse = { courseId: string; termNumber: number } | ImportedCurriculumCourse;
+const newCourseOption = "new";
 
 const inputClass =
   "mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30";
@@ -51,8 +53,19 @@ function CareerEditor({
   const [cohortYear, setCohortYear] = useState(
     String(version?.cohortYear ?? new Date().getFullYear()),
   );
+  const cohortAlreadyRegistered = mode === "version" && career?.curriculumVersions.some(
+    (plan) => curriculumCohortYears(plan).includes(Number(cohortYear)),
+  );
   const [courseId, setCourseId] = useState("");
+  const [courseName, setCourseName] = useState("");
   const [termNumber, setTermNumber] = useState("1");
+  const selectedTerm = Number(termNumber);
+  const canAddCourse =
+    Boolean(courseId) &&
+    Number.isInteger(selectedTerm) &&
+    selectedTerm >= 1 &&
+    selectedTerm <= 20 &&
+    (courseId !== newCourseOption || Boolean(courseName.trim()));
   const [courses, setCourses] = useState<SelectedCourse[]>(
     () =>
       version?.courses.map(({ courseId, termNumber }) => ({
@@ -60,9 +73,11 @@ function CareerEditor({
         termNumber,
       })) ?? [],
   );
-  const [curriculumSource, setCurriculumSource] = useState<"manual" | "csv">(
+  const [curriculumSource, setCurriculumSource] = useState<"manual" | "csv" | "existing">(
     "manual",
   );
+  const [existingVersionId, setExistingVersionId] = useState("");
+  const existingVersion = career?.curriculumVersions.find(({ id }) => id === existingVersionId);
   const [csvCourses, setCsvCourses] = useState<ImportedCurriculumCourse[]>([]);
   const [csvFileName, setCsvFileName] = useState("");
   const [job, setJob] = useState<AcademicImportJob<{
@@ -73,6 +88,13 @@ function CareerEditor({
   }> | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasCurriculum =
+    curriculumSource === "existing"
+      ? Boolean(existingVersion)
+      : curriculumSource === "csv"
+        ? csvCourses.length > 0
+        : courses.length > 0 && !courseName.trim();
+  const canSave = !saving && !cohortAlreadyRegistered && (mode === "edit" || hasCurriculum);
 
   useAcademicImportJob(
     job?.id ?? null,
@@ -108,21 +130,27 @@ function CareerEditor({
   };
 
   const addCourse = () => {
-    const selectedTerm = Number(termNumber);
-    if (!courseId || selectedTerm < 1 || selectedTerm > 20) return;
-    setCourses((current) => [
-      ...current,
-      { courseId, termNumber: selectedTerm },
-    ]);
+    if (!canAddCourse) return;
+    const selection = courseId === newCourseOption
+      ? { courseName: courseName.trim(), termNumber: selectedTerm }
+      : { courseId, termNumber: selectedTerm };
+    setCourses((current) => [...current, selection]);
     setCourseId("");
+    setCourseName("");
   };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (saving) return;
+    if (!canSave) return;
     setSaving(true);
     setError(null);
     setJob(null);
+    const catalogCourses = courses.filter((course) => "courseId" in course);
+    const newCourses = courses.filter((course) => "courseName" in course);
+    const manualCourses = {
+      ...(catalogCourses.length ? { courses: catalogCourses } : {}),
+      ...(newCourses.length ? { newCourses } : {}),
+    };
     const body =
       mode === "edit"
         ? {
@@ -131,10 +159,11 @@ function CareerEditor({
             ...(departmentId === initialDepartmentId ? {} : { departmentId: departmentId || null }),
           }
         : mode === "version-edit"
-          ? { courses }
-          : mode === "create" && curriculumSource === "csv"
-            ? { cohortYear: Number(cohortYear), curriculumCourses: csvCourses }
-            : { cohortYear: Number(cohortYear), courses };
+          ? manualCourses
+          : {
+              cohortYear: Number(cohortYear),
+              ...(curriculumSource === "existing" ? { existingVersionId } : manualCourses),
+            };
     const url =
       mode === "create"
         ? "/academic/careers"
@@ -187,7 +216,7 @@ function CareerEditor({
       loading: t("saving"),
       success: t(
         mode === "version"
-          ? "versionCreated"
+          ? curriculumSource === "existing" ? "cohortLinked" : "versionCreated"
           : mode === "version-edit"
             ? "versionUpdated"
             : mode === "edit"
@@ -242,13 +271,7 @@ function CareerEditor({
           <button
             type="submit"
             form="career-editor"
-            disabled={
-              saving ||
-              (mode !== "edit" &&
-                (mode === "create" && curriculumSource === "csv"
-                  ? csvCourses.length === 0
-                  : courses.length === 0))
-            }
+            disabled={!canSave}
             className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
           >
             {t(
@@ -307,15 +330,22 @@ function CareerEditor({
                   max={2200}
                   value={cohortYear}
                   onChange={(event) => setCohortYear(event.target.value)}
+                  aria-invalid={cohortAlreadyRegistered || undefined}
+                  aria-describedby={cohortAlreadyRegistered ? "career-cohort-error" : undefined}
                   className={inputClass}
                 />
+                {cohortAlreadyRegistered && (
+                  <span id="career-cohort-error" className="mt-1 block text-xs text-destructive">
+                    {t("cohortAlreadyRegistered")}
+                  </span>
+                )}
               </label>
             )}
             <fieldset className="space-y-3 rounded-xl border border-border p-4">
               <legend className="px-1 text-sm font-bold">
                 {t("curriculumCourses")}
               </legend>
-              {mode === "create" && (
+              {(mode === "create" || (mode === "version" && Boolean(career?.curriculumVersions.length))) && (
                 <div
                   className="flex flex-wrap gap-2"
                   role="group"
@@ -330,23 +360,52 @@ function CareerEditor({
                     }}
                     className={`rounded-lg border px-3 py-2 text-xs font-bold ${curriculumSource === "manual" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
                   >
-                    {t("manualEntry")}
+                    {t(mode === "version" ? "newCurriculumOption" : "manualEntry")}
                   </button>
-                  <button
-                    type="button"
-                    aria-pressed={curriculumSource === "csv"}
-                    onClick={() => {
-                      setCurriculumSource("csv");
-                      setError(null);
-                    }}
-                    className={`inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-xs font-bold ${curriculumSource === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
-                  >
-                    <Upload className="h-3.5 w-3.5" />
-                    {t("importCsvOption")}
-                  </button>
+                  {mode === "version" ? (
+                    <button
+                      type="button"
+                      aria-pressed={curriculumSource === "existing"}
+                      onClick={() => setCurriculumSource("existing")}
+                      className={`rounded-lg border px-3 py-2 text-xs font-bold ${curriculumSource === "existing" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+                    >
+                      {t("useExistingCurriculum")}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      aria-pressed={curriculumSource === "csv"}
+                      onClick={() => {
+                        setCurriculumSource("csv");
+                        setError(null);
+                      }}
+                      className={`inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-xs font-bold ${curriculumSource === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      {t("importCsvOption")}
+                    </button>
+                  )}
                 </div>
               )}
-              {mode === "create" && curriculumSource === "csv" ? (
+              {curriculumSource === "existing" ? (
+                <>
+                  <label className="block text-sm font-semibold">
+                    {t("existingCurriculum")}
+                    <select
+                      required
+                      value={existingVersionId}
+                      onChange={(event) => setExistingVersionId(event.target.value)}
+                      className={inputClass}
+                    >
+                      <option value="">{t("selectExistingCurriculum")}</option>
+                      {career?.curriculumVersions.map(({ id, cohortYear: year }) => (
+                        <option key={id} value={id}>{t("planYear", { year })}</option>
+                      ))}
+                    </select>
+                  </label>
+                  {existingVersion && <CurriculumPreview version={existingVersion} />}
+                </>
+              ) : mode === "create" && curriculumSource === "csv" ? (
                 <div className="space-y-3">
                   <FileDropzone onFileDrop={(file) => void readCsv(file)}>
                     <label className="block text-sm font-semibold">
@@ -393,14 +452,18 @@ function CareerEditor({
               ) : (
                 <>
                   <div className="grid items-end gap-2 sm:grid-cols-[1fr_120px_auto]">
-                    <label className="text-xs font-semibold text-muted-foreground">
+                    <label className={`text-xs font-semibold text-muted-foreground ${courseId === newCourseOption ? "sm:col-span-3" : ""}`}>
                       {t("courseField")}
                       <select
                         value={courseId}
-                        onChange={(event) => setCourseId(event.target.value)}
+                        onChange={(event) => {
+                          setCourseId(event.target.value);
+                          setCourseName("");
+                        }}
                         className={inputClass}
                       >
                         <option value="">{t("selectCourse")}</option>
+                        <option value={newCourseOption}>{t("newCourseOption")}</option>
                         {courseOptions.map((course) => (
                           <option key={course.id} value={course.id}>
                             {course.code ? `${course.code} · ` : ""}
@@ -409,6 +472,18 @@ function CareerEditor({
                         ))}
                       </select>
                     </label>
+                    {courseId === newCourseOption && (
+                      <label className="block text-xs font-semibold text-muted-foreground">
+                        {t("newCourseName")}
+                        <input
+                          value={courseName}
+                          onChange={(event) => setCourseName(event.target.value)}
+                          maxLength={200}
+                          aria-describedby="new-curriculum-course-hint"
+                          className={inputClass}
+                        />
+                      </label>
+                    )}
                     <label className="text-xs font-semibold text-muted-foreground">
                       {t("termNumber")}
                       <input
@@ -423,13 +498,18 @@ function CareerEditor({
                     <button
                       type="button"
                       onClick={addCourse}
-                      disabled={!courseId}
+                      disabled={!canAddCourse}
                       className="mt-5 inline-flex min-h-10 items-center justify-center gap-1 rounded-xl border border-border px-3 text-sm font-bold disabled:opacity-50"
                     >
                       <Plus className="h-4 w-4" />
                       {t("addCourse")}
                     </button>
                   </div>
+                  {courseId === newCourseOption && (
+                    <p id="new-curriculum-course-hint" className="text-xs text-muted-foreground">
+                      {t("newCourseHint")}
+                    </p>
+                  )}
                   {courses.length === 0 ? (
                     <p className="text-xs text-muted-foreground">
                       {t("noCourses")}
@@ -437,12 +517,12 @@ function CareerEditor({
                   ) : (
                     <ul className="divide-y divide-border rounded-lg border border-border">
                       {courses.map((selected, index) => {
-                        const course = courseOptions.find(
-                          (item) => item.id === selected.courseId,
-                        );
+                        const course = "courseId" in selected
+                          ? courseOptions.find((item) => item.id === selected.courseId)
+                          : { name: selected.courseName, code: null };
                         return (
                           <li
-                            key={`${selected.courseId}-${index}`}
+                            key={`${course?.name}-${selected.termNumber}-${index}`}
                             className="flex items-center justify-between gap-3 px-3 py-2 text-sm"
                           >
                             <span>
@@ -880,43 +960,55 @@ export default function CareersPage() {
                 {t("viewCurriculum")}
               </button>
               <div className="mt-4 space-y-4">
-                {career.curriculumVersions.map((version) => (
-                  <section
-                    key={version.id}
-                    className="rounded-xl border border-border/70 bg-background/60 p-3"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <h4 className="text-sm font-bold text-foreground">
-                        {t("cohort", { year: version.cohortYear })}
-                      </h4>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          {t("courseCount", { count: version.courses.length })}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {t("assignedStudents", {
-                            count: version._count.students,
-                          })}
-                        </span>
-                        {canManage && version._count.students === 0 && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setEditor({
-                                mode: "version-edit",
-                                career,
-                                version,
-                              })
-                            }
-                            className="rounded-md border border-border px-2 py-1 text-[11px] font-bold text-muted-foreground hover:bg-muted"
-                          >
-                            {t("editCurriculum")}
-                          </button>
-                        )}
+                {career.curriculumVersions.map((version) => {
+                  const cohortYears = curriculumCohortYears(version);
+                  return (
+                    <section
+                      key={version.id}
+                      className="rounded-xl border border-border/70 bg-background/60 p-3"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <h4 className="text-sm font-bold text-foreground">
+                            {cohortYears.length > 1
+                              ? t("planYear", { year: version.cohortYear })
+                              : t("cohort", { year: version.cohortYear })}
+                          </h4>
+                          {cohortYears.length > 1 && (
+                            <p className="text-xs text-muted-foreground">
+                              {t("linkedCohorts", { years: cohortYears.join(", ") })}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">
+                            {t("courseCount", { count: version.courses.length })}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {t("assignedStudents", {
+                              count: version._count.students,
+                            })}
+                          </span>
+                          {canManage && version._count.students === 0 && cohortYears.length < 2 && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setEditor({
+                                  mode: "version-edit",
+                                  career,
+                                  version,
+                                })
+                              }
+                              className="rounded-md border border-border px-2 py-1 text-[11px] font-bold text-muted-foreground hover:bg-muted"
+                            >
+                              {t("editCurriculum")}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </section>
-                ))}
+                    </section>
+                  );
+                })}
               </div>
               {canManage && (
                 <div className="mt-4 flex flex-wrap gap-2">

@@ -83,6 +83,66 @@ describe("CareersPage", () => {
     );
   });
 
+  it("permite revisar una malla existente antes de registrar otra cohorte", async () => {
+    const api = installFakeApi({
+      "GET /academic/careers": ok([{
+        id: "career",
+        name: "Biología Marina",
+        isActive: true,
+        curriculumVersions: [{
+          id: "plan-2024",
+          cohortYear: 2024,
+          courses: [{ id: "entry", courseId: course.id, termNumber: 2, course }],
+          _count: { students: 1 },
+        }],
+      }]),
+      "GET /academic/careers/course-options": ok([course]),
+      "POST /academic/careers/career/curricula": ok({ id: "plan-2024" }),
+    });
+    renderAs(<CareersPage />, ["ACADEMIC_SECRETARY"]);
+    fireEvent.click(await screen.findByRole("button", { name: "Registrar cohorte" }));
+    fireEvent.change(screen.getByLabelText("Año de ingreso de la cohorte"), {
+      target: { value: "2027" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Usar malla existente" }));
+    const save = screen.getByRole<HTMLButtonElement>("button", { name: "Guardar" });
+    expect(save.disabled).toBe(true);
+    fireEvent.change(screen.getByLabelText("Malla existente"), {
+      target: { value: "plan-2024" },
+    });
+    expect(screen.getByText("Vista previa del Plan 2024 · 1 asignatura")).toBeDefined();
+    expect(screen.getByRole("heading", { name: "Semestre 2" })).toBeDefined();
+    expect(screen.getByText(course.name)).toBeDefined();
+    fireEvent.click(save);
+    await waitFor(() => expect(api.calls("POST /academic/careers/career/curricula")[0].body)
+      .toEqual({ cohortYear: 2027, existingVersionId: "plan-2024" }));
+  });
+
+  it("agrega una asignatura al catálogo al guardar la primera malla manual", async () => {
+    const api = installFakeApi({
+      "GET /academic/careers": ok([]),
+      "GET /academic/careers/course-options": ok([]),
+      "GET /academic/departments/options": ok([]),
+      "POST /academic/careers": ok({ id: "career" }),
+    });
+    renderAs(<CareersPage />, ["ACADEMIC_SECRETARY"]);
+    fireEvent.click(await screen.findByRole("button", { name: "Crear carrera" }));
+    fireEvent.change(screen.getByLabelText("Nombre de la carrera"), {
+      target: { value: "Biología Marina" },
+    });
+    fireEvent.change(screen.getByLabelText("Asignatura"), { target: { value: "new" } });
+    fireEvent.change(screen.getByRole("textbox", { name: /Nombre de la asignatura/ }), {
+      target: { value: "  Oceanografía  " },
+    });
+    fireEvent.change(screen.getByLabelText("Semestre"), { target: { value: "3" } });
+    fireEvent.click(screen.getByRole("button", { name: "Agregar" }));
+    expect(screen.getByText("Oceanografía")).toBeDefined();
+    expect(api.calls("POST /academic/careers")).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+    await waitFor(() => expect(api.calls("POST /academic/careers")[0].body)
+      .toMatchObject({ newCourses: [{ courseName: "Oceanografía", termNumber: 3 }] }));
+  });
+
   it("crea una carrera con sus asignaturas ubicadas en una cohorte", async () => {
     const api = installFakeApi({
       "GET /academic/careers": ok([]),

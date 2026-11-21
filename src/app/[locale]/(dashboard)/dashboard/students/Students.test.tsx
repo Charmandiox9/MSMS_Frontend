@@ -278,7 +278,7 @@ describe("Estudiantes", () => {
     fireEvent.change(screen.getByLabelText("Filtrar por carrera"), {
       target: { value: careerId },
     });
-    fireEvent.change(screen.getByLabelText("Filtrar por cohorte de malla"), {
+    fireEvent.change(screen.getByLabelText("Filtrar por cohorte de ingreso"), {
       target: { value: "2026" },
     });
     fireEvent.change(screen.getByLabelText("Ordenar por"), {
@@ -381,7 +381,11 @@ describe("Estudiantes", () => {
         name: "Ingeniería Marina",
         isActive: true,
         curriculumVersions: [
-          { id: "curriculum-2025", cohortYear: 2025 },
+          {
+            id: "curriculum-2025",
+            cohortYear: 2025,
+            cohorts: [{ cohortYear: 2025 }, { cohortYear: 2027 }],
+          },
           { id: "curriculum-2026", cohortYear: 2026 },
         ],
       },
@@ -419,6 +423,11 @@ describe("Estudiantes", () => {
     expect(
       within(curriculum).queryByRole("option", { name: /Biología Marina/ }),
     ).toBeNull();
+    fireEvent.change(screen.getByLabelText(/Admisión \(AAAASS\)/), {
+      target: { value: "202710" },
+    });
+    expect(curriculum.value).toBe("curriculum-2025");
+    expect(within(curriculum).getByRole("option", { name: "Plan 2025" })).toBeDefined();
   });
   it("permite crear el perfil sin semestre y no envía matrículas", async () => {
     const api = installFakeApi({

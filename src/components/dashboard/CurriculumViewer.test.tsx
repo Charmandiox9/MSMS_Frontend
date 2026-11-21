@@ -26,6 +26,7 @@ const career: Career = {
     {
       id: "current",
       cohortYear: 2026,
+      cohorts: [{ cohortYear: 2026 }, { cohortYear: 2027 }],
       _count: { students: 0 },
       courses: [
         {
@@ -55,7 +56,8 @@ describe("CurriculumViewer", () => {
     renderAs(<CurriculumViewer career={career} onClose={vi.fn()} />, [
       "ACADEMIC_PROCESS_ANALYST",
     ]);
-    expect(screen.getByRole("combobox")).toHaveProperty("value", "current");
+    expect(screen.getByRole("combobox")).toHaveProperty("value", "2027");
+    expect(screen.getByRole("option", { name: "Cohorte 2027 · Plan 2026" })).toBeDefined();
     const yearOne = screen.getByRole("region", { name: "Año 1" });
     const yearTwo = screen.getByRole("region", { name: "Año 2" });
     expect(within(yearOne).getByText("Biología")).toBeDefined();
@@ -71,7 +73,7 @@ describe("CurriculumViewer", () => {
       "ACADEMIC_SECRETARY",
     ]);
     fireEvent.change(screen.getByRole("combobox"), {
-      target: { value: "old" },
+      target: { value: "2024" },
     });
     expect(screen.getByText("Plan anterior")).toBeDefined();
     expect(screen.queryByText("Biología")).toBeNull();
