@@ -34,7 +34,7 @@ export default function UnderDevelopmentPlaceholder({
         </div>
 
         <div className="mt-6 flex justify-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-ocean-cyan/30 bg-ocean-cyan/10 px-3 py-1 text-xs font-bold text-ocean-deep dark:text-ocean-cyan">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-info/40 bg-info-surface px-3 py-1 text-xs font-bold text-info">
             <Clock className="h-3.5 w-3.5" />
             {t('badge')}
           </span>

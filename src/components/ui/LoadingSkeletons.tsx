@@ -228,7 +228,7 @@ export function PageSkeleton({ label }: { label?: string }) {
 
 export function DashboardShellSkeleton({ label }: { label?: string }) {
   return (
-    <div className="dashboard-workspace flex min-h-screen bg-background text-foreground">
+    <div className="institutional-theme dashboard-workspace flex min-h-screen bg-background text-foreground">
       <aside
         aria-hidden="true"
         className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col self-start border-e border-border bg-muted md:flex xl:w-72"

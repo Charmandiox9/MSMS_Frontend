@@ -10,7 +10,7 @@ const time = (minute: number) =>
 
 const stateClass = {
   ACTIVE:
-    "border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold",
+    "border border-success/40 bg-success-surface text-success font-semibold",
   SCHEDULED:
     "border border-primary/30 bg-primary/10 text-primary font-semibold",
   COMPLETED:
@@ -167,7 +167,7 @@ export default function AssistantshipsTable({
                       <button
                         type="button"
                         onClick={() => onView(item)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-secondary/30 bg-secondary/10 px-2.5 py-1.5 text-xs font-bold text-secondary hover:bg-secondary/20 hover:border-secondary/50 transition-all cursor-pointer shadow-2xs active:scale-95"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-primary transition-colors hover:border-primary/50 hover:bg-primary/15 cursor-pointer shadow-2xs active:scale-95"
                         title={t("detail.viewDetail")}
                       >
                         <Eye className="h-3.5 w-3.5" aria-hidden="true" />

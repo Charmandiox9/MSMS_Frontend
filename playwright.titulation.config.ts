@@ -17,7 +17,7 @@ export default defineConfig({
     command:
       process.env.PLAYWRIGHT_SKIP_BUILD === "1"
         ? "node scripts/start-e2e-server.mjs"
-        : "npx next build --webpack && node scripts/start-e2e-server.mjs",
+        : "pnpm exec next build --webpack && node scripts/start-e2e-server.mjs",
     url: "http://localhost:3210/api/runtime-config",
     timeout: 300_000,
     reuseExistingServer: false,

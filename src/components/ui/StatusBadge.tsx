@@ -3,10 +3,10 @@ import type { LucideIcon } from "lucide-react";
 type StatusTone = "neutral" | "info" | "warning" | "success" | "danger";
 const tones: Record<StatusTone, string> = {
   neutral: "border-border bg-muted text-muted-foreground",
-  info: "border-info/40 bg-info/10 text-info",
-  warning: "border-warning/40 bg-warning/10 text-warning",
-  success: "border-success/40 bg-success/10 text-success",
-  danger: "border-danger/40 bg-danger/10 text-danger",
+  info: "border-info/40 bg-info-surface text-info",
+  warning: "border-warning/40 bg-warning-surface text-warning",
+  success: "border-success/40 bg-success-surface text-success",
+  danger: "border-danger/40 bg-danger-surface text-danger",
 };
 
 export default function StatusBadge({

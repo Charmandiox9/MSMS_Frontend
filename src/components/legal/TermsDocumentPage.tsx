@@ -29,7 +29,7 @@ export default function TermsDocumentPage() {
         <header className="max-w-3xl space-y-4">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">MARSYS</p>
           <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{document?.title ?? t('metadata.title')}</h1>
-          {document && <p className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm leading-6 text-foreground">{document.notice}</p>}
+          {document && <p className="rounded-2xl border border-warning/40 bg-warning-surface p-5 text-sm leading-6 text-foreground">{document.notice}</p>}
           {document && <p className="text-sm text-muted-foreground">{t('version', { version: document.version })}</p>}
         </header>
 

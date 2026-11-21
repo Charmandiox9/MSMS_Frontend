@@ -17,7 +17,7 @@ import { apiFetch } from "@/lib/api";
 import { PageSkeleton, TableSkeleton } from "@/components/ui/LoadingSkeletons";
 import PaginationControls from "@/components/ui/PaginationControls";
 import type { Student } from "@/types/students";
-import type { CareerOption } from "@/types/careers";
+import { curriculumCohortYears, type CareerOption } from "@/types/careers";
 import type { PaginatedResponse } from "@/types/pagination";
 import type { CurrentCourseCatalog } from "@/types/academic";
 import { Link } from "@/i18n/routing";
@@ -144,7 +144,7 @@ export default function StudentsPage({
       careerOptions
         .filter((career) => !careerId || career.id === careerId)
         .flatMap((career) =>
-          career.curriculumVersions.map(({ cohortYear: year }) => year),
+          career.curriculumVersions.flatMap(curriculumCohortYears),
         ),
     ),
   ].sort((left, right) => right - left);
@@ -513,7 +513,7 @@ export default function StudentsPage({
                       {student.careerCurriculumVersion?.career.name ??
                         student.career?.name}
                       {student.careerCurriculumVersion &&
-                        ` · ${t("cohortYear", { year: student.careerCurriculumVersion.cohortYear })}`}
+                        ` · ${t("curriculumPlanYear", { year: student.careerCurriculumVersion.cohortYear })}`}
                     </p>
                   )}
                   <div className="md:col-span-3">

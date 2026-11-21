@@ -70,9 +70,9 @@ Los tipos del contrato se generan desde `backend/src/schema.gql`, que NestJS
 produce automáticamente al iniciar el backend:
 
 ```bash
-npm run generate:assistantship-types
+pnpm run generate:assistantship-types
 # También admite la ruta a un esquema exportado:
-npm run generate:assistantship-types -- /ruta/al/schema.gql
+pnpm run generate:assistantship-types -- /ruta/al/schema.gql
 ```
 
 Las pruebas del formulario y filtros usan Apollo MockedProvider. Ejecuta la suite

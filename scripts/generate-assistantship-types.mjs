@@ -59,7 +59,7 @@ const output = new URL(
 );
 writeFileSync(
   output,
-  `// Generated from the backend GraphQL schema. Run npm run generate:assistantship-types.\n\n${declarations.join("\n\n")}\n`,
+  `// Generated from the backend GraphQL schema. Run pnpm run generate:assistantship-types.\n\n${declarations.join("\n\n")}\n`,
 );
 process.stdout.write(
   `Generated ${types.length} assistantship GraphQL types.\n`,

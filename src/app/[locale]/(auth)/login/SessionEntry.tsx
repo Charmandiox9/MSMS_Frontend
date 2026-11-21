@@ -8,8 +8,16 @@ import { getActiveSession } from "@/lib/auth";
 import { ACTIVE_ROLE_STORAGE_KEY, getSessionRoles } from "@/lib/active-role";
 import type { ActiveSession, UserRoleCode } from "@/types/auth";
 import LoginPreferences from "@/components/auth/LoginPreferences";
+import RoleSelectionList from "@/components/auth/RoleSelectionList";
+import WelcomeLoadingScreen from "@/components/auth/WelcomeLoadingScreen";
 
-export default function SessionEntry({ children }: { children: ReactNode }) {
+export default function SessionEntry({
+  children,
+  isOAuthCallback = false,
+}: {
+  children: ReactNode;
+  isOAuthCallback?: boolean;
+}) {
   const router = useRouter();
   const t = useTranslations("SessionEntry");
   const tRoles = useTranslations("DashboardNav.roles");
@@ -18,18 +26,23 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
   );
   const [selected, setSelected] = useState<UserRoleCode | null>(null);
   const [entering, setEntering] = useState(false);
+  const [callbackCheckPending, setCallbackCheckPending] =
+    useState(isOAuthCallback);
 
   useEffect(() => {
     let active = true;
     void getActiveSession().then((value) => {
       if (!active) return;
+      setCallbackCheckPending(false);
       setSession(value);
       if (!value) return;
       const roles = getSessionRoles(value);
       if (!roles.length) router.replace("/no-access");
       else if (roles.length === 1) {
         localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, roles[0]);
-        router.replace("/dashboard");
+        setSelected(roles[0]);
+        setEntering(true);
+        router.replace("/dashboard?welcome=1");
       }
     });
     return () => {
@@ -37,20 +50,29 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
     };
   }, [router]);
 
-  if (session === null) return children;
-  const roles = session ? getSessionRoles(session) : [];
-  if (!session || roles.length < 2 || entering)
+  if (callbackCheckPending)
+    return <WelcomeLoadingScreen phase="checking" />;
+  if (!session) return children;
+  const roles = getSessionRoles(session);
+  if (!roles.length)
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-6">
-        <p role="status" className="text-sm font-medium text-muted-foreground">
-          {t(entering ? "entering" : "checking")}
-        </p>
-      </div>
+      <WelcomeLoadingScreen
+        phase="checking"
+        displayName={session.displayName}
+      />
     );
+  if (entering)
+    return (
+      <WelcomeLoadingScreen
+        phase="checking"
+        displayName={session?.displayName}
+      />
+    );
+  if (roles.length < 2) return children;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-5 py-16">
-      <LoginPreferences />
+    <main className="institutional-theme flex min-h-screen items-center justify-center bg-background px-5 py-16">
+      <LoginPreferences variant="institutional" />
       <section className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 text-card-foreground shadow-sm sm:p-8">
         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <ShieldCheck aria-hidden className="h-6 w-6" />
@@ -72,36 +94,20 @@ export default function SessionEntry({ children }: { children: ReactNode }) {
             if (!selected || !roles.includes(selected)) return;
             localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, selected);
             setEntering(true);
-            router.replace("/dashboard");
+            router.replace("/dashboard?welcome=1");
           }}
         >
-          <fieldset className="space-y-3">
-            <legend className="mb-3 text-sm font-semibold">
-              {t("roleLabel")}
-            </legend>
-            {roles.map((role) => (
-              <label
-                key={role}
-                className="flex cursor-pointer items-center gap-3 rounded-xl border border-border px-4 py-4 transition hover:bg-muted/40 has-checked:border-primary has-checked:bg-primary/5"
-              >
-                <input
-                  type="radio"
-                  name="entry-role"
-                  value={role}
-                  checked={selected === role}
-                  onChange={() => setSelected(role)}
-                  className="h-4 w-4 shrink-0 accent-primary focus-visible:ring-2 focus-visible:ring-primary"
-                />
-                <span className="text-sm font-semibold text-foreground">
-                  {tRoles(role)}
-                </span>
-              </label>
-            ))}
-          </fieldset>
+          <RoleSelectionList
+            roles={roles}
+            selectedRole={selected}
+            onSelect={setSelected}
+            legend={t("roleLabel")}
+            roleName={tRoles}
+          />
           <button
             type="submit"
             disabled={!selected}
-            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t("continue")}
             <ArrowRight aria-hidden className="h-4 w-4" />

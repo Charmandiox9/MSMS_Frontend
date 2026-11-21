@@ -20,10 +20,10 @@ const STATUS_ICONS: Record<ExtendedStatus, LucideIcon> = {
 };
 
 const STATUS_STYLES: Record<ExtendedStatus, string> = {
-  UNREAD: 'border-ocean-cyan/35 bg-ocean-cyan/10 text-ocean-cyan',
-  PENDING: 'border-accent/40 bg-accent/10 text-accent',
-  ACCEPTED: 'border-secondary/40 bg-secondary/10 text-secondary',
-  REJECTED: 'border-coral-red/40 bg-coral-red/10 text-coral-red',
+  UNREAD: 'border-info/40 bg-info-surface text-info',
+  PENDING: 'border-warning/40 bg-warning-surface text-warning',
+  ACCEPTED: 'border-success/40 bg-success-surface text-success',
+  REJECTED: 'border-danger/40 bg-danger-surface text-danger',
 };
 
 export default function JustificationStatusBadge({

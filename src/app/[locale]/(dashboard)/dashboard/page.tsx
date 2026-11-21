@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useActiveRole } from '@/context/ActiveRoleContext';
+import { useDashboardStartup } from '@/context/DashboardStartupContext';
 import type { ReactNode } from 'react';
 import SystemAdminDashboard from '@/components/dashboard/views/SystemAdminDashboard';
 import AcademicSecretaryDashboard from '@/components/dashboard/views/AcademicSecretaryDashboard';
@@ -12,6 +14,11 @@ import SemesterBudgetAlerts from '@/components/dashboard/SemesterBudgetAlerts';
 
 export default function DashboardPage() {
   const { activeRole } = useActiveRole();
+  const { markDashboardPageReady } = useDashboardStartup();
+
+  useEffect(() => {
+    markDashboardPageReady();
+  }, [markDashboardPageReady]);
 
   let dashboard: ReactNode;
   switch (activeRole) {

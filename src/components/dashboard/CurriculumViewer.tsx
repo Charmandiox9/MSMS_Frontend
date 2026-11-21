@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Modal from "@/components/ui/Modal";
-import type { Career } from "@/types/careers";
+import { curriculumCohortYears, type Career } from "@/types/careers";
 
 export default function CurriculumViewer({
   career,
@@ -13,11 +13,13 @@ export default function CurriculumViewer({
   onClose: () => void;
 }) {
   const t = useTranslations("CareersPage");
-  const versions = [...career.curriculumVersions].sort(
-    (a, b) => b.cohortYear - a.cohortYear,
-  );
-  const [versionId, setVersionId] = useState(versions[0]?.id ?? "");
-  const version = versions.find((item) => item.id === versionId);
+  const cohorts = career.curriculumVersions
+    .flatMap((version) =>
+      curriculumCohortYears(version).map((year) => ({ year, version })),
+    )
+    .sort((a, b) => b.year - a.year);
+  const [cohortYear, setCohortYear] = useState(cohorts[0]?.year);
+  const version = cohorts.find(({ year }) => year === cohortYear)?.version;
   const courses = version?.courses ?? [];
   const years = Array.from(
     {
@@ -52,7 +54,7 @@ export default function CurriculumViewer({
       className="[&_h2]:whitespace-normal [&_h2]:overflow-visible"
       contentClassName="min-h-0"
     >
-      {!versions.length ? (
+      {!cohorts.length ? (
         <p className="py-8 text-muted-foreground">{t("noCurricula")}</p>
       ) : (
         <>
@@ -60,13 +62,15 @@ export default function CurriculumViewer({
             <label className="block text-sm font-semibold text-foreground">
               {t("selectCohort")}
               <select
-                value={versionId}
-                onChange={(event) => setVersionId(event.target.value)}
+                value={cohortYear}
+                onChange={(event) => setCohortYear(Number(event.target.value))}
                 className="mt-2 block min-h-11 min-w-48 rounded-xl border border-border bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
-                {versions.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {t("cohort", { year: item.cohortYear })}
+                {cohorts.map(({ year, version: item }) => (
+                  <option key={year} value={year}>
+                    {year === item.cohortYear
+                      ? t("cohort", { year })
+                      : t("cohortWithPlan", { year, plan: item.cohortYear })}
                   </option>
                 ))}
               </select>

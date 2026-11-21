@@ -10,7 +10,7 @@ export default function Skeleton({
       {...props}
       aria-hidden="true"
       className={twMerge(
-        "rounded-lg bg-muted-foreground/20 motion-safe:animate-pulse",
+        "rounded-lg bg-skeleton motion-safe:animate-pulse",
         className,
       )}
     />

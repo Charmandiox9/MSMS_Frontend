@@ -361,7 +361,7 @@ export default function SubjectsPage() {
                         {subject.careers.length > 0 && (
                           <p className="mt-1 flex flex-wrap gap-1" aria-label={t("careersLabel")}>
                             {subject.careers.map((career) => (
-                              <span key={career.id} className="rounded-md bg-secondary/10 px-1.5 py-0.5 text-[10px] font-semibold text-secondary">
+                              <span key={career.id} className="rounded-md bg-secondary/10 px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
                                 {career.name}
                               </span>
                             ))}
@@ -700,7 +700,7 @@ function ScheduleModal({
                             <span
                               aria-label={t("assistantship")}
                               title={t("assistantship")}
-                              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-secondary/15 text-[10px] font-black text-secondary"
+                              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-secondary/15 text-[10px] font-black text-primary"
                             >
                               {t("assistantshipMarker")}
                             </span>

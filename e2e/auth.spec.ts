@@ -96,7 +96,8 @@ test.describe("sesión y acceso por rol", () => {
     await page.screenshot({
       path: testInfo.outputPath("role-selection-desktop.png"),
     });
-    await page.getByRole("radio", { name: "Apoyo docente" }).check();
+    await page.getByText("Apoyo docente", { exact: true }).click();
+    await expect(page.getByRole("radio", { name: "Apoyo docente" })).toBeChecked();
     await page.getByRole("button", { name: "Entrar al dashboard" }).click();
     await expect(
       page.getByRole("heading", {

@@ -15,6 +15,7 @@ export default function proxy(req: NextRequest) {
     const url = req.nextUrl.clone();
     url.pathname = target;
     url.search = "";
+    if (target === "/") url.searchParams.set("entry", "oauth");
     return NextResponse.redirect(url);
   }
 

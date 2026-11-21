@@ -2,6 +2,10 @@
 
 @custom-variant dark (&:is(.dark *));
 :root {
+  --motion-duration-welcome: 1.2s;
+  --motion-duration-page-transition: 240ms;
+  --z-index-welcome-overlay: 80;
+  --surface-welcome-scrim: color-mix(in srgb, var(--background) 94%, transparent);
   /* Fondo claro */
   --background: #f8fafc;
   --foreground: #0f172a;
@@ -13,6 +17,7 @@
   /* Muted / Soft backgrounds */
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
+  --skeleton: #e2e8f0;
 
   /* Bordes */
   --border: #e2e8f0;
@@ -31,6 +36,17 @@
   /* Secundario: Agua Marina (teal-600) */
   --secondary: #0d9488;
   --secondary-foreground: #ffffff;
+
+  --illustration-primary: #0ea5e9;
+  --illustration-secondary: #1e3a8a;
+  --illustration-fin: #0284c7;
+  --illustration-accent: #f59e0b;
+  --illustration-highlight: #f59e0b;
+  --illustration-tentacle: #0ea5e9;
+  --illustration-current: #0ea5e9;
+  --illustration-ink: #0f172a;
+  --illustration-plankton-a: #ec4899;
+  --illustration-plankton-b: #10b981;
 
   /* Acento: Arena (amber-500) */
   --accent: #f59e0b;
@@ -55,6 +71,7 @@
   /* Muted / Soft backgrounds */
   --muted: #1e293b;
   --muted-foreground: #94a3b8;
+  --skeleton: #334155;
 
   /* Bordes */
   --border: #1e293b;
@@ -73,19 +90,31 @@
   /* Secundario en dark: Teal */
   --secondary: #2dd4bf;
   --secondary-foreground: #022c22;
+  --illustration-primary: #0ea5e9;
+  --illustration-secondary: #38bdf8;
+  --illustration-fin: #38bdf8;
+  --illustration-accent: #f59e0b;
+  --illustration-highlight: #fcd34d;
+  --illustration-tentacle: #7dd3fc;
+  --illustration-current: #38bdf8;
+  --illustration-ink: #ffffff;
+  --illustration-plankton-a: #f472b6;
+  --illustration-plankton-b: #34d399;
 
   /* Acento en dark: Arena brillante */
   --accent: #fbbf24;
   --accent-foreground: #451a03;
 }
 
-:is(.dashboard-workspace, body:has(.dashboard-workspace)) {
+:is(.institutional-theme, body:has(.institutional-theme)) {
+  color-scheme: light;
   --background: #eef3f5;
   --foreground: #142b41;
   --card: #ffffff;
   --card-foreground: var(--foreground);
   --muted: #f5f8f9;
   --muted-foreground: #526978;
+  --skeleton: #dfe6e9;
   --border: #d8e2e8;
   --control: #768b97;
   --focus: #0a6b75;
@@ -94,6 +123,7 @@
   --selection: #dfefee;
   --accent: var(--selection);
   --accent-foreground: var(--primary);
+  --overlay: rgb(20 43 65 / 55%);
   --success: #176246;
   --success-surface: #e5f2e9;
   --warning: #824a13;
@@ -103,24 +133,41 @@
   --danger-surface: #fbecef;
   --info: #234f88;
   --info-surface: #e9f0fa;
-  --secondary: var(--success);
-  --secondary-foreground: #ffffff;
-  --ucn-navy: #122c43;
-  --ocean-cyan: var(--primary);
+  --secondary: #e7ecef;
+  --secondary-foreground: var(--foreground);
+  --illustration-primary: #075e66;
+  --illustration-secondary: #526978;
+  --illustration-fin: #899ca6;
+  --illustration-accent: #7b6d8d;
+  --illustration-highlight: #7b6d8d;
+  --illustration-tentacle: #536c5f;
+  --illustration-current: #075e66;
+  --illustration-ink: #142b41;
+  --illustration-plankton-a: #7b6d8d;
+  --illustration-plankton-b: #899ca6;
+  --chart-series-1: #075e66;
+  --chart-series-2: #526978;
+  --chart-series-3: #7b6d8d;
+  --chart-series-4: #899ca6;
+  --chart-series-5: #9c7955;
+  --chart-series-6: #536c5f;
 }
 
-:is(.dark, [data-theme="dark"]) :is(.dashboard-workspace, body:has(.dashboard-workspace)) {
+:is(.dark, [data-theme="dark"]) :is(.institutional-theme, body:has(.institutional-theme)) {
+  color-scheme: dark;
   --background: #1b1c1e;
   --foreground: #f2f1f0;
   --card: #242527;
   --muted: #2d2e30;
   --muted-foreground: #babbc0;
+  --skeleton: #38393c;
   --border: #414246;
   --control: #84858a;
   --focus: #ddcef9;
   --primary: #c9b9ea;
   --primary-foreground: #24202b;
   --selection: #393340;
+  --overlay: rgb(10 11 13 / 72%);
   --success: #b9d8be;
   --success-surface: #2b392f;
   --warning: #edcb95;
@@ -130,8 +177,24 @@
   --danger-surface: #423034;
   --info: #b0d4e2;
   --info-surface: #27373d;
-  --secondary-foreground: #213127;
-  --ucn-navy: #303133;
+  --secondary: #393a3d;
+  --secondary-foreground: var(--foreground);
+  --illustration-primary: #c9b9ea;
+  --illustration-secondary: #babbc0;
+  --illustration-fin: #84858a;
+  --illustration-accent: #c6a978;
+  --illustration-highlight: #c6a978;
+  --illustration-tentacle: #9e8dbb;
+  --illustration-current: #c9b9ea;
+  --illustration-ink: #f2f1f0;
+  --illustration-plankton-a: #9e8dbb;
+  --illustration-plankton-b: #babbc0;
+  --chart-series-1: #c9b9ea;
+  --chart-series-2: #babbc0;
+  --chart-series-3: #9e8dbb;
+  --chart-series-4: #84858a;
+  --chart-series-5: #c6a978;
+  --chart-series-6: #859a8a;
 }
 
 @theme inline {
@@ -143,6 +206,7 @@
 
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-skeleton: var(--skeleton);
 
   --color-border: var(--border);
   --color-control: var(--control, var(--border));
@@ -163,6 +227,7 @@
   --color-info-surface: var(--info-surface, var(--card));
   --color-danger: var(--destructive);
   --color-danger-surface: var(--danger-surface, var(--card));
+  --color-overlay: var(--overlay, rgb(15 23 42 / 70%));
   
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -185,6 +250,125 @@
 .titulation-workspace-grid {
   @variant xl {
     grid-template-columns: var(--titulation-workspace-columns);
+  }
+}
+
+@keyframes welcome-dot-pulse {
+  0%,
+  60%,
+  100% {
+    opacity: 0.42;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-100%);
+  }
+}
+
+.welcome-loading-dot {
+  animation: welcome-dot-pulse var(--motion-duration-welcome) var(--ease-premium) infinite;
+}
+
+.welcome-loading-dot:nth-child(2) {
+  animation-delay: calc(var(--motion-duration-welcome) / -3);
+}
+
+.welcome-loading-dot:nth-child(3) {
+  animation-delay: calc(var(--motion-duration-welcome) / -1.5);
+}
+
+.welcome-screen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-welcome-overlay);
+  background-color: var(--background);
+  opacity: 1;
+  transform: scale(1);
+  transition-property: opacity, transform;
+  transition-duration: var(--motion-duration-page-transition);
+  transition-timing-function: var(--ease-premium);
+}
+
+.welcome-screen-overlay[data-exiting="true"] {
+  opacity: 0;
+  transform: scale(0.985);
+  pointer-events: none;
+}
+
+.login-visual {
+  --login-panel-base: var(--color-slate-50);
+  --login-panel-feather: calc(var(--spacing) * 32);
+  --login-panel-blur: var(--blur-sm);
+  --login-panel-tint: color-mix(in srgb, var(--login-panel-base) 70%, transparent);
+  --login-panel-glow-top: rgb(165 243 252 / 32%);
+  --login-panel-glow-bottom: rgb(191 219 254 / 32%);
+  --login-panel-surface: rgb(248 250 252 / 30%);
+  --login-panel-wash-start: rgb(248 250 252 / 5%);
+  --login-panel-wash-middle: rgb(248 250 252 / 15%);
+  --login-panel-wash-end: rgb(248 250 252 / 30%);
+  --login-card-surface: rgb(255 255 255 / 95%);
+  background-color: var(--login-panel-base);
+}
+
+.dark .login-visual {
+  --login-panel-base: #020b18;
+  --login-panel-glow-top: rgb(22 78 99 / 14%);
+  --login-panel-glow-bottom: rgb(30 58 138 / 14%);
+  --login-panel-surface: rgb(2 11 24 / 30%);
+  --login-panel-wash-start: rgb(2 11 24 / 5%);
+  --login-panel-wash-middle: rgb(2 11 24 / 15%);
+  --login-panel-wash-end: rgb(2 11 24 / 30%);
+  --login-card-surface: rgb(15 23 42 / 90%);
+}
+
+.login-seam-fade {
+  width: var(--login-panel-feather);
+  background-image: linear-gradient(90deg, transparent, var(--login-panel-base));
+}
+
+.login-right-panel {
+  background-color: var(--login-panel-surface);
+}
+
+.login-right-wash {
+  background-image: linear-gradient(
+    90deg,
+    var(--login-panel-wash-start),
+    var(--login-panel-wash-middle) 46%,
+    var(--login-panel-wash-end)
+  );
+}
+
+.login-auth-card {
+  background-color: var(--login-card-surface);
+}
+
+@media (min-width: 64rem) {
+  .login-right-panel {
+    background-color: transparent;
+  }
+
+  .login-right-wash {
+    left: calc(-1 * var(--login-panel-feather));
+    background:
+      radial-gradient(ellipse at 90% 10%, var(--login-panel-glow-top), transparent 62%),
+      radial-gradient(ellipse at 20% 80%, var(--login-panel-glow-bottom), transparent 62%),
+      var(--login-panel-tint);
+    backdrop-filter: blur(var(--login-panel-blur));
+    mask-image: linear-gradient(90deg, transparent, var(--login-panel-base) var(--login-panel-feather));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-loading-dot {
+    animation: none;
+    opacity: 1;
+  }
+
+  .welcome-screen-overlay {
+    transform: none;
+    transition-property: opacity;
   }
 }
 

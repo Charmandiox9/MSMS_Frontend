@@ -1,4 +1,5 @@
 import { redirect } from '@/i18n/routing';
+import { resolveAuthCallbackTarget } from '@/lib/auth-callback-route';
 
 export default async function AuthCallbackPage({
   params,
@@ -9,11 +10,10 @@ export default async function AuthCallbackPage({
 }) {
   const { locale } = await params;
   const query = await searchParams;
-  const route = query.route || '/dashboard';
-  const target =
-    route.startsWith('/dashboard/') || route === '/no-access'
-      ? route
-      : '/';
+  const destination = resolveAuthCallbackTarget(query.route ?? '/dashboard');
 
-  redirect({ href: target, locale });
+  const href = destination === '/dashboard'
+    ? '/?entry=oauth'
+    : destination;
+  redirect({ href, locale });
 }

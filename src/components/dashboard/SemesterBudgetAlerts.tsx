@@ -5,6 +5,7 @@ import { CircleAlert, CircleCheck, RotateCw } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Skeleton from "@/components/ui/Skeleton";
 import { apiFetch } from "@/lib/api";
+import { useDashboardStartup } from "@/context/DashboardStartupContext";
 
 type BudgetAlert = {
   semesterId: string;
@@ -87,12 +88,12 @@ function BudgetAlertsSkeleton({ label, visible }: { label: string; visible: bool
         aria-hidden="true"
         className={`${PANEL_CLASS} flex items-start gap-3 border-border bg-card ${visible ? "" : "invisible"}`}
       >
-        <Skeleton className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-muted dark:bg-muted" />
+        <Skeleton className="mt-0.5 h-5 w-5 shrink-0 rounded-full" />
         <div className="min-w-0 flex-1">
-          <Skeleton className="h-6 w-32 max-w-full bg-muted dark:bg-muted" />
-          <Skeleton className="mt-1 h-5 w-4/5 bg-muted dark:bg-muted" />
-          <Skeleton className="mt-2 h-5 w-3/5 bg-muted dark:bg-muted" />
-          <Skeleton className="mt-3 h-2 w-full rounded-full bg-muted dark:bg-muted" />
+          <Skeleton className="h-6 w-32 max-w-full" />
+          <Skeleton className="mt-1 h-5 w-4/5" />
+          <Skeleton className="mt-2 h-5 w-3/5" />
+          <Skeleton className="mt-3 h-2 w-full rounded-full" />
         </div>
       </div>
     </div>
@@ -108,6 +109,7 @@ export default function SemesterBudgetAlerts({
   const locale = useLocale();
   const headingId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const { completeTask } = useDashboardStartup();
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<AlertLoadState>({
     status: "loading",
@@ -129,13 +131,16 @@ export default function SemesterBudgetAlerts({
       .catch(() => {
         if (active) setState({ status: "error" });
       })
-      .finally(() => window.clearTimeout(timeout));
+      .finally(() => {
+        window.clearTimeout(timeout);
+        if (active) completeTask("budget-alerts");
+      });
 
     return () => {
       active = false;
       window.clearTimeout(timeout);
     };
-  }, [attempt, variant]);
+  }, [attempt, completeTask, variant]);
 
   const retry = () => {
     headingRef.current?.focus();

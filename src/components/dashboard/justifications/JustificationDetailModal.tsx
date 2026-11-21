@@ -251,7 +251,7 @@ export default function JustificationDetailModal({
 
         {!!item.assistants?.length && (
           <section className="rounded-2xl border border-secondary/30 bg-secondary/5 p-4">
-            <p className="text-xs font-bold uppercase text-secondary">
+            <p className="text-xs font-bold uppercase text-primary">
               {t("detail.assistants")}
             </p>
             <div className="mt-3 space-y-2">
@@ -294,7 +294,7 @@ export default function JustificationDetailModal({
             </p>
             {item.rejectionReason && (
               <div className="mt-3 border-t border-border pt-3">
-                <p className="text-xs font-bold uppercase tracking-wide text-coral-red">
+                <p className="text-sm font-semibold text-danger">
                   {t("detail.rejectionReason")}
                 </p>
                 <p className="mt-1 text-sm text-foreground">
@@ -359,7 +359,7 @@ export default function JustificationDetailModal({
                 type="button"
                 disabled={!canDecide || !rejectionReason.trim()}
                 onClick={() => handleDecision("REJECTED")}
-                className="inline-flex items-center gap-2 rounded-xl bg-coral-red px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-danger px-4 py-2.5 text-sm font-bold text-destructive-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
                 <span>{t("detail.reject")}</span>
