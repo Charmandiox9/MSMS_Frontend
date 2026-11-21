@@ -297,6 +297,21 @@ export default function TitulationWorkspace() {
     );
   }
 
+  function refreshSelectedProcess() {
+    if (!selectedId) return;
+
+    const detailKey = `${selectedId}|${refreshKey}`;
+    void apiFetch<TitulationProcess>(
+      `/academic/titulations/${encodeURIComponent(selectedId)}`,
+      { cache: "no-store" },
+    )
+      .then((process) => {
+        setLoadedDetail({ key: detailKey, process });
+        setDetailErrorKey(null);
+      })
+      .catch(() => setDetailErrorKey(detailKey));
+  }
+
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.delete("q");
@@ -932,6 +947,7 @@ export default function TitulationWorkspace() {
                   query={search}
                   defenseDate={displayDefenseDate(selectedProcess)}
                   canManage={canManage}
+                  onAttachmentUploaded={refreshSelectedProcess}
                 />
               ) : (
                 <p className="text-sm leading-relaxed text-muted-foreground">
