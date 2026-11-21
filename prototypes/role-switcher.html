@@ -1,941 +1,375 @@
-<!doctype html>
-<html lang="es" data-theme="light">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Prototipo interactivo | Cambiar rol</title>
-    <style>
-      :root {
-        color-scheme: light;
-        --background: #eef3f5;
-        --foreground: #142b41;
-        --card: #ffffff;
-        --muted: #f5f8f9;
-        --muted-foreground: #526978;
-        --border: #d8e2e8;
-        --control: #768b97;
-        --focus: #0a6b75;
-        --primary: #075e66;
-        --primary-foreground: #ffffff;
-        --selection: #dfefee;
-        --success: #176246;
-        --success-surface: #e5f2e9;
-        --space-1: 4px;
-        --space-2: 8px;
-        --space-3: 12px;
-        --space-4: 16px;
-        --space-5: 20px;
-        --space-6: 24px;
-        --space-8: 32px;
-        --radius-small: 6px;
-        --radius-medium: 10px;
-        --radius-large: 12px;
-        --shadow-popover: 0 16px 40px rgb(20 43 65 / 16%);
-        --motion-fast: 180ms;
-      }
-
-      [data-theme="dark"] {
-        color-scheme: dark;
-        --background: #1b1c1e;
-        --foreground: #f2f1f0;
-        --card: #242527;
-        --muted: #2d2e30;
-        --muted-foreground: #babbc0;
-        --border: #414246;
-        --control: #84858a;
-        --focus: #ddcef9;
-        --primary: #c9b9ea;
-        --primary-foreground: #24202b;
-        --selection: #393340;
-        --success: #9fd6b2;
-        --success-surface: #28372e;
-        --shadow-popover: 0 16px 40px rgb(0 0 0 / 30%);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        min-width: 320px;
-        min-height: 100vh;
-        margin: 0;
-        background: var(--background);
-        color: var(--foreground);
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-        font-size: 14px;
-        line-height: 1.45;
-      }
-
-      button {
-        color: inherit;
-        font: inherit;
-      }
-
-      button:focus-visible {
-        outline: 2px solid var(--focus);
-        outline-offset: 2px;
-      }
-
-      .app-shell {
-        display: grid;
-        min-height: 100vh;
-        grid-template-columns: 288px minmax(0, 1fr);
-      }
-
-      .sidebar {
-        position: relative;
-        display: flex;
-        min-height: 100vh;
-        flex-direction: column;
-        border-right: 1px solid var(--border);
-        background: var(--muted);
-      }
-
-      .brand-row {
-        display: flex;
-        min-height: 68px;
-        align-items: center;
-        border-bottom: 1px solid var(--border);
-        padding: 0 var(--space-5);
-      }
-
-      .brand {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-3);
-        font-size: 15px;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-      }
-
-      .brand-mark {
-        display: grid;
-        width: 34px;
-        height: 34px;
-        place-items: center;
-        border: 1px solid var(--primary);
-        border-radius: 50%;
-        background: var(--foreground);
-        color: var(--card);
-        font-family: Georgia, serif;
-        font-size: 17px;
-        font-weight: 400;
-      }
-
-      .navigation {
-        flex: 1;
-        overflow-y: auto;
-        padding: var(--space-3);
-      }
-
-      .nav-section {
-        margin: 0;
-        padding: var(--space-3) 0;
-        border-top: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
-        list-style: none;
-      }
-
-      .nav-section:first-child {
-        border-top: 0;
-        padding-top: var(--space-1);
-      }
-
-      .nav-heading,
-      .nav-subheading {
-        margin: 0 0 var(--space-1);
-        padding: 0 var(--space-3);
-        color: var(--muted-foreground);
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-      }
-
-      .nav-subheading {
-        margin-top: var(--space-3);
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0;
-        text-transform: none;
-      }
-
-      .nav-item {
-        display: flex;
-        min-height: 32px;
-        align-items: center;
-        gap: var(--space-3);
-        border-left: 2px solid transparent;
-        border-radius: var(--radius-small);
-        padding: var(--space-1) var(--space-3);
-        color: var(--foreground);
-        font-size: 14px;
-      }
-
-      .nav-item svg {
-        width: 16px;
-        height: 16px;
-        flex: none;
-      }
-
-      .nav-item.current {
-        border-left-color: var(--primary);
-        background: var(--selection);
-        color: var(--primary);
-        font-weight: 650;
-      }
-
-      .account-footer {
-        position: relative;
-        flex: none;
-        border-top: 1px solid var(--border);
-        padding: var(--space-2) var(--space-3);
-      }
-
-      .account-trigger {
-        display: flex;
-        width: 100%;
-        min-height: 52px;
-        align-items: center;
-        gap: var(--space-3);
-        border: 1px solid transparent;
-        border-radius: var(--radius-medium);
-        background: transparent;
-        padding: var(--space-2);
-        text-align: left;
-        cursor: pointer;
-        transition: background-color var(--motion-fast), border-color var(--motion-fast);
-      }
-
-      .account-trigger:hover,
-      .account-trigger[aria-expanded="true"] {
-        border-color: var(--border);
-        background: var(--card);
-      }
-
-      .avatar {
-        display: grid;
-        width: 36px;
-        height: 36px;
-        flex: none;
-        place-items: center;
-        border-radius: 50%;
-        background: var(--selection);
-        color: var(--foreground);
-        font-size: 14px;
-        font-weight: 650;
-      }
-
-      .account-copy {
-        display: grid;
-        min-width: 0;
-        flex: 1;
-        line-height: 1.3;
-      }
-
-      .account-name {
-        font-weight: 650;
-      }
-
-      .active-role-label {
-        overflow: hidden;
-        color: var(--muted-foreground);
-        font-size: 12px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .chevrons {
-        width: 16px;
-        height: 16px;
-        flex: none;
-        color: var(--muted-foreground);
-      }
-
-      .account-panel {
-        position: absolute;
-        z-index: 5;
-        right: var(--space-3);
-        bottom: calc(100% + var(--space-2));
-        left: var(--space-3);
-        max-height: min(72vh, 620px);
-        overflow-y: auto;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-large);
-        background: var(--card);
-        padding: var(--space-2);
-        box-shadow: var(--shadow-popover);
-      }
-
-      .account-panel[hidden] {
-        display: none;
-      }
-
-      .menu-view[hidden] {
-        display: none;
-      }
-
-      .menu-row {
-        display: flex;
-        width: 100%;
-        min-height: 44px;
-        align-items: center;
-        gap: var(--space-3);
-        border: 0;
-        border-radius: var(--radius-medium);
-        background: transparent;
-        padding: var(--space-2);
-        text-align: left;
-        cursor: pointer;
-        transition: background-color var(--motion-fast);
-      }
-
-      .menu-row:hover {
-        background: var(--muted);
-      }
-
-      .menu-row svg {
-        width: 16px;
-        height: 16px;
-        flex: none;
-        color: var(--muted-foreground);
-      }
-
-      .menu-row-label {
-        flex: 1;
-        font-weight: 550;
-      }
-
-      .preferences {
-        display: grid;
-        gap: var(--space-1);
-        margin-top: var(--space-1);
-        border-top: 1px solid var(--border);
-        padding-top: var(--space-1);
-      }
-
-      .theme-row,
-      .language-row {
-        display: flex;
-        min-height: 44px;
-        align-items: center;
-        justify-content: space-between;
-        gap: var(--space-2);
-        padding: 0 var(--space-2);
-        font-weight: 550;
-      }
-
-      .switch {
-        position: relative;
-        width: 44px;
-        height: 26px;
-        flex: none;
-        border: 1px solid var(--control);
-        border-radius: 999px;
-        background: var(--muted);
-        cursor: pointer;
-      }
-
-      .switch::after {
-        position: absolute;
-        top: 3px;
-        left: 3px;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: var(--muted-foreground);
-        content: "";
-        transition: transform var(--motion-fast), background-color var(--motion-fast);
-      }
-
-      .switch[aria-checked="true"] {
-        border-color: var(--primary);
-        background: var(--primary);
-      }
-
-      .switch[aria-checked="true"]::after {
-        transform: translateX(18px);
-        background: var(--primary-foreground);
-      }
-
-      .language-options {
-        display: flex;
-        gap: var(--space-1);
-      }
-
-      .language-option {
-        min-width: 44px;
-        min-height: 36px;
-        border: 1px solid transparent;
-        border-radius: var(--radius-small);
-        background: transparent;
-        color: var(--muted-foreground);
-        cursor: pointer;
-      }
-
-      .language-option[aria-pressed="true"] {
-        background: var(--selection);
-        color: var(--foreground);
-        font-weight: 650;
-        text-decoration: underline;
-        text-underline-offset: 4px;
-      }
-
-      .logout-row {
-        margin-top: var(--space-1);
-        border-top: 1px solid var(--border);
-        padding-top: var(--space-1);
-      }
-
-      .role-heading {
-        display: flex;
-        min-height: 44px;
-        align-items: center;
-        gap: var(--space-2);
-        padding: 0 var(--space-2);
-      }
-
-      .back-button {
-        display: grid;
-        width: 36px;
-        height: 36px;
-        flex: none;
-        place-items: center;
-        border: 0;
-        border-radius: var(--radius-small);
-        background: transparent;
-        cursor: pointer;
-      }
-
-      .back-button:hover {
-        background: var(--muted);
-      }
-
-      .back-button svg {
-        width: 18px;
-        height: 18px;
-      }
-
-      .role-title {
-        margin: 0;
-        font-size: 15px;
-        font-weight: 700;
-      }
-
-      .role-intro {
-        margin: 0 var(--space-2) var(--space-3);
-        color: var(--muted-foreground);
-        font-size: 13px;
-      }
-
-      .role-list-label {
-        margin: 0 var(--space-2) var(--space-2);
-        color: var(--muted-foreground);
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-      }
-
-      .role-options {
-        display: grid;
-        gap: var(--space-2);
-      }
-
-      .role-option {
-        display: flex;
-        position: relative;
-        width: 100%;
-        min-height: 68px;
-        align-items: center;
-        gap: var(--space-3);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-large);
-        background: var(--card);
-        padding: var(--space-3);
-        text-align: left;
-        cursor: pointer;
-        transition: border-color var(--motion-fast), background-color var(--motion-fast);
-      }
-
-      .role-option:hover {
-        border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
-        background: var(--muted);
-      }
-
-      .role-option:has(.role-input:checked) {
-        border-color: var(--primary);
-        background: var(--selection);
-      }
-
-      .role-option:has(.role-input:focus-visible) {
-        outline: 2px solid var(--focus);
-        outline-offset: 2px;
-      }
-
-      .role-input {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        opacity: 0;
-      }
-
-      .role-option-copy {
-        display: grid;
-        min-width: 0;
-        flex: 1;
-        gap: 2px;
-      }
-
-      .role-name {
-        font-size: 13px;
-        font-weight: 650;
-        line-height: 1.35;
-      }
-
-      .role-description {
-        color: var(--muted-foreground);
-        font-size: 11px;
-        line-height: 1.35;
-      }
-
-      .active-tag {
-        display: inline-flex;
-        flex: none;
-        border-radius: 999px;
-        background: var(--card);
-        padding: 3px 7px;
-        color: var(--primary);
-        font-size: 9px;
-        font-weight: 750;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-      }
-
-      .active-tag[hidden] {
-        display: none;
-      }
-
-      .role-check {
-        width: 18px;
-        height: 18px;
-        flex: none;
-        color: var(--primary);
-        opacity: 0;
-      }
-
-      .role-option:has(.role-input:checked) .role-check {
-        opacity: 1;
-      }
-
-      .role-footnote {
-        display: flex;
-        align-items: flex-start;
-        gap: var(--space-2);
-        margin-top: var(--space-3);
-        border-radius: var(--radius-medium);
-        background: var(--muted);
-        padding: var(--space-2) var(--space-3);
-        color: var(--muted-foreground);
-        font-size: 11px;
-      }
-
-      .role-footnote svg {
-        width: 15px;
-        height: 15px;
-        flex: none;
-        color: var(--primary);
-      }
-
-      .main-area {
-        min-width: 0;
-      }
-
-      .breadcrumb-bar {
-        display: flex;
-        min-height: 56px;
-        align-items: center;
-        gap: var(--space-2);
-        border-bottom: 1px solid var(--border);
-        background: var(--card);
-        padding: 0 var(--space-6);
-        color: var(--muted-foreground);
-        font-size: 12px;
-      }
-
-      .breadcrumb-bar strong {
-        color: var(--foreground);
-        font-weight: 650;
-      }
-
-      .page-preview {
-        max-width: 1120px;
-        margin: 0 auto;
-        padding: 40px var(--space-6);
-      }
-
-      .back-link {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-2);
-        color: var(--primary);
-        font-weight: 600;
-      }
-
-      .page-eyebrow {
-        margin: var(--space-6) 0 var(--space-1);
-        color: var(--primary);
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .page-title {
-        margin: 0;
-        font-size: clamp(24px, 3vw, 30px);
-        letter-spacing: -0.04em;
-      }
-
-      .preview-card {
-        display: flex;
-        min-height: 112px;
-        align-items: center;
-        gap: var(--space-4);
-        margin-top: var(--space-6);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-large);
-        background: var(--card);
-        padding: var(--space-5);
-      }
-
-      .preview-icon {
-        display: grid;
-        width: 44px;
-        height: 44px;
-        flex: none;
-        place-items: center;
-        border-radius: var(--radius-medium);
-        background: var(--selection);
-        color: var(--primary);
-      }
-
-      .preview-icon svg {
-        width: 20px;
-        height: 20px;
-      }
-
-      .preview-copy strong {
-        display: block;
-        margin-bottom: var(--space-1);
-      }
-
-      .preview-copy span {
-        color: var(--muted-foreground);
-      }
-
-      .toast {
-        position: fixed;
-        z-index: 10;
-        right: var(--space-6);
-        bottom: var(--space-6);
-        display: flex;
-        max-width: min(420px, calc(100vw - 32px));
-        align-items: center;
-        gap: var(--space-2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-medium);
-        background: var(--card);
-        padding: var(--space-3) var(--space-4);
-        box-shadow: var(--shadow-popover);
-        color: var(--foreground);
-      }
-
-      .toast[hidden] {
-        display: none;
-      }
-
-      .toast-mark {
-        display: grid;
-        width: 22px;
-        height: 22px;
-        flex: none;
-        place-items: center;
-        border-radius: 50%;
-        background: var(--success-surface);
-        color: var(--success);
-        font-weight: 700;
-      }
-
-      @media (max-width: 720px) {
-        .app-shell {
-          grid-template-columns: minmax(248px, 78vw) minmax(0, 1fr);
-        }
-
-        .main-area {
-          display: none;
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          scroll-behavior: auto !important;
-          transition-duration: 0.01ms !important;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="app-shell">
-      <aside class="sidebar" aria-label="Navegación principal">
-        <div class="brand-row">
-          <div class="brand">
-            <span class="brand-mark" aria-hidden="true">M</span>
-            <span>MARSYS</span>
-          </div>
-        </div>
-
-        <nav class="navigation">
-          <ul class="nav-section">
-            <li><p class="nav-heading">Principal</p></li>
-            <li class="nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>
-              Inicio
-            </li>
-          </ul>
-
-          <ul class="nav-section">
-            <li><p class="nav-heading">Gestión académica</p></li>
-            <li><p class="nav-subheading">Atención estudiantil</p></li>
-            <li class="nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 4h8M9 3h6v3H9z"/><path d="M6 5H4v16h16V5h-2M8 12l2.5 2.5L16 9"/></svg>
-              Justificaciones
-            </li>
-            <li class="nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 9 9-5 9 5-9 5-9-5Z"/><path d="M7 12v5c3 2 7 2 10 0v-5M21 9v6"/></svg>
-              Titulaciones
-            </li>
-            <li><p class="nav-subheading">Información académica</p></li>
-            <li class="nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="1.5"/><path d="M8 5V3h8v2M8 9h2v2H8zM14 9h2v2h-2zM8 14h2v2H8zM14 14h2v2h-2z"/></svg>
-              Departamentos &amp; Carreras
-            </li>
-            <li class="nav-item current" aria-current="page">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM17 4.5a3.5 3.5 0 0 1 0 6.5M20 20v-1.5a3.5 3.5 0 0 0-2.5-3.35"/></svg>
-              Estudiantes
-            </li>
-            <li class="nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5h6v3H9zM9 12h6M9 16h6"/></svg>
-              Ayudantías
-            </li>
-          </ul>
-
-          <ul class="nav-section">
-            <li><p class="nav-heading">Sistema</p></li>
-            <li class="nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 2.8 7.7 7 10 4.2-2.3 7-5.5 7-10V6l-7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
-              Solicitudes de privacidad
-            </li>
-          </ul>
-        </nav>
-
-        <div class="account-footer" id="account-container">
-          <div class="account-panel" id="account-panel" hidden>
-            <div class="menu-view" id="account-view">
-              <button class="menu-row" type="button" data-message="Vista de perfil de demostración.">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20v-1.5a7 7 0 0 1 14 0V20"/></svg>
-                <span class="menu-row-label">Mi perfil</span>
-              </button>
-              <button class="menu-row" id="switch-role-button" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 7h12M16 3l4 4-4 4M16 17H4m4-4-4 4 4 4"/></svg>
-                <span class="menu-row-label">Cambiar rol</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
-              </button>
-
-              <div class="preferences">
-                <div class="theme-row">
-                  <span>Modo oscuro</span>
-                  <button class="switch" id="theme-switch" type="button" role="switch" aria-label="Modo oscuro" aria-checked="false"></button>
-                </div>
-                <div class="language-row">
-                  <span>Idioma</span>
-                  <div class="language-options" role="group" aria-label="Idioma">
-                    <button class="language-option" type="button" aria-pressed="true" data-language="Español">ES</button>
-                    <button class="language-option" type="button" aria-pressed="false" data-language="English">EN</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="logout-row">
-                <button class="menu-row" type="button" data-message="Cerrar sesión está desactivado en esta maqueta.">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/></svg>
-                  <span class="menu-row-label">Cerrar sesión</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="menu-view" id="roles-view" hidden>
-              <div class="role-heading">
-                <button class="back-button" id="back-button" type="button" aria-label="Volver a Mi cuenta">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m15 18-6-6 6-6M9 12h12"/></svg>
-                </button>
-                <h2 class="role-title">Roles asignados</h2>
-              </div>
-              <p class="role-intro">Elige el perfil con el que deseas continuar.</p>
-              <p class="role-list-label">Perfiles de tu cuenta</p>
-              <div class="role-options" role="radiogroup" aria-label="Selecciona un rol">
-                <label class="role-option">
-                  <input class="role-input" type="radio" name="activeRole" checked data-role="Apoyo docente">
-                  <span class="role-option-copy"><span class="role-name">Apoyo docente</span><span class="role-description">Coordinación y seguimiento de ayudantías</span></span>
-                  <span class="active-tag">Activo</span>
-                  <svg class="role-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
-                </label>
-                <label class="role-option">
-                  <input class="role-input" type="radio" name="activeRole" data-role="Secretario docente">
-                  <span class="role-option-copy"><span class="role-name">Secretario docente</span><span class="role-description">Gestión de procesos académicos</span></span>
-                  <span class="active-tag" hidden>Activo</span>
-                  <svg class="role-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
-                </label>
-                <label class="role-option">
-                  <input class="role-input" type="radio" name="activeRole" data-role="Analista académico">
-                  <span class="role-option-copy"><span class="role-name">Analista académico</span><span class="role-description">Análisis y seguimiento curricular</span></span>
-                  <span class="active-tag" hidden>Activo</span>
-                  <svg class="role-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
-                </label>
-              </div>
-              <div class="role-footnote">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
-                <span>El cambio se aplica al seleccionar un perfil. La vista se conserva si tienes acceso.</span>
-              </div>
-            </div>
-          </div>
-
-          <button class="account-trigger" id="account-trigger" type="button" aria-expanded="false" aria-controls="account-panel">
-            <span class="avatar" aria-hidden="true">M</span>
-            <span class="account-copy">
-              <span class="account-name">Mi cuenta</span>
-              <span class="active-role-label" id="active-role-label">Apoyo docente</span>
-            </span>
-            <svg class="chevrons" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m8 9 4-4 4 4M16 15l-4 4-4-4"/></svg>
-          </button>
-        </div>
-      </aside>
-
-      <main class="main-area">
-        <div class="breadcrumb-bar" aria-label="Migas de pan">
-          <span aria-hidden="true">⌂</span><span>›</span><span>Estudiantes</span><span>›</span><strong>Historial académico</strong>
-        </div>
-        <div class="page-preview">
-          <span class="back-link"><span aria-hidden="true">←</span> Volver a estudiantes</span>
-          <p class="page-eyebrow">Área de trabajo</p>
-          <h1 class="page-title">Historial académico</h1>
-          <section class="preview-card" aria-label="Contexto de la maqueta">
-            <span class="preview-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4 7v5c0 4.5 3.2 7.6 8 9 4.8-1.4 8-4.5 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
-            </span>
-            <span class="preview-copy"><strong>Prototipo del menú de cuenta</strong><span>Abre “Mi cuenta” abajo a la izquierda y selecciona “Cambiar rol”.</span></span>
-          </section>
-        </div>
-      </main>
+<style>
+  #role-switcher-compact-preview {
+    --account-surface: light-dark(#ffffff, #242527);
+    --account-text: light-dark(#142b41, #f2f1f0);
+    --account-muted: light-dark(#526978, #babbc0);
+    --account-border: light-dark(#d8e2e8, #414246);
+    --account-hover: light-dark(#f5f8f9, #2d2e30);
+    --account-selection: light-dark(#dfefee, #393340);
+    --account-accent: light-dark(#075e66, #c9b9ea);
+    --account-accent-foreground: light-dark(#ffffff, #24202b);
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    color-scheme: light;
+    color: var(--account-text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  #role-switcher-compact-preview[data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  #role-switcher-compact-preview *,
+  #role-switcher-compact-preview *::before,
+  #role-switcher-compact-preview *::after {
+    box-sizing: border-box;
+  }
+
+  #role-switcher-compact-preview .account-popover,
+  #role-switcher-compact-preview .account-trigger {
+    width: min(100%, 264px);
+    border: 1px solid var(--account-border);
+    border-radius: 12px;
+    background: var(--account-surface);
+  }
+
+  #role-switcher-compact-preview .account-popover {
+    padding: 8px;
+    box-shadow: 0 12px 28px light-dark(rgb(20 43 65 / 12%), rgb(0 0 0 / 30%));
+  }
+
+  #role-switcher-compact-preview .menu-row {
+    display: flex;
+    width: 100%;
+    min-height: 42px;
+    align-items: center;
+    gap: 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    padding: 8px 10px;
+    color: var(--account-text);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #role-switcher-compact-preview .menu-row:hover {
+    background: var(--account-hover);
+  }
+
+  #role-switcher-compact-preview .menu-row > span:first-of-type {
+    flex: 1;
+  }
+
+  #role-switcher-compact-preview .menu-icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    color: var(--account-muted);
+  }
+
+  #role-switcher-compact-preview .role-chevron {
+    transition: transform 180ms ease-out;
+  }
+
+  #role-switcher-compact-preview #role-switcher-toggle[aria-expanded="true"] .role-chevron {
+    transform: rotate(180deg);
+  }
+
+  #role-switcher-compact-preview .role-options {
+    display: grid;
+    gap: 2px;
+    margin: 0 0 4px 28px;
+    padding: 0;
+    border: 0;
+  }
+
+  #role-switcher-compact-preview .role-options[hidden] {
+    display: none;
+  }
+
+  #role-switcher-compact-preview .role-option {
+    position: relative;
+    display: flex;
+    min-height: 34px;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    padding: 5px 8px;
+    color: var(--account-muted);
+    cursor: pointer;
+  }
+
+  #role-switcher-compact-preview .role-option:has(input:checked) {
+    background: var(--account-selection);
+    color: var(--account-accent);
+    font-weight: 600;
+  }
+
+  #role-switcher-compact-preview .role-option:has(input:focus-visible) {
+    outline: 2px solid var(--account-accent);
+    outline-offset: 1px;
+  }
+
+  #role-switcher-compact-preview .role-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  #role-switcher-compact-preview .role-option span {
+    flex: 1;
+  }
+
+  #role-switcher-compact-preview .role-option small {
+    color: var(--account-muted);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  #role-switcher-compact-preview .role-check {
+    width: 15px;
+    height: 15px;
+    flex: none;
+    opacity: 0;
+  }
+
+  #role-switcher-compact-preview .role-option:has(input:checked) .role-check {
+    opacity: 1;
+  }
+
+  #role-switcher-compact-preview .menu-divider {
+    height: 1px;
+    margin: 5px 0;
+    border: 0;
+    background: var(--account-border);
+  }
+
+  #role-switcher-compact-preview .preference-row {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 8px;
+    color: var(--account-text);
+  }
+
+  #role-switcher-compact-preview .theme-switch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex: none;
+    border: 1px solid var(--account-muted);
+    border-radius: 999px;
+    background: var(--account-hover);
+    cursor: pointer;
+  }
+
+  #role-switcher-compact-preview .theme-switch::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--account-muted);
+    content: "";
+    transition: transform 180ms ease-out, background-color 180ms ease-out;
+  }
+
+  #role-switcher-compact-preview .theme-switch[aria-checked="true"] {
+    border-color: var(--account-accent);
+    background: var(--account-accent);
+  }
+
+  #role-switcher-compact-preview .theme-switch[aria-checked="true"]::after {
+    transform: translateX(18px);
+    background: var(--account-accent-foreground);
+  }
+
+  #role-switcher-compact-preview .language-options {
+    display: flex;
+    gap: 4px;
+  }
+
+  #role-switcher-compact-preview .language-option {
+    min-width: 42px;
+    min-height: 36px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--account-muted);
+    cursor: pointer;
+  }
+
+  #role-switcher-compact-preview .language-option[aria-pressed="true"] {
+    background: var(--account-selection);
+    color: var(--account-text);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  #role-switcher-compact-preview .account-trigger {
+    display: flex;
+    min-height: 54px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    color: var(--account-text);
+    text-align: left;
+  }
+
+  #role-switcher-compact-preview .avatar {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--account-selection);
+    font-weight: 600;
+  }
+
+  #role-switcher-compact-preview .account-copy {
+    display: grid;
+    min-width: 0;
+    flex: 1;
+    line-height: 1.3;
+  }
+
+  #role-switcher-compact-preview .account-copy strong {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  #role-switcher-compact-preview .account-copy span {
+    overflow: hidden;
+    color: var(--account-muted);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #role-switcher-compact-preview .account-trigger .menu-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  #role-switcher-compact-preview .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+</style>
+
+<div id="role-switcher-compact-preview" class="viz-dotted-background" data-theme="light" role="region" aria-label="Menú de cuenta de MARSYS">
+  <section class="account-popover" aria-label="Opciones de cuenta">
+    <button class="menu-row" type="button" aria-label="Mi perfil">
+      <i class="menu-icon" data-lucide="user-round" aria-hidden="true"></i>
+      <span>Mi perfil</span>
+    </button>
+    <button class="menu-row" id="role-switcher-toggle" type="button" aria-expanded="true" aria-controls="role-switcher-options">
+      <i class="menu-icon" data-lucide="arrow-left-right" aria-hidden="true"></i>
+      <span>Cambiar rol</span>
+      <i class="menu-icon role-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
+    </button>
+    <fieldset class="role-options" id="role-switcher-options" role="radiogroup" aria-label="Roles asignados">
+      <legend class="sr-only">Selecciona el rol activo</legend>
+      <label class="role-option">
+        <input type="radio" name="assigned-role" value="Apoyo docente" checked>
+        <span>Apoyo docente</span>
+        <small>Actual</small>
+        <i class="role-check" data-lucide="check" aria-hidden="true"></i>
+      </label>
+      <label class="role-option">
+        <input type="radio" name="assigned-role" value="Secretario docente">
+        <span>Secretario docente</span>
+        <i class="role-check" data-lucide="check" aria-hidden="true"></i>
+      </label>
+      <label class="role-option">
+        <input type="radio" name="assigned-role" value="Analista académico">
+        <span>Analista académico</span>
+        <i class="role-check" data-lucide="check" aria-hidden="true"></i>
+      </label>
+    </fieldset>
+    <hr class="menu-divider">
+    <div class="preference-row">
+      <span>Modo oscuro</span>
+      <button class="theme-switch" id="role-switcher-theme" type="button" role="switch" aria-label="Modo oscuro" aria-checked="false"></button>
     </div>
-
-    <div class="toast" id="toast" role="status" aria-live="polite" hidden>
-      <span class="toast-mark" aria-hidden="true">✓</span>
-      <span id="toast-message"></span>
+    <div class="preference-row">
+      <span>Idioma</span>
+      <span class="language-options" role="group" aria-label="Idioma">
+        <button class="language-option" type="button" aria-pressed="true">ES</button>
+        <button class="language-option" type="button" aria-pressed="false">EN</button>
+      </span>
     </div>
+    <hr class="menu-divider">
+    <button class="menu-row" type="button" aria-label="Cerrar sesión">
+      <i class="menu-icon" data-lucide="log-out" aria-hidden="true"></i>
+      <span>Cerrar sesión</span>
+    </button>
+    <span class="sr-only" id="role-switcher-status" aria-live="polite"></span>
+  </section>
 
-    <script>
-      const accountContainer = document.getElementById("account-container");
-      const accountTrigger = document.getElementById("account-trigger");
-      const accountPanel = document.getElementById("account-panel");
-      const accountView = document.getElementById("account-view");
-      const rolesView = document.getElementById("roles-view");
-      const activeRoleLabel = document.getElementById("active-role-label");
-      const toast = document.getElementById("toast");
-      const toastMessage = document.getElementById("toast-message");
-      const themeSwitch = document.getElementById("theme-switch");
-      let toastTimer;
+  <button class="account-trigger" type="button" aria-label="Mi cuenta, rol activo">
+    <span class="avatar" aria-hidden="true">M</span>
+    <span class="account-copy">
+      <strong>Mi cuenta</strong>
+      <span id="role-switcher-active-role">Apoyo docente</span>
+    </span>
+    <i class="menu-icon" data-lucide="chevrons-up-down" aria-hidden="true"></i>
+  </button>
+</div>
 
-      function showAccountView() {
-        accountView.hidden = false;
-        rolesView.hidden = true;
-        document.getElementById("switch-role-button").focus();
-      }
+<script>
+  const rolePreview = document.getElementById("role-switcher-compact-preview");
+  const roleToggle = rolePreview.querySelector("#role-switcher-toggle");
+  const roleOptions = rolePreview.querySelector("#role-switcher-options");
+  const roleStatus = rolePreview.querySelector("#role-switcher-status");
+  const activeRole = rolePreview.querySelector("#role-switcher-active-role");
 
-      function openRoleView() {
-        accountView.hidden = true;
-        rolesView.hidden = false;
-        document.getElementById("back-button").focus();
-      }
+  roleToggle.addEventListener("click", () => {
+    const expanded = roleToggle.getAttribute("aria-expanded") !== "true";
+    roleToggle.setAttribute("aria-expanded", String(expanded));
+    roleOptions.hidden = !expanded;
+  });
 
-      function closeAccountPanel(restoreFocus = false) {
-        accountPanel.hidden = true;
-        accountTrigger.setAttribute("aria-expanded", "false");
-        if (restoreFocus) accountTrigger.focus();
-      }
+  roleOptions.querySelectorAll("input").forEach((input) => {
+    input.addEventListener("change", () => {
+      activeRole.textContent = input.value;
+      roleStatus.textContent = "Rol activo: " + input.value;
+      roleOptions.querySelectorAll("small").forEach((label) => label.remove());
+      const activeLabel = document.createElement("small");
+      activeLabel.textContent = "Actual";
+      input.closest("label").append(activeLabel);
+    });
+  });
 
-      function showToast(message) {
-        toastMessage.textContent = message;
-        toast.hidden = false;
-        window.clearTimeout(toastTimer);
-        toastTimer = window.setTimeout(() => {
-          toast.hidden = true;
-        }, 3200);
-      }
+  rolePreview.querySelector("#role-switcher-theme").addEventListener("click", (event) => {
+    const enabled = event.currentTarget.getAttribute("aria-checked") !== "true";
+    event.currentTarget.setAttribute("aria-checked", String(enabled));
+    rolePreview.dataset.theme = enabled ? "dark" : "light";
+  });
 
-      accountTrigger.addEventListener("click", () => {
-        const opening = accountPanel.hidden;
-        accountPanel.hidden = !opening;
-        accountTrigger.setAttribute("aria-expanded", String(opening));
-        if (opening) showAccountView();
+  rolePreview.querySelectorAll(".language-option").forEach((option) => {
+    option.addEventListener("click", () => {
+      rolePreview.querySelectorAll(".language-option").forEach((item) => {
+        item.setAttribute("aria-pressed", String(item === option));
       });
-
-      document.getElementById("switch-role-button").addEventListener("click", openRoleView);
-      document.getElementById("back-button").addEventListener("click", showAccountView);
-
-      document.querySelectorAll(".role-input").forEach((input) => {
-        input.addEventListener("change", () => {
-          const selectedRole = input.dataset.role;
-          const wasActive = selectedRole === activeRoleLabel.textContent;
-          document.querySelectorAll(".role-input").forEach((item) => {
-            item.closest(".role-option").querySelector(".active-tag").hidden = !item.checked;
-          });
-          activeRoleLabel.textContent = selectedRole;
-          if (!wasActive) showToast(`Cambiaste a ${selectedRole}. La vista actual se conserva.`);
-        });
-      });
-
-      themeSwitch.addEventListener("click", () => {
-        const enabled = themeSwitch.getAttribute("aria-checked") !== "true";
-        themeSwitch.setAttribute("aria-checked", String(enabled));
-        document.documentElement.dataset.theme = enabled ? "dark" : "light";
-      });
-
-      document.querySelectorAll(".language-option").forEach((option) => {
-        option.addEventListener("click", () => {
-          document.querySelectorAll(".language-option").forEach((item) => {
-            item.setAttribute("aria-pressed", String(item === option));
-          });
-          showToast(`Idioma seleccionado: ${option.dataset.language}.`);
-        });
-      });
-
-      document.querySelectorAll("[data-message]").forEach((button) => {
-        button.addEventListener("click", () => showToast(button.dataset.message));
-      });
-
-      document.addEventListener("pointerdown", (event) => {
-        if (!accountContainer.contains(event.target)) closeAccountPanel();
-      });
-
-      document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape" || accountPanel.hidden) return;
-        event.preventDefault();
-        if (!rolesView.hidden) showAccountView();
-        else closeAccountPanel(true);
-      });
-    </script>
-  </body>
-</html>
+    });
+  });
+</script>
