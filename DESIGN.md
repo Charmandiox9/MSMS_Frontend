@@ -32,6 +32,8 @@ Claro con acento verde petróleo. Oscuro con superficies gris ceniza y acento la
 
 Usar la proporción 60/30/10 como referencia visual. Los fondos dominan, las superficies de apoyo agrupan y el acento marca acciones o selección. Consumir los tokens mediante clases semánticas en lugar de valores directos. Éxito, advertencia, peligro e información tienen sus propios pares de texto y superficie. Un estado se reconoce por su etiqueta y, cuando corresponda, por un icono además del color.
 
+En `.institutional-theme`, `secondary` es una superficie de apoyo y `accent` representa la superficie de selección; sus tonos son suaves y no sirven como color de primer plano. No usar `text-secondary` ni `text-accent` para texto o iconos. Sobre esas superficies, usar `text-secondary-foreground` o `text-accent-foreground`. Para iconos y texto de estado, usar el par semántico correspondiente (`success`, `warning`, `danger` o `info`); para iconos neutrales, usar `primary`, `foreground` o `muted-foreground` según su jerarquía. Verificar que cada primer plano mantenga contraste suficiente en ambos temas.
+
 ## Tipografía, espacio y controles
 
 - Usar Geist Sans y un tamaño base de 16 px para lectura. Como referencia para pantallas nuevas, usar 28–32 px para el título, 20 px para sección y 14 px para datos secundarios. Reservar la tipografía monoespaciada para información que se beneficie de ella.
