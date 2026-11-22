@@ -13,6 +13,10 @@ interface BreadcrumbsProps {
 
 const ROUTE_NAME_MAP: Record<string, string> = {
   dashboard: 'dashboard',
+  updates: 'updates',
+  editorial: 'editorial',
+  news: 'editorialNews',
+  guides: 'editorialGuides',
   justifications: 'justifications',
   management: 'justificationsManagement',
   subjects: 'subjects',

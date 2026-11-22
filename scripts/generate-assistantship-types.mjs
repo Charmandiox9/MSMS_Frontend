@@ -11,8 +11,10 @@ import {
 } from "graphql";
 
 // The backend generates this schema from NestJS decorators; never edit it by hand.
+const editorial = process.argv[2] === "--editorial";
+const feature = editorial ? "editorial" : "assistantship";
 const schemaPath =
-  process.argv[2] ??
+  process.argv[editorial ? 3 : 2] ??
   fileURLToPath(new URL("../../backend/src/schema.gql", import.meta.url));
 const schema = buildSchema(readFileSync(schemaPath, "utf8"));
 const scalar = {
@@ -21,6 +23,7 @@ const scalar = {
   Int: "number",
   Float: "number",
   Boolean: "boolean",
+  DateTime: "string",
 };
 function typeName(type) {
   if (isNonNullType(type)) return nonNullable(type.ofType);
@@ -34,9 +37,10 @@ function nonNullable(type) {
   }
   return type.name;
 }
-const types = Object.values(schema.getTypeMap()).filter((type) =>
-  /^(Assistantship|RegisterAssistantship|SaveAssistantshipTariff)/.test(type.name),
-);
+const typePattern = editorial
+  ? /^Editorial/
+  : /^(Assistantship|RegisterAssistantship|SaveAssistantshipTariff)/;
+const types = Object.values(schema.getTypeMap()).filter((type) => typePattern.test(type.name));
 const declarations = types.map((type) => {
   if (isEnumType(type))
     return `export type ${type.name} = ${type
@@ -54,13 +58,13 @@ const declarations = types.map((type) => {
   return `export interface ${type.name} {\n${fields.join("\n")}\n}`;
 });
 const output = new URL(
-  "../src/app/[locale]/(dashboard)/dashboard/assistantships/schema-types.ts",
+  editorial ? "../src/features/editorial/schema-types.ts" : "../src/app/[locale]/(dashboard)/dashboard/assistantships/schema-types.ts",
   import.meta.url,
 );
 writeFileSync(
   output,
-  `// Generated from the backend GraphQL schema. Run pnpm run generate:assistantship-types.\n\n${declarations.join("\n\n")}\n`,
+  `// Generated from the backend GraphQL schema. Run pnpm run generate:${feature}-types.\n\n${declarations.join("\n\n")}\n`,
 );
 process.stdout.write(
-  `Generated ${types.length} assistantship GraphQL types.\n`,
+  `Generated ${types.length} ${feature} GraphQL types.\n`,
 );

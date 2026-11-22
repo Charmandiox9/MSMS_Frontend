@@ -13,12 +13,16 @@ import {
   FileText,
   BarChart3,
   Building2,
+  Newspaper,
+  NotebookPen,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRoleCode } from "@/types/auth";
 
 export type NavigationKey =
   | "dashboard"
+  | "updates"
+  | "editorial"
   | "justifications"
   | "justificationsManagement"
   | "subjects"
@@ -60,6 +64,7 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         href: "/dashboard",
         icon: LayoutDashboard,
       },
+      { key: "updates", href: "/dashboard/updates", icon: Newspaper },
     ],
   },
   {
@@ -241,6 +246,12 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         href: "/dashboard/settings",
         icon: Settings,
         allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"],
+      },
+      {
+        key: "editorial",
+        href: "/dashboard/editorial",
+        icon: NotebookPen,
+        allowedRoles: ["SYSTEM_ADMIN"],
       },
     ],
   },

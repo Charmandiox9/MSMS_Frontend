@@ -8,6 +8,7 @@
   },
   "scripts": {
     "generate:assistantship-types": "node scripts/generate-assistantship-types.mjs",
+    "generate:editorial-types": "node scripts/generate-assistantship-types.mjs --editorial",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
