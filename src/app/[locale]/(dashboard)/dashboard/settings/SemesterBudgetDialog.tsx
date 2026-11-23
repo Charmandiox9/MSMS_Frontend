@@ -8,7 +8,13 @@ import Modal from "@/components/ui/Modal";
 import { apiFetch } from "@/lib/api";
 
 type RoleOption = { code: string; name: string };
-type Allocation = { code?: "HOURLY_TEACHERS" | "ASSISTANTSHIPS" | null; name: string; amountClp: number };
+const categoryLabels = {
+  HOURLY_TEACHERS: "defaultTeacher",
+  ASSISTANTSHIPS: "defaultAssistantship",
+} as const;
+type CategoryCode = keyof typeof categoryLabels;
+const categoryCodes = Object.keys(categoryLabels) as CategoryCode[];
+type Allocation = { code?: CategoryCode | null; name: string; amountClp: number };
 type Threshold = { percentage: number; roleCodes: string[] };
 export type BudgetData = {
   totalAmountClp: number;
@@ -44,10 +50,9 @@ export default function SemesterBudgetDialog({ semesterId, semesterName, onClose
       if (!active) return;
       setBudget({
         ...data,
-        allocations: data.allocations.length ? data.allocations : [
-          { code: "HOURLY_TEACHERS", name: t("defaultTeacher"), amountClp: 0 },
-          { code: "ASSISTANTSHIPS", name: t("defaultAssistantship"), amountClp: 0 },
-        ],
+        allocations: data.allocations.length ? data.allocations : categoryCodes.map((code) => ({
+          code, name: t(categoryLabels[code]), amountClp: 0,
+        })),
         thresholds: data.thresholds.length ? data.thresholds : [
           { percentage: 80, roleCodes: [] },
           { percentage: 100, roleCodes: [] },
@@ -62,6 +67,10 @@ export default function SemesterBudgetDialog({ semesterId, semesterName, onClose
   const allocated = useMemo(() => budget?.allocations.reduce((sum, item) => sum + (Number(item.amountClp) || 0), 0) ?? 0, [budget]);
   const currency = useMemo(() => new Intl.NumberFormat(locale === "es" ? "es-CL" : "en-US", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }), [locale]);
   const updateAllocation = (index: number, changes: Partial<Allocation>) => setBudget((current) => current ? ({ ...current, allocations: current.allocations.map((item, i) => i === index ? { ...item, ...changes } : item) }) : current);
+  const addAllocation = (code: CategoryCode | null) => setBudget((current) => current && ({
+    ...current,
+    allocations: [...current.allocations, { code, name: code ? t(categoryLabels[code]) : "", amountClp: 0 }],
+  }));
   const updateThreshold = (index: number, changes: Partial<Threshold>) => setBudget((current) => current ? ({ ...current, thresholds: current.thresholds.map((item, i) => i === index ? { ...item, ...changes } : item) }) : current);
 
   const save = async () => {
@@ -109,8 +118,45 @@ export default function SemesterBudgetDialog({ semesterId, semesterName, onClose
       {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
       <label className="block text-sm font-semibold">{t("total")}<input className={field} type="text" inputMode="numeric" autoComplete="off" value={formatClp(Number(budget.totalAmountClp) || 0, locale)} onChange={(e) => setBudget({ ...budget, totalAmountClp: Math.min(parseClp(e.target.value), MAX_CLP) })} /></label>
       <section className="space-y-3"><div className="flex items-center justify-between"><h3 className="font-bold">{t("allocations")}</h3><span className="text-xs text-muted-foreground">{t("allocated", { amount: currency.format(allocated), remaining: currency.format(Number(budget.totalAmountClp) - allocated) })}</span></div>
-        {budget.allocations.map((item, index) => <div key={index} className="grid gap-2 sm:grid-cols-[1fr_12rem_auto]"><label className="text-xs font-semibold">{t("category")}<input className={field} maxLength={80} value={item.name} onChange={(e) => updateAllocation(index, { name: e.target.value })} /></label><label className="text-xs font-semibold">{t("amount")}<input className={field} type="text" inputMode="numeric" autoComplete="off" value={formatClp(Number(item.amountClp) || 0, locale)} onChange={(e) => updateAllocation(index, { amountClp: Math.min(parseClp(e.target.value), MAX_CLP) })} /></label><button type="button" aria-label={t("removeCategory")} onClick={() => setBudget({ ...budget, allocations: budget.allocations.filter((_, i) => i !== index) })} className="mt-5 rounded-lg p-2 text-destructive"><Trash2 size={18}/></button></div>)}
-        <button type="button" onClick={() => setBudget({ ...budget, allocations: [...budget.allocations, { name: "", amountClp: 0 }] })} className="inline-flex items-center gap-2 text-sm font-semibold text-primary"><Plus size={16}/>{t("addCategory")}</button>
+        <p className="text-xs text-muted-foreground">{t("moduleHint")}</p>
+        {budget.allocations.map((item, index) => (
+          <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_8rem_auto]">
+            <label className="col-span-2 text-xs font-semibold sm:col-span-1">
+              {t("category")}
+              <input className={field} maxLength={80} value={item.name} onChange={(e) => updateAllocation(index, { name: e.target.value })} />
+            </label>
+            <label className="col-span-2 text-xs font-semibold sm:col-span-1">
+              {t("linkedModule")}
+              <select
+                className={field}
+                value={item.code ?? ""}
+                onChange={(e) => updateAllocation(index, {
+                  code: categoryCodes.find((code) => code === e.target.value) ?? null,
+                })}
+              >
+                <option value="">{t("noModule")}</option>
+                {categoryCodes.map((code) => (
+                  <option key={code} value={code} disabled={item.code !== code && budget.allocations.some((allocation) => allocation.code === code)}>
+                    {t(categoryLabels[code])}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs font-semibold">
+              {t("amount")}
+              <input className={field} type="text" inputMode="numeric" autoComplete="off" value={formatClp(Number(item.amountClp) || 0, locale)} onChange={(e) => updateAllocation(index, { amountClp: Math.min(parseClp(e.target.value), MAX_CLP) })} />
+            </label>
+            <button type="button" aria-label={t("removeCategory")} onClick={() => setBudget({ ...budget, allocations: budget.allocations.filter((_, i) => i !== index) })} className="self-end rounded-lg p-2 text-destructive"><Trash2 size={18}/></button>
+          </div>
+        ))}
+        <div className="flex flex-wrap gap-x-4 gap-y-2">
+          <button type="button" onClick={() => addAllocation(null)} className="inline-flex items-center gap-2 text-sm font-semibold text-primary"><Plus size={16}/>{t("addCategory")}</button>
+          {categoryCodes.filter((code) => !budget.allocations.some((item) => item.code === code)).map((code) => (
+            <button key={code} type="button" onClick={() => addAllocation(code)} className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+              <Plus size={16}/>{t("addPreset", { category: t(categoryLabels[code]) })}
+            </button>
+          ))}
+        </div>
       </section>
       <section className="space-y-3"><div className="flex items-center justify-between"><div><h3 className="font-bold">{t("thresholds")}</h3><p className="text-xs text-muted-foreground">{t("thresholdHint")}</p></div></div>
         {budget.thresholds.map((item, index) => <fieldset key={index} className="rounded-xl border border-border p-3"><legend className="px-1 text-sm font-semibold">{t("threshold", { number: index + 1 })}</legend><div className="grid gap-3 md:grid-cols-[8rem_1fr]"><label className="text-xs font-semibold">{t("percentage")}<input className={field} type="number" min="1" max="100" value={item.percentage} onChange={(e) => updateThreshold(index, { percentage: Number(e.target.value) })}/></label><div><p className="text-xs font-semibold">{t("recipientRoles")}</p><div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">{budget.roleOptions.map((role) => <label key={role.code} className="inline-flex items-center gap-2 text-xs"><input type="checkbox" checked={item.roleCodes.includes(role.code)} onChange={(e) => updateThreshold(index, { roleCodes: e.target.checked ? [...item.roleCodes, role.code] : item.roleCodes.filter((code) => code !== role.code) })}/>{role.name}</label>)}</div></div><button type="button" aria-label={t("removeThreshold")} onClick={() => setBudget({ ...budget, thresholds: budget.thresholds.filter((_, i) => i !== index) })} className="justify-self-start text-xs font-semibold text-destructive">{t("remove")}</button></div></fieldset>)}

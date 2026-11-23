@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TeachersPage from "./page";
 import { renderAs } from "@/test/render";
@@ -88,6 +88,30 @@ describe("TeachersPage (padrón de profesores)", () => {
     expect(
       screen.getByRole("button", { name: /Editar Profesor 01/ }),
     ).toBeDefined();
+  });
+
+  it.each([
+    { categoryName: "Docencia externa", allocatedClp: 8000000, label: "Asignado a Docencia externa" },
+    { categoryName: null, allocatedClp: null, label: "Sin categoría vinculada" },
+  ])("muestra el presupuesto y el compromiso del semestre activo ($label)", async ({ categoryName, allocatedClp, label }) => {
+    installFakeApi({
+      "GET /academic/courses/current": ok({ semester: { id: "sem-1", name: "2026-20" } }),
+      "GET /academic/semesters/sem-1/budget/hourly-teachers": ok({
+        semesterName: "2026-20", categoryName, allocatedClp, estimatedClp: 2000000,
+      }),
+      "GET /academic/teachers": teacherList([]),
+    });
+    renderAs(<TeachersPage />, ["ACADEMIC_SECRETARY"]);
+
+    await screen.findByRole("heading", { name: "Presupuesto de profesores por hora · 2026-20" });
+    const card = within(screen.getByRole("region", { name: "Presupuesto de profesores por hora" }));
+    expect(card.getByText(label)).toBeDefined();
+    expect(card.getByText("Compromiso estimado de contratos PH")).toBeDefined();
+    expect(card.getByText(/2\.000\.000/)).toBeDefined();
+    if (allocatedClp) {
+      expect(card.getByText(/8\.000\.000/)).toBeDefined();
+      expect(card.getByText(/25\s*%/)).toBeDefined();
+    }
   });
 
   it("busca por nombre, correo o NRC y pagina de a 10", async () => {

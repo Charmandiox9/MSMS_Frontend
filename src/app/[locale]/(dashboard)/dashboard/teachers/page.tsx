@@ -31,6 +31,7 @@ import AcademicCsvImportDialog from "@/components/dashboard/academic/AcademicCsv
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import AcademicDetailsDialog from "@/components/dashboard/academic/AcademicDetailsDialog";
 import { createCsv } from "@/lib/csv";
+import HourlyTeachersBudget from "./HourlyTeachersBudget";
 
 const PAGE_SIZE = 10;
 type TeacherStatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
@@ -43,7 +44,8 @@ export default function TeachersPage() {
   const [showPayRates, setShowPayRates] = useState(false);
   const { activeRole } = useActiveRole();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [activeSemesterName, setActiveSemesterName] = useState<string | null>(null);
+  const [activeSemester, setActiveSemester] = useState<CurrentCourseCatalog["semester"]>(null);
+  const [budgetRevision, setBudgetRevision] = useState(0);
   const [semesterLoading, setSemesterLoading] = useState(true);
   const [semesterLoadFailed, setSemesterLoadFailed] = useState(false);
   const [total, setTotal] = useState(0);
@@ -94,13 +96,13 @@ export default function TeachersPage() {
     apiFetch<CurrentCourseCatalog>("/academic/courses/current")
       .then((catalog) => {
         if (active) {
-          setActiveSemesterName(catalog.semester?.name ?? null);
+          setActiveSemester(catalog.semester);
           setSemesterLoadFailed(false);
         }
       })
       .catch(() => {
         if (active) {
-          setActiveSemesterName(null);
+          setActiveSemester(null);
           setSemesterLoadFailed(true);
         }
       })
@@ -222,6 +224,7 @@ export default function TeachersPage() {
                 kind="hourly"
                 sourceFileName="Planilla pagos PH 202620.xlsx"
                 onImported={() => {
+                  setBudgetRevision((revision) => revision + 1);
                   setLoading(true);
                   setPage(1);
                   setReloadKey((key) => key + 1);
@@ -240,6 +243,12 @@ export default function TeachersPage() {
           </>
         }
       />
+      {activeSemester && (
+        <HourlyTeachersBudget
+          key={`${activeRole}:${activeSemester.id}:${budgetRevision}`}
+          semesterId={activeSemester.id}
+        />
+      )}
       {error && (
         <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
           {error}
@@ -251,9 +260,9 @@ export default function TeachersPage() {
         </div>
       )}
       <section className="space-y-3 rounded-2xl border border-border bg-card p-4">
-        {activeSemesterName ? (
+        {activeSemester ? (
           <p className="text-xs text-muted-foreground">
-            {t("semester", { name: activeSemesterName })}
+            {t("semester", { name: activeSemester.name })}
           </p>
         ) : (
           <p className="text-xs text-muted-foreground">

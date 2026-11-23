@@ -21,6 +21,20 @@ reemplazarse por NRC válidos del semestre correspondiente. La interfaz limita
 estos CSV a 2 MB. Las planillas Excel se limitan a 12 MB y se procesan con
 vista previa antes de confirmar.
 
+## Consultar el presupuesto de profesores por hora
+
+En **Profesores y NRC**, revisa **Presupuesto de profesores por hora** para ver
+el monto asignado y el compromiso estimado de los contratos PH del semestre
+activo. La tarjeta se actualiza al completar la importación de pagos PH.
+
+Si tienes permisos para editar el presupuesto, abre **Configuración** y
+selecciona **Editar presupuesto** o **Configurar presupuesto**. Usa las
+categorías precargadas **Profesores por hora** y **Ayudantías**, o elige
+**Agregar categoría**, escribe un nombre y selecciona el módulo en
+**Vincular con**. Cada módulo admite una categoría por semestre. Para
+presupuestar un gasto que solo figure en la distribución, usa un nombre
+propio y selecciona **Sin vínculo**. Termina con **Guardar presupuesto**.
+
 ## Fuente pendiente de definición
 
 `FORMATO DE JUSTIFICACIONES Y TESIS.xlsx` reúne una hoja de tesistas y otra de

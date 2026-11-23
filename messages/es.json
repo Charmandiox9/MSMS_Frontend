@@ -790,6 +790,17 @@
   "TeachersPage": {
     "eyebrow": "Carga académica",
     "title": "Profesores y NRC",
+    "budget": {
+      "title": "Presupuesto de profesores por hora",
+      "semesterTitle": "Presupuesto de profesores por hora · {semester}",
+      "usage": "{percent} del monto asignado",
+      "category": "Asignado a {name}",
+      "allocated": "Presupuesto asignado",
+      "unassigned": "Sin categoría vinculada",
+      "estimated": "Compromiso estimado de contratos PH",
+      "loading": "Cargando presupuesto…",
+      "error": "No se pudo cargar el presupuesto de profesores por hora."
+    },
     "subtitle": "Relaciona cada profesor con su correo institucional y los NRC que imparte en el semestre activo.",
     "loading": "Cargando profesores…",
     "import": "Importar CSV",
@@ -907,6 +918,10 @@
     "removeCategory": "Quitar categoría",
     "defaultTeacher": "Profesores por hora",
     "defaultAssistantship": "Ayudantías",
+    "linkedModule": "Vincular con",
+    "noModule": "Sin vínculo",
+    "addPreset": "Agregar {category}",
+    "moduleHint": "Vincula una categoría por módulo para mostrar su presupuesto junto al compromiso estimado. Para dejar una categoría sin vínculo, usa un nombre propio.",
     "thresholds": "Umbrales de notificación",
     "thresholdHint": "Se compara el porcentaje asignado con el presupuesto total. La alerta aparece en el inicio para los roles seleccionados.",
     "threshold": "Umbral {number}",

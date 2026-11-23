@@ -790,6 +790,17 @@
   "TeachersPage": {
     "eyebrow": "Academic workload",
     "title": "Teachers and NRCs",
+    "budget": {
+      "title": "Hourly teachers budget",
+      "semesterTitle": "Hourly teachers budget · {semester}",
+      "usage": "{percent} of the allocated amount",
+      "category": "Allocated to {name}",
+      "allocated": "Budget allocation",
+      "unassigned": "No linked category",
+      "estimated": "Estimated commitment for hourly teaching contracts",
+      "loading": "Loading budget…",
+      "error": "Could not load the hourly teachers budget."
+    },
     "subtitle": "Link each teacher to their institutional email and the NRCs they teach in the active semester.",
     "loading": "Loading teachers…",
     "import": "Import CSV",
@@ -907,6 +918,10 @@
     "removeCategory": "Remove category",
     "defaultTeacher": "Hourly teachers",
     "defaultAssistantship": "Assistantships",
+    "linkedModule": "Link to",
+    "noModule": "No link",
+    "addPreset": "Add {category}",
+    "moduleHint": "Link one category per module to display its budget alongside the estimated commitment. To leave a category unlinked, give it a custom name.",
     "thresholds": "Notification thresholds",
     "thresholdHint": "The allocated percentage is compared with the total budget. The alert appears on the dashboard for selected roles.",
     "threshold": "Threshold {number}",
