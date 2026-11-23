@@ -123,21 +123,17 @@ export default function DraftEditor({
     (!restricted || revision.roleCodes.length > 0) &&
     matchesEditorialAudience(revision.roleCodes, previewRole);
   const disabled = busy || uploading;
-  const hasRevisionToPublish =
-    entry.status !== "PUBLISHED" || Boolean(entry.draft) || dirty;
-  const showCaptionsWarning =
-    hasRevisionToPublish &&
-    revision.files.some(
-      (video) =>
-        video.kind === "VIDEO" &&
-        !revision.files.some(
-          (caption) =>
-            caption.kind === "CAPTIONS" &&
-            caption.status === "READY" &&
-            caption.videoId === video.id &&
-            caption.language === video.language,
-        ),
-    );
+  const showCaptionsWarning = revision.files.some(
+    (video) =>
+      video.kind === "VIDEO" &&
+      !revision.files.some(
+        (caption) =>
+          caption.kind === "CAPTIONS" &&
+          caption.status === "READY" &&
+          caption.videoId === video.id &&
+          caption.language === video.language,
+      ),
+  );
 
   function update(changes: Partial<EditorialRevisionView>) {
     setRevision((current) => ({ ...current, ...changes }));

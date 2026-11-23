@@ -390,6 +390,7 @@ test("Administration previews a restricted guide and readers gain access when th
       await expect(publish).toBeEnabled();
       await publish.click();
       await expect(page.getByText("Publicada", { exact: true })).toBeVisible();
+      await expect(captionsWarning).toBeVisible();
       await page
         .getByRole("combobox", { name: "Cápsula de estos subtítulos" })
         .selectOption({ label: videoName });
@@ -572,6 +573,18 @@ test("Administration previews a restricted guide and readers gain access when th
     await expect(
       view.getByText("This publication is no longer available."),
     ).toBeVisible();
+
+    const editedSummary = "Consulta las ayudantías por asignatura y semestre.";
+    await editSpanish.getByLabel("Resumen").fill(editedSummary);
+    await page.getByRole("button", { name: "Guardar borrador" }).click();
+    const republish = page.getByRole("button", { name: "Volver a publicar" });
+    await expect(republish).toBeEnabled();
+    await expect(page.getByText("Archivada", { exact: true })).toBeVisible();
+    expect(guide.draft?.summaryEs).toBe(editedSummary);
+    await republish.click();
+    await expect(page.getByText("Publicada", { exact: true })).toBeVisible();
+    await view.reload();
+    await expect(view.getByText(editedSummary)).toBeVisible();
   } finally {
     await reader.close();
   }
