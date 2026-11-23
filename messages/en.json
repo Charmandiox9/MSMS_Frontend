@@ -265,6 +265,18 @@
     "noCommitments": "No commitments can be valued for this semester yet."
   },
   "Editorial": {
+    "audience": {
+      "label": "Audience",
+      "everyone": "All roles",
+      "selected": "Specific roles",
+      "choose": "Select at least one role for this audience.",
+      "loadError": "We couldn’t load the role catalog.",
+      "empty": "There are no roles available in the catalog.",
+      "previewAs": "View as",
+      "noRole": "No active role",
+      "activeRole": "My active role",
+      "hiddenPreview": "This publication is unavailable to the selected role."
+    },
     "title": "Updates and guides",
     "description": "See what’s new in MARSYS and find help with your tasks.",
     "news": "Updates",

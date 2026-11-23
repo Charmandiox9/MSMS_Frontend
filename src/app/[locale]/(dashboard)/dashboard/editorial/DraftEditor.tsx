@@ -8,8 +8,10 @@ import { toast } from "sonner";
 import { EditorialContent } from "@/features/editorial/EditorialContent";
 import {
   ARCHIVE,
+  EDITORIAL_ROLES,
+  ENTRY,
   HIGHLIGHT,
-  PUBLICATIONS,
+  MANAGED,
   PUBLISH,
   SAVE,
 } from "@/features/editorial/graphql";
@@ -18,6 +20,7 @@ import {
   editorialDestinations,
   editorialTopics,
   fieldClass,
+  matchesEditorialAudience,
   primaryClass,
   roleHeaders,
 } from "@/features/editorial/presentation";
@@ -26,6 +29,7 @@ import type {
   EditorialRevisionView,
 } from "@/features/editorial/schema-types";
 import DraftFiles from "./DraftFiles";
+import AudienceFields from "./AudienceFields";
 
 const blank: EditorialRevisionView = {
   number: 1,
@@ -39,6 +43,7 @@ const blank: EditorialRevisionView = {
   destination: null,
   guideId: null,
   files: [],
+  roleCodes: [],
 };
 const destinations = Object.keys(editorialDestinations) as Array<
   keyof typeof editorialDestinations
@@ -57,6 +62,7 @@ export default function DraftEditor({
   reload: () => Promise<EditorialManagedEntry | undefined>;
 }) {
   const t = useTranslations("Editorial");
+  const nav = useTranslations("DashboardNav");
   const [entry, setEntry] = useState(initial);
   const [revision, setRevision] = useState(
     initial.draft ?? initial.published ?? blank,
@@ -66,18 +72,56 @@ export default function DraftEditor({
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(false);
   const [previewLanguage, setPreviewLanguage] = useState<"es" | "en">("es");
+  const [previewRole, setPreviewRole] = useState(role);
+  const [restricted, setRestricted] = useState(
+    () => !!(initial.draft ?? initial.published)?.roleCodes.length,
+  );
   const [confirmArchive, setConfirmArchive] = useState(false);
   const [guideSearch, setGuideSearch] = useState("");
   const search = useDeferredValue(guideSearch.trim());
-  const guideQuery = useQuery(PUBLICATIONS, {
+  const context = { headers: roleHeaders(role) };
+  const roles = useQuery(EDITORIAL_ROLES, {
     client,
+    context,
+    fetchPolicy: "no-cache",
+  });
+  const roleOptions = (roles.data?.editorialRoleOptions ?? []).map(
+    (option) => ({
+      ...option,
+      name: nav.has(`roles.${option.code}`)
+        ? nav(`roles.${option.code}`)
+        : option.name,
+    }),
+  );
+  const guideQuery = useQuery(MANAGED, {
+    client,
+    context,
     fetchPolicy: "no-cache",
     skip: entry.kind !== "NEWS" || preview,
     variables: {
-      filters: { kind: "GUIDE", search: search || undefined, pageSize: 30 },
+      filters: {
+        kind: "GUIDE",
+        publishedOnly: true,
+        search: search || undefined,
+        pageSize: 30,
+      },
     },
   });
-  const guides = guideQuery.data?.editorialPublications.items ?? [];
+  const guides = guideQuery.data?.editorialManagedEntries.items ?? [];
+  const previewGuide = useQuery(ENTRY, {
+    client,
+    context,
+    fetchPolicy: "no-cache",
+    skip: !preview || !revision.guideId,
+    variables: { id: revision.guideId ?? "" },
+  }).data?.editorialManagedEntry;
+  const visibleGuide =
+    previewGuide?.status === "PUBLISHED" &&
+    previewGuide.published &&
+    matchesEditorialAudience(previewGuide.published.roleCodes, previewRole);
+  const visiblePreview =
+    (!restricted || revision.roleCodes.length > 0) &&
+    matchesEditorialAudience(revision.roleCodes, previewRole);
   const disabled = busy || uploading;
 
   function update(changes: Partial<EditorialRevisionView>) {
@@ -86,8 +130,11 @@ export default function DraftEditor({
   }
 
   async function perform(action: Action) {
+    if (action === "save" && restricted && !revision.roleCodes.length) {
+      toast.error(t("audience.choose"));
+      return;
+    }
     setBusy(true);
-    const context = { headers: roleHeaders(role) };
     const input = { id: entry.id, version: entry.version };
     const operation = (async () => {
       if (action === "reload") return reload();
@@ -126,6 +173,7 @@ export default function DraftEditor({
         destination,
         guideId,
         files,
+        roleCodes,
       } = revision;
       const draft = {
         ...input,
@@ -138,6 +186,7 @@ export default function DraftEditor({
         bodyEn,
         destination,
         guideId,
+        roleCodes,
         fileIds: files.map((file) => file.id),
       };
       return (
@@ -160,6 +209,7 @@ export default function DraftEditor({
       const next = await operation;
       setEntry(next);
       setRevision(next.draft ?? next.published ?? blank);
+      setRestricted(!!(next.draft ?? next.published)?.roleCodes.length);
       setDirty(false);
       setConfirmArchive(false);
     } catch {
@@ -208,28 +258,83 @@ export default function DraftEditor({
       </header>
       {preview ? (
         <>
-          <label className="block max-w-48 space-y-1 text-sm font-medium">
-            <span>{t("admin.previewLanguage")}</span>
-            <select
-              className={fieldClass}
-              value={previewLanguage}
-              onChange={(event) =>
-                setPreviewLanguage(event.target.value === "en" ? "en" : "es")
-              }
+          <div className="grid max-w-xl gap-3 sm:grid-cols-2">
+            <label className="block space-y-1 text-sm font-medium">
+              <span>{t("admin.previewLanguage")}</span>
+              <select
+                className={fieldClass}
+                value={previewLanguage}
+                onChange={(event) =>
+                  setPreviewLanguage(event.target.value === "en" ? "en" : "es")
+                }
+              >
+                <option value="es">{t("language.ES")}</option>
+                <option value="en">{t("language.EN")}</option>
+              </select>
+            </label>
+            <label className="block space-y-1 text-sm font-medium">
+              <span>{t("audience.previewAs")}</span>
+              <select
+                className={fieldClass}
+                value={previewRole}
+                onChange={(event) => setPreviewRole(event.target.value)}
+              >
+                {previewRole &&
+                  !roleOptions.some(({ code }) => code === previewRole) && (
+                    <option value={previewRole}>
+                      {t("audience.activeRole")}
+                    </option>
+                  )}
+                <option value="">{t("audience.noRole")}</option>
+                {roleOptions.map(({ code, name }) => (
+                  <option key={code} value={code}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          {roles.error && (
+            <p role="alert" className="text-sm text-muted-foreground">
+              {t("audience.loadError")}
+            </p>
+          )}
+          {visiblePreview ? (
+            <EditorialContent
+              key={previewRole}
+              publication={entry}
+              revision={{
+                ...revision,
+                guideId: visibleGuide ? revision.guideId : null,
+              }}
+              preview
+              previewRole={previewRole || null}
+              language={previewLanguage}
+            />
+          ) : (
+            <p
+              role="status"
+              className="rounded-xl border border-border bg-card p-5"
             >
-              <option value="es">{t("language.ES")}</option>
-              <option value="en">{t("language.EN")}</option>
-            </select>
-          </label>
-          <EditorialContent
-            publication={entry}
-            revision={revision}
-            preview
-            language={previewLanguage}
-          />
+              {t("audience.hiddenPreview")}
+            </p>
+          )}
         </>
       ) : (
         <div className="max-w-5xl space-y-5 rounded-2xl border border-border bg-card p-4 sm:p-6">
+          <AudienceFields
+            roles={roleOptions}
+            selected={revision.roleCodes}
+            restricted={restricted}
+            disabled={disabled}
+            loading={roles.loading}
+            failed={!!roles.error}
+            onSelect={(roleCodes) => update({ roleCodes })}
+            onMode={(next) => {
+              setRestricted(next);
+              update({ roleCodes: [] });
+            }}
+          />
           <fieldset
             disabled={disabled}
             className="grid min-w-0 gap-3 sm:grid-cols-2"

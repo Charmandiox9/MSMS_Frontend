@@ -7,22 +7,44 @@ import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { createApiGraphqlClient } from "@/lib/graphql-client";
+import { useActiveRole } from "@/context/ActiveRoleContext";
 import { EditorialContent } from "@/features/editorial/EditorialContent";
 import { PUBLICATION } from "@/features/editorial/graphql";
-import { buttonClass, linkClass } from "@/features/editorial/presentation";
+import {
+  buttonClass,
+  linkClass,
+  roleHeaders,
+} from "@/features/editorial/presentation";
 import type { EditorialKind } from "@/features/editorial/schema-types";
 
-export default function PublicationDetail({
+export default function PublicationDetail(props: {
+  id: string;
+  kind: EditorialKind;
+}) {
+  const { activeRole } = useActiveRole();
+  return (
+    <RolePublicationDetail
+      key={`${props.id}:${activeRole}`}
+      {...props}
+      role={activeRole}
+    />
+  );
+}
+
+function RolePublicationDetail({
   id,
   kind,
+  role,
 }: {
   id: string;
   kind: EditorialKind;
+  role: string | null;
 }) {
   const t = useTranslations("Editorial");
   const [client] = useState(createApiGraphqlClient);
   const { data, loading, error, refetch } = useQuery(PUBLICATION, {
     client,
+    context: { headers: roleHeaders(role) },
     fetchPolicy: "no-cache",
     variables: { id },
   });

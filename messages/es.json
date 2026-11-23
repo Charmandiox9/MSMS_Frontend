@@ -265,6 +265,18 @@
     "noCommitments": "Aún no hay compromisos valorizados para el semestre."
   },
   "Editorial": {
+    "audience": {
+      "label": "Audiencia",
+      "everyone": "Todos los roles",
+      "selected": "Roles específicos",
+      "choose": "Selecciona al menos un rol para esta audiencia.",
+      "loadError": "No pudimos cargar el catálogo de roles.",
+      "empty": "El catálogo no tiene roles disponibles.",
+      "previewAs": "Ver como",
+      "noRole": "Sin rol activo",
+      "activeRole": "Mi rol activo",
+      "hiddenPreview": "Esta publicación no está disponible para el rol seleccionado."
+    },
     "title": "Novedades y guías",
     "description": "Conoce los últimos cambios de MARSYS y encuentra ayuda para tus tareas.",
     "news": "Novedades",

@@ -7,6 +7,7 @@ import type {
   EditorialManagedPage,
   EditorialPage,
   EditorialPublication,
+  EditorialRoleOption,
   EditorialVersionInput,
 } from "./schema-types";
 
@@ -22,6 +23,7 @@ const revision = gql`
     bodyEn
     destination
     guideId
+    roleCodes
     files {
       id
       kind
@@ -115,6 +117,16 @@ export const MANAGED: TypedDocumentNode<
     }
   }
   ${manager}
+`;
+export const EDITORIAL_ROLES: TypedDocumentNode<{
+  editorialRoleOptions: EditorialRoleOption[];
+}> = gql`
+  query EditorialRoles {
+    editorialRoleOptions {
+      code
+      name
+    }
+  }
 `;
 export const ENTRY: TypedDocumentNode<
   { editorialManagedEntry: EditorialManagedEntry },

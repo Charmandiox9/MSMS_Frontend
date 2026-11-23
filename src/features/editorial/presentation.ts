@@ -86,3 +86,10 @@ export function publicationHref(kind: "NEWS" | "GUIDE", id: string) {
 export function roleHeaders(role?: string | null): Record<string, string> {
   return role ? { "X-Marsys-Active-Role": role } : {};
 }
+
+export function matchesEditorialAudience(
+  roleCodes: string[],
+  role?: string | null,
+) {
+  return roleCodes.length === 0 || (!!role && roleCodes.includes(role));
+}

@@ -29,11 +29,17 @@ export interface EditorialRevisionView {
   destination: EditorialDestination | null;
   guideId: string | null;
   files: Array<EditorialFileView>;
+  roleCodes: Array<string>;
 }
 
 export type EditorialTopic = "PLATFORM" | "JUSTIFICATIONS" | "DEPARTMENTS_CAREERS" | "SUBJECTS" | "TEACHERS" | "STUDENTS" | "PROJECTS" | "RESEARCH" | "ASSISTANTSHIPS" | "TITULATION" | "REPORTS_CHARTS" | "ADMINISTRATION";
 
 export type EditorialDestination = "DASHBOARD" | "JUSTIFICATIONS" | "CAREERS" | "SUBJECTS" | "TEACHERS" | "STUDENTS" | "PROJECTS" | "RESEARCH" | "RESEARCH_OUTPUTS" | "ASSISTANTSHIPS" | "TITULATION" | "REPORTS" | "CHARTS" | "SETTINGS";
+
+export interface EditorialRoleOption {
+  code: string;
+  name: string;
+}
 
 export interface EditorialPublication {
   id: string;
@@ -72,6 +78,7 @@ export interface EditorialManagedPage {
 }
 
 export interface EditorialFilters {
+  publishedOnly?: boolean | null;
   kind?: EditorialKind | null;
   topic?: EditorialTopic | null;
   format?: EditorialFormat | null;
@@ -95,6 +102,7 @@ export interface EditorialDraftInput {
   destination?: EditorialDestination | null;
   guideId?: string | null;
   fileIds: Array<string>;
+  roleCodes?: Array<string> | null;
 }
 
 export interface EditorialVersionInput {

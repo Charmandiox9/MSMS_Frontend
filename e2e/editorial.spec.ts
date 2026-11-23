@@ -19,6 +19,7 @@ const guideTitle = "Consultar el historial de ayudantías de un estudiante";
 const newsTitle = "Consulta las ayudantías anteriores desde Estudiantes";
 const date = "2026-11-22T12:00:00.000Z";
 const origin = "http://localhost:3100";
+const supportRole = "TEACHING_SUPPORT_COORDINATOR";
 const cors = {
   "Access-Control-Allow-Origin": origin,
   "Access-Control-Allow-Credentials": "true",
@@ -48,7 +49,7 @@ function graphEntry(entry: EditorialManagedEntry, managed = true) {
   };
 }
 
-test("Administration publishes a guide and an update, then readers open the manual and captioned video", async ({
+test("Administration previews a restricted guide and readers gain access when they switch to its audience", async ({
   context,
   page,
   browser,
@@ -78,9 +79,30 @@ test("Administration publishes a guide and an update, then readers open the manu
       const published = [...entries.values()].filter(
         (entry) => entry.status === "PUBLISHED",
       );
+      const role = request.headers()["x-marsys-active-role"];
+      const visible = published.filter(
+        (entry) =>
+          !entry.published?.roleCodes.length ||
+          entry.published.roleCodes.includes(role),
+      );
+      const readerEntry = (entry: EditorialManagedEntry) =>
+        graphEntry(
+          {
+            ...entry,
+            published: entry.published && {
+              ...entry.published,
+              guideId: visible.some(
+                (guide) => guide.id === entry.published?.guideId,
+              )
+                ? entry.published.guideId
+                : null,
+            },
+          },
+          false,
+        );
       const filters = variables?.filters;
       if (operationName === "EditorialPublications") {
-        const items = published.filter(
+        const items = visible.filter(
           (entry) =>
             (!filters?.kind || filters.kind === entry.kind) &&
             (!filters?.topic || filters.topic === entry.published?.topic) &&
@@ -96,38 +118,47 @@ test("Administration publishes a guide and an update, then readers open the manu
         return reply({
           editorialPublications: {
             __typename: "EditorialPage",
-            items: items.map((entry) => graphEntry(entry, false)),
+            items: items.map(readerEntry),
             total: items.length,
           },
         });
       }
       if (operationName === "EditorialFeatured") {
-        const featured = published.find((entry) => entry.featured);
+        const featured = visible.find((entry) => entry.featured);
         return reply({
-          editorialFeaturedPublication: featured
-            ? graphEntry(featured, false)
-            : null,
+          editorialFeaturedPublication: featured ? readerEntry(featured) : null,
         });
       }
       if (operationName === "EditorialPublication") {
-        const item = published.find((entry) => entry.id === variables?.id);
+        const item = visible.find((entry) => entry.id === variables?.id);
         return reply({
-          editorialPublication: item ? graphEntry(item, false) : null,
+          editorialPublication: item ? readerEntry(item) : null,
         });
       }
       if (!/Editorial/.test(operationName)) return route.fallback();
 
       expect(request.headers()["x-marsys-active-role"]).toBe("SYSTEM_ADMIN");
+      if (operationName === "EditorialRoles")
+        return reply({
+          editorialRoleOptions: [
+            { code: "SYSTEM_ADMIN", name: "Administrador del sistema" },
+            { code: supportRole, name: "Apoyo docente" },
+          ],
+        });
       const id = variables?.input?.id ?? variables?.id;
       const entry = id ? entries.get(id) : undefined;
-      if (operationName === "EditorialManaged")
+      if (operationName === "EditorialManaged") {
+        const matches = (
+          filters?.publishedOnly ? published : [...entries.values()]
+        ).filter((entry) => !filters?.kind || filters.kind === entry.kind);
         return reply({
           editorialManagedEntries: {
             __typename: "EditorialManagedPage",
-            items: [...entries.values()].map((entry) => graphEntry(entry)),
-            total: entries.size,
+            items: matches.map((entry) => graphEntry(entry)),
+            total: matches.length,
           },
         });
+      }
       if (operationName === "CreateEditorial") {
         const item: EditorialManagedEntry = {
           id: randomUUID(),
@@ -158,6 +189,7 @@ test("Administration publishes a guide and an update, then readers open the manu
           titleEs: input.titleEs,
           summaryEs: input.summaryEs,
           bodyEs: input.bodyEs,
+          roleCodes: input.roleCodes ?? [],
           titleEn: input.titleEn ?? null,
           summaryEn: input.summaryEn ?? null,
           bodyEn: input.bodyEn ?? null,
@@ -301,6 +333,8 @@ test("Administration publishes a guide and an update, then readers open the manu
   await page
     .getByRole("combobox", { name: "Enlace a una pantalla" })
     .selectOption("STUDENTS");
+  await page.getByRole("radio", { name: "Roles específicos" }).check();
+  await page.getByRole("checkbox", { name: "Apoyo docente" }).check();
 
   for (const [kind, name] of [
     ["PDF", manualName],
@@ -324,6 +358,14 @@ test("Administration publishes a guide and an update, then readers open the manu
   }
 
   await page.getByRole("button", { name: "Vista previa" }).click();
+  await expect(
+    page.getByText(
+      "Esta publicación no está disponible para el rol seleccionado.",
+    ),
+  ).toBeVisible();
+  await page
+    .getByRole("combobox", { name: "Ver como" })
+    .selectOption(supportRole);
   await expect(page.getByRole("heading", { name: guideTitle })).toBeVisible();
   await page.getByRole("button", { name: "Volver a editar" }).click();
   await page.getByRole("button", { name: "Guardar borrador" }).click();
@@ -353,7 +395,7 @@ test("Administration publishes a guide and an update, then readers open the manu
   await page.getByRole("button", { name: "Publicar", exact: true }).click();
 
   const reader = await browser.newContext({
-    viewport: { width: 390, height: 844 },
+    viewport: { width: 1100, height: 844 },
     colorScheme: "dark",
     locale: "es-CL",
     timezoneId: "America/Santiago",
@@ -363,10 +405,29 @@ test("Administration publishes a guide and an update, then readers open the manu
       localStorage.setItem("marsys_essential_storage_notice_dismissed", "1"),
     );
     await fixtureRoute(reader);
-    await loginAs(reader, "coordinator");
+    await loginAs(reader, "multi");
     const view = await reader.newPage();
     await view.goto(`${origin}/dashboard/updates`);
     await view.getByRole("link", { name: newsTitle }).click();
+    await expect(view.getByRole("heading", { name: newsTitle })).toBeVisible();
+    await expect(
+      view.getByRole("link", { name: "Guía relacionada" }),
+    ).toHaveCount(0);
+    await view.getByRole("button", { name: "Mi cuenta" }).click();
+    await view
+      .getByRole("button", {
+        name: "Cambiar rol. Rol actual: Administrador del sistema",
+      })
+      .click();
+    await view
+      .getByRole("region", { name: "Roles disponibles" })
+      .getByRole("button", { name: "Apoyo docente" })
+      .click();
+    await view
+      .getByRole("region", { name: "Confirmar cambio de rol" })
+      .getByRole("button", { name: "Cambiar rol", exact: true })
+      .click();
+    await view.setViewportSize({ width: 390, height: 844 });
     await view.getByRole("link", { name: "Guía relacionada" }).click();
     await expect(view.getByRole("heading", { name: guideTitle })).toBeVisible();
     const download = view.waitForEvent("download");

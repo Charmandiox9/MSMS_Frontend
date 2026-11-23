@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 import PaginationControls from "@/components/ui/PaginationControls";
 import { Link } from "@/i18n/routing";
 import { createApiGraphqlClient } from "@/lib/graphql-client";
+import { useActiveRole } from "@/context/ActiveRoleContext";
 import { EditorialDate } from "@/features/editorial/EditorialContent";
 import { FEATURED, PUBLICATIONS } from "@/features/editorial/graphql";
 import {
@@ -16,6 +17,7 @@ import {
   editorialTopics,
   fieldClass,
   publicationHref,
+  roleHeaders,
 } from "@/features/editorial/presentation";
 import type {
   EditorialFormat,
@@ -95,12 +97,22 @@ function PublicationCard({
   );
 }
 
-export default function UpdatesList({
+export default function UpdatesList(props: {
+  kind: EditorialKind;
+  initialTopic?: EditorialTopic;
+}) {
+  const { activeRole } = useActiveRole();
+  return <RoleUpdatesList key={activeRole} {...props} role={activeRole} />;
+}
+
+function RoleUpdatesList({
   kind,
   initialTopic,
+  role,
 }: {
   kind: EditorialKind;
   initialTopic?: EditorialTopic;
+  role: string | null;
 }) {
   const t = useTranslations("Editorial");
   const [client] = useState(createApiGraphqlClient);
@@ -110,8 +122,10 @@ export default function UpdatesList({
   const [page, setPage] = useState(1);
   const query = useDeferredValue(search.trim());
   const showFeatured = kind === "NEWS" && !query && !topic && page === 1;
+  const context = { headers: roleHeaders(role) };
   const { data, loading, error, refetch } = useQuery(PUBLICATIONS, {
     client,
+    context,
     fetchPolicy: "no-cache",
     variables: {
       filters: {
@@ -126,6 +140,7 @@ export default function UpdatesList({
   });
   const { data: featuredData } = useQuery(FEATURED, {
     client,
+    context,
     fetchPolicy: "no-cache",
     skip: !showFeatured,
   });

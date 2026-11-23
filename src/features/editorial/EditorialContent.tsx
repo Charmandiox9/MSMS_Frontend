@@ -242,11 +242,13 @@ export function EditorialContent({
   publication,
   revision,
   preview = false,
+  previewRole,
   language,
 }: {
   publication: EditorialPublication;
   revision: EditorialRevisionView;
   preview?: boolean;
+  previewRole?: string | null;
   language?: string;
 }) {
   const t = useTranslations("Editorial");
@@ -257,7 +259,12 @@ export function EditorialContent({
     ? editorialDestinations[revision.destination]
     : null;
   const canVisit =
-    destination && isRouteAllowed(destination, DASHBOARD_SECTIONS, activeRole);
+    destination &&
+    isRouteAllowed(
+      destination,
+      DASHBOARD_SECTIONS,
+      preview ? previewRole : activeRole,
+    );
   const videos = revision.files.filter((file) => file.kind === "VIDEO");
   const manuals = revision.files.filter((file) => file.kind === "PDF");
   return (
