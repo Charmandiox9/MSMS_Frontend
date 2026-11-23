@@ -2,7 +2,6 @@
 
 import { useDeferredValue, useState } from "react";
 import type { ApolloClient } from "@apollo/client";
-import { CombinedGraphQLErrors } from "@apollo/client/errors";
 import { useQuery } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -124,6 +123,21 @@ export default function DraftEditor({
     (!restricted || revision.roleCodes.length > 0) &&
     matchesEditorialAudience(revision.roleCodes, previewRole);
   const disabled = busy || uploading;
+  const hasRevisionToPublish =
+    entry.status !== "PUBLISHED" || Boolean(entry.draft) || dirty;
+  const showCaptionsWarning =
+    hasRevisionToPublish &&
+    revision.files.some(
+      (video) =>
+        video.kind === "VIDEO" &&
+        !revision.files.some(
+          (caption) =>
+            caption.kind === "CAPTIONS" &&
+            caption.status === "READY" &&
+            caption.videoId === video.id &&
+            caption.language === video.language,
+        ),
+    );
 
   function update(changes: Partial<EditorialRevisionView>) {
     setRevision((current) => ({ ...current, ...changes }));
@@ -204,23 +218,7 @@ export default function DraftEditor({
     toast.promise(operation, {
       loading: t("admin.working"),
       success: t(`admin.result.${action}`),
-      error: (error: unknown) => {
-        const requiresCaptions =
-          action === "publish" &&
-          CombinedGraphQLErrors.is(error) &&
-          error.errors.some(({ extensions }) => {
-            const original = extensions?.originalError;
-            return (
-              original != null &&
-              typeof original === "object" &&
-              "code" in original &&
-              original.code === "EDITORIAL_CAPTIONS_REQUIRED"
-            );
-          });
-        return t(
-          requiresCaptions ? "admin.captionsRequired" : "admin.actionError",
-        );
-      },
+      error: t("admin.actionError"),
     });
     try {
       const next = await operation;
@@ -503,6 +501,14 @@ export default function DraftEditor({
         </div>
       )}
       <div className="flex flex-wrap gap-2 border-t border-border pt-4">
+        {showCaptionsWarning && (
+          <p
+            id="editorial-captions-warning"
+            className="basis-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
+          >
+            {t("admin.captionsWarning")}
+          </p>
+        )}
         <button
           type="button"
           className={primaryClass}
@@ -516,6 +522,9 @@ export default function DraftEditor({
           className={buttonClass}
           disabled={
             disabled || dirty || (!entry.draft && entry.status !== "ARCHIVED")
+          }
+          aria-describedby={
+            showCaptionsWarning ? "editorial-captions-warning" : undefined
           }
           onClick={() => void perform("publish")}
         >

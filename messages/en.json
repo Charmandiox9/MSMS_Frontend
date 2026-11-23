@@ -413,7 +413,7 @@
       "reloadConfirm": "Unsaved changes will be lost. Reload this version?",
       "working": "Saving changes…",
       "actionError": "The operation failed. Check the fields and files, or reload if the version changed.",
-      "captionsRequired": "To publish, upload a WebVTT captions file (.vtt) in each video's language and link it to the corresponding video. Then save the draft and publish again.",
+      "captionsWarning": "Some videos are missing captions in their original language. You can publish now or add WebVTT captions (.vtt) so more people can follow the video.",
       "result": {
         "save": "Draft saved",
         "publish": "Publication is live",
@@ -437,7 +437,7 @@
       "remove": "Remove",
       "removeNamed": "Remove {name}",
       "replacing": "Replacing {name}.",
-      "replaceVideoHint": "Add captions for the new video before publishing.",
+      "replaceVideoHint": "If you have captions for the new video, you can add them after replacing it.",
       "cancel": "Cancel"
     }
   },

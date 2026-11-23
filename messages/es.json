@@ -413,7 +413,7 @@
       "reloadConfirm": "Se perderán los cambios sin guardar. ¿Quieres recargar?",
       "working": "Guardando cambios…",
       "actionError": "No se pudo completar la operación. Revisa los campos y archivos o recarga si cambió la versión.",
-      "captionsRequired": "Para publicar, sube un archivo de Subtítulos WebVTT (.vtt) en el idioma de cada cápsula y vincúlalo al video correspondiente. Después, guarda el borrador y vuelve a publicar.",
+      "captionsWarning": "Hay cápsulas sin subtítulos en su idioma. Puedes publicar ahora o agregar subtítulos WebVTT (.vtt) para que más personas puedan seguir el video.",
       "result": {
         "save": "Borrador guardado",
         "publish": "Publicación disponible",
@@ -437,7 +437,7 @@
       "remove": "Quitar",
       "removeNamed": "Quitar {name}",
       "replacing": "Reemplazando {name}.",
-      "replaceVideoHint": "Agrega subtítulos para la nueva cápsula antes de publicar.",
+      "replaceVideoHint": "Si tienes subtítulos para la nueva cápsula, puedes agregarlos después de reemplazar el video.",
       "cancel": "Cancelar"
     }
   },
