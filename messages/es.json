@@ -413,6 +413,7 @@
       "reloadConfirm": "Se perderán los cambios sin guardar. ¿Quieres recargar?",
       "working": "Guardando cambios…",
       "actionError": "No se pudo completar la operación. Revisa los campos y archivos o recarga si cambió la versión.",
+      "captionsRequired": "Para publicar, sube un archivo de Subtítulos WebVTT (.vtt) en el idioma de cada cápsula y vincúlalo al video correspondiente. Después, guarda el borrador y vuelve a publicar.",
       "result": {
         "save": "Borrador guardado",
         "publish": "Publicación disponible",

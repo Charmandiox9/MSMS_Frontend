@@ -413,6 +413,7 @@
       "reloadConfirm": "Unsaved changes will be lost. Reload this version?",
       "working": "Saving changes…",
       "actionError": "The operation failed. Check the fields and files, or reload if the version changed.",
+      "captionsRequired": "To publish, upload a WebVTT captions file (.vtt) in each video's language and link it to the corresponding video. Then save the draft and publish again.",
       "result": {
         "save": "Draft saved",
         "publish": "Publication is live",

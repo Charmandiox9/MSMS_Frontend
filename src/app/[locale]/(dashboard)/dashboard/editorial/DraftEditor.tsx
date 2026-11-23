@@ -2,6 +2,7 @@
 
 import { useDeferredValue, useState } from "react";
 import type { ApolloClient } from "@apollo/client";
+import { CombinedGraphQLErrors } from "@apollo/client/errors";
 import { useQuery } from "@apollo/client/react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -203,7 +204,23 @@ export default function DraftEditor({
     toast.promise(operation, {
       loading: t("admin.working"),
       success: t(`admin.result.${action}`),
-      error: t("admin.actionError"),
+      error: (error: unknown) => {
+        const requiresCaptions =
+          action === "publish" &&
+          CombinedGraphQLErrors.is(error) &&
+          error.errors.some(({ extensions }) => {
+            const original = extensions?.originalError;
+            return (
+              original != null &&
+              typeof original === "object" &&
+              "code" in original &&
+              original.code === "EDITORIAL_CAPTIONS_REQUIRED"
+            );
+          });
+        return t(
+          requiresCaptions ? "admin.captionsRequired" : "admin.actionError",
+        );
+      },
     });
     try {
       const next = await operation;

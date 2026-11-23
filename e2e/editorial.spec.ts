@@ -199,6 +199,30 @@ test("Administration previews a restricted guide and readers gain access when th
         return reply({ editorialManagedEntry: graphEntry(entry) });
       const input = variables?.input;
       expect(input?.version).toBe(entry.version);
+      if (
+        operationName === "PublishEditorial" &&
+        entry.draft?.files.some((file) => file.kind === "VIDEO") &&
+        !entry.draft.files.some((file) => file.kind === "CAPTIONS")
+      ) {
+        return route.fulfill({
+          headers: cors,
+          json: {
+            data: null,
+            errors: [
+              {
+                message: "Cada cápsula necesita subtítulos en su idioma",
+                extensions: {
+                  code: "BAD_REQUEST",
+                  originalError: {
+                    statusCode: 400,
+                    code: "EDITORIAL_CAPTIONS_REQUIRED",
+                  },
+                },
+              },
+            ],
+          },
+        });
+      }
       entry.version++;
       if (operationName === "SaveEditorial" && input) {
         entry.draft = {
@@ -380,10 +404,19 @@ test("Administration previews a restricted guide and readers gain access when th
     await page
       .getByRole("combobox", { name: "Tipo de archivo" })
       .selectOption(kind);
-    if (kind === "CAPTIONS")
+    if (kind === "CAPTIONS") {
+      await page.getByRole("button", { name: "Guardar borrador" }).click();
+      await page.getByRole("button", { name: "Publicar", exact: true }).click();
+      await expect(
+        page.getByText(
+          "Para publicar, sube un archivo de Subtítulos WebVTT (.vtt) en el idioma de cada cápsula y vincúlalo al video correspondiente. Después, guarda el borrador y vuelve a publicar.",
+        ),
+      ).toBeVisible();
+      expect([...entries.values()][0].status).toBe("DRAFT");
       await page
         .getByRole("combobox", { name: "Cápsula de estos subtítulos" })
         .selectOption({ label: videoName });
+    }
     await page
       .locator("input[type=file]")
       .setInputFiles(resolve(fixtures, name));
