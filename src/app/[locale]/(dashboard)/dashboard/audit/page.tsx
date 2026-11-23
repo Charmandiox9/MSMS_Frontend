@@ -1,16 +1,13 @@
-'use client';
+import { getTranslations } from 'next-intl/server';
+import DashboardPageHeader from '@/components/dashboard/DashboardPageHeader';
+import SystemAuditLog from './SystemAuditLog';
 
-import { ShieldCheck } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import UnderDevelopmentPlaceholder from '@/components/dashboard/UnderDevelopmentPlaceholder';
-
-export default function AuditPage() {
-  const t = useTranslations('DashboardNav');
-
+export default async function AuditPage() {
+  const t = await getTranslations('SystemAudit');
   return (
-    <UnderDevelopmentPlaceholder
-      moduleTitle={t('audit')}
-      icon={ShieldCheck}
-    />
+    <div className="space-y-6">
+      <DashboardPageHeader title={t('title')} subtitle={t('description')} />
+      <SystemAuditLog />
+    </div>
   );
 }

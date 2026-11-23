@@ -680,6 +680,36 @@
     "clear": "Borrar búsqueda",
     "searching": "Buscando…"
   },
+  "SystemAudit": {
+    "title": "Auditoría del sistema",
+    "description": "Consulta los cambios de cuentas y roles registrados en MARSYS.",
+    "activity": "Actividad de administración de usuarios",
+    "filterAction": "Tipo de acción",
+    "allActions": "Todas las acciones",
+    "columns": {
+      "date": "Fecha y hora de Chile",
+      "action": "Acción",
+      "actor": "Realizado por",
+      "target": "Cuenta o precarga afectada"
+    },
+    "actions": {
+      "PRELOAD_CREATED": "Precarga creada",
+      "PRELOAD_CANCELLED": "Precarga cancelada",
+      "ROLE_ASSIGNED": "Rol asignado",
+      "ROLE_REVOKED": "Rol revocado",
+      "ACCOUNT_ACTIVATED": "Cuenta activada",
+      "ACCOUNT_DEACTIVATED": "Cuenta desactivada",
+      "ACCOUNT_DELETED": "Cuenta eliminada"
+    },
+    "unknownAccount": "Cuenta no disponible",
+    "preload": "Precarga",
+    "loading": "Cargando actividad…",
+    "forbidden": "Solo Administración del Sistema puede consultar esta página.",
+    "empty": "Aún no hay actividad registrada.",
+    "noMatches": "No hay eventos de este tipo.",
+    "error": "No se pudo cargar la actividad de auditoría.",
+    "retry": "Reintentar"
+  },
   "Pagination": {
     "summary": "Página {page} de {totalPages} · {total} registros",
     "previous": "Página anterior",

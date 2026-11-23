@@ -680,6 +680,36 @@
     "clear": "Clear search",
     "searching": "Searching…"
   },
+  "SystemAudit": {
+    "title": "System audit",
+    "description": "Review account and role changes recorded in MARSYS.",
+    "activity": "User administration activity",
+    "filterAction": "Action type",
+    "allActions": "All actions",
+    "columns": {
+      "date": "Date and time in Chile",
+      "action": "Action",
+      "actor": "Performed by",
+      "target": "Affected account or preload"
+    },
+    "actions": {
+      "PRELOAD_CREATED": "Preload created",
+      "PRELOAD_CANCELLED": "Preload cancelled",
+      "ROLE_ASSIGNED": "Role assigned",
+      "ROLE_REVOKED": "Role revoked",
+      "ACCOUNT_ACTIVATED": "Account activated",
+      "ACCOUNT_DEACTIVATED": "Account deactivated",
+      "ACCOUNT_DELETED": "Account deleted"
+    },
+    "unknownAccount": "Account unavailable",
+    "preload": "Preload",
+    "loading": "Loading activity…",
+    "forbidden": "Only system administrators can view this page.",
+    "empty": "No activity has been recorded yet.",
+    "noMatches": "There are no events of this type.",
+    "error": "Could not load audit activity.",
+    "retry": "Try again"
+  },
   "Pagination": {
     "summary": "Page {page} of {totalPages} · {total} records",
     "previous": "Previous page",
