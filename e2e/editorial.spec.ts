@@ -55,6 +55,9 @@ test("Administration previews a restricted guide and readers gain access when th
   browser,
 }) => {
   const entries = new Map<string, EditorialManagedEntry>();
+  let interruptedUploadId: string | undefined;
+  let retriedUpload = false;
+  let failNextList = true;
   const assets = new Map<
     string,
     { file: EditorialFileView; binary?: Buffer; mime: string }
@@ -102,6 +105,10 @@ test("Administration previews a restricted guide and readers gain access when th
         );
       const filters = variables?.filters;
       if (operationName === "EditorialPublications") {
+        if (failNextList) {
+          failNextList = false;
+          return route.fulfill({ status: 503, headers: cors, json: {} });
+        }
         const items = visible.filter(
           (entry) =>
             (!filters?.kind || filters.kind === entry.kind) &&
@@ -131,9 +138,20 @@ test("Administration previews a restricted guide and readers gain access when th
       }
       if (operationName === "EditorialPublication") {
         const item = visible.find((entry) => entry.id === variables?.id);
-        return reply({
-          editorialPublication: item ? readerEntry(item) : null,
-        });
+        return item
+          ? reply({ editorialPublication: readerEntry(item) })
+          : route.fulfill({
+              headers: cors,
+              json: {
+                data: null,
+                errors: [
+                  {
+                    message: "Publicación no disponible",
+                    extensions: { originalError: { statusCode: 404 } },
+                  },
+                ],
+              },
+            });
       }
       if (!/Editorial/.test(operationName)) return route.fallback();
 
@@ -211,6 +229,11 @@ test("Administration previews a restricted guide and readers gain access when th
         entry.featured = !!variables?.featured;
         return reply({ setEditorialFeatured: graphEntry(entry) });
       }
+      if (operationName === "ArchiveEditorial") {
+        entry.status = "ARCHIVED";
+        entry.featured = false;
+        return reply({ archiveEditorialEntry: graphEntry(entry) });
+      }
       throw new Error(`Unexpected GraphQL operation ${operationName}`);
     });
 
@@ -257,6 +280,11 @@ test("Administration previews a restricted guide and readers gain access when th
       if (!asset) return route.fulfill({ status: 404, headers: cors });
       if (action === "upload") {
         expect(request.headers()["content-type"]).toBe(asset.mime);
+        if (!interruptedUploadId) {
+          interruptedUploadId = id;
+          return route.abort("connectionreset");
+        }
+        if (id === interruptedUploadId) retriedUpload = true;
         const fixture = await readFile(resolve(fixtures, asset.file.fileName));
         const uploaded = request.postDataBuffer();
         if (uploaded?.length) expect(uploaded.equals(fixture)).toBe(true);
@@ -312,6 +340,14 @@ test("Administration previews a restricted guide and readers gain access when th
 
   await fixtureRoute(context);
   await loginAs(context, "admin");
+  await page.goto("/dashboard/updates");
+  await expect(
+    page.getByRole("alert").getByText("No pudimos cargar el contenido."),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Reintentar" }).press("Enter");
+  await expect(
+    page.getByText("Todavía no se han publicado novedades."),
+  ).toBeVisible();
   await page.goto("/dashboard/editorial");
   await page.getByRole("button", { name: "Nueva guía" }).click();
   await expect(
@@ -352,10 +388,14 @@ test("Administration previews a restricted guide and readers gain access when th
       .locator("input[type=file]")
       .setInputFiles(resolve(fixtures, name));
     await page.getByRole("button", { name: "Subir archivo" }).click();
+    if (kind === "PDF") {
+      await page.getByRole("button", { name: "Reintentar" }).click();
+    }
     await expect(
       page.getByRole("button", { name: `Reemplazar ${name}` }),
     ).toBeVisible();
   }
+  expect(retriedUpload).toBe(true);
 
   await page.getByRole("button", { name: "Vista previa" }).click();
   await expect(
@@ -372,6 +412,27 @@ test("Administration previews a restricted guide and readers gain access when th
   await page.getByRole("button", { name: "Publicar", exact: true }).click();
   await expect(page.getByText("Publicada", { exact: true })).toBeVisible();
   const guide = [...entries.values()][0];
+  const initialManual = guide.published?.files.find(
+    (file) => file.kind === "PDF",
+  )?.id;
+  expect(initialManual).toBeDefined();
+  await page.getByRole("button", { name: `Reemplazar ${manualName}` }).click();
+  await page
+    .locator("input[type=file]")
+    .setInputFiles(resolve(fixtures, manualName));
+  await page.getByRole("button", { name: "Subir archivo" }).click();
+  await page.getByRole("button", { name: "Guardar borrador" }).click();
+  await expect(
+    page.getByRole("button", { name: "Publicar", exact: true }),
+  ).toBeEnabled();
+  expect(guide.published?.files.find((file) => file.kind === "PDF")?.id).toBe(
+    initialManual,
+  );
+  expect(guide.draft?.files.find((file) => file.kind === "PDF")?.id).not.toBe(
+    initialManual,
+  );
+  await page.getByRole("button", { name: "Publicar", exact: true }).click();
+  await expect(page.getByText("Publicada", { exact: true })).toBeVisible();
 
   await page
     .getByRole("link", { name: "Volver a la gestión editorial" })
@@ -407,6 +468,10 @@ test("Administration previews a restricted guide and readers gain access when th
     await fixtureRoute(reader);
     await loginAs(reader, "multi");
     const view = await reader.newPage();
+    await view.goto(`${origin}/dashboard/updates/guides/${guide.id}`);
+    await expect(
+      view.getByText("Esta publicación ya no está disponible."),
+    ).toBeVisible();
     await view.goto(`${origin}/dashboard/updates`);
     await view.getByRole("link", { name: newsTitle }).click();
     await expect(view.getByRole("heading", { name: newsTitle })).toBeVisible();
@@ -436,7 +501,9 @@ test("Administration previews a restricted guide and readers gain access when th
       .click();
     expect((await download).suggestedFilename()).toBe(manualName);
     await expect(view.locator("video")).toHaveCount(0);
-    await view.getByRole("button", { name: "Abrir reproductor" }).click();
+    await view
+      .getByRole("button", { name: "Abrir reproductor" })
+      .press("Enter");
     await expect(view.locator("video track")).toHaveAttribute("srclang", "es");
     await expect
       .poll(() =>
@@ -445,6 +512,18 @@ test("Administration previews a restricted guide and readers gain access when th
           .evaluate((node: HTMLVideoElement) => node.readyState),
       )
       .toBeGreaterThan(0);
+    await view.locator("video").evaluate(async (video: HTMLVideoElement) => {
+      video.muted = true;
+      video.currentTime = 15;
+      await video.play();
+    });
+    await expect
+      .poll(() =>
+        view
+          .locator("video")
+          .evaluate((video: HTMLVideoElement) => video.currentTime),
+      )
+      .toBeGreaterThan(15);
     await expect
       .poll(() =>
         view
@@ -463,8 +542,25 @@ test("Administration previews a restricted guide and readers gain access when th
       view.getByRole("heading", { name: "Updates and guides" }),
     ).toBeVisible();
     await view.getByRole("combobox", { name: "Format" }).selectOption("VIDEO");
+    await view
+      .getByRole("searchbox", { name: "Search by title or summary" })
+      .fill("sin resultados esperados");
+    await expect(
+      view.getByText("No content matches these filters."),
+    ).toBeVisible();
+    await view
+      .getByRole("searchbox", { name: "Search by title or summary" })
+      .clear();
     await view.getByRole("link", { name: guideTitle }).click();
     await expect(view.getByText("Content available in Spanish.")).toBeVisible();
+    await page.goto(`/dashboard/editorial/${guide.id}`);
+    await page.getByRole("button", { name: "Archivar", exact: true }).click();
+    await page.getByRole("button", { name: "Confirmar archivo" }).click();
+    await expect(page.getByText("Archivada", { exact: true })).toBeVisible();
+    await view.reload();
+    await expect(
+      view.getByText("This publication is no longer available."),
+    ).toBeVisible();
   } finally {
     await reader.close();
   }
