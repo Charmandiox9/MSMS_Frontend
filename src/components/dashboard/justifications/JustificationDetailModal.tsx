@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   Calendar,
   Clock,
-  ExternalLink,
   FileText,
   Hash,
   Loader2,
@@ -15,6 +14,7 @@ import {
 import { useTranslations } from "next-intl";
 import Modal from "@/components/ui/Modal";
 import JustificationStatusBadge from "./JustificationStatusBadge";
+import EvidenceActions from "./EvidenceActions";
 import type {
   Justification,
   JustificationReasonCategory,
@@ -25,7 +25,6 @@ interface JustificationDetailModalProps {
   item: Justification | null;
   isOpen: boolean;
   onClose: () => void;
-  onEvidence: (id: string) => Promise<void>;
   mode?: "view" | "decision";
   onDecision?: (
     status: Exclude<JustificationStatus, "PENDING">,
@@ -89,7 +88,6 @@ export default function JustificationDetailModal({
   item,
   isOpen,
   onClose,
-  onEvidence,
   mode = "view",
   onDecision,
   isProcessing = false,
@@ -101,7 +99,6 @@ export default function JustificationDetailModal({
   const [rejectionReason, setRejectionReason] = useState(
     item?.rejectionReason ?? "",
   );
-  const [openingEvidence, setOpeningEvidence] = useState(false);
   const [formItem, setFormItem] = useState(item);
 
   // Al cambiar de justificación, el formulario parte con sus valores guardados.
@@ -116,15 +113,6 @@ export default function JustificationDetailModal({
   if (!isOpen || !item) {
     return null;
   }
-
-  const handleOpenEvidence = async () => {
-    setOpeningEvidence(true);
-    try {
-      await onEvidence(item.id);
-    } finally {
-      setOpeningEvidence(false);
-    }
-  };
 
   const handleDecision = async (
     status: Exclude<JustificationStatus, "PENDING">,
@@ -149,23 +137,6 @@ export default function JustificationDetailModal({
     </div>
   );
 
-  const headerActions = (
-    <button
-      type="button"
-      onClick={handleOpenEvidence}
-      disabled={openingEvidence}
-      className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary transition hover:border-primary/50 hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-60"
-      title={t("detail.evidence")}
-    >
-      {openingEvidence ? (
-        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-      ) : (
-        <ExternalLink className="h-3.5 w-3.5" />
-      )}
-      <span>{t("detail.evidence")}</span>
-    </button>
-  );
-
   return (
     <Modal
       isOpen={isOpen}
@@ -173,10 +144,22 @@ export default function JustificationDetailModal({
       size="2xl"
       eyebrow={t("detail.eyebrow")}
       title={modalTitle}
-      headerActions={headerActions}
       closeLabel={t("detail.close")}
     >
       <div className="space-y-6">
+        <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3.5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              {t("detail.evidence")}
+            </h3>
+            <p className="mt-1 text-sm font-semibold text-foreground">
+              {item.evidenceKey ? t("detail.evidenceAttached") : t("detail.notAvailable")}
+            </p>
+          </div>
+          {item.evidenceKey && (
+            <EvidenceActions key={item.id} id={item.id} contentType={item.evidenceContentType} />
+          )}
+        </section>
         <section className="grid gap-4 sm:grid-cols-2">
           {item.student && (
             <DetailItem
@@ -212,15 +195,6 @@ export default function JustificationDetailModal({
               item.blocks,
               t("detail.scheduleBlockEmpty"),
             )}
-          />
-          <DetailItem
-            icon={FileText}
-            label={t("detail.evidence")}
-            value={
-              item.evidenceKey
-                ? t("detail.evidenceAttached")
-                : t("detail.notAvailable")
-            }
           />
         </section>
 

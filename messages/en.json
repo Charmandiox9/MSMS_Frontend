@@ -575,7 +575,12 @@
       "reason": "Form note",
       "reasonCategory": "Absence reason",
       "reasonCategoryPlaceholder": "Select a reason",
-      "evidence": "Open evidence",
+      "evidence": "Evidence",
+      "previewEvidence": "View evidence",
+      "downloadEvidence": "Download evidence",
+      "opensNewTab": " (opens in a new tab)",
+      "previewOpened": "Preview opened.",
+      "downloadStarted": "Download started.",
       "rejectionReason": "Rejection reason (required when rejecting)",
       "rejectionPlaceholder": "Describe the reason that will be sent to the student…",
       "reject": "Reject",
@@ -597,6 +602,8 @@
       "open": "The justification could not be entered.",
       "decision": "The decision could not be recorded.",
       "evidence": "The evidence could not be opened.",
+      "evidenceDownload": "The evidence could not be downloaded.",
+      "evidencePopup": "Allow new tabs to open to view the evidence.",
       "access": "You do not have access to this page."
     }
   },

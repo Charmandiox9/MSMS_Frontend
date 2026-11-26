@@ -9,13 +9,13 @@ function renderModal(item: Justification | null, props: Partial<Parameters<typeo
   const onDecision = vi.fn(() => Promise.resolve());
   const view = render(
     <IntlProvider>
-      <JustificationDetailModal item={item} isOpen={Boolean(item)} onClose={vi.fn()} onEvidence={vi.fn(() => Promise.resolve())} mode="decision" onDecision={onDecision} {...props} />
+      <JustificationDetailModal item={item} isOpen={Boolean(item)} onClose={vi.fn()} mode="decision" onDecision={onDecision} {...props} />
     </IntlProvider>,
   );
   const rerender = (next: Justification | null) =>
     view.rerender(
       <IntlProvider>
-        <JustificationDetailModal item={next} isOpen={Boolean(next)} onClose={vi.fn()} onEvidence={vi.fn(() => Promise.resolve())} mode="decision" onDecision={onDecision} {...props} />
+        <JustificationDetailModal item={next} isOpen={Boolean(next)} onClose={vi.fn()} mode="decision" onDecision={onDecision} {...props} />
       </IntlProvider>,
     );
   return { onDecision, rerender };
@@ -25,6 +25,16 @@ const category = () => screen.getByLabelText('Motivo de la inasistencia') as HTM
 const rejection = () => screen.getByLabelText(/Motivo del rechazo/) as HTMLTextAreaElement;
 
 describe('JustificationDetailModal', () => {
+  it('ofrece ambas acciones para PDF y solo descarga para otros formatos', () => {
+    const { rerender } = renderModal(justification());
+    expect(screen.getByRole('button', { name: /Ver evidencia/ })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Descargar evidencia' })).toBeDefined();
+
+    rerender(justification({ evidenceContentType: 'application/octet-stream' }));
+    expect(screen.queryByRole('button', { name: /Ver evidencia/ })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Descargar evidencia' })).toBeDefined();
+  });
+
   it('muestra el estudiante vinculado y conserva el correo enviado por el formulario', () => {
     renderModal(justification({ studentEmail: 'form@example.test', student: { id: 'student-1', name: 'Ana Soto', email: 'nuevo@example.test' } }));
     expect(screen.getByText('Estudiante registrado')).toBeDefined();
@@ -39,7 +49,7 @@ describe('JustificationDetailModal', () => {
   it('no renderiza nada cerrado', () => {
     const { container } = render(
       <IntlProvider>
-        <JustificationDetailModal item={null} isOpen={false} onClose={vi.fn()} onEvidence={vi.fn()} />
+        <JustificationDetailModal item={null} isOpen={false} onClose={vi.fn()} />
       </IntlProvider>,
     );
 

@@ -575,7 +575,12 @@
       "reason": "Observación del formulario",
       "reasonCategory": "Motivo de la inasistencia",
       "reasonCategoryPlaceholder": "Selecciona un motivo",
-      "evidence": "Abrir evidencia",
+      "evidence": "Evidencia",
+      "previewEvidence": "Ver evidencia",
+      "downloadEvidence": "Descargar evidencia",
+      "opensNewTab": " (se abre en una pestaña nueva)",
+      "previewOpened": "Vista previa abierta.",
+      "downloadStarted": "Descarga iniciada.",
       "rejectionReason": "Motivo del rechazo (obligatorio al rechazar)",
       "rejectionPlaceholder": "Describe el motivo que se notificará al alumno…",
       "reject": "Rechazar",
@@ -597,6 +602,8 @@
       "open": "No se pudo ingresar la justificación.",
       "decision": "No se pudo registrar la decisión.",
       "evidence": "No se pudo abrir la evidencia.",
+      "evidenceDownload": "No se pudo descargar la evidencia.",
+      "evidencePopup": "Permite abrir pestañas nuevas para ver la evidencia.",
       "access": "No tienes acceso a esta página."
     }
   },

@@ -176,8 +176,8 @@ describe('JustificationsManagementPage (histórico para secretaría)', () => {
     expect(tableRows()).toHaveLength(10);
   });
 
-  it('abre el detalle en modo lectura y permite abrir la evidencia', async () => {
-    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+  it('abre el detalle en modo lectura y permite descargar la evidencia', async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
     installFakeApi({
       'GET /justifications': ok([HISTORY[0]]),
       'GET /justifications/j-1/evidence-url': ok({ downloadUrl: 'https://r2.test/e.pdf' }),
@@ -190,8 +190,9 @@ describe('JustificationsManagementPage (histórico para secretaría)', () => {
     expect(within(modal).queryByRole('button', { name: 'Aceptar' })).toBeNull();
     expect(within(modal).queryByLabelText('Motivo de la inasistencia')).toBeNull();
 
-    fireEvent.click(within(modal).getByRole('button', { name: 'Abrir evidencia' }));
-    await waitFor(() => expect(open).toHaveBeenCalledWith('https://r2.test/e.pdf', '_blank', 'noopener,noreferrer'));
+    fireEvent.click(within(modal).getByRole('button', { name: 'Descargar evidencia' }));
+    await waitFor(() => expect(click).toHaveBeenCalledOnce());
+    expect(click.mock.contexts[0]).toMatchObject({ href: 'https://r2.test/e.pdf', rel: 'noreferrer' });
   });
 
   it('muestra el error del backend si falla la carga', async () => {

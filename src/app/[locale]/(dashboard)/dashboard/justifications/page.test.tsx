@@ -300,54 +300,41 @@ describe("JustificationsPage (coordinación de apoyo docente)", () => {
     ).toBeNull();
   });
 
-  it("abre la evidencia en una pestaña nueva sin acceso a la ventana de origen", async () => {
-    const open = vi.spyOn(window, "open").mockReturnValue(null);
+  it("abre la vista previa en una pestaña separada de MARSYS", async () => {
+    const tab = { opener: window, location: { replace: vi.fn() }, close: vi.fn() };
+    const open = vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window);
     installFakeApi({
       "GET /justifications/inbox": ok([]),
       "GET /justifications": ok([justification()]),
-      "GET /justifications/j-1/evidence-url": ok({
-        downloadUrl: "https://r2.test/evidencia.pdf?sig=1",
-      }),
+      "GET /justifications/j-1/evidence-url": ({ query }) => {
+        expect(query.get("mode")).toBe("preview");
+        return { body: { downloadUrl: "https://r2.test/evidencia.pdf?sig=1" } };
+      },
     });
-
     renderAs(<JustificationsPage />, [...COORDINATOR]);
-    fireEvent.click(
-      await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }),
-    );
-    fireEvent.click(
-      within(dialog()).getByRole("button", { name: "Abrir evidencia" }),
-    );
+    fireEvent.click(await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }));
+    fireEvent.click(within(dialog()).getByRole("button", { name: /Ver evidencia/ }));
 
-    await waitFor(() =>
-      expect(open).toHaveBeenCalledWith(
-        "https://r2.test/evidencia.pdf?sig=1",
-        "_blank",
-        "noopener,noreferrer",
-      ),
-    );
+    expect(open).toHaveBeenCalledWith("about:blank", "_blank");
+    expect(tab.opener).toBeNull();
+    await waitFor(() => expect(tab.location.replace).toHaveBeenCalledWith("https://r2.test/evidencia.pdf?sig=1"));
   });
 
-  it("informa si la evidencia no está disponible", async () => {
+  it("cierra la pestaña e informa si falla la vista previa", async () => {
+    const tab = { opener: window, location: { replace: vi.fn() }, close: vi.fn() };
+    vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window);
     installFakeApi({
       "GET /justifications/inbox": ok([]),
       "GET /justifications": ok([justification()]),
-      "GET /justifications/j-1/evidence-url": fail(
-        503,
-        "Almacenamiento no configurado",
-      ),
+      "GET /justifications/j-1/evidence-url": fail(503, "Almacenamiento no configurado"),
     });
-
     renderAs(<JustificationsPage />, [...COORDINATOR]);
-    fireEvent.click(
-      await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }),
-    );
-    fireEvent.click(
-      within(dialog()).getByRole("button", { name: "Abrir evidencia" }),
-    );
+    fireEvent.click(await screen.findByRole("button", { name: /Cálculo I · NRC 1234/ }));
+    fireEvent.click(within(dialog()).getByRole("button", { name: /Ver evidencia/ }));
 
-    expect(
-      await screen.findByText("Almacenamiento no configurado"),
-    ).toBeDefined();
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("No se pudo abrir la evidencia."));
+    expect(tab.close).toHaveBeenCalledOnce();
+    expect(tab.location.replace).not.toHaveBeenCalled();
   });
 
   it("filtra el historial por estado", async () => {

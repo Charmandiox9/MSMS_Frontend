@@ -111,7 +111,6 @@ function countBy(
 
 export default function JustificationsManagementPage() {
   const t = useTranslations("JustificationsManagementPage");
-  const tDetail = useTranslations("JustificationsPage.detail");
   const { activeRole } = useActiveRole();
 
   const [justifications, setJustifications] = useState<Justification[]>([]);
@@ -195,19 +194,6 @@ export default function JustificationsManagementPage() {
     () => countBy(filtered, (item) => item.reasonCategory ?? "OTHER"),
     [filtered],
   );
-
-  const openEvidence = async (id: string) => {
-    try {
-      const result = await apiFetch<{ downloadUrl: string }>(
-        `/justifications/${id}/evidence-url`,
-      );
-      window.open(result.downloadUrl, "_blank", "noopener,noreferrer");
-    } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : tDetail("evidence");
-      toast.error(message);
-    }
-  };
 
   const handleResetFilters = () => {
     setStatus("ALL");
@@ -491,7 +477,6 @@ export default function JustificationsManagementPage() {
         item={selectedJustification}
         isOpen={Boolean(selectedJustification)}
         onClose={() => setSelectedJustification(null)}
-        onEvidence={openEvidence}
         mode="view"
       />
     </div>

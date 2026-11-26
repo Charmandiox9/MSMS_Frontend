@@ -219,20 +219,6 @@ export default function JustificationsPage() {
     }
   };
 
-  const openEvidence = async (id: string) => {
-    try {
-      const result = await apiFetch<{ downloadUrl: string }>(
-        `/justifications/${id}/evidence-url`,
-      );
-      window.open(result.downloadUrl, "_blank", "noopener,noreferrer");
-    } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : t("errors.evidence");
-      setActionError(message);
-      toast.error(message);
-    }
-  };
-
   if (activeRole === null) {
     return <PageSkeleton label={t("loading")} />;
   }
@@ -537,7 +523,6 @@ export default function JustificationsPage() {
         item={selected}
         isOpen={Boolean(selected)}
         onClose={() => setSelected(null)}
-        onEvidence={openEvidence}
         mode="decision"
         onDecision={handleDecision}
         isProcessing={isProcessing}
