@@ -245,7 +245,11 @@ export const DASHBOARD_SECTIONS: NavigationSection[] = [
         key: "settings",
         href: "/dashboard/settings",
         icon: Settings,
-        allowedRoles: ["SYSTEM_ADMIN", "ACADEMIC_SECRETARY"],
+        allowedRoles: [
+          "SYSTEM_ADMIN",
+          "ACADEMIC_SECRETARY",
+          "ACADEMIC_PROCESS_ANALYST",
+        ],
       },
       {
         key: "editorial",

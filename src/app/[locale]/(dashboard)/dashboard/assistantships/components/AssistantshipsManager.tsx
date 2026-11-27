@@ -72,18 +72,12 @@ export default function AssistantshipsManager() {
 
   return (
     <ApolloProvider client={client}>
-      <AssistantshipsWorkspace
-        readOnly={activeRole === "ACADEMIC_PROCESS_ANALYST"}
-      />
+      <AssistantshipsWorkspace />
     </ApolloProvider>
   );
 }
 
-export function AssistantshipsWorkspace({
-  readOnly = false,
-}: {
-  readOnly?: boolean;
-}) {
+export function AssistantshipsWorkspace() {
   const t = useTranslations("AssistantshipsPage");
   const [filters, setFilters] = useState<Filters>({
     search: "",
@@ -234,13 +228,11 @@ export function AssistantshipsWorkspace({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-          {!readOnly && (
-            <button type="button" className={buttonClass} onClick={() => setApplicationsOpen(true)}>
-              <ClipboardList aria-hidden="true" className="size-4" />
-              {applicationsText("title")}
-            </button>
-          )}
-          {!readOnly && budgetSemesterId && (
+          <button type="button" className={buttonClass} onClick={() => setApplicationsOpen(true)}>
+            <ClipboardList aria-hidden="true" className="size-4" />
+            {applicationsText("title")}
+          </button>
+          {budgetSemesterId && (
             <button
               type="button"
               className={buttonClass}
@@ -250,21 +242,19 @@ export function AssistantshipsWorkspace({
               {t("tariffs.configure")}
             </button>
           )}
-          {!readOnly && (
-            <button
-              type="button"
-              className={primaryClass}
-              disabled={!options.data || failed}
-              onClick={() => {
-                setEditing(null);
-                setRegistrationApplication(null);
-                setDialogOpen(true);
-              }}
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              {t("register")}
-            </button>
-          )}
+          <button
+            type="button"
+            className={primaryClass}
+            disabled={!options.data || failed}
+            onClick={() => {
+              setEditing(null);
+              setRegistrationApplication(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            {t("register")}
+          </button>
           <button
             type="button"
             className="btn-cta-secondary"
@@ -446,14 +436,10 @@ export function AssistantshipsWorkspace({
                 setDetailItem(item);
                 setDetailOpen(true);
               }}
-              onEdit={
-                readOnly
-                  ? undefined
-                  : (item) => {
-                      setEditing(item);
-                      setDialogOpen(true);
-                    }
-              }
+              onEdit={(item) => {
+                setEditing(item);
+                setDialogOpen(true);
+              }}
             />
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border p-4">
               <p className="text-xs tabular-nums text-muted-foreground">
@@ -532,19 +518,15 @@ export function AssistantshipsWorkspace({
             setDetailOpen(false);
             setDetailItem(null);
           }}
-          onEdit={
-            readOnly
-              ? undefined
-              : (item) => {
-                  setDetailOpen(false);
-                  setEditing(item);
-                  setDialogOpen(true);
-                }
-          }
+          onEdit={(item) => {
+            setDetailOpen(false);
+            setEditing(item);
+            setDialogOpen(true);
+          }}
         />
       )}
 
-      {!readOnly && applicationsOpen && (
+      {applicationsOpen && (
         <AssistantshipApplicationsDialog
           onClose={() => setApplicationsOpen(false)}
           canComplete={Boolean(options.data?.assistantshipOptions.semesters.length)}
@@ -556,7 +538,7 @@ export function AssistantshipsWorkspace({
           }}
         />
       )}
-      {!readOnly && dialogOpen && options.data && (
+      {dialogOpen && options.data && (
         <RegisterAssistantshipDialog
           key={editing?.id ?? registrationApplication?.id ?? "new"}
           initialRecord={editing ?? undefined}

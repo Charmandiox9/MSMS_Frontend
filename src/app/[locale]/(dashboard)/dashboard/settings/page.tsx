@@ -17,8 +17,10 @@ export default function SettingsPage() {
   const t = useTranslations("SemesterSettingsPage");
   const format = useFormatter();
   const { activeRole } = useActiveRole();
-  const canManage =
+  const canManageSemesters =
     activeRole === "SYSTEM_ADMIN" || activeRole === "ACADEMIC_SECRETARY";
+  const canManageBudget =
+    canManageSemesters || activeRole === "ACADEMIC_PROCESS_ANALYST";
   const [semesters, setSemesters] = useState<Semester[] | "error" | null>(null);
   const [reload, setReload] = useState(0);
   const [budgetRevision, setBudgetRevision] = useState(0);
@@ -28,7 +30,7 @@ export default function SettingsPage() {
   const [budgetSemester, setBudgetSemester] = useState<Semester | null>(null);
 
   useEffect(() => {
-    if (!canManage) return;
+    if (!canManageBudget) return;
     let current = true;
     apiFetch<Semester[]>("/academic/semesters")
       .then((data) => {
@@ -40,10 +42,10 @@ export default function SettingsPage() {
     return () => {
       current = false;
     };
-  }, [canManage, reload]);
+  }, [canManageBudget, reload]);
 
   if (activeRole === null) return <PageSkeleton />;
-  if (!canManage)
+  if (!canManageBudget)
     return (
       <p className="py-16 text-center text-sm text-muted-foreground">
         {t("errors.access")}
@@ -73,15 +75,17 @@ export default function SettingsPage() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
-        <button
-          type="button"
-          disabled={semesters === null}
-          onClick={() => setEditor({ semester: null })}
-          className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-3.5 text-sm font-bold text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-50"
-        >
-          <Plus aria-hidden="true" className="size-4" />
-          {t("activate")}
-        </button>
+        {canManageSemesters && (
+          <button
+            type="button"
+            disabled={semesters === null}
+            onClick={() => setEditor({ semester: null })}
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-3.5 text-sm font-bold text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-50"
+          >
+            <Plus aria-hidden="true" className="size-4" />
+            {t("activate")}
+          </button>
+        )}
       </header>
 
       {semesters === null && <CardsSkeleton count={2} />}
@@ -136,7 +140,7 @@ export default function SettingsPage() {
                   </p>
                 )}
               </div>
-              {active && (
+              {active && canManageSemesters && (
                 <button
                   type="button"
                   onClick={() => setEditor({ semester: active })}
@@ -203,7 +207,7 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {editor && (
+      {canManageSemesters && editor && (
         <SemesterEditor
           semester={editor.semester}
           onClose={() => setEditor(null)}

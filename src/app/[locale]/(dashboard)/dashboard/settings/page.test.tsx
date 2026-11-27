@@ -28,12 +28,9 @@ describe("SettingsPage (semestre activo)", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.unstubAllGlobals());
 
-  it.each([
-    ["TEACHING_SUPPORT_COORDINATOR"],
-    ["ACADEMIC_PROCESS_ANALYST"],
-  ] as const)("bloquea la vista para %s", async (role) => {
+  it("bloquea la vista para Apoyo Docente", async () => {
     const api = installFakeApi();
-    renderAs(<SettingsPage />, [role]);
+    renderAs(<SettingsPage />, ["TEACHING_SUPPORT_COORDINATOR"]);
 
     expect(
       await screen.findByText("No tienes acceso a esta página."),
@@ -172,7 +169,7 @@ describe("SettingsPage (semestre activo)", () => {
     ).toBeDefined();
   });
 
-  it("muestra la distribución vigente y actualiza los montos al guardar el presupuesto", async () => {
+  it("permite a Análisis ver y guardar el presupuesto sin editar el período académico", async () => {
     const initial = {
       totalAmountClp: 1000000,
       allocations: [{ name: "Ayudantías", amountClp: 200000 }],
@@ -188,9 +185,12 @@ describe("SettingsPage (semestre activo)", () => {
         return { body: current };
       },
     });
-    renderAs(<SettingsPage />, ["SYSTEM_ADMIN"]);
+    renderAs(<SettingsPage />, ["ACADEMIC_PROCESS_ANALYST"]);
 
     expect(await screen.findByText("Ayudantías")).toBeDefined();
+    expect(screen.queryByRole("button", { name: "Activar semestre" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Editar semestre activo" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Presupuesto de 2026-1" })).toBeDefined();
     expect(screen.getByText(/1\.000\.000/)).toBeDefined();
     expect(screen.getByText(/800\.000/)).toBeDefined();
     expect(api.calls("GET /academic/semesters/s-1/budget")).toHaveLength(0);
@@ -201,6 +201,7 @@ describe("SettingsPage (semestre activo)", () => {
       }),
     );
     expect(await screen.findByText(/1\.500\.000/)).toBeDefined();
+    expect(api.calls("PUT /academic/semesters/s-2/budget")).toHaveLength(1);
     expect(screen.getByText(/1\.300\.000/)).toBeDefined();
     expect(screen.queryByRole("dialog")).toBeNull();
   });

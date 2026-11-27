@@ -120,6 +120,30 @@ describe("Navigation configuration and filtering", () => {
     expect(itemKeys).toContain("titulation");
   });
 
+  it("shows budget settings to Análisis de Procesos but keeps them hidden for Apoyo Docente", () => {
+    const analystNavigation = getFilteredNavigation(
+      DASHBOARD_SECTIONS,
+      "ACADEMIC_PROCESS_ANALYST",
+    );
+    expect(
+      analystNavigation.flatMap(({ items }) => items.map(({ key }) => key)),
+    ).toContain("settings");
+    expect(
+      isRouteAllowed(
+        "/dashboard/settings",
+        DASHBOARD_SECTIONS,
+        "ACADEMIC_PROCESS_ANALYST",
+      ),
+    ).toBe(true);
+    expect(
+      isRouteAllowed(
+        "/dashboard/settings",
+        DASHBOARD_SECTIONS,
+        "TEACHING_SUPPORT_COORDINATOR",
+      ),
+    ).toBe(false);
+  });
+
   it("should provide workload and operational justifications for TEACHING_SUPPORT_COORDINATOR", () => {
     const filtered = getFilteredNavigation(
       DASHBOARD_SECTIONS,

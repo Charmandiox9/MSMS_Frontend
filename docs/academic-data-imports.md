@@ -27,8 +27,10 @@ En **Profesores y NRC**, revisa **Presupuesto de profesores por hora** para ver
 el monto asignado y el compromiso estimado de los contratos PH del semestre
 activo. La tarjeta se actualiza al completar la importación de pagos PH.
 
-Si tienes permisos para editar el presupuesto, abre **Configuración** y
-selecciona **Editar presupuesto** o **Configurar presupuesto**. Usa las
+Desde la vista de Administración, Secretaría Docente o Análisis de Procesos,
+abre **Configuración** y selecciona **Editar presupuesto** o
+**Configurar presupuesto** en el semestre activo. Para un período anterior,
+elige **Presupuesto** en su fila del historial. Usa las
 categorías precargadas **Profesores por hora** y **Ayudantías**, o elige
 **Agregar categoría**, escribe un nombre y selecciona el módulo en
 **Vincular con**. Cada módulo admite una categoría por semestre. Para

@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   fireEvent,
   render,
@@ -23,7 +23,9 @@ import {
   type Assistantship,
   type Filters,
 } from "../graphql";
-import { AssistantshipsWorkspace } from "./AssistantshipsManager";
+import { installFakeApi } from "@/test/fake-api";
+import { renderAs } from "@/test/render";
+import AssistantshipsManager, { AssistantshipsWorkspace } from "./AssistantshipsManager";
 import RegisterAssistantshipDialog from "./RegisterAssistantshipDialog";
 
 const notifications = vi.hoisted(() => ({
@@ -171,42 +173,53 @@ beforeAll(() => {
   };
 });
 beforeEach(() => vi.clearAllMocks());
+afterEach(() => vi.unstubAllGlobals());
 
 describe("assistantship management", { timeout: 15000 }, () => {
-  it("provides read-only history to the analyst", async () => {
-    render(
-      <NextIntlClientProvider locale="es" messages={messages}>
-        <MockedProvider
-          mocks={[
-            optionsMock,
-            budgetMock,
-            {
-              request: { query: HISTORY, variables: () => true },
-              result: {
-                data: {
-                  assistantships: {
-                    items: [item],
-                    total: 1,
-                    assistants: 1,
-                    semesters: 1,
-                    page: 1,
-                    totalPages: 1,
-                  },
-                },
-              },
+  it.each(["ACADEMIC_PROCESS_ANALYST", "TEACHING_SUPPORT_COORDINATOR"] as const)(
+    "exposes assistantship management actions for %s",
+    async (role) => {
+      const responses = {
+        AssistantshipOptions: optionsMock.result,
+        AssistantshipBudgetSummary: budgetMock.result,
+        Assistantships: {
+          data: {
+            assistantships: {
+              items: [item],
+              total: 1,
+              assistants: 1,
+              semesters: 1,
+              page: 1,
+              totalPages: 1,
             },
-          ]}
-        >
-          <AssistantshipsWorkspace readOnly />
-        </MockedProvider>
-      </NextIntlClientProvider>,
-    );
-    expect(await screen.findByText("Ana Pérez")).toBeDefined();
-    expect(
-      screen.queryByRole("button", { name: "Registrar ayudantía" }),
-    ).toBeNull();
-    expect(screen.queryByRole("button", { name: "Editar" })).toBeNull();
-  });
+          },
+        },
+      };
+      installFakeApi({
+        "POST /graphql": ({ body }) => {
+          const { operationName } = body as {
+            operationName: keyof typeof responses;
+          };
+          return { body: responses[operationName] };
+        },
+      });
+      renderAs(<AssistantshipsManager />, [role]);
+
+      expect(await screen.findByText("Ana Pérez")).toBeDefined();
+      expect(
+        await screen.findByRole("button", { name: "Configurar tarifas" }),
+      ).toBeDefined();
+      expect(
+        screen.getByRole<HTMLButtonElement>("button", {
+          name: "Registrar ayudantía",
+        }).disabled,
+      ).toBe(false);
+      expect(screen.getByRole("button", { name: "Editar" })).toBeDefined();
+      expect(
+        screen.getByRole("button", { name: "Postulaciones de ayudantía" }),
+      ).toBeDefined();
+    },
+  );
 
   it("prefills an existing assistantship and sends the update mutation", async () => {
     const result = vi.fn(() => ({ data: { updateAssistantship: item } }));
@@ -672,7 +685,7 @@ describe("assistantship management", { timeout: 15000 }, () => {
             },
           ]}
         >
-          <AssistantshipsWorkspace readOnly />
+          <AssistantshipsWorkspace />
         </MockedProvider>
       </NextIntlClientProvider>,
     );
